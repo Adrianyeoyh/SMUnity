@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - SMUnity</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-hands-helping me-2"></i>SMUnity
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="csp-discovery.html">Find CSPs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="my-applications.html">My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="timesheet.html">Timesheet</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown" id="userDropdown" style="display: none;">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i><span id="userName">User</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                            <li><a class="dropdown-item" href="csp-management.html" id="cspManagementLink" style="display: none;">CSP Management</a></li>
+                            <li><a class="dropdown-item" href="admin-panel.html" id="adminPanelLink" style="display: none;">Admin Panel</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" id="loginNav">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-5">
+        <!-- Hero Section -->
+        <section class="bg-primary text-white py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="display-5 fw-bold mb-3">Admin Panel</h1>
+                        <p class="lead mb-0">Manage users, organizations, and system settings</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Section -->
+        <section class="py-5">
+            <div class="container">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard-pane" type="button" role="tab">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-pane" type="button" role="tab">
+                            <i class="fas fa-users me-2"></i>Users
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="organizations-tab" data-bs-toggle="tab" data-bs-target="#organizations-pane" type="button" role="tab">
+                            <i class="fas fa-building me-2"></i>Organizations
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="csps-tab" data-bs-toggle="tab" data-bs-target="#csps-pane" type="button" role="tab">
+                            <i class="fas fa-list me-2"></i>CSPs
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-pane" type="button" role="tab">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="adminTabContent">
+                    <!-- Dashboard Tab -->
+                    <div class="tab-pane fade show active" id="dashboard-pane" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-2x text-primary mb-3"></i>
+                                        <h4 class="text-primary" id="totalUsers">0</h4>
+                                        <p class="text-muted">Total Users</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-list fa-2x text-success mb-3"></i>
+                                        <h4 class="text-success" id="totalCSPs">0</h4>
+                                        <p class="text-muted">Total CSPs</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-file-alt fa-2x text-info mb-3"></i>
+                                        <h4 class="text-info" id="totalApplications">0</h4>
+                                        <p class="text-muted">Applications</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-building fa-2x text-warning mb-3"></i>
+                                        <h4 class="text-warning" id="totalOrganizations">0</h4>
+                                        <p class="text-muted">Organizations</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Recent CSPs</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="recentCSPsList">
+                                            <!-- Recent CSPs will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">System Status</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>Database</span>
+                                            <span class="badge bg-success">Online</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>Email Service</span>
+                                            <span class="badge bg-success">Online</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>File Storage</span>
+                                            <span class="badge bg-success">Online</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>API</span>
+                                            <span class="badge bg-success">Online</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Tab -->
+                    <div class="tab-pane fade" id="users-pane" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">User Management</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-success btn-sm" onclick="exportUsers()">
+                                    <i class="fas fa-download me-1"></i>Export CSV
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="createUser()">
+                                    <i class="fas fa-plus me-1"></i>Create User
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Users Filters -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <select class="form-select" id="userRoleFilter">
+                                    <option value="">All Roles</option>
+                                    <option value="student">Students</option>
+                                    <option value="csp_leader">CSP Leaders</option>
+                                    <option value="admin">Admins</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="searchUsers" placeholder="Search users...">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-primary w-100" onclick="filterUsers()">
+                                    <i class="fas fa-search me-1"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Users Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Role</th>
+                                                <th>Created</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="usersTableBody">
+                                            <!-- Users will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Organizations Tab -->
+                    <div class="tab-pane fade" id="organizations-pane" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">Organization Management</h5>
+                            <button class="btn btn-primary btn-sm" onclick="createOrganization()">
+                                <i class="fas fa-plus me-1"></i>Create Organization
+                            </button>
+                        </div>
+
+                        <!-- Organizations List -->
+                        <div class="row" id="organizationsList">
+                            <!-- Organizations will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- CSPs Tab -->
+                    <div class="tab-pane fade" id="csps-pane" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">CSP Management</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-success btn-sm" onclick="exportCSPs()">
+                                    <i class="fas fa-download me-1"></i>Export CSV
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="refreshCSPs()">
+                                    <i class="fas fa-sync me-1"></i>Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CSPs Filters -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <select class="form-select" id="cspStatusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="cspCategoryFilter">
+                                    <option value="">All Categories</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Environment">Environment</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Community">Community</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="searchCSPs" placeholder="Search CSPs...">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary w-100" onclick="filterCSPs()">
+                                    <i class="fas fa-search me-1"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CSPs List -->
+                        <div class="row" id="cspsList">
+                            <!-- CSPs will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div class="tab-pane fade" id="settings-pane" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">System Settings</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="systemSettingsForm">
+                                            <div class="mb-3">
+                                                <label for="siteName" class="form-label">Site Name</label>
+                                                <input type="text" class="form-control" id="siteName" value="SMUnity">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="siteDescription" class="form-label">Site Description</label>
+                                                <textarea class="form-control" id="siteDescription" rows="3">Streamlining community service for SMU students</textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="maxCSPsPerUser" class="form-label">Max CSPs per User</label>
+                                                <input type="number" class="form-control" id="maxCSPsPerUser" value="5">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="emailNotifications" class="form-label">Email Notifications</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                                    <label class="form-check-label" for="emailNotifications">
+                                                        Enable email notifications
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Save Settings
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Email Blast</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="emailBlastForm">
+                                            <div class="mb-3">
+                                                <label for="emailSubject" class="form-label">Subject</label>
+                                                <input type="text" class="form-control" id="emailSubject" placeholder="Email subject">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="emailMessage" class="form-label">Message</label>
+                                                <textarea class="form-control" id="emailMessage" rows="4" placeholder="Email message"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="emailRecipients" class="form-label">Recipients</label>
+                                                <select class="form-select" id="emailRecipients">
+                                                    <option value="all">All Users</option>
+                                                    <option value="students">Students Only</option>
+                                                    <option value="csp_leaders">CSP Leaders Only</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-warning">
+                                                <i class="fas fa-paper-plane me-2"></i>Send Email Blast
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>SMUnity</h5>
+                    <p class="text-muted">Streamlining community service for SMU students</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">&copy; 2024 SMUnity. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/admin-panel.js"></script>
+</body>
+</html>
