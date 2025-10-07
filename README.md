@@ -1,205 +1,200 @@
-# SMUnity - Community Service Platform
+# SMUnity - Community Service Platform for SMU Students
 
-SMUnity is a centralized web platform designed to streamline how SMU students discover and apply for community service projects (CSPs) and volunteer opportunities. The platform consolidates all CSP listings into one accessible hub, allowing students to browse available projects, filter them by skills, interests, or location, and apply directly through the site.
+SMUnity is a centralized web platform designed to streamline how Singapore Management University (SMU) students discover and apply for community service projects (CSPs) and volunteer opportunities. The platform addresses the current challenges of scattered information across various channels by providing a unified hub for CSP discovery, application, and management.
 
-## Features
+## 🎯 Key Features
 
 ### For Students
-- **CSP Discovery**: Search and filter CSPs by type, location, and project dates
-- **Visual Map**: View CSPs on an interactive map to find opportunities nearby
-- **Application Management**: Apply for CSPs directly on the platform with status tracking
-- **Timesheet**: Log and track volunteer hours for approved applications
-- **Profile Management**: Manage personal information, skills, and preferences
+- **CSP Discovery & Matching**: Search and filter CSPs by type, location, and project dates
+- **Visual Map Integration**: View CSPs on a map to find opportunities nearby
+- **Direct Application**: Apply for CSPs directly on the platform with status tracking
+- **CSU Module Integration**: Important notices to complete the CSU module on eLearn before applying
+- **Progress Tracking**: Monitor service hours and graduation requirements
+- **Profile Management**: Showcase skills and interests to match with relevant projects
 
 ### For CSP Leaders
-- **Project Management**: Create, modify, or remove CSP listings
-- **Application Review**: Review, accept, or reject applicants
-- **Communication**: Notify students of outcomes through platform messages
-- **Data Export**: Export applicant data to CSV for offline tracking
+- **Project Management**: Create, modify, and remove CSP listings
+- **Application Review**: Review, accept, or reject applicants with notification system
+- **Analytics Dashboard**: Track application statistics and volunteer engagement
 
 ### For Administrators
 - **User Management**: Create, edit, or delete user and CSP organization profiles
-- **System Oversight**: Monitor platform usage and manage system settings
-- **Email Blasts**: Send notifications to all students for newly posted CSPs
+- **Platform Analytics**: Track total service hours, popular causes, and volunteer trends
+- **Content Moderation**: Approve CSP listings and monitor platform activity
 
-## Technology Stack
+## 🛠 Technology Stack
 
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Styling**: Bootstrap 5.3.0, Custom CSS
-- **Icons**: Font Awesome 6.0.0
-- **Maps**: Leaflet 1.9.4
-- **HTTP Client**: Axios
-- **Storage**: LocalStorage (for demo purposes)
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with custom SMU brand colors
+- **UI Components**: shadcn/ui for consistent, accessible components
+- **Routing**: React Router DOM for navigation
+- **HTTP Client**: Axios for API requests
+- **Build Tool**: Vite for fast development and building
+- **Icons**: Lucide React for consistent iconography
 
-## Project Structure
+## 🎨 Design System
+
+### SMU Brand Colors
+- **Primary Red**: #E31E24
+- **Primary Blue**: #1B365D
+- **Accent Gold**: #D4AF37
+- **Light Background**: #F8F9FA
+- **Dark Text**: #2C3E50
+
+### Typography
+- **Display Font**: Poppins (headings and branding)
+- **Body Font**: Inter (content and UI text)
+
+## 📁 Project Structure
 
 ```
-SMUnity/
-├── index.html              # Homepage
-├── login.html              # Login page
-├── register.html           # Registration page
-├── forgot-password.html    # Password reset page
-├── csp-discovery.html      # CSP discovery and search
-├── csp-details.html        # Individual CSP details
-├── my-applications.html    # User's applications
-├── timesheet.html          # Hours logging
-├── profile.html            # User profile
-├── csp-management.html     # CSP leader dashboard
-├── admin-panel.html        # Admin dashboard
-├── css/
-│   └── style.css          # Custom styles
-├── js/
-│   ├── api.js             # API and mock data
-│   ├── auth.js            # Authentication management
-│   ├── main.js            # Main application logic
-│   ├── login.js           # Login functionality
-│   ├── register.js        # Registration functionality
-│   ├── forgot-password.js # Password reset
-│   ├── csp-discovery.js   # CSP discovery and search
-│   ├── csp-details.js     # CSP details page
-│   ├── my-applications.js # Applications management
-│   ├── timesheet.js       # Timesheet functionality
-│   ├── profile.js         # Profile management
-│   ├── csp-management.js  # CSP leader dashboard
-│   └── admin-panel.js     # Admin panel
-└── README.md              # Project documentation
+src/
+├── components/
+│   ├── ui/                 # Reusable UI components (shadcn/ui)
+│   └── layout/             # Layout components (Navbar, Footer)
+├── contexts/               # React contexts (Auth)
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utility functions
+├── pages/                  # Page components
+├── services/               # API service functions
+└── types/                  # TypeScript type definitions
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- No server setup required - runs entirely in the browser
+- Node.js 18+ 
+- npm or yarn
 
 ### Installation
-1. Clone or download the project files
-2. Open `index.html` in your web browser
-3. The application will load with mock data pre-populated
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd smunity
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser**
+   Navigate to `http://localhost:5173`
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## 🔐 Authentication
+
+The platform supports three user roles:
+
+1. **Student**: Browse and apply for CSPs
+2. **CSP Leader**: Manage community service projects
+3. **Administrator**: Platform management and analytics
 
 ### Demo Accounts
-The platform includes demo accounts for testing:
+- **Student**: `student@smu.edu.sg` / `password`
+- **CSP Leader**: `leader@smu.edu.sg` / `password`
+- **Admin**: `admin@smu.edu.sg` / `password`
 
-**Student Account:**
-- Email: `student@smu.edu.sg`
-- Password: `password123`
+## 📱 Responsive Design
 
-**CSP Leader Account:**
-- Email: `leader@csp.org`
-- Password: `password123`
-
-**Admin Account:**
-- Email: `admin@smunity.com`
-- Password: `admin123`
-
-## Usage
-
-### For Students
-1. **Register/Login**: Create an account or use demo credentials
-2. **Discover CSPs**: Browse available community service projects
-3. **Apply**: Submit applications for projects of interest
-4. **Track Progress**: Monitor application status and log hours
-5. **Manage Profile**: Update personal information and preferences
-
-### For CSP Leaders
-1. **Login**: Use CSP leader credentials
-2. **Create CSPs**: Add new community service projects
-3. **Manage Applications**: Review and respond to student applications
-4. **Track Progress**: Monitor project participation and hours
-
-### For Administrators
-1. **Login**: Use admin credentials
-2. **User Management**: Oversee user accounts and organizations
-3. **System Monitoring**: Track platform usage and performance
-4. **Communication**: Send system-wide notifications
-
-## Key Features
-
-### Responsive Design
-- Mobile-first approach with Bootstrap grid system
-- Optimized for desktop, tablet, and mobile devices
+SMUnity is built with mobile-first responsive design principles:
+- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1536px)
 - Touch-friendly interface elements
+- Optimized navigation for mobile devices
+- Adaptive layouts for different screen sizes
 
-### Interactive Maps
-- Leaflet.js integration for location-based CSP discovery
-- Marker clustering and popup information
-- Responsive map containers
+## 🔗 API Integration
 
-### Real-time Updates
-- Live search and filtering
-- Dynamic content updates
-- Status change notifications
+The platform integrates with various APIs for:
+- User authentication and management
+- CSP CRUD operations
+- Application management
+- Analytics and reporting
+- File uploads and media handling
 
-### Data Management
-- LocalStorage for persistent data (demo purposes)
-- Mock API with realistic data structures
-- Export functionality for reports
+API endpoints are configured in `src/services/api.ts` with Axios interceptors for:
+- Automatic token management
+- Error handling
+- Request/response logging
 
-## Browser Compatibility
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+## 🎯 Key User Flows
 
-## Development Notes
+### Student Journey
+1. **Registration/Login** → Complete profile with skills and interests
+2. **CSU Module Warning** → Complete required module on eLearn
+3. **Discovery** → Browse and filter available CSPs
+4. **Application** → Apply for preferred projects
+5. **Tracking** → Monitor application status and service hours
 
-### Mock Data
-The application uses LocalStorage to simulate a backend database. Data persists between sessions and includes:
-- User accounts and profiles
-- Community service projects
-- Applications and timesheets
-- Organizations and settings
+### CSP Leader Journey
+1. **Registration** → Set up organization profile
+2. **Project Creation** → Submit CSP for admin approval
+3. **Management** → Review applications and manage volunteers
+4. **Analytics** → Track project performance and impact
 
-### API Structure
-The `api.js` file provides a complete mock API with endpoints for:
-- Authentication (login, register, logout)
-- CSP management (CRUD operations)
-- Application handling
-- User management
-- Statistics and reporting
+### Admin Journey
+1. **Dashboard** → Monitor platform activity and metrics
+2. **Content Moderation** → Approve/reject CSP submissions
+3. **User Management** → Manage user accounts and roles
+4. **Analytics** → Generate reports and insights
 
-### Customization
-The platform is designed to be easily customizable:
-- CSS variables for theming
-- Modular JavaScript architecture
-- Bootstrap components for consistent UI
-- Configurable settings and preferences
+## 🎨 UI Components
 
-## Future Enhancements
+Built with shadcn/ui components including:
+- **Buttons**: Multiple variants with SMU branding
+- **Cards**: Consistent content containers
+- **Forms**: Accessible form components with validation
+- **Navigation**: Responsive navigation with mobile support
+- **Modals**: Dialog and sheet components
+- **Badges**: Status indicators and tags
+- **Tables**: Data display with sorting and filtering
 
-### Planned Features
-- Real backend integration
-- Email notification system
-- Advanced reporting and analytics
-- Mobile app development
-- Integration with SMU systems (OnTrac)
-- Payment processing for paid CSPs
-- Social features and community building
+## 📊 Analytics & Reporting
 
-### Technical Improvements
-- Progressive Web App (PWA) capabilities
-- Offline functionality
-- Advanced search and recommendation engine
-- Real-time chat and messaging
-- File upload and document management
-- Advanced security features
+The platform provides comprehensive analytics for:
+- User engagement metrics
+- CSP performance statistics
+- Popular causes and trends
+- Service hour tracking
+- Application success rates
 
-## Contributing
+## 🔒 Security Features
 
-This is a demonstration project showcasing modern web development practices. For production use, consider:
-- Implementing proper backend infrastructure
-- Adding comprehensive testing
-- Enhancing security measures
-- Optimizing performance
-- Adding accessibility features
+- JWT-based authentication
+- Role-based access control
+- Input validation and sanitization
+- Protected routes and API endpoints
+- Secure password handling
 
-## License
+## 🌟 Future Enhancements
 
-This project is created for educational and demonstration purposes. Please ensure compliance with SMU policies and local regulations when implementing similar systems.
+- **Mobile App**: Native iOS and Android applications
+- **Advanced Matching**: AI-powered CSP recommendations
+- **Gamification**: Badges and achievements system
+- **Social Features**: Community discussions and networking
+- **Integration**: Direct OnTrac synchronization
+- **Multi-language**: Support for multiple languages
 
-## Support
+## 📄 License
 
-For questions or issues related to this demonstration project, please refer to the code documentation and comments within the source files.
+This project is developed for Singapore Management University and is intended for educational and community service purposes.
+
+## 🤝 Contributing
+
+For development guidelines and contribution instructions, please refer to the project documentation.
 
 ---
 
-**Note**: This is a demonstration project using mock data and LocalStorage. For production deployment, implement proper backend infrastructure, database systems, and security measures.
+**SMUnity** - Connecting SMU students with meaningful community service opportunities. Making a difference, one project at a time. ❤️
