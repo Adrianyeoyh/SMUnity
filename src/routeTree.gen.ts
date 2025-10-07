@@ -9,9 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MyApplicationsRouteImport } from './routes/my-applications'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
+import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyApplicationsRoute = MyApplicationsRouteImport.update({
+  id: '/my-applications',
+  path: '/my-applications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritesRoute = FavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DataTableDemoRoute = DataTableDemoRouteImport.update({
   id: '/data-table-demo',
   path: '/data-table-demo',
@@ -22,35 +51,158 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CspCspIdRoute = CspCspIdRouteImport.update({
+  id: '/csp/$cspId',
+  path: '/csp/$cspId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/auth/signup',
+  path: '/auth/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/data-table-demo': typeof DataTableDemoRoute
+  '/favorites': typeof FavoritesRoute
+  '/map': typeof MapRoute
+  '/my-applications': typeof MyApplicationsRoute
+  '/profile': typeof ProfileRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/csp/$cspId': typeof CspCspIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/data-table-demo': typeof DataTableDemoRoute
+  '/favorites': typeof FavoritesRoute
+  '/map': typeof MapRoute
+  '/my-applications': typeof MyApplicationsRoute
+  '/profile': typeof ProfileRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/csp/$cspId': typeof CspCspIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/data-table-demo': typeof DataTableDemoRoute
+  '/favorites': typeof FavoritesRoute
+  '/map': typeof MapRoute
+  '/my-applications': typeof MyApplicationsRoute
+  '/profile': typeof ProfileRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/csp/$cspId': typeof CspCspIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/data-table-demo'
+  fullPaths:
+    | '/'
+    | '/data-table-demo'
+    | '/favorites'
+    | '/map'
+    | '/my-applications'
+    | '/profile'
+    | '/admin/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/csp/$cspId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/data-table-demo'
-  id: '__root__' | '/' | '/data-table-demo'
+  to:
+    | '/'
+    | '/data-table-demo'
+    | '/favorites'
+    | '/map'
+    | '/my-applications'
+    | '/profile'
+    | '/admin/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/csp/$cspId'
+  id:
+    | '__root__'
+    | '/'
+    | '/data-table-demo'
+    | '/favorites'
+    | '/map'
+    | '/my-applications'
+    | '/profile'
+    | '/admin/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/csp/$cspId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
+  FavoritesRoute: typeof FavoritesRoute
+  MapRoute: typeof MapRoute
+  MyApplicationsRoute: typeof MyApplicationsRoute
+  ProfileRoute: typeof ProfileRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  CspCspIdRoute: typeof CspCspIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-applications': {
+      id: '/my-applications'
+      path: '/my-applications'
+      fullPath: '/my-applications'
+      preLoaderRoute: typeof MyApplicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/data-table-demo': {
       id: '/data-table-demo'
       path: '/data-table-demo'
@@ -65,12 +217,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/csp/$cspId': {
+      id: '/csp/$cspId'
+      path: '/csp/$cspId'
+      fullPath: '/csp/$cspId'
+      preLoaderRoute: typeof CspCspIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/signup': {
+      id: '/auth/signup'
+      path: '/auth/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DataTableDemoRoute: DataTableDemoRoute,
+  FavoritesRoute: FavoritesRoute,
+  MapRoute: MapRoute,
+  MyApplicationsRoute: MyApplicationsRoute,
+  ProfileRoute: ProfileRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthSignupRoute: AuthSignupRoute,
+  CspCspIdRoute: CspCspIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
