@@ -1,28 +1,74 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Input } from "#client/components/ui/input";
 import { Label } from "#client/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Checkbox } from "#client/components/ui/checkbox";
 import { Separator } from "#client/components/ui/separator";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, AlertCircle, HeartHandshake } from "lucide-react";
 import { useState } from "react";
+import { auth } from "#client/lib/auth";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth/login")({
   component: Login,
 });
 
 function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await auth.signIn.email({
+        email,
+        password,
+        rememberMe,
+      });
+
+      if (result.error) {
+        setError(result.error.message || "Failed to sign in. Please check your credentials.");
+        toast.error("Login failed", {
+          description: result.error.message || "Invalid email or password",
+        });
+      } else {
+        toast.success("Welcome back!", {
+          description: "You have successfully signed in.",
+        });
+        // Trigger auth state update across the app
+        window.dispatchEvent(new Event("auth-change"));
+        // Force page reload to update auth state in header
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 500);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+      toast.error("Login failed", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-12 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground font-heading font-bold text-2xl">
-              S
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
+              <HeartHandshake className="h-7 w-7 text-white" />
             </div>
           </div>
           <CardTitle className="font-heading text-2xl">Welcome Back</CardTitle>
@@ -31,7 +77,14 @@ function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form className="space-y-4">
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start space-x-2">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+              <p className="text-sm text-destructive font-body">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="font-body">Email Address</Label>
               <div className="relative">
@@ -41,7 +94,10 @@ function Login() {
                   type="email"
                   placeholder="your.email@smu.edu.sg"
                   className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -55,7 +111,10 @@ function Login() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="pl-10 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
                 <Button
                   type="button"
@@ -92,8 +151,8 @@ function Login() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 

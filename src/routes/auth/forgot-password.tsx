@@ -3,7 +3,7 @@ import { Button } from "#client/components/ui/button";
 import { Input } from "#client/components/ui/input";
 import { Label } from "#client/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
-import { Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft, HeartHandshake } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/auth/forgot-password")({
@@ -70,8 +70,8 @@ function ForgotPassword() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground font-heading font-bold text-2xl">
-              S
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
+              <HeartHandshake className="h-7 w-7 text-white" />
             </div>
           </div>
           <CardTitle className="font-heading text-2xl">Forgot Password?</CardTitle>

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Input } from "#client/components/ui/input";
 import { Label } from "#client/components/ui/label";
@@ -6,26 +6,82 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#clie
 import { Checkbox } from "#client/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Separator } from "#client/components/ui/separator";
-import { Eye, EyeOff, Mail, Lock, User, Phone, GraduationCap } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, GraduationCap, AlertCircle, HeartHandshake } from "lucide-react";
 import { useState } from "react";
+import { auth } from "#client/lib/auth";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth/signup")({
   component: Signup,
 });
 
 function Signup() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isCspLeader, setIsCspLeader] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Form fields
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    // Validate password match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      toast.error("Passwords do not match", {
+        description: "Please ensure both passwords are the same",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const result = await auth.signUp.email({
+        email,
+        password,
+        name,
+      });
+
+      if (result.error) {
+        setError(result.error.message || "Failed to create account");
+        toast.error("Signup failed", {
+          description: result.error.message || "Could not create your account",
+        });
+      } else {
+        toast.success("Account created!", {
+          description: "Welcome to SMUnity! You can now sign in.",
+        });
+        // Navigate to login page after successful signup
+        navigate({ to: "/auth/login" });
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+      toast.error("Signup failed", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-12 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground font-heading font-bold text-2xl">
-              S
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
+              <HeartHandshake className="h-7 w-7 text-white" />
             </div>
           </div>
           <CardTitle className="font-heading text-2xl">Create Account</CardTitle>
@@ -34,7 +90,14 @@ function Signup() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form className="space-y-4">
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start space-x-2">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+              <p className="text-sm text-destructive font-body">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="font-body">Full Name</Label>
               <div className="relative">
@@ -44,7 +107,10 @@ function Signup() {
                   type="text"
                   placeholder="John Doe"
                   className="pl-10"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -58,7 +124,10 @@ function Signup() {
                   type="email"
                   placeholder="your.email@smu.edu.sg"
                   className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -134,7 +203,11 @@ function Signup() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
                   className="pl-10 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
+                  minLength={8}
                 />
                 <Button
                   type="button"
@@ -142,6 +215,7 @@ function Signup() {
                   size="icon"
                   className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -150,6 +224,7 @@ function Signup() {
                   )}
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
             </div>
 
             <div className="space-y-2">
@@ -161,7 +236,10 @@ function Signup() {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
                   className="pl-10 pr-10"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
                 <Button
                   type="button"
@@ -211,8 +289,8 @@ function Signup() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={!agreeToTerms}>
-              Create Account
+            <Button type="submit" className="w-full" disabled={!agreeToTerms || isLoading}>
+              {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 

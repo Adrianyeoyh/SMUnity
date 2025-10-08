@@ -3,6 +3,9 @@ import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Separator } from "#client/components/ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "#client/components/ui/dialog";
+import { Label } from "#client/components/ui/label";
+import { Textarea } from "#client/components/ui/textarea";
 import { 
   MapPin, 
   Calendar, 
@@ -14,15 +17,55 @@ import {
   AlertCircle,
   CheckCircle,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Send
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/csp/$cspId")({
   component: CspDetail,
 });
 
 function CspDetail() {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+  const [applicationData, setApplicationData] = useState({
+    motivation: "",
+    experience: "",
+    availability: "",
+    additionalNotes: ""
+  });
+
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    toast.success(isFavorite ? "Removed from favorites" : "Added to favorites");
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
+  };
+
+  const handleApplicationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In real app, this would submit to API
+    toast.success("Application submitted!", {
+      description: "You'll receive an email confirmation shortly.",
+    });
+    setShowApplicationDialog(false);
+    setApplicationData({
+      motivation: "",
+      experience: "",
+      availability: "",
+      additionalNotes: ""
+    });
+  };
   // Mock data - in real app, this would come from the route params and API
   const csp = {
     id: "1",
@@ -112,14 +155,23 @@ Our program runs for 3 months, with weekly sessions every Saturday from 9 AM to 
                     by {csp.organization}
                   </p>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="icon">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleFavorite}
+                  className={isFavorite ? "text-red-500 border-red-500" : ""}
+                >
+                  <Heart className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
               </div>
 
               {/* Key Info */}
@@ -146,11 +198,15 @@ Our program runs for 3 months, with weekly sessions every Saturday from 9 AM to 
             {/* Images */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {csp.images.map((image, index) => (
-                <div key={index} className="aspect-video rounded-lg overflow-hidden">
+                <div key={index} className="aspect-video rounded-lg overflow-hidden bg-muted/50 border">
                   <img 
                     src={image} 
                     alt={`${csp.title} image ${index + 1}`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    onError={(e) => {
+                      // Fallback if image fails to load
+                      e.currentTarget.src = `https://placehold.co/800x450/e5e7eb/64748b?text=CSP+Image+${index + 1}`;
+                    }}
                   />
                 </div>
               ))}
@@ -281,9 +337,114 @@ Our program runs for 3 months, with weekly sessions every Saturday from 9 AM to 
                       </div>
                     </div>
 
-                    <Button className="w-full" size="lg">
-                      Apply for this CSP
-                    </Button>
+                    <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full" size="lg">
+                          Apply for this CSP
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="font-heading text-2xl">Apply for {csp.title}</DialogTitle>
+                          <DialogDescription className="font-body">
+                            Tell us why you'd be a great fit for this community service project
+                          </DialogDescription>
+                        </DialogHeader>
+                        
+                        <form onSubmit={handleApplicationSubmit} className="space-y-6 mt-4">
+                          {/* CSU Module Reminder */}
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start space-x-3">
+                            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                            <div>
+                              <h4 className="font-heading font-semibold text-yellow-900 mb-1">
+                                Important: Complete CSU Module First
+                              </h4>
+                              <p className="text-sm text-yellow-800 font-body">
+                                Before applying, make sure you've completed the Community Service Unit (CSU) module on eLearn. 
+                                This is required for all CSP applications.
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Application Form */}
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="motivation" className="font-body font-medium">
+                                Why do you want to join this CSP? *
+                              </Label>
+                              <Textarea
+                                id="motivation"
+                                placeholder="Share your motivation and what draws you to this project..."
+                                className="min-h-[120px] font-body"
+                                value={applicationData.motivation}
+                                onChange={(e) => setApplicationData({...applicationData, motivation: e.target.value})}
+                                required
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="experience" className="font-body font-medium">
+                                Relevant Experience
+                              </Label>
+                              <Textarea
+                                id="experience"
+                                placeholder="Describe any relevant experience or skills you have..."
+                                className="min-h-[100px] font-body"
+                                value={applicationData.experience}
+                                onChange={(e) => setApplicationData({...applicationData, experience: e.target.value})}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="availability" className="font-body font-medium">
+                                Availability *
+                              </Label>
+                              <Textarea
+                                id="availability"
+                                placeholder="When are you available? Please mention specific days/times..."
+                                className="min-h-[80px] font-body"
+                                value={applicationData.availability}
+                                onChange={(e) => setApplicationData({...applicationData, availability: e.target.value})}
+                                required
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="notes" className="font-body font-medium">
+                                Additional Notes
+                              </Label>
+                              <Textarea
+                                id="notes"
+                                placeholder="Any other information you'd like to share..."
+                                className="min-h-[80px] font-body"
+                                value={applicationData.additionalNotes}
+                                onChange={(e) => setApplicationData({...applicationData, additionalNotes: e.target.value})}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Submit Button */}
+                          <div className="flex space-x-3 pt-4">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => setIsApplicationOpen(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              type="submit" 
+                              className="flex-1"
+                              disabled={!applicationData.motivation || !applicationData.availability}
+                            >
+                              <Send className="mr-2 h-4 w-4" />
+                              Submit Application
+                            </Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
                   </>
                 ) : (
                   <div className="text-center space-y-3">
