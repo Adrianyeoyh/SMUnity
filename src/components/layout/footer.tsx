@@ -60,24 +60,24 @@ export function Footer() {
             <h3 className="font-heading font-semibold text-foreground">For Organizations</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/organization/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/organization/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Create Organization
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/organization/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/organization/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Organization Dashboard
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/help" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/help" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Help Center
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Contact Support
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -105,15 +105,15 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-muted-foreground font-body">
-              © 2024 SMUnity. All rights reserved.
+              © 2025 SMUnity. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Privacy Policy
-              </Link>
-              <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </a>
+              <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Terms of Service
-              </Link>
+              </a>
             </div>
           </div>
         </div>
