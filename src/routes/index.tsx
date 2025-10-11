@@ -79,12 +79,14 @@ function Index() {
       organization: "Hope Foundation",
       location: "Tampines",
       category: "Education",
-      startDate: "2024-02-15",
-      endDate: "2024-05-15",
+      startDate: "2025-03-15",
+      endDate: "2025-06-15",
       serviceHours: 40,
       maxVolunteers: 15,
       currentVolunteers: 8,
       isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-28",
       description: "Help teach English to children from low-income families. No prior teaching experience required.",
       skills: ["Communication", "Patience", "Teaching"],
       tags: ["Education", "Children", "Community"]
@@ -95,12 +97,14 @@ function Index() {
       organization: "Green Singapore",
       location: "East Coast Park",
       category: "Environment",
-      startDate: "2024-02-20",
-      endDate: "2024-02-20",
+      startDate: "2025-02-20",
+      endDate: "2025-02-20",
       serviceHours: 8,
       maxVolunteers: 50,
       currentVolunteers: 23,
       isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-15",
       description: "Join us for a beach cleanup initiative to keep Singapore's coastline clean and beautiful.",
       skills: ["Teamwork", "Physical Activity"],
       tags: ["Environment", "Beach", "Cleanup"]
@@ -111,15 +115,71 @@ function Index() {
       organization: "Youth Connect",
       location: "Remote",
       category: "Mentoring",
-      startDate: "2024-03-01",
-      endDate: "2024-08-31",
+      startDate: "2025-03-01",
+      endDate: "2025-08-31",
       serviceHours: 60,
       maxVolunteers: 25,
-      currentVolunteers: 12,
+      currentVolunteers: 25,
       isRemote: true,
+      status: "full",
+      applicationDeadline: "2025-02-10",
       description: "Provide virtual mentorship to at-risk youth through online sessions and activities.",
       skills: ["Mentoring", "Communication", "Leadership"],
       tags: ["Mentoring", "Youth", "Virtual"]
+    },
+    {
+      id: "4",
+      title: "Elderly Home Visitation Program",
+      organization: "Silver Care Association",
+      location: "Bishan",
+      category: "Healthcare",
+      startDate: "2025-02-01",
+      endDate: "2025-06-30",
+      serviceHours: 30,
+      maxVolunteers: 20,
+      currentVolunteers: 5,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-01-25",
+      description: "Visit and spend quality time with elderly residents. Bring joy and companionship to seniors in our community.",
+      skills: ["Empathy", "Communication", "Patience"],
+      tags: ["Healthcare", "Elderly", "Companionship"]
+    },
+    {
+      id: "5",
+      title: "Community Arts Workshop",
+      organization: "Creative Hearts SG",
+      location: "Toa Payoh",
+      category: "Arts & Culture",
+      startDate: "2025-03-05",
+      endDate: "2025-04-15",
+      serviceHours: 20,
+      maxVolunteers: 12,
+      currentVolunteers: 7,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-20",
+      description: "Conduct art workshops for children and families in the community. Share your creativity and inspire others.",
+      skills: ["Arts", "Teaching", "Creativity"],
+      tags: ["Arts", "Culture", "Workshop"]
+    },
+    {
+      id: "6",
+      title: "Food Distribution Drive",
+      organization: "Food4All Singapore",
+      location: "Jurong",
+      category: "Community",
+      startDate: "2025-02-25",
+      endDate: "2025-02-25",
+      serviceHours: 6,
+      maxVolunteers: 30,
+      currentVolunteers: 18,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-20",
+      description: "Help distribute food packages to families in need. Make a direct impact in fighting food insecurity.",
+      skills: ["Teamwork", "Organization", "Physical Activity"],
+      tags: ["Community", "Food", "One-time"]
     }
   ];
 
@@ -284,9 +344,21 @@ function Index() {
               <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {csp.category}
-                    </Badge>
+                    <div className="flex gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {csp.category}
+                      </Badge>
+                      {csp.status === "full" && (
+                        <Badge variant="destructive" className="text-xs">
+                          Full
+                        </Badge>
+                      )}
+                      {csp.status === "open" && csp.currentVolunteers < csp.maxVolunteers && (
+                        <Badge className="text-xs bg-green-500 hover:bg-green-600">
+                          Open
+                        </Badge>
+                      )}
+                    </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
                       <Heart className="h-4 w-4" />
                     </Button>
@@ -322,7 +394,7 @@ function Index() {
                       </div>
                       <div className="flex items-center space-x-1">
                         <Users className="h-4 w-4" />
-                        <span>{csp.currentVolunteers}/{csp.maxVolunteers}</span>
+                        <span>{csp.currentVolunteers}/{csp.maxVolunteers} filled</span>
                       </div>
                     </div>
 
@@ -341,7 +413,7 @@ function Index() {
 
                       <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
                         <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                          View Details
+                          {csp.status === "full" ? "View Details" : "Apply Now"}
                         </Button>
                       </Link>
                   </div>

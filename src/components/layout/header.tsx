@@ -10,7 +10,8 @@ import {
   LogOut,
   Home,
   Search,
-  FileText
+  FileText,
+  Heart
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "#client/hooks/use-auth";
@@ -34,39 +35,59 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center justify-center flex-1 space-x-12">
             {!isLoggedIn ? (
               <>
                 <Link 
                   to="/" 
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
                 >
                   <Home className="h-4 w-4" />
                   <span>Home</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+                <Link 
+                  to="/about" 
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                >
+                  <Heart className="h-4 w-4" />
+                  <span>About Us</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
                 </Link>
                 <Link 
                   to="/discover" 
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
                 >
                   <Search className="h-4 w-4" />
                   <span>Discover CSPs</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </>
             ) : (
               <>
                 <Link 
                   to="/discover" 
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
                 >
                   <Search className="h-4 w-4" />
                   <span>Discover CSPs</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
                 </Link>
                 <Link 
                   to="/my-applications" 
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
                 >
                   <FileText className="h-4 w-4" />
                   <span>My Applications</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+                <Link 
+                  to="/about" 
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                >
+                  <Heart className="h-4 w-4" />
+                  <span>About Us</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </>
             )}
@@ -149,6 +170,14 @@ export function Header() {
                     <span>Home</span>
                   </Link>
                   <Link 
+                    to="/about" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Heart className="h-4 w-4" />
+                    <span>About Us</span>
+                  </Link>
+                  <Link 
                     to="/discover" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => setIsMenuOpen(false)}
@@ -186,6 +215,14 @@ export function Header() {
                   >
                     <FileText className="h-4 w-4" />
                     <span>My Applications</span>
+                  </Link>
+                  <Link 
+                    to="/about" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Heart className="h-4 w-4" />
+                    <span>About Us</span>
                   </Link>
                   <Link 
                     to="/profile" 
