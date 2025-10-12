@@ -22,8 +22,9 @@ export function Footer() {
             </p>
             <div className="flex space-x-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Heart className="h-4 w-4 text-accent" />
+                <Heart className="h-4 w-4 text" />
                 <span>Made with love for SMU</span>
+                <Heart className="h-4 w-4 text" />
               </div>
             </div>
           </div>
