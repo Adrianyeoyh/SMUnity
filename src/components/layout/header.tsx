@@ -45,17 +45,6 @@ export function Header() {
             {!isLoggedIn ? (
               <>
                 <Link 
-                  to="/about" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  <Heart className="h-4 w-4" />
-                  <span>About Us</span>
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
-                </Link>
-                <Link 
                   to="/" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
                   onClick={() => {
@@ -64,6 +53,17 @@ export function Header() {
                 >
                   <Home className="h-4 w-4" />
                   <span>Home</span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
+                </Link>
+                <Link 
+                  to="/about" 
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <Heart className="h-4 w-4" />
+                  <span>About Us</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
@@ -81,17 +81,6 @@ export function Header() {
             ) : (
               <>
                 <Link 
-                  to="/about" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  <Heart className="h-4 w-4" />
-                  <span>About Us</span>
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
-                </Link>
-                <Link 
                   to="/discover" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
                   onClick={() => {
@@ -100,6 +89,17 @@ export function Header() {
                 >
                   <Search className="h-4 w-4" />
                   <span>Discover CSPs</span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
+                </Link>
+                <Link 
+                  to="/about" 
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <Heart className="h-4 w-4" />
+                  <span>About Us</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
@@ -233,6 +233,17 @@ export function Header() {
                 </>
               ) : (
                 <>
+                <Link 
+                    to="/about" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                    <Heart className="h-4 w-4" />
+                    <span>About Us</span>
+                  </Link>
                   <Link 
                     to="/discover" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
@@ -254,17 +265,6 @@ export function Header() {
                   >
                     <FileText className="h-4 w-4" />
                     <span>My Applications</span>
-                  </Link>
-                  <Link 
-                    to="/about" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  >
-                    <Heart className="h-4 w-4" />
-                    <span>About Us</span>
                   </Link>
                   <Link 
                     to="/profile" 
