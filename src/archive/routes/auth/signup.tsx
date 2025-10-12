@@ -21,10 +21,7 @@ function Signup() {
       setIsLoading(true);
       setError(null);
       // Trigger Better Auth Google OAuth flow
-      await auth.signIn.social({
-        provider: "google",
-        callbackURL: `${window.location.origin}/api/auth/callback/google`,
-      });
+      await auth.signIn.social({ provider: "google" });
       // After redirect, your guard endpoint will handle domain enforcement.
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Unexpected error";
