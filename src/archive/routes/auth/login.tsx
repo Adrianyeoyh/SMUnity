@@ -1,35 +1,29 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { auth } from "#client/lib/auth";
 import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Separator } from "#client/components/ui/separator";
-import { AlertCircle, HeartHandshake } from "lucide-react";
+import { HeartHandshake, AlertCircle } from "lucide-react";
 
-export const Route = createFileRoute("/auth/signup")({
-  component: Signup,
+export const Route = createFileRoute("/auth/login")({
+  component: Login,
 });
 
-function Signup() {
-  const navigate = useNavigate();
+function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleGoogleSignup() {
+  async function handleGoogleLogin() {
     try {
       setIsLoading(true);
       setError(null);
-      // Trigger Better Auth Google OAuth flow
-      await auth.signIn.social({
-        provider: "google",
-        callbackURL: `${window.location.origin}/api/auth/callback/google`,
-      });
-      // After redirect, your guard endpoint will handle domain enforcement.
+      await auth.signIn.social({ provider: "google" });
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Unexpected error";
       setError(msg);
-      toast.error("Sign-up failed", { description: msg });
+      toast.error("Sign-in failed", { description: msg });
     } finally {
       setIsLoading(false);
     }
@@ -44,10 +38,8 @@ function Signup() {
               <HeartHandshake className="h-7 w-7 text-white" />
             </div>
           </div>
-          <CardTitle className="font-heading text-2xl">Join SMUnity</CardTitle>
-          <CardDescription className="font-body">
-            Sign up with your <span className="font-semibold">@smu.edu.sg</span> account
-          </CardDescription>
+          <CardTitle className="font-heading text-2xl">Welcome Back</CardTitle>
+          <CardDescription>Sign in with your SMU Google account</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -59,7 +51,7 @@ function Signup() {
           )}
 
           <Button
-            onClick={handleGoogleSignup}
+            onClick={handleGoogleLogin}
             disabled={isLoading}
             className="w-full flex items-center justify-center"
           >
@@ -84,28 +76,20 @@ function Signup() {
             {isLoading ? "Redirecting..." : "Continue with Google"}
           </Button>
 
-          <div className="relative">
+          <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground font-body">
-                For non-SMU organisers
+                Need an account?
               </span>
             </div>
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            Request account creation via{" "}
-            <Link to="/organiser-request" className="text-primary hover:text-primary/80">
-              admin approval form
-            </Link>
-          </div>
-
-          <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/auth/login" className="text-primary hover:text-primary/80">
-              Sign in
+            <Link to="/auth/signup" className="text-primary hover:text-primary/80">
+              Sign up with SMU
             </Link>
           </div>
         </CardContent>

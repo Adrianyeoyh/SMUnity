@@ -12,6 +12,11 @@ export const env = createEnv({
     // Better Auth
     BETTER_AUTH_SECRET: z.string(),
 
+
+    //Google OAuth
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+
     // Mail
     SMTP_HOST: z.string(),
     SMTP_PORT: z.coerce.number(),
@@ -36,6 +41,10 @@ export const env = createEnv({
 
     // Better Auth
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+
+    // Google OAuth
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 
     // Mail
     SMTP_HOST: process.env.SMTP_HOST,
