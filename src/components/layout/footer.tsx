@@ -66,7 +66,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="/organization/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Organization Dashboard
+                  Organisation Dashboard
                 </a>
               </li>
               <li>

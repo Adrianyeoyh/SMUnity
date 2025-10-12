@@ -14,13 +14,59 @@ import {
   ArrowRight,
   BookOpen,
   Target,
-  Users2
+  Users2,
+  TreePine,
+  PawPrint,
+  Trophy,
+  Code
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
+
+// Helper function to get category color
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    "Community": "bg-orange-100 text-orange-700 hover:bg-orange-200",
+    "Mentoring": "bg-blue-100 text-blue-700 hover:bg-blue-200",
+    "Environment": "bg-green-100 text-green-700 hover:bg-green-200",
+    "Elderly": "bg-purple-100 text-purple-700 hover:bg-purple-200",
+    "Arts & Culture": "bg-pink-100 text-pink-700 hover:bg-pink-200",
+    "Animal Welfare": "bg-rose-100 text-rose-700 hover:bg-rose-200",
+    "Sports & Leisure": "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
+    "Technology": "bg-cyan-100 text-cyan-700 hover:bg-cyan-200"
+  };
+  return colors[category] || "bg-gray-100 text-gray-700 hover:bg-gray-200";
+};
+
+// Helper function to get status color and text
+const getStatusBadge = (status: string) => {
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    "open": { label: "Open", className: "bg-green-500 hover:bg-green-600 text-white" },
+    "closing-soon": { label: "Closing Soon", className: "bg-yellow-500 hover:bg-yellow-600 text-white" },
+    "full": { label: "Full", className: "bg-gray-500 hover:bg-gray-600 text-white" },
+    "closed": { label: "Closed", className: "bg-red-500 hover:bg-red-600 text-white" },
+  };
+  return statusConfig[status] || statusConfig["open"];
+};
+
+// Helper function to format date range
+const formatDateRange = (startDate: string, endDate?: string) => {
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  
+  if (!endDate || startDate === endDate) {
+    return formatDate(startDate);
+  }
+  return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+};
 
 function Index() {
   const navigate = useNavigate();
@@ -75,21 +121,22 @@ function Index() {
   const featuredCSPs = [
     {
       id: "1",
-      title: "Teaching English to Underprivileged Children",
-      organization: "Hope Foundation",
-      location: "Tampines",
-      category: "Education",
+      title: "Project Candela",
+      organization: "SMU Rotaract",
+      location: "Kranji",
+      category: "Community",
       startDate: "2025-03-15",
       endDate: "2025-06-15",
+      duration: "2h, Every Tuesday",
       serviceHours: 40,
       maxVolunteers: 15,
       currentVolunteers: 8,
       isRemote: false,
       status: "open",
       applicationDeadline: "2025-02-28",
-      description: "Help teach English to children from low-income families. No prior teaching experience required.",
-      skills: ["Communication", "Patience", "Teaching"],
-      tags: ["Education", "Children", "Community"]
+      description: "Join us to challenge and debunk negative stereotypes surrounding foreign workers while raising awareness among Singaporeans about the experiences and contributions of migrant workers.",
+      skills: ["Communication", "Patience", "Teaching", "Empathy"],
+      tags: ["Migrant", "Migrant Workers", "Community"]
     },
     {
       id: "2", 
@@ -99,14 +146,15 @@ function Index() {
       category: "Environment",
       startDate: "2025-02-20",
       endDate: "2025-02-20",
+      duration: "4h, One-time",
       serviceHours: 8,
       maxVolunteers: 50,
-      currentVolunteers: 23,
+      currentVolunteers: 48,
       isRemote: false,
-      status: "open",
+      status: "closing-soon",
       applicationDeadline: "2025-02-15",
       description: "Join us for a beach cleanup initiative to keep Singapore's coastline clean and beautiful.",
-      skills: ["Teamwork", "Physical Activity"],
+      skills: ["Teamwork", "Physical Activity", "Outdoor"],
       tags: ["Environment", "Beach", "Cleanup"]
     },
     {
@@ -117,6 +165,7 @@ function Index() {
       category: "Mentoring",
       startDate: "2025-03-01",
       endDate: "2025-08-31",
+      duration: "1h, Weekly",
       serviceHours: 60,
       maxVolunteers: 25,
       currentVolunteers: 25,
@@ -124,7 +173,7 @@ function Index() {
       status: "full",
       applicationDeadline: "2025-02-10",
       description: "Provide virtual mentorship to at-risk youth through online sessions and activities.",
-      skills: ["Mentoring", "Communication", "Leadership"],
+      skills: ["Mentoring", "Communication", "Leadership", "Active Listening"],
       tags: ["Mentoring", "Youth", "Virtual"]
     },
     {
@@ -132,9 +181,10 @@ function Index() {
       title: "Elderly Home Visitation Program",
       organization: "Silver Care Association",
       location: "Bishan",
-      category: "Healthcare",
+      category: "Elderly",
       startDate: "2025-02-01",
       endDate: "2025-06-30",
+      duration: "2h, Biweekly",
       serviceHours: 30,
       maxVolunteers: 20,
       currentVolunteers: 5,
@@ -142,7 +192,7 @@ function Index() {
       status: "open",
       applicationDeadline: "2025-01-25",
       description: "Visit and spend quality time with elderly residents. Bring joy and companionship to seniors in our community.",
-      skills: ["Empathy", "Communication", "Patience"],
+      skills: ["Empathy", "Communication", "Patience", "Care"],
       tags: ["Healthcare", "Elderly", "Companionship"]
     },
     {
@@ -153,6 +203,7 @@ function Index() {
       category: "Arts & Culture",
       startDate: "2025-03-05",
       endDate: "2025-04-15",
+      duration: "3h, Every Saturday",
       serviceHours: 20,
       maxVolunteers: 12,
       currentVolunteers: 7,
@@ -160,7 +211,7 @@ function Index() {
       status: "open",
       applicationDeadline: "2025-02-20",
       description: "Conduct art workshops for children and families in the community. Share your creativity and inspire others.",
-      skills: ["Arts", "Teaching", "Creativity"],
+      skills: ["Arts", "Teaching", "Creativity", "Patience"],
       tags: ["Arts", "Culture", "Workshop"]
     },
     {
@@ -171,6 +222,7 @@ function Index() {
       category: "Community",
       startDate: "2025-02-25",
       endDate: "2025-02-25",
+      duration: "3h, One-time",
       serviceHours: 6,
       maxVolunteers: 30,
       currentVolunteers: 18,
@@ -178,18 +230,20 @@ function Index() {
       status: "open",
       applicationDeadline: "2025-02-20",
       description: "Help distribute food packages to families in need. Make a direct impact in fighting food insecurity.",
-      skills: ["Teamwork", "Organization", "Physical Activity"],
+      skills: ["Teamwork", "Organization", "Physical Activity", "Service"],
       tags: ["Community", "Food", "One-time"]
     }
   ];
 
   const categories = [
-    { value: "Education", label: "Education" },
-    { value: "Environment", label: "Environment" },
-    { value: "Healthcare", label: "Healthcare" },
-    { value: "Mentoring", label: "Mentoring" },
     { value: "Community", label: "Community" },
-    { value: "Arts & Culture", label: "Arts & Culture" }
+    { value: "Mentoring", label: "Mentoring" },
+    { value: "Environment", label: "Environment" },
+    { value: "Elderly", label: "Elderly" },
+    { value: "Arts & Culture", label: "Arts & Culture" },
+    { value: "Animal Welfare", label: "Animal Welfare" },
+    { value: "Sports & Leisure", label: "Sports & Leisure" },
+    { value: "Coding", label: "Coding" }
   ];
 
   // Filter CSPs based on search and category
@@ -226,13 +280,13 @@ function Index() {
                 <span className="animate-pulse">|</span>
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground font-body mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground font-body mb-12 max-w-2xl mx-auto">
               Connect with meaningful volunteer opportunities that align with your interests, 
               schedule, and SMU graduation requirements.
             </p>
             
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
+            <div className="max-w-2xl mx-auto mb-12">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -292,7 +346,7 @@ function Index() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map((category) => (
               <Button
                 key={category.value}
@@ -304,12 +358,14 @@ function Index() {
                 }}
               >
                 <div className="text-2xl">
-                  {category.value === "Education" && <BookOpen className="h-6 w-6" />}
-                  {category.value === "Environment" && <Target className="h-6 w-6" />}
-                  {category.value === "Healthcare" && <Heart className="h-6 w-6" />}
-                  {category.value === "Mentoring" && <Users2 className="h-6 w-6" />}
                   {category.value === "Community" && <Users className="h-6 w-6" />}
+                  {category.value === "Mentoring" && <BookOpen className="h-6 w-6" />}
+                  {category.value === "Environment" && <TreePine className="h-6 w-6" />}
+                  {category.value === "Elderly" && <Heart className="h-6 w-6" />}
                   {category.value === "Arts & Culture" && <Star className="h-6 w-6" />}
+                  {category.value === "Animal Welfare" && <PawPrint className="h-6 w-6" />}
+                  {category.value === "Sports & Leisure" && <Trophy className="h-6 w-6" />}
+                  {category.value === "Coding" && <Code className="h-6 w-6" />}
                 </div>
                 <span className="text-sm font-medium">{category.label}</span>
               </Button>
@@ -333,93 +389,95 @@ function Index() {
                 }
               </p>
             </div>
-            <Button variant="outline" className="hidden md:flex">
-              View All CSPs
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <Link to="/discover">
+              <Button variant="outline" className="hidden md:flex">
+                View All CSPs
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFeaturedCSPs.map((csp) => (
-              <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {csp.category}
-                      </Badge>
-                      {csp.status === "full" && (
-                        <Badge variant="destructive" className="text-xs">
-                          Full
+            {filteredFeaturedCSPs.map((csp) => {
+              const statusBadge = getStatusBadge(csp.status);
+              const duration = (csp as any).duration || `${csp.serviceHours}h`;
+              
+              return (
+                <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group flex flex-col h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2 gap-2">
+                      <div className="flex flex-wrap gap-1">
+                        <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
+                          {csp.category}
                         </Badge>
-                      )}
-                      {csp.status === "open" && csp.currentVolunteers < csp.maxVolunteers && (
-                        <Badge className="text-xs bg-green-500 hover:bg-green-600">
-                          Open
+                        <Badge className={`text-xs ${statusBadge.className}`}>
+                          {statusBadge.label}
                         </Badge>
-                      )}
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
-                    {csp.title}
-                  </CardTitle>
-                  <CardDescription className="font-body">
-                    {csp.organization}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground font-body line-clamp-2">
-                      {csp.description}
-                    </p>
-                    
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <div className="flex items-center space-x-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>{csp.location}</span>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{csp.serviceHours}h</span>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
+                      {csp.title}
+                    </CardTitle>
+                    <CardDescription className="font-body">
+                      {csp.organization}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col justify-between gap-4">
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground font-body line-clamp-2">
+                        {csp.description}
+                      </p>
+                      
+                      {/* Location + Duration Row */}
+                      <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <MapPin className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{csp.location}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Clock className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{duration}</span>
+                        </div>
+                      </div>
+
+                      {/* Date + Volunteers Row */}
+                      <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Calendar className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{formatDateRange(csp.startDate, csp.startDate)}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Users className="h-4 w-4 flex-shrink-0" />
+                          <span>{csp.currentVolunteers}/{csp.maxVolunteers}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1">
+                        {csp.skills.slice(0, window.innerWidth >= 1280 ? 3 : 2).map((skill) => (
+                          <Badge key={skill} variant="outline" className="text-xs">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {csp.skills.length > (window.innerWidth >= 1280 ? 3 : 2) && (
+                          <Badge variant="outline" className="text-xs">
+                            +{csp.skills.length - (window.innerWidth >= 1280 ? 3 : 2)}
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(csp.startDate).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Users className="h-4 w-4" />
-                        <span>{csp.currentVolunteers}/{csp.maxVolunteers} filled</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {csp.skills.slice(0, 2).map((skill) => (
-                        <Badge key={skill} variant="outline" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                      {csp.skills.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{csp.skills.length - 2} more
-                        </Badge>
-                      )}
-                    </div>
-
-                      <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
-                        <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                          {csp.status === "full" ? "View Details" : "Apply Now"}
-                        </Button>
-                      </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                      <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                        {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {filteredFeaturedCSPs.length === 0 && (
