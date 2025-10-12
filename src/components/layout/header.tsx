@@ -25,7 +25,13 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
+          <Link 
+            to="/" 
+            className="flex items-center space-x-3"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
               <HeartHandshake className="h-6 w-6 text-white" />
             </div>
@@ -41,26 +47,35 @@ export function Header() {
                 <Link 
                   to="/" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                 >
                   <Home className="h-4 w-4" />
                   <span>Home</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
                   to="/about" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                 >
                   <Heart className="h-4 w-4" />
                   <span>About Us</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
                   to="/discover" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                 >
                   <Search className="h-4 w-4" />
                   <span>Discover CSPs</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
               </>
             ) : (
@@ -68,27 +83,37 @@ export function Header() {
                 <Link 
                   to="/discover" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                 >
                   <Search className="h-4 w-4" />
                   <span>Discover CSPs</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
                   to="/my-applications" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                 >
                   <FileText className="h-4 w-4" />
                   <span>My Applications</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
                   to="/about" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                 >
                   <Heart className="h-4 w-4" />
                   <span>About Us</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
+                
               </>
             )}
           </nav>
@@ -164,7 +189,10 @@ export function Header() {
                   <Link 
                     to="/" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <Home className="h-4 w-4" />
                     <span>Home</span>
@@ -172,7 +200,10 @@ export function Header() {
                   <Link 
                     to="/about" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <Heart className="h-4 w-4" />
                     <span>About Us</span>
@@ -180,7 +211,10 @@ export function Header() {
                   <Link 
                     to="/discover" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <Search className="h-4 w-4" />
                     <span>Discover CSPs</span>
@@ -203,7 +237,10 @@ export function Header() {
                   <Link 
                     to="/discover" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <Search className="h-4 w-4" />
                     <span>Discover CSPs</span>
@@ -211,7 +248,10 @@ export function Header() {
                   <Link 
                     to="/my-applications" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <FileText className="h-4 w-4" />
                     <span>My Applications</span>
@@ -219,7 +259,10 @@ export function Header() {
                   <Link 
                     to="/about" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <Heart className="h-4 w-4" />
                     <span>About Us</span>
@@ -227,7 +270,10 @@ export function Header() {
                   <Link 
                     to="/profile" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   >
                     <User className="h-4 w-4" />
                     <span>Profile</span>

@@ -28,6 +28,7 @@ export const Route = createFileRoute("/discover")({
   validateSearch: (search: Record<string, unknown>): { 
     q?: string; 
     category?: string;
+    type?: string;
     location?: string;
     sortBy?: string;
     startDate?: string;
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/discover")({
     return {
       q: (search.q as string) || "",
       category: (search.category as string) || "all",
+      type: (search.type as string) || "all",
       location: (search.location as string) || "all",
       sortBy: (search.sortBy as string) || "relevance",
       startDate: (search.startDate as string) || "",
@@ -49,6 +51,48 @@ export const Route = createFileRoute("/discover")({
     };
   },
 });
+
+// Helper function to get category color
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    "Community": "bg-orange-100 text-orange-700 hover:bg-orange-200",
+    "Mentoring": "bg-blue-100 text-blue-700 hover:bg-blue-200",
+    "Environment": "bg-green-100 text-green-700 hover:bg-green-200",
+    "Elderly": "bg-purple-100 text-purple-700 hover:bg-purple-200",
+    "Arts & Culture": "bg-pink-100 text-pink-700 hover:bg-pink-200",
+    "Animal Welfare": "bg-rose-100 text-rose-700 hover:bg-rose-200",
+    "Sports & Leisure": "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
+    "Coding": "bg-cyan-100 text-cyan-700 hover:bg-cyan-200"
+  };
+  return colors[category] || "bg-gray-100 text-gray-700 hover:bg-gray-200";
+};
+
+// Helper function to get status color and text
+const getStatusBadge = (status: string) => {
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    "open": { label: "Open", className: "bg-green-500 hover:bg-green-600 text-white" },
+    "closing-soon": { label: "Closing Soon", className: "bg-yellow-500 hover:bg-yellow-600 text-white" },
+    "full": { label: "Full", className: "bg-gray-500 hover:bg-gray-600 text-white" },
+    "closed": { label: "Closed", className: "bg-red-500 hover:bg-red-600 text-white" },
+  };
+  return statusConfig[status] || statusConfig["open"];
+};
+
+// Helper function to format date range
+const formatDateRange = (startDate: string, endDate?: string) => {
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  
+  if (!endDate || startDate === endDate) {
+    return formatDate(startDate);
+  }
+  return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+};
 
 function DiscoverCSPs() {
   const navigate = useNavigate({ from: "/discover" });
@@ -63,6 +107,7 @@ function DiscoverCSPs() {
   const itemsPerPage = 12;
   
   // Advanced filters - Initialize from URL params
+  const [typeFilter, setTypeFilter] = useState(searchParams.type || "all");
   const [locationFilter, setLocationFilter] = useState(searchParams.location || "all");
   const [sortBy, setSortBy] = useState(searchParams.sortBy || "relevance");
   const [startDate, setStartDate] = useState(searchParams.startDate || "");
@@ -76,6 +121,7 @@ function DiscoverCSPs() {
     const newParams = {
       q: searchQuery,
       category: selectedCategory,
+      type: typeFilter,
       location: locationFilter,
       sortBy: sortBy,
       startDate: startDate,
@@ -112,11 +158,13 @@ function DiscoverCSPs() {
   const cspLocations = [
     {
       id: "1",
-      title: "Teaching English to Underprivileged Children",
-      organization: "Hope Foundation",
-      location: "Tampines",
-      category: "Education",
+      title: "Project Candela",
+      organization: "SMU Rotaract",
+      location: "Kranji",
+      category: "Community",
       startDate: "2025-03-15",
+      endDate: "2025-06-15",
+      duration: "2h, Every Tuesday",
       serviceHours: 40,
       maxVolunteers: 15,
       currentVolunteers: 8,
@@ -125,8 +173,9 @@ function DiscoverCSPs() {
       isRemote: false,
       status: "open",
       applicationDeadline: "2025-02-28",
-      description: "Help teach English to children from low-income families.",
-      skills: ["Communication", "Patience", "Teaching"]
+      description: "Join us to challenge and debunk negative stereotypes surrounding foreign workers while raising awareness among Singaporeans about the experiences and contributions of migrant workers.",
+      skills: ["Communication", "Patience", "Teaching", "Empathy"],
+      tags: ["Migrant", "Migrant Workers", "Community"]
     },
     {
       id: "2",
@@ -135,16 +184,19 @@ function DiscoverCSPs() {
       location: "East Coast Park",
       category: "Environment",
       startDate: "2025-02-20",
+      endDate: "2025-02-20",
+      duration: "4h, One-time",
       serviceHours: 8,
       maxVolunteers: 50,
-      currentVolunteers: 23,
+      currentVolunteers: 48,
       latitude: 1.3048,
       longitude: 103.9318,
       isRemote: false,
-      status: "open",
+      status: "closing-soon",
       applicationDeadline: "2025-02-15",
       description: "Join us for a beach cleanup initiative.",
-      skills: ["Teamwork", "Physical Activity"]
+      skills: ["Teamwork", "Physical Activity", "Outdoor"],
+      tags: ["Environment", "Beach", "Cleanup"]
     },
     {
       id: "3",
@@ -153,6 +205,8 @@ function DiscoverCSPs() {
       location: "Remote",
       category: "Mentoring",
       startDate: "2025-03-01",
+      endDate: "2025-08-31",
+      duration: "1h, Weekly",
       serviceHours: 60,
       maxVolunteers: 25,
       currentVolunteers: 25,
@@ -162,7 +216,8 @@ function DiscoverCSPs() {
       status: "full",
       applicationDeadline: "2025-02-10",
       description: "Provide virtual mentorship to at-risk youth.",
-      skills: ["Mentoring", "Communication", "Leadership"]
+      skills: ["Mentoring", "Communication", "Leadership", "Active Listening"],
+      tags: ["Mentoring", "Youth", "Virtual"]
     },
     {
       id: "4",
@@ -171,6 +226,8 @@ function DiscoverCSPs() {
       location: "Jurong West",
       category: "Environment",
       startDate: "2025-02-10",
+      endDate: "2025-05-10",
+      duration: "2h, Every Sunday",
       serviceHours: 20,
       maxVolunteers: 30,
       currentVolunteers: 15,
@@ -180,15 +237,18 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-01-31",
       description: "Help maintain and develop community gardens.",
-      skills: ["Gardening", "Teamwork"]
+      skills: ["Gardening", "Teamwork", "Physical Activity"],
+      tags: ["Environment", "Gardening", "Community"]
     },
     {
       id: "5",
       title: "Senior Care Support Program",
       organization: "Golden Years",
       location: "Toa Payoh",
-      category: "Healthcare",
+      category: "Elderly",
       startDate: "2025-02-15",
+      endDate: "2025-07-15",
+      duration: "2h, Biweekly",
       serviceHours: 30,
       maxVolunteers: 20,
       currentVolunteers: 7,
@@ -198,7 +258,8 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-05",
       description: "Provide companionship and support to elderly residents.",
-      skills: ["Empathy", "Communication", "Patience"]
+      skills: ["Empathy", "Communication", "Patience", "Care"],
+      tags: ["Healthcare", "Elderly", "Companionship"]
     },
     {
       id: "6",
@@ -207,16 +268,19 @@ function DiscoverCSPs() {
       location: "Jurong West",
       category: "Community",
       startDate: "2025-01-15",
+      endDate: "2025-01-15",
+      duration: "3h, One-time",
       serviceHours: 15,
       maxVolunteers: 40,
       currentVolunteers: 40,
       latitude: 1.3401,
       longitude: 103.7098,
       isRemote: false,
-      status: "full",
+      status: "closed",
       applicationDeadline: "2025-01-10",
       description: "Help sort, pack, and distribute food items to families in need.",
-      skills: ["Teamwork", "Organization"]
+      skills: ["Teamwork", "Organization", "Service"],
+      tags: ["Community", "Food", "Charity"]
     },
     {
       id: "7",
@@ -225,6 +289,8 @@ function DiscoverCSPs() {
       location: "Bishan",
       category: "Arts & Culture",
       startDate: "2025-03-05",
+      endDate: "2025-04-15",
+      duration: "3h, Every Saturday",
       serviceHours: 25,
       maxVolunteers: 12,
       currentVolunteers: 5,
@@ -234,15 +300,18 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-20",
       description: "Teach children creative arts and crafts skills.",
-      skills: ["Creativity", "Teaching", "Art"]
+      skills: ["Creativity", "Teaching", "Art", "Patience"],
+      tags: ["Arts", "Culture", "Workshop", "Children"]
     },
     {
       id: "8",
       title: "Mental Health Awareness Campaign",
       organization: "Mind Matters",
       location: "Central",
-      category: "Healthcare",
+      category: "Community",
       startDate: "2025-02-25",
+      endDate: "2025-03-15",
+      duration: "2h, Every Wednesday",
       serviceHours: 20,
       maxVolunteers: 15,
       currentVolunteers: 10,
@@ -252,15 +321,18 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-15",
       description: "Help raise awareness about mental health in the community.",
-      skills: ["Public Speaking", "Empathy", "Communication"]
+      skills: ["Public Speaking", "Empathy", "Communication", "Advocacy"],
+      tags: ["Healthcare", "Mental Health", "Awareness"]
     },
     {
       id: "9",
       title: "Coding Classes for Underprivileged Youth",
       organization: "Tech for Good",
       location: "Remote",
-      category: "Education",
+      category: "Coding",
       startDate: "2025-03-10",
+      endDate: "2025-09-10",
+      duration: "2h, Twice Weekly",
       serviceHours: 50,
       maxVolunteers: 20,
       currentVolunteers: 8,
@@ -270,25 +342,29 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-28",
       description: "Teach basic programming and computer skills to youth.",
-      skills: ["Programming", "Teaching", "Patience"]
+      skills: ["Programming", "Teaching", "Patience", "Technology"],
+      tags: ["Education", "Technology", "Youth", "Virtual", "Mentoring", "Coding"]
     },
     {
       id: "10",
       title: "Animal Shelter Volunteer",
       organization: "Paws & Claws",
       location: "Pasir Ris",
-      category: "Community",
+      category: "Animal Welfare",
       startDate: "2025-02-18",
+      endDate: "2025-06-18",
+      duration: "3h, Weekly",
       serviceHours: 12,
       maxVolunteers: 25,
       currentVolunteers: 18,
       latitude: 1.373,
       longitude: 103.9496,
       isRemote: false,
-      status: "open",
+      status: "closing-soon",
       applicationDeadline: "2025-02-10",
       description: "Help care for rescued animals at our shelter.",
-      skills: ["Animal Care", "Physical Activity", "Compassion"]
+      skills: ["Animal Care", "Physical Activity", "Compassion", "Teamwork"],
+      tags: ["Community", "Animals", "Welfare"]
     },
     {
       id: "11",
@@ -297,6 +373,8 @@ function DiscoverCSPs() {
       location: "Chinatown",
       category: "Arts & Culture",
       startDate: "2025-03-15",
+      endDate: "2025-06-15",
+      duration: "2h, Weekends",
       serviceHours: 18,
       maxVolunteers: 10,
       currentVolunteers: 10,
@@ -306,15 +384,18 @@ function DiscoverCSPs() {
       status: "full",
       applicationDeadline: "2025-02-25",
       description: "Guide tours through Singapore's cultural heritage sites.",
-      skills: ["Public Speaking", "History", "Communication"]
+      skills: ["Public Speaking", "History", "Communication", "Storytelling"],
+      tags: ["Arts", "Culture", "Heritage", "Tourism"]
     },
     {
       id: "12",
       title: "Youth Sports Coaching",
       organization: "Sports for All",
       location: "Clementi",
-      category: "Community",
+      category: "Sports & Leisure",
       startDate: "2025-02-22",
+      endDate: "2025-07-22",
+      duration: "2h, Every Friday",
       serviceHours: 35,
       maxVolunteers: 18,
       currentVolunteers: 11,
@@ -324,7 +405,8 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-12",
       description: "Coach underprivileged youth in various sports activities.",
-      skills: ["Sports", "Leadership", "Teamwork"]
+      skills: ["Sports", "Leadership", "Teamwork", "Coaching"],
+      tags: ["Community", "Sports", "Youth", "Coaching"]
     },
     {
       id: "13",
@@ -333,6 +415,8 @@ function DiscoverCSPs() {
       location: "Woodlands",
       category: "Environment",
       startDate: "2025-03-08",
+      endDate: "2025-04-08",
+      duration: "2h, Monthly",
       serviceHours: 16,
       maxVolunteers: 22,
       currentVolunteers: 9,
@@ -342,15 +426,18 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-25",
       description: "Conduct workshops on environmental conservation and sustainability.",
-      skills: ["Teaching", "Environmental Science", "Presentation"]
+      skills: ["Teaching", "Environmental Science", "Presentation", "Public Speaking"],
+      tags: ["Environment", "Education", "Workshop", "Sustainability"]
     },
     {
       id: "14",
       title: "Hospital Companionship Program",
       organization: "Care & Comfort",
       location: "Novena",
-      category: "Healthcare",
+      category: "Community",
       startDate: "2025-02-28",
+      endDate: "2025-08-28",
+      duration: "3h, Biweekly",
       serviceHours: 45,
       maxVolunteers: 15,
       currentVolunteers: 6,
@@ -360,15 +447,18 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-02-18",
       description: "Provide companionship to patients in hospitals.",
-      skills: ["Empathy", "Active Listening", "Patience"]
+      skills: ["Empathy", "Active Listening", "Patience", "Care"],
+      tags: ["Healthcare", "Hospital", "Companionship", "Elderly"]
     },
     {
       id: "15",
       title: "Digital Literacy for Seniors",
       organization: "Tech Seniors",
       location: "Bedok",
-      category: "Education",
+      category: "Elderly",
       startDate: "2025-03-12",
+      endDate: "2025-06-12",
+      duration: "2h, Weekly",
       serviceHours: 28,
       maxVolunteers: 16,
       currentVolunteers: 7,
@@ -378,18 +468,23 @@ function DiscoverCSPs() {
       status: "open",
       applicationDeadline: "2025-03-01",
       description: "Teach elderly residents how to use smartphones and computers.",
-      skills: ["Teaching", "Patience", "Technology"]
+      skills: ["Teaching", "Patience", "Technology", "Communication"],
+      tags: ["Education", "Technology", "Elderly", "Digital", "Mentoring"]
     },
   ];
 
   const categories = [
-    "all", "Education", "Environment", "Healthcare", "Mentoring", "Community"
+    "all", "Community", "Mentoring", "Environment", "Elderly", "Arts & Culture", "Animal Welfare", "Sports & Leisure", "Coding"
   ];
 
   // Enhanced filtering with all criteria
   const filteredCSPs = cspLocations.filter(csp => {
     // Category filter
     const matchesCategory = selectedCategory === "all" || csp.category === selectedCategory;
+    
+    // Type filter
+    const cspType = (csp as any).type || "local"; // Default to local if not specified
+    const matchesType = typeFilter === "all" || cspType === typeFilter;
     
     // Search query
     const query = searchQuery.toLowerCase();
@@ -399,11 +494,13 @@ function DiscoverCSPs() {
       csp.location.toLowerCase().includes(query) ||
       csp.category.toLowerCase().includes(query) ||
       csp.description.toLowerCase().includes(query) ||
-      csp.skills.some(skill => skill.toLowerCase().includes(query));
+      csp.skills.some(skill => skill.toLowerCase().includes(query)) ||
+      (csp.tags && csp.tags.some(tag => tag.toLowerCase().includes(query)));
     
-    // Location filter
+    // Location filter - only apply if type is "local" or "all" (or if location is "Remote")
     const matchesLocation = locationFilter === "all" || locationFilter === "" || 
-      csp.location.toLowerCase().includes(locationFilter.toLowerCase());
+      (cspType === "overseas" && (csp.location === "Remote" || csp.isRemote)) ||
+      (cspType === "local" && csp.location.toLowerCase().includes(locationFilter.toLowerCase()));
     
     // Date filters
     const cspStartDate = new Date(csp.startDate);
@@ -422,7 +519,7 @@ function DiscoverCSPs() {
       return false;
     });
     
-    return matchesCategory && matchesSearch && matchesLocation && 
+    return matchesCategory && matchesType && matchesSearch && matchesLocation && 
            matchesStartDate && matchesEndDate && matchesDuration;
   });
 
@@ -475,7 +572,7 @@ function DiscoverCSPs() {
                     <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       type="search"
-                      placeholder="Search CSPs, organizations, locations, skills..."
+                      placeholder="Search for CSPs, organisations, or skills..."
                       className="pl-10 h-11"
                       value={searchQuery}
                       onChange={(e) => {
@@ -511,6 +608,25 @@ function DiscoverCSPs() {
               </Select>
             </div>
 
+            {/* Type */}
+            <div className="flex-1 lg:flex-[1.5] space-y-2">
+              <Label className="text-sm font-body font-medium text-foreground">Type</Label>
+              <Select value={typeFilter} onValueChange={(val) => { 
+                setTypeFilter(val); 
+                updateURL({ type: val });
+                resetPagination(); 
+              }}>
+                <SelectTrigger className="h-10 w-full">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="local">Local</SelectItem>
+                  <SelectItem value="overseas">Overseas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Location */}
             <div className="flex-1 lg:flex-[1.5] space-y-2">
               <Label className="text-sm font-body font-medium text-foreground">Location</Label>
@@ -518,9 +634,9 @@ function DiscoverCSPs() {
                 setLocationFilter(val); 
                 updateURL({ location: val });
                 resetPagination(); 
-              }}>
+              }} disabled={typeFilter === "overseas" && locationFilter !== "Remote"}>
                 <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="All Locations" />
+                  <SelectValue placeholder={typeFilter === "overseas" ? "N/A (Overseas)" : "All Locations"} />
                 </SelectTrigger>
                 <SelectContent>
                   {locations.map((location) => (
@@ -589,6 +705,7 @@ function DiscoverCSPs() {
                   onClick={() => {
                     setSearchQuery("");
                     setSelectedCategory("all");
+                    setTypeFilter("all");
                     setLocationFilter("all");
                     setStartDate("");
                     setEndDate("");
@@ -758,74 +875,87 @@ function DiscoverCSPs() {
           {/* Grid View */}
           {viewMode === "grid" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedCSPs.map((csp) => (
-                <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                  <CardHeader>
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {csp.category}
-                      </Badge>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
-                      {csp.title}
-                    </CardTitle>
-                    <CardDescription className="font-body">
-                      {csp.organization}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
+              {paginatedCSPs.map((csp) => {
+                const statusBadge = getStatusBadge(csp.status);
+                const duration = (csp as any).duration || `${csp.serviceHours}h`;
+                const endDate = (csp as any).endDate;
+                
+                return (
+                  <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group flex flex-col h-full">
+                    <CardHeader>
+                      <div className="flex justify-between items-start mb-2 gap-2">
+                        <div className="flex flex-wrap gap-1">
+                          <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
+                            {csp.category}
+                          </Badge>
+                          <Badge className={`text-xs ${statusBadge.className}`}>
+                            {statusBadge.label}
+                          </Badge>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                          <Heart className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
+                        {csp.title}
+                      </CardTitle>
+                      <CardDescription className="font-body">
+                        {csp.organization}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1 flex flex-col justify-between gap-4">
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground font-body line-clamp-2">
                         {csp.description}
                       </p>
                       
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="h-4 w-4" />
-                          <span className="font-body">{csp.location}</span>
+                      {/* Location + Duration Row */}
+                      <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <MapPin className="h-4 w-4 flex-shrink-0" />
+                          <span className="font-body truncate">{csp.location}</span>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="h-4 w-4" />
-                          <span className="font-body">{csp.serviceHours}h</span>
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Clock className="h-4 w-4 flex-shrink-0" />
+                          <span className="font-body truncate">{duration}</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="h-4 w-4" />
-                          <span className="font-body">{new Date(csp.startDate).toLocaleDateString()}</span>
+                      {/* Date + Volunteers Row */}
+                      <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Calendar className="h-4 w-4 flex-shrink-0" />
+                          <span className="font-body truncate">{formatDateRange(csp.startDate, csp.startDate)}</span>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Users className="h-4 w-4" />
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Users className="h-4 w-4 flex-shrink-0" />
                           <span className="font-body">{csp.currentVolunteers}/{csp.maxVolunteers}</span>
                         </div>
                       </div>
 
                       <div className="flex flex-wrap gap-1">
-                        {csp.skills.slice(0, 2).map((skill) => (
+                        {csp.skills.slice(0, window.innerWidth >= 1280 ? 3 : 2).map((skill) => (
                           <Badge key={skill} variant="outline" className="text-xs">
                             {skill}
                           </Badge>
                         ))}
-                        {csp.skills.length > 2 && (
+                        {csp.skills.length > (window.innerWidth >= 1280 ? 3 : 2) && (
                           <Badge variant="outline" className="text-xs">
-                            +{csp.skills.length - 2}
+                            +{csp.skills.length - (window.innerWidth >= 1280 ? 3 : 2)}
                           </Badge>
                         )}
                       </div>
+                    </div>
 
                       <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
                         <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                           View Details
                         </Button>
                       </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
 
@@ -936,7 +1066,10 @@ function DiscoverCSPs() {
             <div className="flex items-center justify-center gap-2 pt-8">
               <Button
                 variant="outline"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={() => {
+                  setCurrentPage(prev => Math.max(1, prev - 1));
+                  window.scrollTo({ top: 0, behavior: "instant" });
+                }}
                 disabled={currentPage === 1}
               >
                 Previous
@@ -947,7 +1080,10 @@ function DiscoverCSPs() {
                   <Button
                     key={page}
                     variant={currentPage === page ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => {
+                      setCurrentPage(page);
+                      window.scrollTo({ top: 0, behavior: "instant" });
+                    }}
                     className="w-10 h-10 p-0"
                   >
                     {page}
@@ -957,7 +1093,10 @@ function DiscoverCSPs() {
 
               <Button
                 variant="outline"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onClick={() => {
+                  setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                  window.scrollTo({ top: 0, behavior: "instant" });
+                }}
                 disabled={currentPage === totalPages}
               >
                 Next
