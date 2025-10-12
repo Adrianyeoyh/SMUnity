@@ -23,7 +23,7 @@ function Signup() {
       // Trigger Better Auth Google OAuth flow
       await auth.signIn.social({
         provider: "google",
-        callbackURL: `${window.location.origin}/api/auth/callback/google`,
+        // callbackURL: `${`${process.env.VITE_APP_URL}/api/auth/callback/google`}/api/auth/callback/google`,
       });
       // After redirect, your guard endpoint will handle domain enforcement.
     } catch (err: any) {

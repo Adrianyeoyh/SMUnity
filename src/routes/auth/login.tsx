@@ -21,7 +21,7 @@ function Login() {
       setError(null);
       await auth.signIn.social({
         provider: "google",
-        callbackURL: `${window.location.origin}/api/auth/callback/google`,
+        // callbackURL: `${process.env.VITE_APP_URL}/api/auth/callback/google`,
       });
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Unexpected error";
