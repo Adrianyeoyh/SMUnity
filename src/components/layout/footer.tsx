@@ -2,6 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { HeartHandshake, Heart, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
+
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-muted/50 border-t">
       <div className="container mx-auto px-4 py-12">
@@ -106,7 +109,7 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-muted-foreground font-body">
-              © 2025 SMUnity. All rights reserved.
+              © {currentYear} SMUnity. All rights reserved.
             </p>
             <div className="flex space-x-6">
               <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
