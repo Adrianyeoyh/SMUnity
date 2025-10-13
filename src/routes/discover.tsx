@@ -620,12 +620,15 @@ function DiscoverCSPs() {
     
     // Duration filter (multi-select)
     const matchesDuration = selectedDurations.length === 0 || selectedDurations.some(duration => {
-      if (duration === "1-hour" && csp.serviceHours <= 1) return true;
-      if (duration === "2-hour" && csp.serviceHours > 1 && csp.serviceHours <= 2) return true;
-      if (duration === "3-hour" && csp.serviceHours > 2 && csp.serviceHours <= 3) return true;
-      if (duration === "4-hour" && csp.serviceHours > 3 && csp.serviceHours <= 4) return true;
-      if (duration === "full-day" && csp.serviceHours > 4 && csp.serviceHours <= 12) return true;
-      if (duration === "multiple-days" && csp.serviceHours > 12) return true;
+      const cspDuration = (csp as any).duration || '';
+      const durationLower = cspDuration.toLowerCase();
+      
+      if (duration === "1-hour" && durationLower.includes('1h')) return true;
+      if (duration === "2-hour" && durationLower.includes('2h')) return true;
+      if (duration === "3-hour" && durationLower.includes('3h')) return true;
+      if (duration === "4-hour" && durationLower.includes('4h')) return true;
+      if (duration === "full-day" && durationLower.includes('full day')) return true;
+      if (duration === "one-time" && durationLower.includes('one-time')) return true;
       return false;
     });
     
@@ -884,7 +887,7 @@ function DiscoverCSPs() {
 
                 {/* Duration Multi-Select Buttons */}
                 <div className="flex-1 space-y-2">
-                  <Label className="text-sm font-body font-medium">
+                  <Label className="text-sm font-body font-medium text-foreground">
                     Duration
                   </Label>
                   <div className="flex flex-wrap gap-2">
@@ -894,7 +897,7 @@ function DiscoverCSPs() {
                       { value: "3-hour", label: "3 Hours" },
                       { value: "4-hour", label: "4 Hours" },
                       { value: "full-day", label: "Full Day" },
-                      { value: "multiple-days", label: "Multiple Days" },
+                      { value: "one-time", label: "One-Time" },
                     ].map((duration) => (
                       <Button
                         key={duration.value}
@@ -1072,80 +1075,94 @@ function DiscoverCSPs() {
           {/* List View */}
           {viewMode === "list" && (
             <div className="space-y-4">
-              {paginatedCSPs.map((csp) => (
-                <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left: Content */}
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant="secondary" className="text-xs">
-                                {csp.category}
-                              </Badge>
-                              <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                                <MapPin className="h-3 w-3" />
-                                <span className="font-body">{csp.location}</span>
+              {paginatedCSPs.map((csp) => {
+                const statusBadge = getStatusBadge(csp.status);
+                const duration = (csp as any).duration || `${csp.serviceHours}h`;
+                const endDate = (csp as any).endDate;
+                
+                return (
+                  <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {/* Left: Content */}
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
+                                  {csp.category}
+                                </Badge>
+                                <Badge className={`text-xs ${statusBadge.className}`}>
+                                  {statusBadge.label}
+                                </Badge>
                               </div>
+                              <h3 className="font-heading text-xl font-semibold group-hover:text-primary transition-colors">
+                                {csp.title}
+                              </h3>
+                              <p className="text-muted-foreground font-body">
+                                {csp.organization}
+                              </p>
                             </div>
-                            <h3 className="font-heading text-xl font-semibold hover:text-primary transition-colors">
-                              {csp.title}
-                            </h3>
-                            <p className="text-muted-foreground font-body">
-                              {csp.organization}
-                            </p>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Heart className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Heart className="h-4 w-4" />
-                          </Button>
+
+                          <p className="text-sm text-muted-foreground font-body line-clamp-2">
+                            {csp.description}
+                          </p>
+
+                          {/* Location + Duration Row */}
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="h-4 w-4" />
+                              <span className="font-body">{csp.location}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="h-4 w-4" />
+                              <span className="font-body">{duration}</span>
+                            </div>
+                          </div>
+
+                          {/* Date + Volunteers Row */}
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="h-4 w-4" />
+                              <span className="font-body">{formatDateRange(csp.startDate, csp.startDate)}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Users className="h-4 w-4" />
+                              <span className="font-body">{csp.currentVolunteers}/{csp.maxVolunteers}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1">
+                            {csp.skills.slice(0, 4).map((skill) => (
+                              <Badge key={skill} variant="outline" className="text-xs">
+                                {skill}
+                              </Badge>
+                            ))}
+                            {csp.skills.length > 4 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{csp.skills.length - 4}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
 
-                        <p className="text-sm text-muted-foreground font-body line-clamp-2">
-                          {csp.description}
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span className="font-body">{new Date(csp.startDate).toLocaleDateString()}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span className="font-body">{csp.serviceHours}h</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Users className="h-4 w-4" />
-                            <span className="font-body">{csp.currentVolunteers}/{csp.maxVolunteers}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1">
-                          {csp.skills.slice(0, 3).map((skill) => (
-                            <Badge key={skill} variant="outline" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                          {csp.skills.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{csp.skills.length - 3}
-                            </Badge>
-                          )}
+                        {/* Right: Action */}
+                        <div className="flex md:flex-col items-center md:items-end gap-3">
+                          <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                            <Button className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                              View Details
+                            </Button>
+                          </Link>
                         </div>
                       </div>
-
-                      {/* Right: Action */}
-                      <div className="flex md:flex-col items-center md:items-end gap-3">
-                        <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
-                          <Button>
-                            View Details
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
 

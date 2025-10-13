@@ -14,13 +14,14 @@ import {
   ArrowRight,
   BookOpen,
   Target,
-  Users2,
   TreePine,
   PawPrint,
   Trophy,
-  Code
+  Code,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -73,6 +74,15 @@ function Index() {
   const [typedText, setTypedText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("local");
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slideOffset, setSlideOffset] = useState(0);
+  const [countCSPs, setCountCSPs] = useState(0);
+  const [countPartners, setCountPartners] = useState(0);
+  const [countCountries, setCountCountries] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
   
   const fullText = "SMUnity";
   const typingSpeed = 1000 / fullText.length;
@@ -117,6 +127,55 @@ function Index() {
 
     return () => clearInterval(typingInterval);
   }, []);
+
+  // Stats counting animation on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            setHasAnimated(true);
+            
+            const duration = 2000; // 2 seconds total
+            const fps = 60; // 60 frames per second
+            const totalFrames = (duration / 1000) * fps;
+            const frameInterval = duration / totalFrames;
+            
+            let frame = 0;
+            const countInterval = setInterval(() => {
+              frame++;
+              const progress = frame / totalFrames;
+              
+              // Calculate current values based on progress
+              setCountCSPs(Math.floor(150 * progress));
+              setCountPartners(Math.floor(430 * progress));
+              setCountCountries(Math.floor(40 * progress));
+              
+              // Stop when animation completes
+              if (frame >= totalFrames) {
+                setCountCSPs(150);
+                setCountPartners(430);
+                setCountCountries(40);
+                clearInterval(countInterval);
+              }
+            }, frameInterval);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => {
+      if (statsRef.current) {
+        observer.unobserve(statsRef.current);
+      }
+    };
+  }, [hasAnimated]);
+
   // Mock data for demonstration
   const featuredCSPs = [
     {
@@ -125,6 +184,7 @@ function Index() {
       organization: "SMU Rotaract",
       location: "Kranji",
       category: "Community",
+      type: "local",
       startDate: "2025-03-15",
       endDate: "2025-06-15",
       duration: "2h, Every Tuesday",
@@ -144,6 +204,7 @@ function Index() {
       organization: "Green Singapore",
       location: "East Coast Park",
       category: "Environment",
+      type: "local",
       startDate: "2025-02-20",
       endDate: "2025-02-20",
       duration: "4h, One-time",
@@ -163,6 +224,7 @@ function Index() {
       organization: "Youth Connect",
       location: "Remote",
       category: "Mentoring",
+      type: "local",
       startDate: "2025-03-01",
       endDate: "2025-08-31",
       duration: "1h, Weekly",
@@ -182,6 +244,7 @@ function Index() {
       organization: "Silver Care Association",
       location: "Bishan",
       category: "Elderly",
+      type: "local",
       startDate: "2025-02-01",
       endDate: "2025-06-30",
       duration: "2h, Biweekly",
@@ -201,6 +264,7 @@ function Index() {
       organization: "Creative Hearts SG",
       location: "Toa Payoh",
       category: "Arts & Culture",
+      type: "local",
       startDate: "2025-03-05",
       endDate: "2025-04-15",
       duration: "3h, Every Saturday",
@@ -220,6 +284,7 @@ function Index() {
       organization: "Food4All Singapore",
       location: "Jurong",
       category: "Community",
+      type: "local",
       startDate: "2025-02-25",
       endDate: "2025-02-25",
       duration: "3h, One-time",
@@ -232,6 +297,107 @@ function Index() {
       description: "Help distribute food packages to families in need. Make a direct impact in fighting food insecurity.",
       skills: ["Teamwork", "Organization", "Physical Activity", "Service"],
       tags: ["Community", "Food", "One-time"]
+    },
+    // Overseas Projects
+    {
+      id: "7",
+      title: "Cambodia School Building Project",
+      organization: "Habitat for Humanity",
+      location: "Siem Reap, Cambodia",
+      category: "Community",
+      type: "overseas",
+      startDate: "2025-06-01",
+      endDate: "2025-06-14",
+      duration: "Full day, 2 weeks",
+      serviceHours: 100,
+      maxVolunteers: 20,
+      currentVolunteers: 12,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-04-01",
+      description: "Help build classrooms and facilities for underprivileged children in rural Cambodia. Make a lasting impact on education infrastructure.",
+      skills: ["Construction", "Teamwork", "Physical Fitness", "Adaptability"],
+      tags: ["Overseas", "Construction", "Education", "Cambodia"]
+    },
+    {
+      id: "8",
+      title: "Vietnam Community Teaching Program",
+      organization: "Global Education Initiative",
+      location: "Ho Chi Minh City, Vietnam",
+      category: "Mentoring",
+      type: "overseas",
+      startDate: "2025-07-05",
+      endDate: "2025-07-19",
+      duration: "Full day, 2 weeks",
+      serviceHours: 120,
+      maxVolunteers: 15,
+      currentVolunteers: 8,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-05-01",
+      description: "Teach English and basic computer skills to children in underserved communities. Experience Vietnamese culture while making a difference.",
+      skills: ["Teaching", "Communication", "Patience", "Cultural Sensitivity"],
+      tags: ["Overseas", "Teaching", "Education", "Vietnam"]
+    },
+    {
+      id: "9",
+      title: "Thailand Elephant Conservation",
+      organization: "Wildlife Conservation Network",
+      location: "Chiang Mai, Thailand",
+      category: "Animal Welfare",
+      type: "overseas",
+      startDate: "2025-03-20",
+      endDate: "2025-08-20",
+      duration: "2h, Weekly",
+      serviceHours: 50,
+      maxVolunteers: 30,
+      currentVolunteers: 15,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-15",
+      description: "Work with rescued elephants in an ethical sanctuary. Learn about conservation efforts and help care for these magnificent animals.",
+      skills: ["Animal Care", "Physical Fitness", "Observation", "Compassion"],
+      tags: ["Overseas", "Wildlife", "Conservation", "Thailand"]
+    },
+    {
+      id: "10",
+      title: "Indonesia Disaster Relief Support",
+      organization: "Red Cross International",
+      location: "Jakarta, Indonesia",
+      category: "Community",
+      type: "overseas",
+      startDate: "2025-05-15",
+      endDate: "2025-05-29",
+      duration: "Full day, 2 weeks",
+      serviceHours: 110,
+      maxVolunteers: 25,
+      currentVolunteers: 18,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-04-01",
+      description: "Assist in disaster relief efforts and community rebuilding. Provide essential support to families affected by natural disasters.",
+      skills: ["Crisis Management", "Teamwork", "Resilience", "First Aid"],
+      tags: ["Overseas", "Disaster Relief", "Emergency", "Indonesia"]
+    },
+    {
+      id: "11",
+      title: "Nepal Mountain School Renovation",
+      organization: "Education Without Borders",
+      location: "Pokhara, Nepal",
+      category: "Environment",
+      type: "overseas",
+      startDate: "2025-08-01",
+      endDate: "2025-08-21",
+      duration: "Full day, 3 weeks",
+      serviceHours: 150,
+      maxVolunteers: 12,
+      currentVolunteers: 5,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-06-01",
+      description: "Renovate and improve school facilities in remote mountain villages. Experience Himalayan culture while supporting education.",
+      skills: ["Construction", "Adaptability", "Physical Fitness", "Problem Solving"],
+      tags: ["Overseas", "Education", "Construction", "Nepal"]
     }
   ];
 
@@ -246,11 +412,12 @@ function Index() {
     { value: "Coding", label: "Coding" }
   ];
 
-  // Filter CSPs based on search and category
+  // Filter CSPs based on search, category, and type
   const filteredFeaturedCSPs = featuredCSPs.filter(csp => {
     const matchesCategory = selectedCategory === "all" || csp.category === selectedCategory;
+    const matchesType = selectedType === "all" || (csp as any).type === selectedType;
     
-    if (searchQuery === "") return matchesCategory;
+    if (searchQuery === "") return matchesCategory && matchesType;
     
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -262,8 +429,61 @@ function Index() {
       csp.skills.some(skill => skill.toLowerCase().includes(query)) ||
       csp.tags.some(tag => tag.toLowerCase().includes(query));
     
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesType && matchesSearch;
   });
+
+  // Carousel auto-rotation - move to next item every 30 seconds
+  useEffect(() => {
+    if (filteredFeaturedCSPs.length === 0) return;
+    
+    const carouselInterval = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % filteredFeaturedCSPs.length);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(carouselInterval);
+  }, [filteredFeaturedCSPs.length]);
+
+  // Show 3 cards at a time, centered around carouselIndex
+  const getVisibleIndices = () => {
+    if (filteredFeaturedCSPs.length === 0) return [];
+    if (filteredFeaturedCSPs.length <= 3) return [0, 1, 2].slice(0, filteredFeaturedCSPs.length);
+    
+    const prev = (carouselIndex - 1 + filteredFeaturedCSPs.length) % filteredFeaturedCSPs.length;
+    const curr = carouselIndex;
+    const next = (carouselIndex + 1) % filteredFeaturedCSPs.length;
+    
+    return [prev, curr, next];
+  };
+
+  const handlePrevious = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    
+    // Slide right first
+    setSlideOffset(1);
+    
+    setTimeout(() => {
+      // Update index
+      setCarouselIndex((prev) => (prev - 1 + filteredFeaturedCSPs.length) % filteredFeaturedCSPs.length);
+      setSlideOffset(0);
+      setTimeout(() => setIsTransitioning(false), 50);
+    }, 700);
+  };
+
+  const handleNext = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    
+    // Slide left first
+    setSlideOffset(-1);
+    
+    setTimeout(() => {
+      // Update index
+      setCarouselIndex((prev) => (prev + 1) % filteredFeaturedCSPs.length);
+      setSlideOffset(0);
+      setTimeout(() => setIsTransitioning(false), 50);
+    }, 700);
+  };
 
   return (
     <div className="min-h-screen">
@@ -316,18 +536,62 @@ function Index() {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div ref={statsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary font-heading">150+</div>
+                <div className="text-3xl font-bold text-primary font-heading">{countCSPs}+</div>
                 <div className="text-muted-foreground font-body">Active CSPs</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#34d399] font-heading">2,500+</div>
-                <div className="text-muted-foreground font-body">Students Helped</div>
+                <div className="text-3xl font-bold text-[#10b981] font-heading">{countPartners}+</div>
+                <div className="text-muted-foreground font-body">Partner Organisations</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary font-heading">50+</div>
-                <div className="text-muted-foreground font-body">Partner Organisations</div>
+                <div className="text-3xl font-bold text-primary font-heading">{countCountries}</div>
+                <div className="text-muted-foreground font-body">Countries</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About SMUnity Section */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="space-y-6">
+            <h2 className="font-heading text-4xl font-bold text-foreground text-left">
+              Connecting <span className="text-gradient-smunity">SMU</span> with the{" "}
+              <span className="text-gradient-smunity">Community</span>
+            </h2>
+            <p className="text-lg text-muted-foreground font-body leading-relaxed text-left">
+              Finding a volunteer cause should not be complicated. SMUnity aims to brings all your community service needs into <strong className="text-foreground">one centralised, seamless platform.</strong> Discover verified local and overseas projects, submit applications instantly, and track your service hours for CSU requirements all within SMUnity! 
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 max-w-4xl mx-auto">
+              <div className="space-y-3 text-center">
+                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center">
+                  <Search className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-heading font-semibold text-lg">Find Your Match</h3>
+                <p className="text-sm text-muted-foreground font-body">
+                  Filter by category, location, and duration to find opportunities that fit you
+                </p>
+              </div>
+              <div className="space-y-3 text-center">
+                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center">
+                  <Target className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-heading font-semibold text-lg">Apply with Ease</h3>
+                <p className="text-sm text-muted-foreground font-body">
+                  Submit applications instantly and track your status in real-time
+                </p>
+              </div>
+              <div className="space-y-3 text-center">
+                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-heading font-semibold text-lg">Track Your Hours</h3>
+                <p className="text-sm text-muted-foreground font-body">
+                  Automatically log service hours with built-in CSU verification
+                </p>
               </div>
             </div>
           </div>
@@ -335,14 +599,14 @@ function Index() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-heading text-3xl font-bold text-foreground mb-4">
               Browse by Category
             </h2>
             <p className="text-muted-foreground font-body">
-              Find CSPs that match your interests and passion
+              Find projects that match your interests and passion
             </p>
           </div>
           
@@ -375,11 +639,11 @@ function Index() {
       </section>
 
       {/* Featured CSPs Section */}
-      <section id="featured-csps" className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-12">
+      <section id="featured-csps" className="py-12 bg-gradient-to-br from-secondary/10 via-background to-primary/5">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="font-heading text-3xl font-bold text-foreground mb-4">
+              <h2 className="font-heading text-3xl font-bold text-foreground mb-2">
                 {searchQuery || selectedCategory !== "all" ? "Search Results" : "Featured CSPs"}
               </h2>
               <p className="text-muted-foreground font-body">
@@ -397,13 +661,73 @@ function Index() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFeaturedCSPs.map((csp) => {
-              const statusBadge = getStatusBadge(csp.status);
-              const duration = (csp as any).duration || `${csp.serviceHours}h`;
-              
-              return (
-                <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group flex flex-col h-full">
+          {/* Local/Overseas Filter */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex bg-muted/50 rounded-full p-0.5 gap-0.5">
+              <button
+                onClick={() => {
+                  setSelectedType("local");
+                  setCarouselIndex(0);
+                }}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  selectedType === "local"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                }`}
+              >
+                Local
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedType("overseas");
+                  setCarouselIndex(0);
+                }}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  selectedType === "overseas"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                }`}
+              >
+                Overseas
+              </button>
+            </div>
+          </div>
+
+          {/* Carousel Container */}
+          <div className="relative">
+            {/* Navigation Buttons - Desktop only */}
+            {filteredFeaturedCSPs.length > 3 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg hidden lg:flex"
+                  onClick={handlePrevious}
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg hidden lg:flex"
+                  onClick={handleNext}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+              </>
+            )}
+            
+            {/* Mobile/Tablet Grid - Below 992px */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:hidden">
+              {filteredFeaturedCSPs.map((csp) => {
+                const statusBadge = getStatusBadge(csp.status);
+                const duration = (csp as any).duration || `${csp.serviceHours}h`;
+                
+                return (
+                  <Card 
+                    key={csp.id}
+                    className="hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col h-full"
+                  >
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2 gap-2">
                       <div className="flex flex-wrap gap-1">
@@ -478,6 +802,134 @@ function Index() {
                 </Card>
               );
             })}
+            </div>
+
+            {/* Desktop Carousel - 992px and above */}
+            <div className="hidden lg:block relative py-6">
+              <div className="relative w-full max-w-5xl mx-auto overflow-hidden">
+                <div className="relative h-[390px] flex items-center justify-center">
+                  {filteredFeaturedCSPs.map((csp, idx) => {
+                    const visibleIndices = getVisibleIndices();
+                    const position = visibleIndices.indexOf(idx);
+                    
+                    // Only render cards that should be visible
+                    if (position === -1) return null;
+                    
+                    const statusBadge = getStatusBadge(csp.status);
+                    const duration = (csp as any).duration || `${csp.serviceHours}h`;
+                    
+                    // Calculate position: -1 (left), 0 (center), 1 (right)
+                    const relativePosition = position - 1;
+                    
+                    return (
+                      <Card 
+                        key={csp.id}
+                        className="absolute hover:shadow-lg cursor-pointer group flex flex-col w-[400px] h-[390px] transition-all duration-700 ease-in-out"
+                        style={{
+                          transform: `translateX(${(relativePosition + slideOffset) * 440}px)`,
+                          opacity: 1,
+                          zIndex: position === 1 ? 10 : 1
+                        }}
+                      >
+                      <CardHeader>
+                        <div className="flex justify-between items-start mb-2 gap-2">
+                          <div className="flex flex-wrap gap-1">
+                            <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
+                              {csp.category}
+                            </Badge>
+                            <Badge className={`text-xs ${statusBadge.className}`}>
+                              {statusBadge.label}
+                            </Badge>
+                          </div>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                            <Heart className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
+                          {csp.title}
+                        </CardTitle>
+                        <CardDescription className="font-body">
+                          {csp.organization}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-1 flex flex-col justify-between gap-4">
+                        <div className="space-y-3">
+                          <p className="text-sm text-muted-foreground font-body line-clamp-2">
+                            {csp.description}
+                          </p>
+                          
+                          <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">{csp.location}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                              <Clock className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">{duration}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                              <Calendar className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">{formatDateRange(csp.startDate, csp.startDate)}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                              <Users className="h-4 w-4 flex-shrink-0" />
+                              <span>{csp.currentVolunteers}/{csp.maxVolunteers}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1">
+                            {csp.skills.slice(0, 3).map((skill) => (
+                              <Badge key={skill} variant="outline" className="text-xs">
+                                {skill}
+                              </Badge>
+                            ))}
+                            {csp.skills.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{csp.skills.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                          <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+                </div>
+              </div>
+            </div>
+            
+            {/* Carousel Indicators - Desktop only */}
+            {filteredFeaturedCSPs.length > 3 && (
+              <div className="hidden lg:flex justify-center gap-2">
+                {filteredFeaturedCSPs.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`h-2 rounded-full transition-all ${
+                      idx === carouselIndex 
+                        ? 'w-8 bg-primary' 
+                        : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    }`}
+                    onClick={() => {
+                      if (!isTransitioning) {
+                        setIsTransitioning(true);
+                        setCarouselIndex(idx);
+                        setTimeout(() => setIsTransitioning(false), 700);
+                      }
+                    }}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {filteredFeaturedCSPs.length === 0 && (
@@ -492,6 +944,7 @@ function Index() {
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory("all");
+                  setSelectedType("local");
                 }}
               >
                 Clear Filters
