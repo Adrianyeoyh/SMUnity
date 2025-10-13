@@ -246,17 +246,6 @@ export function Header() {
                     <span>About Us</span>
                   </Link>
                   <Link 
-                    to="/about" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  >
-                    <Heart className="h-4 w-4" />
-                    <span>About Us</span>
-                  </Link>
-                  <Link 
                     to="/discover" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
