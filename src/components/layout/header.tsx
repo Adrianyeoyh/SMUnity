@@ -27,7 +27,7 @@ export function Header() {
           {/* Logo */}
           <Link 
             to="/" 
-            className="flex items-center space-x-3"
+            className="flex items-center space-x-3 mr-4"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
@@ -119,7 +119,7 @@ export function Header() {
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center">
             {isLoggedIn ? (
               <>
                 {/* Notifications - Only when logged in */}

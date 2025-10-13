@@ -36,7 +36,7 @@ const getCategoryColor = (category: string) => {
     "Arts & Culture": "bg-pink-100 text-pink-700 hover:bg-pink-200",
     "Animal Welfare": "bg-rose-100 text-rose-700 hover:bg-rose-200",
     "Sports & Leisure": "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-    "Technology": "bg-cyan-100 text-cyan-700 hover:bg-cyan-200"
+    "Coding": "bg-cyan-100 text-cyan-700 hover:bg-cyan-200"
   };
   return colors[category] || "bg-gray-100 text-gray-700 hover:bg-gray-200";
 };
