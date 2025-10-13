@@ -6,7 +6,7 @@ import { env } from "./env.ts";
 import { auth } from "./lib/auth.ts";
 
 import { db } from "./drizzle/db.ts";
-import * as schema from "./drizzle/schema";
+import * as schema from "./drizzle/schema.ts";
 
 const app = new Hono()
   .get("/health", (c) => {
@@ -36,8 +36,8 @@ app
       // Require a valid, approved, unexpired organiser invite
       // (uses your organiser_invites table)
       const now = new Date();
-      const invite = await import("./drizzle/db").then(async ({ db }) => {
-        const { organiserInvites } = await import("./drizzle/schema");
+      const invite = await import("./drizzle/db.ts").then(async ({ db }) => {
+        const { organiserInvites } = await import("./drizzle/schema.ts");
         // drizzle-orm query
         return db.query.organiserInvites.findFirst({
           where: (t, { and, eq, gt }) =>
