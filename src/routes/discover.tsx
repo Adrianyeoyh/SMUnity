@@ -4,8 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#clie
 import { Badge } from "#client/components/ui/badge";
 import { Input } from "#client/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "#client/components/ui/tabs";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "#client/components/ui/sheet";
+
 import { Label } from "#client/components/ui/label";
 import { 
   MapPin, 
@@ -13,7 +12,6 @@ import {
   Clock, 
   Users, 
   Search,
-  Filter,
   Grid3x3,
   List,
   Map as MapIcon,
@@ -305,24 +303,24 @@ function DiscoverCSPs() {
     },
     {
       id: "8",
-      title: "Mental Health Awareness Campaign",
-      organization: "Mind Matters",
+      title: "Project Kidleidoscope",
+      organization: "SMU Kidleidoscope",
       location: "Central",
-      category: "Community",
-      startDate: "2025-02-25",
-      endDate: "2025-03-15",
+      category: "Mentoring",
+      startDate: "2025-12-07",
+      endDate: "2025-06-07",
       duration: "2h, Every Wednesday",
       serviceHours: 20,
-      maxVolunteers: 15,
-      currentVolunteers: 10,
+      maxVolunteers: 50,
+      currentVolunteers: 15,
       latitude: 1.3,
       longitude: 103.85,
       isRemote: false,
       status: "open",
-      applicationDeadline: "2025-02-15",
-      description: "Help raise awareness about mental health in the community.",
-      skills: ["Public Speaking", "Empathy", "Communication", "Advocacy"],
-      tags: ["Healthcare", "Mental Health", "Awareness"]
+      applicationDeadline: "2025-11-15",
+      description: "Empower children from less priviledged backgrounds to pursue their dreams.",
+      skills: ["Empathy", "Communication", "Patience", "Basic Art Skills"],
+      tags: ["Children", "Kids", "Less Privileged", "Art", "School", "Education"]
     },
     {
       id: "9",
@@ -991,7 +989,6 @@ function DiscoverCSPs() {
               {paginatedCSPs.map((csp) => {
                 const statusBadge = getStatusBadge(csp.status);
                 const duration = (csp as any).duration || `${csp.serviceHours}h`;
-                const endDate = (csp as any).endDate;
                 
                 return (
                   <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group flex flex-col h-full">
@@ -1078,7 +1075,6 @@ function DiscoverCSPs() {
               {paginatedCSPs.map((csp) => {
                 const statusBadge = getStatusBadge(csp.status);
                 const duration = (csp as any).duration || `${csp.serviceHours}h`;
-                const endDate = (csp as any).endDate;
                 
                 return (
                   <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
