@@ -15,12 +15,14 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 
 const ProfileRoute = ProfileRouteImport.update({
@@ -53,6 +55,11 @@ const DataTableDemoRoute = DataTableDemoRouteImport.update({
   path: '/data-table-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -83,6 +90,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -92,6 +104,7 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
   '/favorites': typeof FavoritesRoute
@@ -99,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
@@ -107,6 +121,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
   '/favorites': typeof FavoritesRoute
@@ -114,6 +129,7 @@ export interface FileRoutesByTo {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
@@ -123,6 +139,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
   '/favorites': typeof FavoritesRoute
@@ -130,6 +147,7 @@ export interface FileRoutesById {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
@@ -140,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/dashboard'
     | '/data-table-demo'
     | '/discover'
     | '/favorites'
@@ -147,6 +166,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/dashboard'
+    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/signup'
@@ -155,6 +175,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/dashboard'
     | '/data-table-demo'
     | '/discover'
     | '/favorites'
@@ -162,6 +183,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/dashboard'
+    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/signup'
@@ -170,6 +192,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/dashboard'
     | '/data-table-demo'
     | '/discover'
     | '/favorites'
@@ -177,6 +200,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/dashboard'
+    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/signup'
@@ -186,6 +210,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
   FavoritesRoute: typeof FavoritesRoute
@@ -193,6 +218,7 @@ export interface RootRouteChildren {
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
@@ -243,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DataTableDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -285,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -298,6 +338,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
   FavoritesRoute: FavoritesRoute,
@@ -305,6 +346,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,

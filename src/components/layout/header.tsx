@@ -11,7 +11,8 @@ import {
   Home,
   Search,
   FileText,
-  Heart
+  Heart,
+  LayoutDashboard
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "#client/hooks/use-auth";
@@ -82,14 +83,14 @@ export function Header() {
             ) : (
               <>
                 <Link 
-                  to="/about" 
+                  to="/dashboard" 
                   className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
-                  <Heart className="h-4 w-4" />
-                  <span>About Us</span>
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Dashboard</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
@@ -236,15 +237,15 @@ export function Header() {
               ) : (
                 <>
                 <Link 
-                    to="/about" 
+                    to="/dashboard" 
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
                   >
-                    <Heart className="h-4 w-4" />
-                    <span>About Us</span>
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Dashboard</span>
                   </Link>
                   <Link 
                     to="/discover" 
