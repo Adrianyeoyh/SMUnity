@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useAuth } from "#client/hooks/use-auth";
+import { LoginModal } from "#client/components/loginModal";
 
 export const Route = createFileRoute("/csp/$cspId")({
   component: CspDetail,
@@ -74,6 +76,8 @@ const formatDateRange = (startDate: string, endDate?: string) => {
 };
 
 function CspDetail() {
+const { isLoggedIn } = useAuth();
+const [showLoginModal, setShowLoginModal] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
@@ -527,13 +531,26 @@ What We Provide:
 
                     {/* Apply Button */}
                     <div ref={sidebarButtonRef}>
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        onClick={() => {
+                          if (!isLoggedIn) {
+                            // User not logged in → show login modal
+                            setShowLoginModal(true);
+                          } else {
+                            // User logged in → open application form
+                            setShowApplicationDialog(true);
+                          }
+                        }}
+                      >
+                        <Send className="mr-2 h-4 w-4" />
+                        Apply for this CSP
+                      </Button>
+
+
                       <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
-                        <DialogTrigger asChild>
-                          <Button className="w-full" size="lg">
-                            <Send className="mr-2 h-4 w-4" />
-                            Apply for this CSP
-                          </Button>
-                        </DialogTrigger>
+                        
                       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="font-heading text-2xl">Apply for {csp.title}</DialogTitle>
@@ -827,6 +844,11 @@ What We Provide:
           </div>
         )}
       </div>
+      <LoginModal
+      open={showLoginModal}
+      onClose={() => setShowLoginModal(false)}
+      redirectTo={`/csp/${csp.id}`}
+    />
     </div>
   );
 }
