@@ -11,7 +11,6 @@ import {
   MapPin, 
   Calendar, 
   Clock, 
-  Users, 
   Heart,
   Share2,
   AlertCircle,
@@ -150,60 +149,61 @@ const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Mock data - in real app, this would come from the route params and API
   const csp = {
-    id: "1",
-    title: "Project Candela",
-    organization: "SMU Rotaract",
-    location: "Kranji",
-    category: "Community",
+    id: "8",
+    title: "Project Kidleidoscope",
+    organization: "SMU Kidleidoscope",
+    location: "Central",
+    category: "Mentoring",
+    startDate: "2025-12-07",
+    endDate: "2025-06-07",
+    duration: "2h, Every Wednesday",
+    applicationDeadline: "2025-11-15",
     type: "local",
-    startDate: "2025-03-15",
-    endDate: "2025-06-15",
-    duration: "2h, Every Tuesday",
-    applicationDeadline: "2025-02-28",
-    serviceHours: 40,
-    maxVolunteers: 15,
-    currentVolunteers: 8,
+    serviceHours: 20,
+    maxVolunteers: 50,
+    currentVolunteers: 15,
     isRemote: false,
     status: "open",
-    description: `Join us to challenge and debunk negative stereotypes surrounding foreign workers while raising awareness among Singaporeans about the experiences and contributions of migrant workers.
+    description: `Initiated in 2013, Project Kidleidoscope empowers children from less privileged backgrounds to pursue their dreams through confidence-building activities and creative expression opportunities. This local community service initiative recognises that nurturing a child's potential requires a holistic approach that develops self-awareness, environmental consciousness, cultural appreciation, and social responsibility.
 
 What You'll Do:
-• Engage with migrant workers and hear their stories
-• Organize awareness campaigns and events
-• Create educational content for social media
-• Facilitate dialogue sessions between communities
-• Document stories and experiences
+• Design engaging, interactive programmes that tap into each child's unique creativity
+• Facilitate "Love for Self" activities focusing on healthy lifestyle habits and emotional intelligence
+• Conduct "Love for the Environment" sessions tackling critical issues like global warming
+• Lead "Love for Culture and the Arts" activities exposing participants to music, theater, and performing arts
+• Organize "Love for Others" activities emphasising teamwork and interpersonal skills development
+• Build essential life skills across four foundational themes
 
 Requirements:
-• Open-minded and culturally sensitive
-• Strong communication skills
-• Commitment to attend all sessions
-• Passion for social justice
+• Passion for working with children from diverse backgrounds
+• Strong communication and interpersonal skills
+• Creative thinking and program design abilities
+• Commitment to attend all sessions and training
+• Patience and empathy when working with children
 
 What We Provide:
-• Comprehensive training and orientation
-• Mentorship from experienced volunteers
-• Certificate of completion
-• Networking opportunities with social sector professionals`,
-    requirements: "Open-minded, culturally sensitive, strong communication skills",
-    skills: ["Communication", "Patience", "Teaching", "Empathy"],
-    tags: ["Migrant", "Migrant Workers", "Community"],
+• Comprehensive training and orientation program
+• Structured curriculum across four foundational themes
+• Support and mentorship from experienced volunteers
+• Opportunity to impact children's lives meaningfully
+• Certificate of completion and recognition`,
+    requirements: "Passion for working with children, strong communication skills, creative thinking abilities",
+    skills: ["Communication", "Patience", "Teaching", "Empathy", "Creativity", "Program Design"],
+    tags: ["Children", "Kids", "Less Privileged", "Art", "School", "Education"],
     images: [
-      "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800",
-      "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800",
-      "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800"
+      "https://c4sr.smu.edu.sg/sites/c4sr.smu.edu.sg/files/2025-07/05-LocalCSP-Kidleidoscope-IMG_0015.jpg"
     ],
     organizationInfo: {
-      name: "SMU Rotaract",
-      description: "SMU Rotaract is a student-led community service organization dedicated to creating positive social impact through meaningful projects and initiatives.",
-      website: "https://smurotaract.org",
-      email: "rotaract@smu.edu.sg",
+      name: "SMU Kidleidoscope",
+      description: "Kidleidoscope (stemming from the word \"kids\" and \"kaleidoscope\") is a SMU student community service initiative managed under the Centre for Social Responsibility (C4SR). Since its establishment, Kidleidoscope has been dedicated to creating opportunities for children to maximise their potential while building the confidence and life skills necessary for future success.",
+      website: "https://www.instagram.com/kscopesmu",
+      email: "commsvcs@smu.edu.sg",
       phone: "+65 6828 0100",
-      address: "Singapore Management University, 81 Victoria Street, Singapore 188065",
+      address: "Centre for Social Responsibility, Office of Dean of Students, Singapore Management University, Li Ka Shing Library Building, 70 Stamford Road, #B1-38, Singapore 178901",
       isVerified: true,
-      foundedYear: 2010,
-      totalProjects: 45,
-      totalVolunteers: 1200
+      foundedYear: 2013,
+      totalProjects: 10,
+      totalVolunteers: 520
     }
   };
 
@@ -216,14 +216,16 @@ What We Provide:
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Back Button */}
-        <Link 
-          to="/discover" 
+        <button 
+          onClick={() => {
+            // Use browser back to retain previous filters and pagination
+            window.history.back();
+          }}
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          <span className="font-body">Back to Discover</span>
-        </Link>
+          <span className="font-body">Back to Discover CSPs</span>
+        </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content - Left Side */}
@@ -306,8 +308,8 @@ What We Provide:
               </div>
             </div>
 
-            {/* Images Gallery */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Image */}
+            <div className="w-full">
               {csp.images.map((image, index) => (
                 <div key={index} className="aspect-video rounded-xl overflow-hidden bg-muted/50 border shadow-sm hover:shadow-md transition-shadow">
                   <img 
@@ -392,7 +394,7 @@ What We Provide:
                       {csp.organizationInfo.isVerified && (
                         <span className="inline-flex items-center text-green-600 text-sm">
                           <CheckCircle className="mr-1 h-4 w-4" />
-                          Verified Organization
+                          Verified Organiser
                         </span>
                       )}
                     </CardDescription>
@@ -406,7 +408,7 @@ What We Provide:
                   </p>
 
                   {/* Organization Stats */}
-                  <div className="grid grid-cols-3 gap-4 p-4 bg-muted/20 rounded-lg">
+                  <div className="grid grid-cols-3 p-4 bg-muted/20 rounded-lg">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary font-heading">{csp.organizationInfo.foundedYear}</div>
                       <div className="text-xs text-muted-foreground font-body">Founded</div>

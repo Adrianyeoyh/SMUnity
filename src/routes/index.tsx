@@ -975,12 +975,12 @@ function Index() {
           </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/discover">
-              <Button size="lg" variant="secondary" className="text-primary">
+              <Button size="lg" variant="outline" className="text-black font-semibold">
                 Discover CSPs
               </Button>
             </Link>
             <Link to="/auth/signup">
-              <Button size="lg" variant="outline" className="border-primary-foreground text-black hover:bg-primary-foreground hover:text-primary">
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
                 Get Started
               </Button>
             </Link>

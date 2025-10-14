@@ -59,13 +59,13 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* For Organizations */}
+          {/* For Organisations */}
           <div className="space-y-4">
-            <h3 className="font-heading font-semibold text-foreground">For Organizations</h3>
+            <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>
                 <a href="/organization/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Create Organization
+                  Create Organisation
                 </a>
               </li>
               <li>

@@ -214,7 +214,7 @@ function Dashboard() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* CSU Progress */}
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -236,7 +236,7 @@ function Dashboard() {
                   </p>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Ongoing Projects */}
             <Card>
@@ -382,13 +382,13 @@ function Dashboard() {
                 <CardTitle className="font-heading">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link to="/discover">
+                <Link to="/discover" className="block">
                   <Button className="w-full justify-start" variant="outline">
                     <Target className="mr-2 h-4 w-4" />
                     Browse New CSPs
                   </Button>
                 </Link>
-                <Link to="/favorites">
+                <Link to="/favorites" className="block">
                   <Button className="w-full justify-start" variant="outline">
                     <Heart className="mr-2 h-4 w-4" />
                     View Saved Projects
