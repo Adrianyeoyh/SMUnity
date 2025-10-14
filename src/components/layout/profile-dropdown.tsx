@@ -1,12 +1,12 @@
 import React from "react";
 
-export default function ProfileDropdown(props) {
-    const [selected, setSelected] = useState("");
+function ProfileDropdown() {
+    const [selected, setSelected] = useState<string>("");
 
     return (
         <select
-            value="{selected}"
-            onChange={(e) => 
+            value={selected}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
                 setSelected(e.target.value)
         }>
             <option value="profile">Profile</option>
@@ -14,3 +14,5 @@ export default function ProfileDropdown(props) {
         </select>
     )
 }
+
+export default ProfileDropdown;
