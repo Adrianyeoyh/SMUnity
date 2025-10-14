@@ -15,6 +15,7 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
@@ -51,6 +52,11 @@ const DiscoverRoute = DiscoverRouteImport.update({
 const DataTableDemoRoute = DataTableDemoRouteImport.update({
   id: '/data-table-demo',
   path: '/data-table-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -92,6 +98,7 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
   '/favorites': typeof FavoritesRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
   '/favorites': typeof FavoritesRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
   '/favorites': typeof FavoritesRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/dashboard'
     | '/data-table-demo'
     | '/discover'
     | '/favorites'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/dashboard'
     | '/data-table-demo'
     | '/discover'
     | '/favorites'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/dashboard'
     | '/data-table-demo'
     | '/discover'
     | '/favorites'
@@ -186,6 +198,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
   FavoritesRoute: typeof FavoritesRoute
@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DataTableDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -298,6 +318,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
   FavoritesRoute: FavoritesRoute,

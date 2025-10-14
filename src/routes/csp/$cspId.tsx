@@ -101,8 +101,15 @@ function CspDetail() {
 
   const handleApplicationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Application submitted!", {
-      description: "You'll receive an email confirmation shortly.",
+    toast.success("Application Successfully Submitted!", {
+      description: "The CSP organisation will review your application and get back to you shortly.",
+      className: "bg-green-50 border border-green-200 font-body",
+      position: "top-right",
+      style: {
+        backgroundColor: "#f0fdf4",
+        color: "#166534",
+        border: "1px solid #bbf7d0",
+      },
     });
     setShowApplicationDialog(false);
     setApplicationData({
