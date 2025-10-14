@@ -1,9 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { auth } from "#client/lib/auth";
 import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
+} from "#client/components/ui/card";
 import { Separator } from "#client/components/ui/separator";
 import { HeartHandshake, AlertCircle } from "lucide-react";
 
@@ -15,14 +17,33 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const navigate = useNavigate();
+  // Read ?redirectTo=/something from the URL if present
+  const search = useSearch({ from: "/auth/login" });
+  const redirectTo = search.redirectTo || "/dashboard";
+
   async function handleGoogleLogin() {
     try {
       setIsLoading(true);
       setError(null);
-      await auth.signIn.social({
+
+      // 👇 include redirect information for OAuth callback
+      const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(
+        redirectTo
+      )}`;
+
+      const result = await auth.signIn.social({
         provider: "google",
-        // callbackURL: `${process.env.VITE_APP_URL}/api/auth/callback/google`,
+        callbackURL: callbackUrl,
       });
+
+      if (result.data?.url) {
+        // Redirect user to Google OAuth
+        window.location.href = result.data.url;
+      } else if (result.data?.user) {
+        // Direct login (no external redirect)
+        navigate({ to: redirectTo });
+      }
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Unexpected error";
       setError(msg);
@@ -31,6 +52,17 @@ function Login() {
       setIsLoading(false);
     }
   }
+
+  // 👇 Optional: auto-redirect after successful login (if BetterAuth restores session)
+  useEffect(() => {
+    async function checkSession() {
+      const session = await auth.getSession();
+      if (session?.data?.user) {
+        navigate({ to: redirectTo });
+      }
+    }
+    checkSession();
+  }, [navigate, redirectTo]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-12 px-4">
