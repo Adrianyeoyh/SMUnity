@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "#client/hooks/use-auth";
+// import { ProfileDropdown } from "#client/components/layout/profile-dropdown.tsx"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
