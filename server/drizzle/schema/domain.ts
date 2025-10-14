@@ -319,3 +319,19 @@ export const organiserInvites = pgTable("organiser_invites", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const organizationRequests = pgTable("organization_requests", {
+  id: serial("id").primaryKey(),
+  requestedByUserId: text("requested_by_user_id"), // nullable for external non-SMU
+  requesterEmail: text("requester_email").notNull(), // external email for non-SMU
+  requesterName: text("requester_name"),
+  orgName: varchar("org_name", { length: 160 }).notNull(),
+  orgDescription: text("org_description"),
+  website: varchar("website", { length: 255 }),
+  // optional: document links / attachment ids
+  status: pgEnum("request_status", ["pending", "approved", "rejected"])("status")
+    .notNull().default("pending"),
+  decidedBy: text("decided_by"),
+  decidedAt: timestamp("decided_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
