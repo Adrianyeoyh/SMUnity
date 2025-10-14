@@ -22,6 +22,7 @@ import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 
 const ProfileRoute = ProfileRouteImport.update({
@@ -89,6 +90,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/dashboard'
+    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/signup'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/dashboard'
+    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/signup'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/dashboard'
+    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/signup'
@@ -206,6 +218,7 @@ export interface RootRouteChildren {
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -326,6 +346,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
