@@ -6,7 +6,7 @@ import {
 import { sql } from "drizzle-orm";
 
 // ---------- Enums ----------
-export const userRoleEnum = pgEnum("user_role", ["student","leader","admin"]);
+export const accountTypeEnum = pgEnum("account_type", ["student","external","admin"]);
 export const projectStatusEnum = pgEnum("project_status", ["draft","pending","approved","closed","archived"]);
 export const applicationStatusEnum = pgEnum("application_status", ["pending","accepted","rejected","waitlisted","withdrawn","cancelled"]);
 export const verificationActionEnum = pgEnum("verification_action", ["submitted","approved","rejected","closed","reopened"]);
@@ -14,26 +14,30 @@ export const attachmentOwnerEnum = pgEnum("attachment_owner", ["project","organi
 export const requirementTypeEnum = pgEnum("requirement_type", ["CSU_MODULE","ONTRAC"]);
 export const notificationTypeEnum = pgEnum("notification_type", ["info","warning","success","action"]);
 export const interviewOutcomeEnum = pgEnum("interview_outcome", ["pending","pass","fail","no_show","reschedule"]);
+export const orgRoleEnum = pgEnum("org_role", ["leader","member"]);
+export const requestStatusEnum = pgEnum("request_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 
 // ---------- Auth bridge (app profile layered on template's auth.user) ----------
 export const profiles = pgTable("profiles", {
-  // match your template's auth.user.id which is text PK
   userId: text("user_id").primaryKey(),
-  // external identity for Clerk/others (optional)
-  externalProvider: varchar("external_provider", { length: 50 }), // e.g. "clerk"
+  externalProvider: varchar("external_provider", { length: 50 }),
   externalUserId: varchar("external_user_id", { length: 190 }),
   displayName: varchar("display_name", { length: 120 }),
   phone: varchar("phone", { length: 50 }),
-  role: userRoleEnum("role").notNull().default("student"),
-  skills: text("skills").array(),         // quick MVP
-  interests: text("interests").array(),   // quick MVP
-  csuCompletedAt: timestamp("csu_completed_at"), // for CSU reminder feature
+  accountType: accountTypeEnum("account_type").notNull().default("student"),
+  skills: text("skills").array(),
+  interests: text("interests").array(),
+  csuCompletedAt: timestamp("csu_completed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   deletedAt: timestamp("deleted_at"),
 }, (t) => ({
   extIdx: uniqueIndex("profiles_ext_provider_user").on(t.externalProvider, t.externalUserId),
-  roleIdx: index("profiles_role_idx").on(t.role),
 }));
 
 // ---------- Organizations & membership (leaders/admins manage CSPs) ----------
@@ -56,8 +60,7 @@ export const organizations = pgTable("organizations", {
 export const orgMemberships = pgTable("org_memberships", {
   orgId: integer("org_id").notNull(),
   userId: text("user_id").notNull(),
-  // role within org (independent from global role)
-  role: userRoleEnum("org_role").notNull().default("leader"),
+  role: orgRoleEnum("role").notNull().default("member"),
   invitedAt: timestamp("invited_at").defaultNow().notNull(),
   acceptedAt: timestamp("accepted_at"),
 }, (t) => ({
@@ -329,8 +332,7 @@ export const organizationRequests = pgTable("organization_requests", {
   orgDescription: text("org_description"),
   website: varchar("website", { length: 255 }),
   // optional: document links / attachment ids
-  status: pgEnum("request_status", ["pending", "approved", "rejected"])("status")
-    .notNull().default("pending"),
+  status: requestStatusEnum("status").notNull().default("pending"),
   decidedBy: text("decided_by"),
   decidedAt: timestamp("decided_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
