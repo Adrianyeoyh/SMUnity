@@ -267,7 +267,7 @@ function Dashboard() {
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span className="font-body">Next: {new Date(project.nextSession).toLocaleDateString()}</span>
+                        <span className="font-body">Next: {new Date(project.nextSession).toLocaleDateString("en-GB")}</span>
                       </div>
                     </div>
 
@@ -310,7 +310,7 @@ function Dashboard() {
                       <h4 className="font-heading font-semibold mb-1">{app.title}</h4>
                       <p className="text-sm text-muted-foreground font-body">{app.organization}</p>
                       <p className="text-xs text-muted-foreground font-body mt-1">
-                        Applied: {new Date(app.appliedDate).toLocaleDateString()}
+                        Applied: {new Date(app.appliedDate).toLocaleDateString("en-GB")}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">

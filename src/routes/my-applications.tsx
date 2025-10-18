@@ -161,13 +161,13 @@ function MyApplications() {
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-4 w-4" />
                       <span className="font-body">
-                        Applied: {new Date(application.appliedDate).toLocaleDateString()}
+                        Applied: {new Date(application.appliedDate).toLocaleDateString("en-GB")}
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4" />
                       <span className="font-body">
-                        Start: {new Date(application.startDate).toLocaleDateString()}
+                        Start: {new Date(application.startDate).toLocaleDateString("en-GB")}
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
