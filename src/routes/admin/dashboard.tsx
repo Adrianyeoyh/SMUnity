@@ -236,7 +236,7 @@ function AdminDashboard() {
                           {application.cspTitle}
                         </p>
                         <p className="text-xs text-muted-foreground font-body">
-                          Applied: {new Date(application.appliedDate).toLocaleDateString()}
+                          Applied: {new Date(application.appliedDate).toLocaleDateString("en-GB")}
                         </p>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -394,7 +394,7 @@ function AdminDashboard() {
 
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-muted-foreground font-body">
-                        Applied: {new Date(application.appliedDate).toLocaleDateString()}
+                        Applied: {new Date(application.appliedDate).toLocaleDateString("en-GB")}
                       </div>
                       <div className="flex space-x-2">
                         {application.status === "pending" && (

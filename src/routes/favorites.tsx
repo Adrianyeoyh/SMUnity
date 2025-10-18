@@ -161,7 +161,7 @@ function Favorites() {
                     <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4" />
-                        <span className="font-body">{new Date(csp.startDate).toLocaleDateString()}</span>
+                        <span className="font-body">{new Date(csp.startDate).toLocaleDateString("en-GB")}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Users className="h-4 w-4" />
@@ -183,7 +183,7 @@ function Favorites() {
                     </div>
 
                     <div className="text-xs text-muted-foreground font-body">
-                      Favorited on {new Date(csp.favoritedDate).toLocaleDateString()}
+                      Favorited on {new Date(csp.favoritedDate).toLocaleDateString("en-GB")}
                     </div>
 
                     <div className="flex space-x-2">

@@ -209,7 +209,7 @@ function Profile() {
                 <div className="flex items-center space-x-3 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="font-body">
-                    Joined {new Date(user.joinDate).toLocaleDateString()}
+                    Joined {new Date(user.joinDate).toLocaleDateString("en-GB")}
                   </span>
                 </div>
               </CardContent>
@@ -302,13 +302,13 @@ function Profile() {
                           <div className="flex items-center space-x-1">
                             <Calendar className="h-4 w-4" />
                             <span className="font-body">
-                              Applied: {new Date(application.appliedDate).toLocaleDateString()}
+                              Applied: {new Date(application.appliedDate).toLocaleDateString("en-GB")}
                             </span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Clock className="h-4 w-4" />
                             <span className="font-body">
-                              Start: {new Date(application.startDate).toLocaleDateString()}
+                              Start: {new Date(application.startDate).toLocaleDateString("en-GB")}
                             </span>
                           </div>
                           <div className="flex items-center space-x-1">
@@ -371,7 +371,7 @@ function Profile() {
                           <div className="flex items-center space-x-1">
                             <Calendar className="h-4 w-4" />
                             <span className="font-body">
-                              Completed: {new Date(csp.completedDate).toLocaleDateString()}
+                              Completed: {new Date(csp.completedDate).toLocaleDateString("en-GB")}
                             </span>
                           </div>
                           <div className="flex items-center space-x-1">
