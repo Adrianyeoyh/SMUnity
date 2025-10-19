@@ -1,39 +1,77 @@
 // server/api/users/index.ts
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
-import { auth } from "#server/lib/auth";
 import * as schema from "#server/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { requireSession } from "../_utils/auth";
 
-const router = new Hono();
+export const usersRoutes = new Hono();
 
-router.get("/me", async (c) => {
-  const res = await auth.handler(
-    new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }),
-  );
-  const data: any = await res.clone().json().catch(() => ({}));
-  const sessionUser = data?.user ?? data?.data?.user;
+export type MeResponse = {
+  id: string;
+  email: string;
+  accountType: "student" | "organisation" | "admin";
+  profile: {
+    displayName: string | null;
+    phone: string | null;
+    school: string | null;
+    graduationYear: number | null;
+    studentId: string | null;
+  } | null;
+  dashboard?: {
+    totalHours: number;
+    activeApplications: number;
+    completedProjects: number;
+  };
+};
 
-  if (!sessionUser?.id) return c.json({ user: null, profile: null });
+// GET /api/users/me
+usersRoutes.get("/me", async c => {
+  const user = await requireSession(c);
 
-  const me = await db
-    .select()
-    .from(schema.user)
-    .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.user.id))
-    .where(eq(schema.user.id, sessionUser.id))
-    .limit(1);
+  const [p] = await db.select({
+    displayName: schema.profiles.displayName,
+    phone: schema.profiles.phone,
+    school: schema.profiles.school,
+    graduationYear: schema.profiles.graduationYear,
+    studentId: schema.profiles.studentId,
+  }).from(schema.profiles).where(eq(schema.profiles.userId, user.id));
 
-  const row = me[0];
-  return c.json({
-    user: {
-      id: sessionUser.id,
-      email: sessionUser.email,
-      name: sessionUser.name,
-    },
-    profile: row?.profiles
-      ? { role: row.profiles.role, displayName: row.profiles.displayName }
-      : null,
-  });
+  let dashboard: MeResponse["dashboard"] | undefined;
+
+  if (user.accountType === "student") {
+    // minimal numbers for student dashboard header
+    const [{ countActive }] = await db.execute<{ countActive: number }>(/* sql */`
+      select count(*)::int as "countActive"
+      from applications a
+      where a.user_id = ${user.id}
+        and a.status in ('pending','accepted')
+    `);
+    const [{ totalHours }] = await db.execute<{ totalHours: number }>(/* sql */`
+      select coalesce(sum(hours),0)::int as "totalHours"
+      from timesheets t
+      where t.user_id = ${user.id}
+    `);
+    const [{ completedProjects }] = await db.execute<{ completedProjects: number }>(/* sql */`
+      select count(distinct project_id)::int as "completedProjects"
+      from timesheets t
+      where t.user_id = ${user.id} and t.verified = true
+    `);
+
+    dashboard = {
+      totalHours,
+      activeApplications: countActive,
+      completedProjects,
+    };
+  }
+
+  const resp: MeResponse = {
+    id: user.id,
+    email: user.email,
+    accountType: user.accountType,
+    profile: p ?? null,
+    dashboard,
+  };
+
+  return c.json(resp);
 });
-
-export default router;

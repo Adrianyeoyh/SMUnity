@@ -157,7 +157,7 @@ function DiscoverCSPs() {
     {
       id: "1",
       title: "Project Candela",
-      organization: "SMU Rotaract",
+      organisation: "SMU Rotaract",
       location: "Kranji",
       category: "Community",
       startDate: "2025-03-15",
@@ -178,7 +178,7 @@ function DiscoverCSPs() {
     {
       id: "2",
       title: "Beach Cleanup at East Coast Park",
-      organization: "Green Singapore",
+      organisation: "Green Singapore",
       location: "East Coast Park",
       category: "Environment",
       startDate: "2025-02-20",
@@ -199,7 +199,7 @@ function DiscoverCSPs() {
     {
       id: "3",
       title: "Virtual Mentoring Program",
-      organization: "Youth Connect",
+      organisation: "Youth Connect",
       location: "Remote",
       category: "Mentoring",
       startDate: "2025-03-01",
@@ -220,7 +220,7 @@ function DiscoverCSPs() {
     {
       id: "4",
       title: "Community Garden Project",
-      organization: "Green Thumbs",
+      organisation: "Green Thumbs",
       location: "Jurong West",
       category: "Environment",
       startDate: "2025-02-10",
@@ -241,7 +241,7 @@ function DiscoverCSPs() {
     {
       id: "5",
       title: "Senior Care Support Program",
-      organization: "Golden Years",
+      organisation: "Golden Years",
       location: "Toa Payoh",
       category: "Elderly",
       startDate: "2025-02-15",
@@ -262,7 +262,7 @@ function DiscoverCSPs() {
     {
       id: "6",
       title: "Food Bank Volunteer",
-      organization: "Food for All",
+      organisation: "Food for All",
       location: "Jurong West",
       category: "Community",
       startDate: "2025-01-15",
@@ -277,13 +277,13 @@ function DiscoverCSPs() {
       status: "closed",
       applicationDeadline: "2025-01-10",
       description: "Help sort, pack, and distribute food items to families in need.",
-      skills: ["Teamwork", "Organization", "Service"],
+      skills: ["Teamwork", "organisation", "Service"],
       tags: ["Community", "Food", "Charity"]
     },
     {
       id: "7",
       title: "Arts & Crafts Workshop for Kids",
-      organization: "Creative Minds",
+      organisation: "Creative Minds",
       location: "Bishan",
       category: "Arts & Culture",
       startDate: "2025-03-05",
@@ -304,7 +304,7 @@ function DiscoverCSPs() {
     {
       id: "8",
       title: "Project Kidleidoscope",
-      organization: "SMU Kidleidoscope",
+      organisation: "SMU Kidleidoscope",
       location: "Central",
       category: "Mentoring",
       startDate: "2025-12-07",
@@ -325,7 +325,7 @@ function DiscoverCSPs() {
     {
       id: "9",
       title: "Coding Classes for Underprivileged Youth",
-      organization: "Tech for Good",
+      organisation: "Tech for Good",
       location: "Remote",
       category: "Coding",
       startDate: "2025-03-10",
@@ -346,7 +346,7 @@ function DiscoverCSPs() {
     {
       id: "10",
       title: "Animal Shelter Volunteer",
-      organization: "Paws & Claws",
+      organisation: "Paws & Claws",
       location: "Pasir Ris",
       category: "Animal Welfare",
       startDate: "2025-02-18",
@@ -367,7 +367,7 @@ function DiscoverCSPs() {
     {
       id: "11",
       title: "Heritage Trail Guide",
-      organization: "Singapore Heritage",
+      organisation: "Singapore Heritage",
       location: "Chinatown",
       category: "Arts & Culture",
       startDate: "2025-03-15",
@@ -388,7 +388,7 @@ function DiscoverCSPs() {
     {
       id: "12",
       title: "Youth Sports Coaching",
-      organization: "Sports for All",
+      organisation: "Sports for All",
       location: "Clementi",
       category: "Sports & Leisure",
       startDate: "2025-02-22",
@@ -409,7 +409,7 @@ function DiscoverCSPs() {
     {
       id: "13",
       title: "Environmental Education Workshop",
-      organization: "Green Singapore",
+      organisation: "Green Singapore",
       location: "Woodlands",
       category: "Environment",
       startDate: "2025-03-08",
@@ -430,7 +430,7 @@ function DiscoverCSPs() {
     {
       id: "14",
       title: "Hospital Companionship Program",
-      organization: "Care & Comfort",
+      organisation: "Care & Comfort",
       location: "Novena",
       category: "Community",
       startDate: "2025-02-28",
@@ -451,7 +451,7 @@ function DiscoverCSPs() {
     {
       id: "15",
       title: "Digital Literacy for Seniors",
-      organization: "Tech Seniors",
+      organisation: "Tech Seniors",
       location: "Bedok",
       category: "Elderly",
       startDate: "2025-03-12",
@@ -472,7 +472,7 @@ function DiscoverCSPs() {
     {
       id: "16",
       title: "Education Support in Rural Cambodia",
-      organization: "SMU Global Outreach",
+      organisation: "SMU Global Outreach",
       location: "Cambodia",
       category: "Mentoring",
       type: "overseas",
@@ -494,7 +494,7 @@ function DiscoverCSPs() {
     {
       id: "17",
       title: "Marine Conservation Project - Thailand",
-      organization: "Ocean Guardians International",
+      organisation: "Ocean Guardians International",
       location: "Phuket, Thailand",
       category: "Environment",
       type: "overseas",
@@ -516,7 +516,7 @@ function DiscoverCSPs() {
     {
       id: "18",
       title: "Virtual Tech Mentorship - Philippines",
-      organization: "Code for Communities",
+      organisation: "Code for Communities",
       location: "Remote",
       category: "Coding",
       type: "overseas",
@@ -538,7 +538,7 @@ function DiscoverCSPs() {
     {
       id: "19",
       title: "Community Building in Nepal",
-      organization: "Habitat for Humanity Asia",
+      organisation: "Habitat for Humanity Asia",
       location: "Kathmandu, Nepal",
       category: "Community",
       type: "overseas",
@@ -560,7 +560,7 @@ function DiscoverCSPs() {
     {
       id: "20",
       title: "Orphanage Care Program - Vietnam",
-      organization: "Children First Asia",
+      organisation: "Children First Asia",
       location: "Ho Chi Minh City, Vietnam",
       category: "Community",
       type: "overseas",
@@ -598,7 +598,7 @@ function DiscoverCSPs() {
     const query = searchQuery.toLowerCase();
     const matchesSearch = searchQuery === "" || 
       csp.title.toLowerCase().includes(query) ||
-      csp.organization.toLowerCase().includes(query) ||
+      csp.organisation.toLowerCase().includes(query) ||
       csp.location.toLowerCase().includes(query) ||
       csp.category.toLowerCase().includes(query) ||
       csp.description.toLowerCase().includes(query) ||
@@ -1010,7 +1010,7 @@ function DiscoverCSPs() {
                         {csp.title}
                       </CardTitle>
                       <CardDescription className="font-body">
-                        {csp.organization}
+                        {csp.organisation}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col justify-between gap-4">
@@ -1096,7 +1096,7 @@ function DiscoverCSPs() {
                                 {csp.title}
                               </h3>
                               <p className="text-muted-foreground font-body">
-                                {csp.organization}
+                                {csp.organisation}
                               </p>
                             </div>
                             <Button variant="ghost" size="icon" className="h-8 w-8">

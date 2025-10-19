@@ -30,7 +30,7 @@ function MapView() {
     {
       id: "1",
       title: "Teaching English to Underprivileged Children",
-      organization: "Hope Foundation",
+      organisation: "Hope Foundation",
       location: "Tampines",
       category: "Education",
       startDate: "2024-02-15",
@@ -45,7 +45,7 @@ function MapView() {
     {
       id: "2",
       title: "Environmental Cleanup at East Coast Park",
-      organization: "Green Singapore",
+      organisation: "Green Singapore",
       location: "East Coast Park",
       category: "Environment",
       startDate: "2024-02-20",
@@ -60,7 +60,7 @@ function MapView() {
     {
       id: "3",
       title: "Virtual Mentoring Program",
-      organization: "Youth Connect",
+      organisation: "Youth Connect",
       location: "Remote",
       category: "Mentoring",
       startDate: "2024-03-01",
@@ -75,7 +75,7 @@ function MapView() {
     {
       id: "4",
       title: "Community Garden Project",
-      organization: "Green Thumbs",
+      organisation: "Green Thumbs",
       location: "Jurong West",
       category: "Environment",
       startDate: "2024-02-25",
@@ -90,7 +90,7 @@ function MapView() {
     {
       id: "5",
       title: "Senior Care Support",
-      organization: "Golden Years",
+      organisation: "Golden Years",
       location: "Toa Payoh",
       category: "Healthcare",
       startDate: "2024-03-01",
@@ -296,7 +296,7 @@ function MapView() {
                           {csp.title}
                         </CardTitle>
                         <CardDescription className="font-body">
-                          {csp.organization}
+                          {csp.organisation}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>

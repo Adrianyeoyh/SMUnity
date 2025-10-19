@@ -49,7 +49,7 @@ function Profile() {
     {
       id: "1",
       cspTitle: "Teaching English to Underprivileged Children",
-      organization: "Hope Foundation",
+      organisation: "Hope Foundation",
       status: "approved",
       appliedDate: "2024-01-15",
       startDate: "2024-02-15",
@@ -59,7 +59,7 @@ function Profile() {
     {
       id: "2",
       cspTitle: "Environmental Cleanup at East Coast Park",
-      organization: "Green Singapore",
+      organisation: "Green Singapore",
       status: "pending",
       appliedDate: "2024-01-20",
       startDate: "2024-02-20",
@@ -69,7 +69,7 @@ function Profile() {
     {
       id: "3",
       cspTitle: "Senior Care Support",
-      organization: "Golden Years",
+      organisation: "Golden Years",
       status: "rejected",
       appliedDate: "2024-01-10",
       startDate: "2024-02-01",
@@ -83,7 +83,7 @@ function Profile() {
     {
       id: "1",
       title: "Community Garden Project",
-      organization: "Green Thumbs",
+      organisation: "Green Thumbs",
       completedDate: "2023-12-15",
       serviceHours: 20,
       rating: 5
@@ -91,7 +91,7 @@ function Profile() {
     {
       id: "2",
       title: "Food Bank Volunteer",
-      organization: "Food for All",
+      organisation: "Food for All",
       completedDate: "2023-11-30",
       serviceHours: 15,
       rating: 4
@@ -265,7 +265,7 @@ function Profile() {
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="applications">My Applications</TabsTrigger>
                 <TabsTrigger value="completed">Completed CSPs</TabsTrigger>
-                <TabsTrigger value="favorites">Favorites</TabsTrigger>
+                <TabsTrigger value="favourites">favourites</TabsTrigger>
               </TabsList>
 
               {/* Applications Tab */}
@@ -287,7 +287,7 @@ function Profile() {
                               {application.cspTitle}
                             </h4>
                             <p className="text-muted-foreground font-body">
-                              {application.organization}
+                              {application.organisation}
                             </p>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -356,7 +356,7 @@ function Profile() {
                               {csp.title}
                             </h4>
                             <p className="text-muted-foreground font-body">
-                              {csp.organization}
+                              {csp.organisation}
                             </p>
                           </div>
                           <div className="flex items-center space-x-1">
@@ -394,10 +394,10 @@ function Profile() {
                 </div>
               </TabsContent>
 
-              {/* Favorites Tab */}
-              <TabsContent value="favorites" className="space-y-4">
+              {/* favourites Tab */}
+              <TabsContent value="favourites" className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-heading text-xl font-semibold">Favorite CSPs</h3>
+                  <h3 className="font-heading text-xl font-semibold">favourite CSPs</h3>
                   <Button variant="outline" size="sm">
                     View All
                   </Button>
@@ -405,9 +405,9 @@ function Profile() {
 
                 <div className="text-center py-12">
                   <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h4 className="font-heading text-lg font-semibold mb-2">No favorites yet</h4>
+                  <h4 className="font-heading text-lg font-semibold mb-2">No favourites yet</h4>
                   <p className="text-muted-foreground font-body mb-4">
-                    Start exploring CSPs and add them to your favorites
+                    Start exploring CSPs and add them to your favourites
                   </p>
                   <Button>
                     Browse CSPs

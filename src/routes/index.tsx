@@ -181,7 +181,7 @@ function Index() {
     {
       id: "1",
       title: "Project Candela",
-      organization: "SMU Rotaract",
+      organisation: "SMU Rotaract",
       location: "Kranji",
       category: "Community",
       type: "local",
@@ -201,7 +201,7 @@ function Index() {
     {
       id: "2", 
       title: "Environmental Cleanup at East Coast Park",
-      organization: "Green Singapore",
+      organisation: "Green Singapore",
       location: "East Coast Park",
       category: "Environment",
       type: "local",
@@ -221,7 +221,7 @@ function Index() {
     {
       id: "3",
       title: "Virtual Mentoring Program",
-      organization: "Youth Connect",
+      organisation: "Youth Connect",
       location: "Remote",
       category: "Mentoring",
       type: "local",
@@ -241,7 +241,7 @@ function Index() {
     {
       id: "4",
       title: "Elderly Home Visitation Program",
-      organization: "Silver Care Association",
+      organisation: "Silver Care Association",
       location: "Bishan",
       category: "Elderly",
       type: "local",
@@ -261,7 +261,7 @@ function Index() {
     {
       id: "5",
       title: "Community Arts Workshop",
-      organization: "Creative Hearts SG",
+      organisation: "Creative Hearts SG",
       location: "Toa Payoh",
       category: "Arts & Culture",
       type: "local",
@@ -281,7 +281,7 @@ function Index() {
     {
       id: "6",
       title: "Food Distribution Drive",
-      organization: "Food4All Singapore",
+      organisation: "Food4All Singapore",
       location: "Jurong",
       category: "Community",
       type: "local",
@@ -295,14 +295,14 @@ function Index() {
       status: "open",
       applicationDeadline: "2025-02-20",
       description: "Help distribute food packages to families in need. Make a direct impact in fighting food insecurity.",
-      skills: ["Teamwork", "Organization", "Physical Activity", "Service"],
+      skills: ["Teamwork", "organisation", "Physical Activity", "Service"],
       tags: ["Community", "Food", "One-time"]
     },
     // Overseas Projects
     {
       id: "7",
       title: "Cambodia School Building Project",
-      organization: "Habitat for Humanity",
+      organisation: "Habitat for Humanity",
       location: "Siem Reap, Cambodia",
       category: "Community",
       type: "overseas",
@@ -322,7 +322,7 @@ function Index() {
     {
       id: "8",
       title: "Vietnam Community Teaching Program",
-      organization: "Global Education Initiative",
+      organisation: "Global Education Initiative",
       location: "Ho Chi Minh City, Vietnam",
       category: "Mentoring",
       type: "overseas",
@@ -342,7 +342,7 @@ function Index() {
     {
       id: "9",
       title: "Thailand Elephant Conservation",
-      organization: "Wildlife Conservation Network",
+      organisation: "Wildlife Conservation Network",
       location: "Chiang Mai, Thailand",
       category: "Animal Welfare",
       type: "overseas",
@@ -362,7 +362,7 @@ function Index() {
     {
       id: "10",
       title: "Indonesia Disaster Relief Support",
-      organization: "Red Cross International",
+      organisation: "Red Cross International",
       location: "Jakarta, Indonesia",
       category: "Community",
       type: "overseas",
@@ -382,7 +382,7 @@ function Index() {
     {
       id: "11",
       title: "Nepal Mountain School Renovation",
-      organization: "Education Without Borders",
+      organisation: "Education Without Borders",
       location: "Pokhara, Nepal",
       category: "Environment",
       type: "overseas",
@@ -422,7 +422,7 @@ function Index() {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
       csp.title.toLowerCase().includes(query) ||
-      csp.organization.toLowerCase().includes(query) ||
+      csp.organisation.toLowerCase().includes(query) ||
       csp.location.toLowerCase().includes(query) ||
       csp.category.toLowerCase().includes(query) ||
       csp.description.toLowerCase().includes(query) ||
@@ -746,7 +746,7 @@ function Index() {
                       {csp.title}
                     </CardTitle>
                     <CardDescription className="font-body">
-                      {csp.organization}
+                      {csp.organisation}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col justify-between gap-4">
@@ -849,7 +849,7 @@ function Index() {
                           {csp.title}
                         </CardTitle>
                         <CardDescription className="font-body">
-                          {csp.organization}
+                          {csp.organisation}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="flex-1 flex flex-col justify-between gap-4">

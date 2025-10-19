@@ -38,7 +38,7 @@ function Dashboard() {
     {
       id: "1",
       title: "Project Candela",
-      organization: "SMU Rotaract",
+      organisation: "SMU Rotaract",
       location: "Kranji",
       nextSession: "2025-03-18",
       hoursCompleted: 12,
@@ -48,7 +48,7 @@ function Dashboard() {
     {
       id: "2",
       title: "Elderly Home Visitation Program",
-      organization: "Silver Care Association",
+      organisation: "Silver Care Association",
       location: "Bishan",
       nextSession: "2025-03-15",
       hoursCompleted: 8,
@@ -62,14 +62,14 @@ function Dashboard() {
     {
       id: "3",
       title: "Community Arts Workshop",
-      organization: "Creative Hearts SG",
+      organisation: "Creative Hearts SG",
       status: "pending",
       appliedDate: "2025-02-20",
     },
     {
       id: "4",
       title: "Food Distribution Drive",
-      organization: "Food4All Singapore",
+      organisation: "Food4All Singapore",
       status: "accepted",
       appliedDate: "2025-02-18",
     },
@@ -253,7 +253,7 @@ function Dashboard() {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-heading font-semibold text-lg mb-1">{project.title}</h3>
-                        <p className="text-sm text-muted-foreground font-body">{project.organization}</p>
+                        <p className="text-sm text-muted-foreground font-body">{project.organisation}</p>
                       </div>
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
                         Active
@@ -308,7 +308,7 @@ function Dashboard() {
                   <div key={app.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex-1">
                       <h4 className="font-heading font-semibold mb-1">{app.title}</h4>
-                      <p className="text-sm text-muted-foreground font-body">{app.organization}</p>
+                      <p className="text-sm text-muted-foreground font-body">{app.organisation}</p>
                       <p className="text-xs text-muted-foreground font-body mt-1">
                         Applied: {new Date(app.appliedDate).toLocaleDateString("en-GB")}
                       </p>
@@ -388,7 +388,7 @@ function Dashboard() {
                     Browse New CSPs
                   </Button>
                 </Link>
-                <Link to="/favorites" className="block">
+                <Link to="/favourites" className="block">
                   <Button className="w-full justify-start" variant="outline">
                     <Heart className="mr-2 h-4 w-4" />
                     View Saved Projects
