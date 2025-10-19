@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
 import { Route as MapRouteImport } from './routes/map'
-import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as FavoruitesRouteImport } from './routes/favoruites'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -40,9 +40,9 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FavoritesRoute = FavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
+const FavoruitesRoute = FavoruitesRouteImport.update({
+  id: '/favoruites',
+  path: '/favoruites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -107,7 +107,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
+  '/favoruites': typeof FavoruitesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
@@ -124,7 +124,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
+  '/favoruites': typeof FavoruitesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
@@ -142,7 +142,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
+  '/favoruites': typeof FavoruitesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
@@ -161,7 +161,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
+    | '/favoruites'
     | '/map'
     | '/my-applications'
     | '/profile'
@@ -178,7 +178,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
+    | '/favoruites'
     | '/map'
     | '/my-applications'
     | '/profile'
@@ -195,7 +195,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
+    | '/favoruites'
     | '/map'
     | '/my-applications'
     | '/profile'
@@ -213,7 +213,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
-  FavoritesRoute: typeof FavoritesRoute
+  FavoruitesRoute: typeof FavoruitesRoute
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
@@ -248,11 +248,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/favorites': {
-      id: '/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof FavoritesRouteImport
+    '/favoruites': {
+      id: '/favoruites'
+      path: '/favoruites'
+      fullPath: '/favoruites'
+      preLoaderRoute: typeof FavoruitesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -341,7 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
-  FavoritesRoute: FavoritesRoute,
+  FavoruitesRoute: FavoruitesRoute,
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
