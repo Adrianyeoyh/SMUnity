@@ -84,7 +84,7 @@ function favourites() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="font-heading text-3xl font-bold text-foreground mb-2">
-              My favourites
+              My Favourites
             </h1>
             <p className="text-muted-foreground font-body">
               CSPs you've saved for later
