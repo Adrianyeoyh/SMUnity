@@ -21,7 +21,7 @@ import {
   Activity
 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/dashboard")({
+export const Route = createFileRoute("/admin/adminDashboard")({
   component: AdminDashboard,
 });
 

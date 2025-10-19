@@ -53,7 +53,7 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/favourites" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  favourites
+                  Favourites
                 </Link>
               </li>
             </ul>
@@ -64,12 +64,12 @@ export function Footer() {
             <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>
-                <a href="/organisation/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/organization/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Create Organisation
                 </a>
               </li>
               <li>
-                <a href="/organisation/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/organization/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Organisation Dashboard
                 </a>
               </li>

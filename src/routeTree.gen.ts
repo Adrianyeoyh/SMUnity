@@ -13,6 +13,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavouritesRouteImport } from './routes/favourites'
+import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -23,7 +24,7 @@ import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminAdminDashboardRouteImport } from './routes/admin/adminDashboard'
 
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
@@ -43,6 +44,11 @@ const MapRoute = MapRouteImport.update({
 const FavouritesRoute = FavouritesRouteImport.update({
   id: '/favourites',
   path: '/favourites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritesRoute = FavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -95,9 +101,9 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/admin/dashboard',
-  path: '/admin/dashboard',
+const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
+  id: '/admin/adminDashboard',
+  path: '/admin/adminDashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -107,11 +113,12 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
+  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -124,11 +131,12 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
+  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -142,11 +150,12 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
+  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -161,11 +170,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
+    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/dashboard'
+    | '/admin/adminDashboard'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -178,11 +188,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
+    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/dashboard'
+    | '/admin/adminDashboard'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -195,11 +206,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
+    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/dashboard'
+    | '/admin/adminDashboard'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -213,11 +225,12 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
+  FavoritesRoute: typeof FavoritesRoute
   FavouritesRoute: typeof FavouritesRoute
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
-  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/favourites'
       fullPath: '/favourites'
       preLoaderRoute: typeof FavouritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -325,11 +345,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
-      path: '/admin/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
+    '/admin/adminDashboard': {
+      id: '/admin/adminDashboard'
+      path: '/admin/adminDashboard'
+      fullPath: '/admin/adminDashboard'
+      preLoaderRoute: typeof AdminAdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -341,11 +361,12 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
+  FavoritesRoute: FavoritesRoute,
   FavouritesRoute: FavouritesRoute,
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
-  AdminDashboardRoute: AdminDashboardRoute,
+  AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
