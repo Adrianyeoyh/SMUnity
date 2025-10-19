@@ -179,39 +179,39 @@ export function Header() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 p-0" align="end">
-                    <div className="p-4 border-b">
-                      <h3 className="font-heading font-semibold">Notifications</h3>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <div 
-                          key={notification.id}
-                          className={`p-4 border-b hover:bg-muted/50 transition-colors ${
-                            notification.unread ? 'bg-blue-50/50' : ''
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <h4 className="font-heading font-medium text-sm">
-                              {notification.title}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {notification.time}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {notifications.length === 0 && (
-                      <div className="p-8 text-center text-muted-foreground">
-                        <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No notifications yet</p>
+                      <div className="p-4 border-b">
+                        <h3 className="font-heading font-semibold">Notifications</h3>
                       </div>
-                    )}
-                  </PopoverContent>
-                </Popover>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 border-b hover:bg-muted/50 transition-colors ${
+                              notification.unread ? 'bg-blue-50/50' : ''
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <h4 className="font-heading font-medium text-sm">
+                                {notification.title}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {notification.time}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {notifications.length === 0 && (
+                        <div className="p-8 text-center text-muted-foreground">
+                          <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No notifications yet</p>
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
 
                 {/* User Menu - Only when logged in */}
                 {/* in components/layout/ProfileMenu.tsx */}
