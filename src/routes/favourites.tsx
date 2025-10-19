@@ -13,7 +13,7 @@ import {
   Search
 } from "lucide-react";
 
-export const Route = createFileRoute("/favoruites")({
+export const Route = createFileRoute("/favourites")({
   component: favourites,
 });
 
