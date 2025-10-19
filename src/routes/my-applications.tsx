@@ -24,7 +24,7 @@ function MyApplications() {
     {
       id: "1",
       cspTitle: "Teaching English to Underprivileged Children",
-      organization: "Hope Foundation",
+      organisation: "Hope Foundation",
       status: "approved",
       appliedDate: "2024-01-15",
       startDate: "2024-02-15",
@@ -36,7 +36,7 @@ function MyApplications() {
     {
       id: "2",
       cspTitle: "Environmental Cleanup at East Coast Park",
-      organization: "Green Singapore",
+      organisation: "Green Singapore",
       status: "pending",
       appliedDate: "2024-01-20",
       startDate: "2024-02-20",
@@ -48,7 +48,7 @@ function MyApplications() {
     {
       id: "3",
       cspTitle: "Senior Care Support",
-      organization: "Golden Years",
+      organisation: "Golden Years",
       status: "rejected",
       appliedDate: "2024-01-10",
       startDate: "2024-02-01",
@@ -60,7 +60,7 @@ function MyApplications() {
     {
       id: "4",
       cspTitle: "Virtual Mentoring Program",
-      organization: "Youth Connect",
+      organisation: "Youth Connect",
       status: "pending",
       appliedDate: "2024-01-25",
       startDate: "2024-03-01",
@@ -146,7 +146,7 @@ function MyApplications() {
                         {application.cspTitle}
                       </h3>
                       <p className="text-muted-foreground font-body">
-                        {application.organization}
+                        {application.organisation}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -227,7 +227,7 @@ function MyApplications() {
                           {application.cspTitle}
                         </h3>
                         <p className="text-muted-foreground font-body">
-                          {application.organization}
+                          {application.organisation}
                         </p>
                       </div>
                       <Badge className={getStatusColor(application.status)}>
@@ -280,7 +280,7 @@ function MyApplications() {
                           {application.cspTitle}
                         </h3>
                         <p className="text-muted-foreground font-body">
-                          {application.organization}
+                          {application.organisation}
                         </p>
                       </div>
                       <Badge className={getStatusColor(application.status)}>
@@ -333,7 +333,7 @@ function MyApplications() {
                           {application.cspTitle}
                         </h3>
                         <p className="text-muted-foreground font-body">
-                          {application.organization}
+                          {application.organisation}
                         </p>
                       </div>
                       <Badge className={getStatusColor(application.status)}>

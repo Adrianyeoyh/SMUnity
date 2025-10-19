@@ -265,7 +265,7 @@ function Signup() {
                   onCheckedChange={(checked) => setIsCspLeader(checked as boolean)}
                 />
                 <Label htmlFor="cspLeader" className="text-sm font-body">
-                  I am a CSP leader representing an organization
+                  I am a CSP leader representing an organisation
                 </Label>
               </div>
 

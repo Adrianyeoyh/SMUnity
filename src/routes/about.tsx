@@ -20,7 +20,7 @@ export const Route = createFileRoute("/about")({
 function AboutUs() {
   const stats = [
     { label: "Active Students", value: "2,500+", icon: Users },
-    { label: "CSP Organizations", value: "150+", icon: Globe },
+    { label: "CSP organisations", value: "150+", icon: Globe },
     { label: "Projects Listed", value: "500+", icon: Target },
     { label: "Service Hours", value: "50,000+", icon: Award },
   ];
@@ -29,7 +29,7 @@ function AboutUs() {
     {
       icon: HeartHandshake,
       title: "Community Impact",
-      description: "We believe in creating meaningful connections between students and organizations to drive positive social change.",
+      description: "We believe in creating meaningful connections between students and organisations to drive positive social change.",
     },
     {
       icon: Target,
@@ -44,7 +44,7 @@ function AboutUs() {
     {
       icon: Shield,
       title: "Trust & Transparency",
-      description: "We verify organizations and provide clear information to ensure safe and meaningful experiences.",
+      description: "We verify organisations and provide clear information to ensure safe and meaningful experiences.",
     },
   ];
 
@@ -180,7 +180,7 @@ function AboutUs() {
               </p>
 
               <p className="text-muted-foreground font-body text-lg mb-6">
-                That's why we created SMUnity - a centralized platform that brings together students, CSP organizations, 
+                That's why we created SMUnity - a centralized platform that brings together students, CSP organisations, 
                 and project opportunities in one place. Our goal is to make community service accessible, transparent, 
                 and aligned with your academic journey at SMU.
               </p>
