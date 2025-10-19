@@ -17,7 +17,8 @@ import {
 import { useState } from "react";
 import { useAuth } from "#client/hooks/use-auth";
 import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/popover";
-// import { ProfileDropdown } from "#client/components/layout/profile-dropdown.tsx"
+// import ProfileDropdown from "#client/components/layout/profile-dropdown.tsx";
+import ProfileMenu from "#client/components/layout/profileMenu.tsx";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -153,7 +154,7 @@ export function Header() {
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {isLoggedIn ? (
               <>
                 {/* Notifications - Only when logged in */}
@@ -213,17 +214,8 @@ export function Header() {
                 </Popover>
 
                 {/* User Menu - Only when logged in */}
-                <div className="hidden md:flex items-center space-x-2">
-                  <Link to="/profile">
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Button variant="ghost" size="sm" onClick={logout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
-                </div>
+                {/* in components/layout/ProfileMenu.tsx */}
+                <ProfileMenu/>
               </>
             ) : (
               <>
