@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/popover";
-import { User, LogOut } from "lucide-react";
+import { User } from "lucide-react";
 import { useAuth } from "#client/hooks/use-auth";
 
 function ProfileMenu() {
@@ -10,22 +10,16 @@ function ProfileMenu() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <Popover open={open}>
+    <div className="relative">
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Link to="/profile">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="focus-visible:ring-0 focus-visible:ring-offset-0"
-              >
-              <User className="h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="focus-visible:ring-0 focus-visible:ring-offset-0"
+          >
+            <User className="h-5 w-5" />
+          </Button>
         </PopoverTrigger>
 
         <PopoverContent
