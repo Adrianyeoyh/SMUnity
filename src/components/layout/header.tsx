@@ -17,7 +17,8 @@ import {
 import { useState } from "react";
 import { useAuth } from "#client/hooks/use-auth";
 import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/popover";
-// import { ProfileDropdown } from "#client/components/layout/profile-dropdown.tsx"
+// import ProfileDropdown from "#client/components/layout/profile-dropdown.tsx";
+import ProfileMenu from "#client/components/layout/profileMenu.tsx";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -153,7 +154,7 @@ export function Header() {
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {isLoggedIn ? (
               <>
                 {/* Notifications - Only when logged in */}
@@ -178,52 +179,43 @@ export function Header() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 p-0" align="end">
-                    <div className="p-4 border-b">
-                      <h3 className="font-heading font-semibold">Notifications</h3>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <div 
-                          key={notification.id}
-                          className={`p-4 border-b hover:bg-muted/50 transition-colors ${
-                            notification.unread ? 'bg-blue-50/50' : ''
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <h4 className="font-heading font-medium text-sm">
-                              {notification.title}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {notification.time}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {notifications.length === 0 && (
-                      <div className="p-8 text-center text-muted-foreground">
-                        <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No notifications yet</p>
+                      <div className="p-4 border-b">
+                        <h3 className="font-heading font-semibold">Notifications</h3>
                       </div>
-                    )}
-                  </PopoverContent>
-                </Popover>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 border-b hover:bg-muted/50 transition-colors ${
+                              notification.unread ? 'bg-blue-50/50' : ''
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <h4 className="font-heading font-medium text-sm">
+                                {notification.title}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {notification.time}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {notifications.length === 0 && (
+                        <div className="p-8 text-center text-muted-foreground">
+                          <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No notifications yet</p>
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
 
                 {/* User Menu - Only when logged in */}
-                <div className="hidden md:flex items-center space-x-2">
-                  <Link to="/profile">
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Button variant="ghost" size="sm" onClick={logout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
-                </div>
+                {/* in components/layout/ProfileMenu.tsx */}
+                <ProfileMenu/>
               </>
             ) : (
               <>
