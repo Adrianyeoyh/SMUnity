@@ -202,7 +202,7 @@ function favourites() {
         ) : (
           <div className="text-center py-12">
             <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-heading text-lg font-semibold mb-2">No favourites Yet</h3>
+            <h3 className="font-heading text-lg font-semibold mb-2">No Favourites Yet</h3>
             <p className="text-muted-foreground font-body mb-4">
               Start exploring CSPs and add them to your favourites by clicking the heart icon
             </p>
@@ -216,7 +216,7 @@ function favourites() {
         {favouriteCSPs.length > 0 && (
           <div className="text-center mt-8">
             <Button variant="outline">
-              Load More favourites
+              Load More Favourites
             </Button>
           </div>
         )}
