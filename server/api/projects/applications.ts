@@ -2,27 +2,18 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { auth } from "#server/lib/auth";
 import { and, eq, desc } from "drizzle-orm";
+import { requireSession } from "../_utils/auth";
 
 export const applicationsRoutes = new Hono();
 
-async function getSession(c: any) {
-  const res = await auth.handler(new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }));
-  const data = await res.clone().json().catch(() => ({} as any));
-  const user = (data as any).user ?? (data as any).data?.user;
-  return user ? { userId: user.id, accountType: user.accountType as any } : null;
-}
-
 applicationsRoutes.get("/", async (c) => {
-  const session = await getSession(c);
-  if (!session) return c.json({ error: "Unauthorized" }, 401);
+  const session = await requireSession(c);
 
   const status = c.req.query("status") as typeof schema.applicationStatusEnum.enumValues[number] | undefined;
-
   const where = status
-    ? and(eq(schema.applications.userId, session.userId), eq(schema.applications.status, status))
-    : eq(schema.applications.userId, session.userId);
+    ? and(eq(schema.applications.userId, session.id), eq(schema.applications.status, status))
+    : eq(schema.applications.userId, session.id);
 
   const rows = await db
     .select({
@@ -38,20 +29,17 @@ applicationsRoutes.get("/", async (c) => {
     .where(where)
     .orderBy(desc(schema.applications.submittedAt));
 
-  return c.json(
-    rows.map((r) => ({
-      id: r.id,
-      status: r.status,
-      motivation: r.motivation,
-      submittedAt: (r.submittedAt as any)?.toISOString?.() ?? String(r.submittedAt),
-      project: { id: r.projectId, title: r.title },
-    })),
-  );
+  return c.json(rows.map(r => ({
+    id: r.id,
+    status: r.status,
+    motivation: r.motivation,
+    submittedAt: (r.submittedAt as any)?.toISOString?.() ?? String(r.submittedAt),
+    project: { id: r.projectId, title: r.title },
+  })));
 });
 
 applicationsRoutes.post("/", async (c) => {
-  const session = await getSession(c);
-  if (!session) return c.json({ error: "Unauthorized" }, 401);
+  const session = await requireSession(c);
   if (session.accountType !== "student") return c.json({ error: "Forbidden" }, 403);
 
   const body = await c.req.json().catch(() => null as any);
@@ -59,7 +47,7 @@ applicationsRoutes.post("/", async (c) => {
 
   const values: any = {
     projectId: Number(body.projectId),
-    userId: session.userId,
+    userId: session.id,
     motivation: body.motivation ?? null,
     sessionId: body.sessionId ? Number(body.sessionId) : null,
   };
@@ -69,8 +57,7 @@ applicationsRoutes.post("/", async (c) => {
 });
 
 applicationsRoutes.post("/:id/withdraw", async (c) => {
-  const session = await getSession(c);
-  if (!session) return c.json({ error: "Unauthorized" }, 401);
+  const session = await requireSession(c);
 
   const id = Number(c.req.param("id"));
   if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
@@ -78,7 +65,7 @@ applicationsRoutes.post("/:id/withdraw", async (c) => {
   await db
     .update(schema.applications)
     .set({ status: "withdrawn" })
-    .where(and(eq(schema.applications.id, id), eq(schema.applications.userId, session.userId)));
+    .where(and(eq(schema.applications.id, id), eq(schema.applications.userId, session.id)));
 
   return c.json({ ok: true });
 });
