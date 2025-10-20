@@ -2,35 +2,30 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { auth } from "#server/lib/auth";
-import { eq, sql } from "drizzle-orm";
-
+import { eq, and, sql } from "drizzle-orm";
+import { requireSession } from "../_utils/auth";
 
 export const usersRoutes = new Hono();
 
 usersRoutes.get("/me", async (c) => {
-  const res = await auth.handler(
-    new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }),
-  );
-  const data = await res.clone().json().catch(() => ({} as any));
-  const u = (data as any).user ?? (data as any).data?.user;
-  if (!u?.id) return c.json({ error: "Unauthorized" }, 401);
+  const session = await requireSession(c);
 
-  const [user] = await db.select().from(schema.users).where(eq(schema.users.id, u.id)).limit(1);
+  const [user] = await db.select().from(schema.users).where(eq(schema.users.id, session.id)).limit(1);
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-  const [profile] = await db.select().from(schema.profiles).where(eq(schema.profiles.userId, u.id)).limit(1);
+  const [profile] = await db.select().from(schema.profiles).where(eq(schema.profiles.userId, session.id)).limit(1);
 
-  const [{ count: projectsApplied } = { count: 0 }] = await db.execute(
-  sql`select count(*)::int as count from ${schema.applications} where ${schema.applications.userId} = ${u.id}`
-  ) as any;
+  const apps = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.applications)
+    .where(eq(schema.applications.userId, session.id));
+  const [{ count: applications }] = apps.length ? apps : [{ count: 0 }];
 
-  const [{ count: completedHours } = { count: 0 }] = await db.execute(
-  sql`select coalesce(sum(${schema.timesheets.hours}),0)::int as count 
-       from ${schema.timesheets} 
-       where ${schema.timesheets.userId} = ${u.id} 
-       and ${schema.timesheets.verified} = true`
-) as any;
+  const hours = await db
+    .select({ count: sql<number>`coalesce(sum(${schema.timesheets.hours}),0)::int` })
+    .from(schema.timesheets)
+    .where(and(eq(schema.timesheets.userId, session.id), eq(schema.timesheets.verified, true)));
+  const [{ count: verifiedHours }] = hours.length ? hours : [{ count: 0 }];
 
   const payload = {
     id: user.id,
@@ -50,8 +45,8 @@ usersRoutes.get("/me", async (c) => {
         }
       : null,
     dashboard: {
-      applications: Number(projectsApplied ?? 0),
-      verifiedHours: Number(completedHours ?? 0),
+      applications,
+      verifiedHours,
     },
   };
 

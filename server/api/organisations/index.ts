@@ -2,22 +2,12 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { and, eq, desc } from "drizzle-orm";
-import { auth } from "#server/lib/auth";
+import { eq, desc } from "drizzle-orm";
+import { requireSession } from "../_utils/auth";
 
 export const organisationsRoutes = new Hono();
-
-async function getSession(c: any) {
-  const res = await auth.handler(
-    new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }),
-  );
-  const data:any = await res.clone().json().catch(() => ({} as any));
-  const user = data.user ?? data.data?.user;
-  return user ? { id: user.id, email: user.email, accountType: user.accountType } : null;
-}
 function isAdmin(type?: string) { return type === "admin"; }
 
-// ---------- GET /api/organisations ----------
 organisationsRoutes.get("/", async c => {
   const rows = await db
     .select({
@@ -29,11 +19,9 @@ organisationsRoutes.get("/", async c => {
     })
     .from(schema.organisations)
     .orderBy(desc(schema.organisations.createdAt));
-
   return c.json(rows);
 });
 
-// ---------- GET /api/organisations/:id ----------
 organisationsRoutes.get("/:id", async c => {
   const id = String(c.req.param("id"));
   const [org] = await db
@@ -48,20 +36,16 @@ organisationsRoutes.get("/:id", async c => {
     .from(schema.organisations)
     .where(eq(schema.organisations.userId, id))
     .limit(1);
-
   if (!org) return c.json({ error: "Not found" }, 404);
   return c.json(org);
 });
 
-// ---------- POST /api/organisations ----------
 organisationsRoutes.post("/", async c => {
-  const session = await getSession(c);
-  if (!session || !isAdmin(session.accountType))
-    return c.json({ error: "Forbidden" }, 403);
+  const session = await requireSession(c);
+  if (!isAdmin(session.accountType)) return c.json({ error: "Forbidden" }, 403);
 
   const body = await c.req.json().catch(() => null as any);
-  if (!body?.slug || !body?.userId)
-    return c.json({ error: "Missing slug or userId" }, 400);
+  if (!body?.slug || !body?.userId) return c.json({ error: "Missing slug or userId" }, 400);
 
   const [inserted] = await db
     .insert(schema.organisations)
@@ -75,25 +59,20 @@ organisationsRoutes.post("/", async c => {
       updatedAt: new Date(),
     })
     .returning({ id: schema.organisations.userId });
-
   return c.json({ id: inserted.id }, 201);
 });
 
-// ---------- PATCH /api/organisations/:id ----------
 organisationsRoutes.patch("/:id", async c => {
-  const session = await getSession(c);
-  if (!session) return c.json({ error: "Unauthorized" }, 401);
-
+  const session = await requireSession(c);
   const id = String(c.req.param("id"));
+
   const [org] = await db
-    .select({ createdBy: schema.organisations.createdBy })
+    .select({ userId: schema.organisations.userId })
     .from(schema.organisations)
     .where(eq(schema.organisations.userId, id))
     .limit(1);
-
   if (!org) return c.json({ error: "Not found" }, 404);
-  if (!isAdmin(session.accountType) && org.createdBy !== session.id)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isAdmin(session.accountType) && org.userId !== session.id) return c.json({ error: "Forbidden" }, 403);
 
   const body = await c.req.json().catch(() => ({}));
   await db
@@ -109,12 +88,9 @@ organisationsRoutes.patch("/:id", async c => {
   return c.json({ ok: true });
 });
 
-// ---------- DELETE /api/organisations/:id ----------
 organisationsRoutes.delete("/:id", async c => {
-  const session = await getSession(c);
-  if (!session) return c.json({ error: "Unauthorized" }, 401);
+  const session = await requireSession(c);
   if (!isAdmin(session.accountType)) return c.json({ error: "Forbidden" }, 403);
-
   const id = String(c.req.param("id"));
   await db.delete(schema.organisations).where(eq(schema.organisations.userId, id));
   return c.json({ ok: true });
