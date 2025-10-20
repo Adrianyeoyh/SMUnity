@@ -18,19 +18,27 @@ export const requestStatusEnum = pgEnum("request_status", ["pending", "approved"
 
 // ---------- USERS (unified authentication root) ----------
 export const users = pgTable("users", {
-  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  id: text("user_id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified")
+  .$defaultFn(() => false)
+  .notNull(),
+  image: text("image"),
   passwordHash: varchar("password_hash", { length: 255 }), // null for OAuth students
-  accountType: accountTypeEnum("account_type").notNull(),   // student | organisation | admin
+  accountType: accountTypeEnum("account_type").notNull().default("student"),   // student | organisation | admin
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at")
+  .$defaultFn(() => /* @__PURE__ */ new Date())
+  .notNull(),
+  updatedAt: timestamp("updated_at")
+  .$defaultFn(() => /* @__PURE__ */ new Date())
+  .notNull(),
 });
 
 // ---------- PROFILES (extended user info) ----------
 export const profiles = pgTable("profiles", {
   userId: text("user_id").primaryKey().references(() => users.id),
-  displayName: varchar("display_name", { length: 120 }),
   phone: varchar("phone", { length: 50 }),
 
   // ---- Student fields ----
@@ -43,20 +51,15 @@ export const profiles = pgTable("profiles", {
   interests: text("interests").array(),
   csuCompletedAt: timestamp("csu_completed_at"),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => ({
   studentIdUnique: uniqueIndex("profiles_student_id_unique").on(t.studentId),
 }));
 
 // ---------- ORGANISATIONS (CSP providers) ----------
 export const organisations = pgTable("organisations", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(), // login user
-  name: varchar("name", { length: 160 }).notNull(),
+  userId: text("user_id").primaryKey().references(() => users.id).notNull(), // login user
   slug: varchar("slug", { length: 160 }).notNull(),
   description: text("description"),
-  email: varchar("email", { length: 255 }),
   website: varchar("website", { length: 255 }),
   createdBy: text("created_by").references(() => users.id).notNull(), // admin
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -70,8 +73,8 @@ export const organisations = pgTable("organisations", {
 
 // ---------- MEMBERSHIPS ----------
 export const orgMemberships = pgTable("org_memberships", {
-  orgId: integer("org_id").notNull(),
-  userId: text("user_id").notNull(),
+  orgId: text("org_id").notNull().references(() => organisations.userId),
+  userId: text("user_id").notNull().references(() => profiles.userId),
   roleLabel: varchar("role_label", { length: 50 }),
   invitedAt: timestamp("invited_at").defaultNow().notNull(),
   acceptedAt: timestamp("accepted_at"),
@@ -105,8 +108,8 @@ const tsvector = customType<{ data: string }>({
 });
 
 export const projects = pgTable("projects", {
-  id: serial("id").primaryKey(),
-  orgId: integer("org_id").references(() => organisations.id).notNull(),
+  id: serial("project_id").primaryKey(),
+  orgId: text("org_id").references(() => organisations.userId).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
   description: text("description").notNull(),
@@ -134,15 +137,15 @@ export const projects = pgTable("projects", {
 }));
 
 export const projectTags = pgTable("project_tags", {
-  projectId: integer("project_id").notNull(),
-  tagId: integer("tag_id").notNull(),
+  projectId: integer("project_id").notNull().references(() => projects.id),
+  tagId: integer("tag_id").notNull().references(() => tags.id),
 }, (t) => ({
   pk: primaryKey({ columns: [t.projectId, t.tagId] }),
 }));
 
 export const projectSessions = pgTable("project_sessions", {
   id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull(),
+  projectId: integer("project_id").notNull().references(() => projects.id),
   startsAt: timestamp("starts_at").notNull(),
   endsAt: timestamp("ends_at").notNull(),
   capacity: integer("capacity"),
@@ -155,7 +158,7 @@ export const projectSessions = pgTable("project_sessions", {
 // ---------- APPLICATIONS ----------
 export const applications = pgTable("applications", {
   id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull(),
+  projectId: integer("project_id").notNull().references(() => projects.id),
   userId: text("user_id").references(() => users.id).notNull(),
   status: applicationStatusEnum("status").notNull().default("pending"),
   sessionId: integer("session_id"),
@@ -170,8 +173,7 @@ export const applications = pgTable("applications", {
 
 export const applicationReviews = pgTable("application_reviews", {
   id: serial("id").primaryKey(),
-  applicationId: integer("application_id").notNull(),
-  reviewerId: text("reviewer_id").references(() => users.id).notNull(),
+  applicationId: integer("application_id").notNull().references(() => applications.id),
   action: verificationActionEnum("action").notNull(),
   note: text("note"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -180,8 +182,8 @@ export const applicationReviews = pgTable("application_reviews", {
 // ---------- TIMESHEETS ----------
 export const timesheets = pgTable("timesheets", {
   id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  projectId: integer("project_id").notNull().references(()=>projects.id),
+  userId: text("user_id").references(() => profiles.userId).notNull(),
   sessionId: integer("session_id"),
   date: timestamp("date").notNull(),
   hours: integer("hours").notNull(),
@@ -194,8 +196,8 @@ export const timesheets = pgTable("timesheets", {
 
 // ---------- SAVED PROJECTS ----------
 export const savedProjects = pgTable("saved_projects", {
-  projectId: integer("project_id").notNull(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  projectId: integer("project_id").notNull().references(()=>projects.id),
+  userId: text("user_id").references(() => profiles.userId).notNull(),
   savedAt: timestamp("saved_at").defaultNow().notNull(),
 }, (t) => ({
   pk: primaryKey({ columns: [t.projectId, t.userId] }),
@@ -214,7 +216,7 @@ export const organiserInvites = pgTable("organiser_invites", {
 
 export const organisationRequests = pgTable("organisation_requests", {
   id: serial("id").primaryKey(),
-  requestedByUserId: text("requested_by_user_id").references(() => users.id), // nullable for external non-SMU
+  requesterUserId: text("requested_by_user_id"),
   requesterEmail: text("requester_email").notNull(), // external email for non-SMU
   requesterName: text("requester_name"),
   orgName: varchar("org_name", { length: 160 }).notNull(),
