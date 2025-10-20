@@ -9,7 +9,12 @@ import { mailer } from "#server/lib/mailer.ts";
 import { and, eq, gt } from "drizzle-orm";
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg", schema }),
+  database: drizzleAdapter(db, { provider: "pg", schema: {
+      user: schema.users, 
+      session: schema.session,
+      account: schema.account,
+      verification: schema.verification,
+    } }),
   baseURL: env.VITE_APP_URL + "/api/auth",
   secret: env.BETTER_AUTH_SECRET,
   telemetry: { enabled: false },
@@ -49,41 +54,63 @@ export const auth = betterAuth({
 
   // --- Event-based hooks (no import needed) ---
   events: {
+    /**
+     * Runs when a new user is created via BetterAuth (email/password or OAuth)
+     */
     async userCreated(ctx: any) {
       const { user, database } = ctx;
       const email = user.email?.toLowerCase() ?? "";
       const isSMU = email.endsWith("@smu.edu.sg");
 
+      // 1️⃣ Check organiser invite for non-SMU accounts
+      let accountType: "student" | "organisation" | "admin" = "student";
       if (!isSMU) {
         const invite = await database.query.organiserInvites.findFirst({
-          where: (t:any, { and, eq, gt }: any) =>
-            and(eq(t.email, email), eq(t.approved, true), gt(t.expiresAt, new Date())),
+          where: (t: any, { and, eq, gt }: any) =>
+            and(
+              eq(t.email, email),
+              eq(t.approved, true),
+              gt(t.expiresAt, new Date())
+            ),
         });
+
         if (!invite) {
           throw new Error(
-            "Only invited external organisers may register manually. Please request approval from SMUnity admin.",
+            "Only invited organisers may register manually. Please request approval from SMUnity admin."
           );
         }
-      }
 
-      // Auto-create profile
-      await database
-        .insert(schema.profiles)
-        .values({
-          userId: user.id,
-          displayName: user.name || email.split("@")[0],
-          role: isSMU ? "student" : "leader",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .onConflictDoNothing();
+        accountType = "organisation";
 
-      if (!isSMU) {
+        // Consume the invite after successful registration
         await database
           .delete(schema.organiserInvites)
           .where(eq(schema.organiserInvites.email, email));
       }
+
+      // 2️⃣ Ensure unified users table has a complete record (BetterAuth inserts basic fields)
+      await database
+        .update(schema.users)
+        .set({
+          name: user.name ?? email.split("@")[0],
+          accountType,
+          isActive: true,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.users.id, user.id));
+
+      // 3️⃣ Create profile entry for new user
+      await database
+        .insert(schema.profiles)
+        .values({
+          userId: user.id,
+          phone: null,
+          school: null,
+          entryYear: null,
+          skills: [],
+          interests: [],
+        })
+        .onConflictDoNothing();
     },
   },
 });
-
