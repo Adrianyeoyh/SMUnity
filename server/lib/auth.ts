@@ -106,7 +106,7 @@ export const auth = betterAuth({
           userId: user.id,
           phone: null,
           school: null,
-          entryYear: null,
+          entryYear: email.slice(email.indexOf('@')-4,email.indexOf('@')),
           skills: [],
           interests: [],
         })
