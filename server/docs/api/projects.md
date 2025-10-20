@@ -3,6 +3,7 @@
 ## Overview
 Handles all endpoints related to listing, viewing, creating, updating, and deleting community service projects (CSPs).
 
+Note: User roles (student, organisation, admin) are determined from the users.accountType field in the database.
 ---
 
 ## Endpoints
@@ -18,6 +19,9 @@ Handles all endpoints related to listing, viewing, creating, updating, and delet
 | `categoryId` | number | No | Filter by category |
 | `tagId` | number[] | No | Filter by tag IDs |
 | `status` | string | No | Default = `approved` |
+
+Note: Multiple filters (q, categoryId, tagId, status) can be used together.
+The backend automatically combines them using AND logic.
 
 **Example**
 ```bash

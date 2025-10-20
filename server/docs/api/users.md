@@ -21,7 +21,7 @@ Handles retrieval of the current logged-in user's information, including their p
     "displayName": "Adrian Yeo",
     "phone": null,
     "school": "LKCSB",
-    "graduationYear": 2024,
+    "entryYear": 2024,
     "studentId": null
   },
   "dashboard": {

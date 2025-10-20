@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { requireSession } from "../_utils/auth";
+import { requireSession } from "#server/api/_utils/auth";
 
 export const usersRoutes = new Hono();
 
@@ -15,7 +15,7 @@ export type MeResponse = {
     displayName: string | null;
     phone: string | null;
     school: string | null;
-    graduationYear: number | null;
+    entryYear: number | null;
     studentId: string | null;
   } | null;
   dashboard?: {
@@ -33,7 +33,7 @@ usersRoutes.get("/me", async c => {
     displayName: schema.profiles.displayName,
     phone: schema.profiles.phone,
     school: schema.profiles.school,
-    graduationYear: schema.profiles.graduationYear,
+    entryYear: schema.profiles.entryYear,
     studentId: schema.profiles.studentId,
   }).from(schema.profiles).where(eq(schema.profiles.userId, user.id));
 
