@@ -19,13 +19,15 @@ async function getSession(c: any) {
   const user = data.user ?? data.data?.user;
   return user ? { userId: user.id, email: user.email.toLowerCase() } : null;
 }
+
 async function getAccountType(userId: string) {
-  const p = await db.query.profiles.findFirst({
-    where: (t, { eq }) => eq(t.userId, userId),
+  const u = await db.query.users.findFirst({
+    where: (t, { eq }) => eq(t.id, userId),
     columns: { accountType: true },
   });
-  return (p?.accountType as "student" | "organisation" | "admin" | undefined) ?? null;
+  return (u?.accountType as "student" | "organisation" | "admin" | undefined) ?? null;
 }
+
 function isAdmin(t: string | null) { return t === "admin"; }
 function isOrg(t: string | null) { return t === "organisation"; }
 
@@ -50,8 +52,9 @@ type ProjectCard = {
   slotsTotal: number;
   slotsFilled: number;
   status: "draft" | "pending" | "approved" | "closed" | "archived";
-  createdAt: string; // ISO
+  createdAt: string;
 };
+
 type ProjectDetail = {
   id: number;
   title: string;
@@ -69,10 +72,11 @@ type ProjectDetail = {
   capacity: { slotsTotal: number; slotsFilled: number };
   status: "draft" | "pending" | "approved" | "closed" | "archived";
 };
+
 type ProjectSessionRow = {
   id: number;
-  startsAt: string; // ISO
-  endsAt: string;   // ISO
+  startsAt: string;
+  endsAt: string;
   capacity: number | null;
   locationNote: string | null;
 };
@@ -82,37 +86,17 @@ projectsRoutes.get("/", async c => {
   const q = c.req.query("q")?.trim();
   const categoryId = c.req.query("categoryId") ? Number(c.req.query("categoryId")) : null;
   const tagIds = c.req.queries("tagId")?.map(Number).filter(n => !Number.isNaN(n)) ?? [];
-  const status = c.req.query("status") ?? "approved"; // default public listing
+  const status = (c.req.query("status") ?? "approved") as typeof schema.projectStatusEnum.enumValues[number];
 
-  // base query
-  let base = db
-    .select({
-      id: schema.projects.id,
-      title: schema.projects.title,
-      summary: schema.projects.summary,
-      orgId: schema.projects.orgId,
-      orgName: schema.organisations.name,
-      location: schema.projects.location,
-      latitude: schema.projects.latitude,
-      longitude: schema.projects.longitude,
-      slotsTotal: schema.projects.slotsTotal,
-      slotsFilled: schema.projects.slotsFilled,
-      status: schema.projects.status,
-      createdAt: schema.projects.createdAt,
-    })
-    .from(schema.projects)
-    .innerJoin(schema.organisations, eq(schema.organisations.id, schema.projects.orgId))
-    .where(eq(schema.projects.status, status as any))
-    .orderBy(desc(schema.projects.createdAt));
+  // build conditions
+  const conditions = [eq(schema.projects.status, status)];
+  if (q) conditions.push(ilike(schema.projects.title, `%${q}%`));
+  if (categoryId) conditions.push(eq(schema.projects.categoryId, categoryId));
 
-  if (q) {
-    base = base.where(ilike(schema.projects.title, `%${q}%`));
-  }
-  if (categoryId) {
-    base = base.where(eq(schema.projects.categoryId, categoryId));
-  }
+  let query;
+
   if (tagIds.length > 0) {
-    base = db
+    query = db
       .select({
         id: schema.projects.id,
         title: schema.projects.title,
@@ -130,12 +114,32 @@ projectsRoutes.get("/", async c => {
       .from(schema.projects)
       .innerJoin(schema.organisations, eq(schema.organisations.id, schema.projects.orgId))
       .innerJoin(schema.projectTags, eq(schema.projectTags.projectId, schema.projects.id))
-      .where(and(eq(schema.projects.status, status as any), inArray(schema.projectTags.tagId, tagIds)))
+      .where(and(...conditions, inArray(schema.projectTags.tagId, tagIds)))
+      .orderBy(desc(schema.projects.createdAt));
+  } else {
+    query = db
+      .select({
+        id: schema.projects.id,
+        title: schema.projects.title,
+        summary: schema.projects.summary,
+        orgId: schema.projects.orgId,
+        orgName: schema.organisations.name,
+        location: schema.projects.location,
+        latitude: schema.projects.latitude,
+        longitude: schema.projects.longitude,
+        slotsTotal: schema.projects.slotsTotal,
+        slotsFilled: schema.projects.slotsFilled,
+        status: schema.projects.status,
+        createdAt: schema.projects.createdAt,
+      })
+      .from(schema.projects)
+      .innerJoin(schema.organisations, eq(schema.organisations.id, schema.projects.orgId))
+      .where(and(...conditions))
       .orderBy(desc(schema.projects.createdAt));
   }
 
-  const rows = await base;
-  const payload: ProjectCard[] = rows.map(r => ({
+  const rows = await query;
+  const payload = rows.map(r => ({
     id: r.id,
     title: r.title,
     summary: r.summary,
@@ -145,11 +149,13 @@ projectsRoutes.get("/", async c => {
     longitude: r.longitude,
     slotsTotal: r.slotsTotal,
     slotsFilled: r.slotsFilled,
-    status: r.status as ProjectCard["status"],
+    status: r.status,
     createdAt: r.createdAt?.toISOString() ?? new Date().toISOString(),
   }));
-  return c.json<ProjectCard[]>(payload);
+
+  return c.json(payload);
 });
+
 
 // ---------- PUBLIC: project detail (minimal) ----------
 projectsRoutes.get("/:id", async c => {

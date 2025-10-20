@@ -40,7 +40,7 @@ async function seed() {
       await db.insert(schema.profiles).values({
         userId: user.id,
         displayName: email.split("@")[0].replace(/\./g, " "),
-        graduationYear: 2024,
+        entryYear: 2024,
         school: email.includes("computing") ? "SCIS" : "LKCSB",
       });
 

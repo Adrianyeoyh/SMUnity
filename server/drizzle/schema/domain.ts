@@ -35,7 +35,7 @@ export const profiles = pgTable("profiles", {
 
   // ---- Student fields ----
   studentId: varchar("student_id", { length: 20 }), // e.g., S1234567A
-  graduationYear: integer("graduation_year"),
+  entryYear: integer("entry_year"),
   school: varchar("school", { length: 100 }),
 
   // ---- Additional metadata ----
