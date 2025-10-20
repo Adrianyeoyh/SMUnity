@@ -618,7 +618,7 @@ function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="md:mb-3 lg:mb-8">
+          <div className="mb-0 md:mb-3 lg:mb-8">
             <div className="grid grid-cols-1 mb-3 md:grid-cols-2 md:mb-3 lg:grid-cols-2 lg:mb-3 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
