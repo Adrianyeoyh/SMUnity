@@ -1,3 +1,4 @@
+// server/api/_utils/auth.ts
 import { auth } from "#server/lib/auth";
 
 export type AccountType = "student" | "organisation" | "admin";
@@ -14,17 +15,17 @@ export async function requireSession(c: any): Promise<UserSession> {
   );
   const data = await res.clone().json().catch(() => ({} as any));
   const u = (data as any).user ?? (data as any).data?.user;
-  if (!u?.id || !u?.email || !u?.accountType) {
+  if (!u?.id || !u?.email) {
     c.status(401);
     throw new Error("Not authenticated");
   }
-  return { id: u.id, email: u.email, accountType: u.accountType };
+  return { id: u.id, email: String(u.email).toLowerCase(), accountType: (u.accountType ?? "student") as AccountType };
 }
 
 export function assertRole(user: UserSession, allowed: AccountType[]) {
   if (!allowed.includes(user.accountType)) {
     const err: Error & { status?: number } = new Error("Forbidden");
-    err.status = 403;
+    (err as any).status = 403;
     throw err;
   }
 }

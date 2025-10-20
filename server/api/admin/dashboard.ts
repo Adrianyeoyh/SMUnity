@@ -2,36 +2,35 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { count, eq } from "drizzle-orm";
-import { assertRole, requireSession } from "#server/api/_utils/auth";
+import { auth } from "#server/lib/auth";
 
 export const adminDashboardRoutes = new Hono();
 
-export type AdminDashboardResponse = {
-  totals: { students: number; organisations: number; projects: number };
-  pendingOrgRequests: number;
-};
+async function getSession(c: any) {
+  const res = await auth.handler(new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }));
+  const data = await res.clone().json().catch(() => ({} as any));
+  const user = (data as any).user ?? (data as any).data?.user;
+  return user ? { userId: user.id, accountType: user.accountType as any } : null;
+}
 
-// GET /api/admin/dashboard
-adminDashboardRoutes.get("/", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["admin"]);
+adminDashboardRoutes.get("/", async (c) => {
+  const session = await getSession(c);
+  if (!session || session.accountType !== "admin") return c.json({ error: "Forbidden" }, 403);
 
-  const [[students], [orgs], [projects], [pending]] = await Promise.all([
-    db.select({ total: count() }).from(schema.users).where(eq(schema.users.accountType, "student")),
-    db.select({ total: count() }).from(schema.users).where(eq(schema.users.accountType, "organisation")),
-    db.select({ total: count() }).from(schema.projects),
-    db.select({ total: count() }).from(schema.organisationRequests).where(eq(schema.organisationRequests.status, "pending")),
-  ]);
+  const totalUsers = await db.execute(`select count(*)::int as c from users`) as any;
+  const totalStudents = await db.execute(`select count(*)::int as c from users where account_type = 'student'`) as any;
+  const totalOrgs = await db.execute(`select count(*)::int as c from organisations`) as any;
+  const totalProjects = await db.execute(`select count(*)::int as c from projects`) as any;
+  const pendingOrgReq = await db.execute(`select count(*)::int as c from organisation_requests where status = 'pending'`) as any;
 
-  const resp: AdminDashboardResponse = {
+  const n = (x: any) => Number((x?.rows?.[0]?.c) ?? 0);
+  return c.json({
     totals: {
-      students: students.total ?? 0,
-      organisations: orgs.total ?? 0,
-      projects: projects.total ?? 0,
+      users: n(totalUsers),
+      students: n(totalStudents),
+      organisations: n(totalOrgs),
+      projects: n(totalProjects),
     },
-    pendingOrgRequests: pending.total ?? 0,
-  };
-
-  return c.json(resp);
+    pendingOrgRequests: n(pendingOrgReq),
+  });
 });
