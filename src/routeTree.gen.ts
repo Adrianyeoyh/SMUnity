@@ -25,6 +25,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AdminAdminDashboardRouteImport } from './routes/admin/adminDashboard'
+import { Route as AdminCspIdRouteImport } from './routes/admin/$cspId'
 
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
@@ -106,6 +107,11 @@ const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
   path: '/admin/adminDashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCspIdRoute = AdminCspIdRouteImport.update({
+  id: '/admin/$cspId',
+  path: '/admin/$cspId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
+  '/admin/$cspId': typeof AdminCspIdRoute
   '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
+  '/admin/$cspId': typeof AdminCspIdRoute
   '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
+  '/admin/$cspId': typeof AdminCspIdRoute
   '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
+    | '/admin/$cspId'
     | '/admin/adminDashboard'
     | '/auth/callback'
     | '/auth/forgot-password'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
+    | '/admin/$cspId'
     | '/admin/adminDashboard'
     | '/auth/callback'
     | '/auth/forgot-password'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
+    | '/admin/$cspId'
     | '/admin/adminDashboard'
     | '/auth/callback'
     | '/auth/forgot-password'
@@ -230,6 +242,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
+  AdminCspIdRoute: typeof AdminCspIdRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/$cspId': {
+      id: '/admin/$cspId'
+      path: '/admin/$cspId'
+      fullPath: '/admin/$cspId'
+      preLoaderRoute: typeof AdminCspIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -366,6 +386,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
+  AdminCspIdRoute: AdminCspIdRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
