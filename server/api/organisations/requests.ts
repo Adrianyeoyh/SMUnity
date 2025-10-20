@@ -2,92 +2,81 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { and, desc, eq } from "drizzle-orm";
-import { assertRole, requireSession } from "#server/api/_utils/auth";
+import { auth } from "#server/lib/auth";
+import { and, eq, gt, desc } from "drizzle-orm";
 
-export const orgRequestsRoutes = new Hono();
+export const organisationRequestsRoutes = new Hono();
 
-export type CreateOrgRequestPayload = {
-  requesterEmail: string;
-  requesterName?: string | null;
-  orgName: string;
-  orgDescription?: string | null;
-  website?: string | null;
-};
-export type CreateOrgRequestResponse = { ok: true; id: number };
+async function getSession(c: any) {
+  const res = await auth.handler(new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }));
+  const data = await res.clone().json().catch(() => ({} as any));
+  const user = (data as any).user ?? (data as any).data?.user;
+  return user ? { userId: user.id, accountType: user.accountType as any } : null;
+}
+function isAdmin(t?: string) { return t === "admin"; }
 
-// Public: POST /api/organisations/requests
-orgRequestsRoutes.post("/", async c => {
-  let requestedByUserId: string | null = null;
-  // allow anonymous submission, but attach user id when authenticated
-  try {
-    const user = await requireSession(c);
-    requestedByUserId = user.id;
-  } catch (_) {}
+organisationRequestsRoutes.post("/", async (c) => {
+  const body = await c.req.json().catch(() => null as any);
+  if (!body?.requesterEmail || !body?.orgName) return c.json({ error: "Missing required fields" }, 400);
 
-  const body: CreateOrgRequestPayload = await c.req.json();
+  const [ins] = await db
+    .insert(schema.organisationRequests)
+    .values({
+      requesterEmail: String(body.requesterEmail).toLowerCase(),
+      requesterName: body.requesterName ?? null,
+      orgName: body.orgName,
+      orgDescription: body.orgDescription ?? null,
+      website: body.website ?? null,
+    })
+    .returning({ id: schema.organisationRequests.id });
 
-  const [ins] = await db.insert(schema.organisationRequests).values({
-    requestedByUserId,
-    requesterEmail: body.requesterEmail.toLowerCase(),
-    requesterName: body.requesterName ?? null,
-    orgName: body.orgName,
-    orgDescription: body.orgDescription ?? null,
-    website: body.website ?? null,
-    status: "pending",
-  }).returning({ id: schema.organisationRequests.id });
-
-  return c.json<CreateOrgRequestResponse>({ ok: true, id: ins.id });
+  return c.json({ id: ins.id }, 201);
 });
 
-export type AdminOrgRequestItem = {
-  id: number;
-  requesterEmail: string;
-  orgName: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: string;
-};
+organisationRequestsRoutes.get("/", async (c) => {
+  const session = await getSession(c);
+  if (!session || !isAdmin(session.accountType)) return c.json({ error: "Forbidden" }, 403);
 
-// Admin: GET /api/organisations/requests
-orgRequestsRoutes.get("/", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["admin"]);
-
-  const rows = await db.select({
-    id: schema.organisationRequests.id,
-    requesterEmail: schema.organisationRequests.requesterEmail,
-    orgName: schema.organisationRequests.orgName,
-    status: schema.organisationRequests.status,
-    createdAt: schema.organisationRequests.createdAt,
-  }).from(schema.organisationRequests).orderBy(desc(schema.organisationRequests.createdAt));
-
-  const list: AdminOrgRequestItem[] = rows.map(r => ({
-    id: r.id,
-    requesterEmail: r.requesterEmail,
-    orgName: r.orgName,
-    status: r.status,
-    createdAt: r.createdAt!.toISOString(),
-  }));
-
-  return c.json(list);
+  const rows = await db
+    .select()
+    .from(schema.organisationRequests)
+    .orderBy(desc(schema.organisationRequests.createdAt));
+  return c.json(rows);
 });
 
-export type DecidePayload = { approve: boolean; note?: string | null };
-export type DecideResponse = { ok: true };
-
-// Admin: POST /api/organisations/requests/:id/decide
-orgRequestsRoutes.post("/:id/decide", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["admin"]);
-
+organisationRequestsRoutes.post("/:id/decide", async (c) => {
+  const session = await getSession(c);
+  if (!session || !isAdmin(session.accountType)) return c.json({ error: "Forbidden" }, 403);
   const id = Number(c.req.param("id"));
-  const body: DecidePayload = await c.req.json();
+  if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
 
-  await db.update(schema.organisationRequests).set({
-    status: body.approve ? "approved" : "rejected",
-    decidedBy: user.id,
-    decidedAt: new Date(),
-  }).where(eq(schema.organisationRequests.id, id));
+  const body = await c.req.json().catch(() => null as any);
+  const approve = !!body?.approve;
 
-  return c.json<DecideResponse>({ ok: true });
+  await db
+    .update(schema.organisationRequests)
+    .set({
+      status: approve ? "approved" : "rejected",
+      decidedBy: session.userId,
+      decidedAt: new Date(),
+    })
+    .where(eq(schema.organisationRequests.id, id));
+
+  if (approve) {
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+    const [{ requesterEmail }] = await db
+      .select({ requesterEmail: schema.organisationRequests.requesterEmail })
+      .from(schema.organisationRequests)
+      .where(eq(schema.organisationRequests.id, id))
+      .limit(1);
+    await db.insert(schema.organiserInvites).values({
+      email: requesterEmail.toLowerCase(),
+      token,
+      approved: true,
+      expiresAt,
+    });
+  }
+
+  return c.json({ ok: true });
 });
