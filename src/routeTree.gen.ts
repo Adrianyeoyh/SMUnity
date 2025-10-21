@@ -13,7 +13,6 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavouritesRouteImport } from './routes/favourites'
-import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -45,11 +44,6 @@ const MapRoute = MapRouteImport.update({
 const FavouritesRoute = FavouritesRouteImport.update({
   id: '/favourites',
   path: '/favourites',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FavoritesRoute = FavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -119,7 +113,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -138,7 +131,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -158,7 +150,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -179,7 +170,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -198,7 +188,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -217,7 +206,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -237,7 +225,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
-  FavoritesRoute: typeof FavoritesRoute
   FavouritesRoute: typeof FavouritesRoute
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
@@ -279,13 +266,6 @@ declare module '@tanstack/react-router' {
       path: '/favourites'
       fullPath: '/favourites'
       preLoaderRoute: typeof FavouritesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/favorites': {
-      id: '/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -381,7 +361,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
-  FavoritesRoute: FavoritesRoute,
   FavouritesRoute: FavouritesRoute,
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,

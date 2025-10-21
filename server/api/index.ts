@@ -11,16 +11,16 @@ import { adminDashboardRoutes } from "./admin/dashboard";
 import { dashboardRoutes } from "./dashboard";
 import { authRoutes } from "./auth/routes";
 
-export const api = new Hono();
+export const apiRouter = new Hono();
 
-api.route("/users", usersRoutes);
-api.route("/projects", projectsRoutes);
-api.route("/projects/applications", applicationsRoutes);
-api.route("/projects/favourites", favouritesRoutes);
-api.route("/organisations", organisationsRoutes);
-api.route("/organisations/requests", organisationRequestsRoutes);
-api.route("/admin/dashboard", adminDashboardRoutes);
-api.route("/dashboard", dashboardRoutes);
-api.route("/auth", authRoutes);
+apiRouter.route("/users", usersRoutes);
+apiRouter.route("/projects", projectsRoutes);
+apiRouter.route("/projects/applications", applicationsRoutes);
+apiRouter.route("/projects/favourites", favouritesRoutes);
+apiRouter.route("/organisations", organisationsRoutes);
+apiRouter.route("/organisations/requests", organisationRequestsRoutes);
+apiRouter.route("/admin/dashboard", adminDashboardRoutes);
+apiRouter.route("/dashboard", dashboardRoutes);
+apiRouter.route("/auth", authRoutes);
 
-export default api;
+export default apiRouter;
