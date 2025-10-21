@@ -57,7 +57,7 @@ export const profiles = pgTable("profiles", {
 
 // ---------- ORGANISATIONS (CSP providers) ----------
 export const organisations = pgTable("organisations", {
-  userId: text("user_id").primaryKey().references(() => users.id).notNull(), // login user
+  userId: text("user_id").primaryKey().references(() => users.id).notNull(),
   slug: varchar("slug", { length: 160 }).notNull(),
   description: text("description"),
   website: varchar("website", { length: 255 }),
