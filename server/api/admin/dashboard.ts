@@ -3,13 +3,23 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { sql } from "drizzle-orm";
-import { requireSession } from "../_utils/auth";
+import { requireSession, assertRole, ok } from "../_utils/auth";
 
 export const adminDashboardRoutes = new Hono();
 
+export type AdminDashboardResponse = {
+  totals: {
+    users: number;
+    students: number;
+    organisations: number;
+    projects: number;
+  };
+  pendingOrgRequests: number;
+};
+
 adminDashboardRoutes.get("/", async (c) => {
-  const session = await requireSession(c);
-  if (session.accountType !== "admin") return c.json({ error: "Forbidden" }, 403);
+  const me = await requireSession(c);
+  assertRole(me, ["admin"]);
 
   const usersCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.users);
   const studentsCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.users).where(sql`account_type = 'student'`);
@@ -17,7 +27,7 @@ adminDashboardRoutes.get("/", async (c) => {
   const projectsCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.projects);
   const pendingReq = await db.select({ c: sql<number>`count(*)::int` }).from(schema.organisationRequests).where(sql`status = 'pending'`);
 
-  return c.json({
+  return ok<AdminDashboardResponse>(c, {
     totals: {
       users: usersCount[0]?.c ?? 0,
       students: studentsCount[0]?.c ?? 0,

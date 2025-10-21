@@ -3,12 +3,23 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq, desc } from "drizzle-orm";
-import { requireSession } from "../_utils/auth";
+import { requireSession, assertRole, ok, created, badReq, notFound } from "../_utils/auth";
 
 export const organisationsRoutes = new Hono();
-function isAdmin(type?: string) { return type === "admin"; }
 
-organisationsRoutes.get("/", async c => {
+export type OrgListItem = {
+  id: string;
+  slug: string;
+  description: string | null;
+  website: string | null;
+  createdAt: string;
+};
+
+export type OrgDetail = OrgListItem & {
+  createdBy: string;
+};
+
+organisationsRoutes.get("/", async (c) => {
   const rows = await db
     .select({
       id: schema.organisations.userId,
@@ -19,10 +30,17 @@ organisationsRoutes.get("/", async c => {
     })
     .from(schema.organisations)
     .orderBy(desc(schema.organisations.createdAt));
-  return c.json(rows);
+
+  return ok<OrgListItem[]>(
+    c,
+    rows.map((r) => ({
+      ...r,
+      createdAt: (r.createdAt as any)?.toISOString?.() ?? String(r.createdAt),
+    })),
+  );
 });
 
-organisationsRoutes.get("/:id", async c => {
+organisationsRoutes.get("/:id", async (c) => {
   const id = String(c.req.param("id"));
   const [org] = await db
     .select({
@@ -36,16 +54,23 @@ organisationsRoutes.get("/:id", async c => {
     .from(schema.organisations)
     .where(eq(schema.organisations.userId, id))
     .limit(1);
-  if (!org) return c.json({ error: "Not found" }, 404);
-  return c.json(org);
+
+  if (!org) return notFound(c);
+  return ok<OrgDetail>({
+    ...org,
+    createdAt: (org.createdAt as any)?.toISOString?.() ?? String(org.createdAt),
+  } as OrgDetail);
 });
 
-organisationsRoutes.post("/", async c => {
-  const session = await requireSession(c);
-  if (!isAdmin(session.accountType)) return c.json({ error: "Forbidden" }, 403);
+// Admin: create
+organisationsRoutes.post("/", async (c) => {
+  const me = await requireSession(c);
+  assertRole(me, ["admin"]);
 
-  const body = await c.req.json().catch(() => null as any);
-  if (!body?.slug || !body?.userId) return c.json({ error: "Missing slug or userId" }, 400);
+  const body = (await c.req.json().catch(() => null)) as
+    | { userId?: string; slug?: string; description?: string | null; website?: string | null }
+    | null;
+  if (!body?.slug || !body?.userId) return badReq(c, "Missing slug or userId");
 
   const [inserted] = await db
     .insert(schema.organisations)
@@ -54,16 +79,18 @@ organisationsRoutes.post("/", async c => {
       slug: body.slug,
       description: body.description ?? null,
       website: body.website ?? null,
-      createdBy: session.id,
+      createdBy: me.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     })
     .returning({ id: schema.organisations.userId });
-  return c.json({ id: inserted.id }, 201);
+
+  return created(c, { id: inserted.id });
 });
 
-organisationsRoutes.patch("/:id", async c => {
-  const session = await requireSession(c);
+// Admin or owner: update
+organisationsRoutes.patch("/:id", async (c) => {
+  const me = await requireSession(c);
   const id = String(c.req.param("id"));
 
   const [org] = await db
@@ -71,10 +98,17 @@ organisationsRoutes.patch("/:id", async c => {
     .from(schema.organisations)
     .where(eq(schema.organisations.userId, id))
     .limit(1);
-  if (!org) return c.json({ error: "Not found" }, 404);
-  if (!isAdmin(session.accountType) && org.userId !== session.id) return c.json({ error: "Forbidden" }, 403);
+  if (!org) return notFound(c);
+  if (me.accountType !== "admin" && org.userId !== me.id) {
+    return c.json({ error: "Forbidden" }, 403);
+  }
 
-  const body = await c.req.json().catch(() => ({}));
+  const body = ((await c.req.json().catch(() => ({}))) ?? {}) as {
+    slug?: string;
+    description?: string | null;
+    website?: string | null;
+  };
+
   await db
     .update(schema.organisations)
     .set({
@@ -85,13 +119,14 @@ organisationsRoutes.patch("/:id", async c => {
     })
     .where(eq(schema.organisations.userId, id));
 
-  return c.json({ ok: true });
+  return ok(c, { ok: true });
 });
 
-organisationsRoutes.delete("/:id", async c => {
-  const session = await requireSession(c);
-  if (!isAdmin(session.accountType)) return c.json({ error: "Forbidden" }, 403);
+// Admin: delete
+organisationsRoutes.delete("/:id", async (c) => {
+  const me = await requireSession(c);
+  assertRole(me, ["admin"]);
   const id = String(c.req.param("id"));
   await db.delete(schema.organisations).where(eq(schema.organisations.userId, id));
-  return c.json({ ok: true });
+  return ok(c, { ok: true });
 });

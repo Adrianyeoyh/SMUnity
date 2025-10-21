@@ -3,17 +3,26 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { and, eq, desc } from "drizzle-orm";
-import { requireSession } from "../_utils/auth";
+import { requireSession, assertRole, ok, created, badReq } from "../_utils/auth";
+import { applicationCreateSchema } from "../_utils/validators";
 
 export const applicationsRoutes = new Hono();
 
-applicationsRoutes.get("/", async (c) => {
-  const session = await requireSession(c);
+export type MyApplicationCard = {
+  id: number;
+  status: (typeof schema.applicationStatusEnum.enumValues)[number];
+  motivation: string | null;
+  submittedAt: string;
+  project: { id: number; title: string };
+};
 
-  const status = c.req.query("status") as typeof schema.applicationStatusEnum.enumValues[number] | undefined;
+applicationsRoutes.get("/", async (c) => {
+  const me = await requireSession(c);
+
+  const status = c.req.query("status") as (typeof schema.applicationStatusEnum.enumValues)[number] | undefined;
   const where = status
-    ? and(eq(schema.applications.userId, session.id), eq(schema.applications.status, status))
-    : eq(schema.applications.userId, session.id);
+    ? and(eq(schema.applications.userId, me.id), eq(schema.applications.status, status))
+    : eq(schema.applications.userId, me.id);
 
   const rows = await db
     .select({
@@ -29,43 +38,49 @@ applicationsRoutes.get("/", async (c) => {
     .where(where)
     .orderBy(desc(schema.applications.submittedAt));
 
-  return c.json(rows.map(r => ({
-    id: r.id,
-    status: r.status,
-    motivation: r.motivation,
-    submittedAt: (r.submittedAt as any)?.toISOString?.() ?? String(r.submittedAt),
-    project: { id: r.projectId, title: r.title },
-  })));
+  return ok<MyApplicationCard[]>(
+    c,
+    rows.map((r) => ({
+      id: r.id,
+      status: r.status,
+      motivation: r.motivation,
+      submittedAt: (r.submittedAt as any)?.toISOString?.() ?? String(r.submittedAt),
+      project: { id: r.projectId, title: r.title },
+    })),
+  );
 });
 
 applicationsRoutes.post("/", async (c) => {
-  const session = await requireSession(c);
-  if (session.accountType !== "student") return c.json({ error: "Forbidden" }, 403);
+  const me = await requireSession(c);
+  assertRole(me, ["student"]);
 
-  const body = await c.req.json().catch(() => null as any);
-  if (!body?.projectId) return c.json({ error: "Missing projectId" }, 400);
+  const body = await c.req.json().catch(() => null);
+  const parsed = applicationCreateSchema.safeParse(body);
+  if (!parsed.success) return badReq(c, "Invalid body");
 
-  const values: any = {
-    projectId: Number(body.projectId),
-    userId: session.id,
-    motivation: body.motivation ?? null,
-    sessionId: body.sessionId ? Number(body.sessionId) : null,
-  };
+  const [row] = await db
+    .insert(schema.applications)
+    .values({
+      projectId: parsed.data.projectId,
+      userId: me.id,
+      motivation: parsed.data.motivation ?? null,
+      sessionId: parsed.data.sessionId ?? null,
+    })
+    .returning({ id: schema.applications.id });
 
-  const [row] = await db.insert(schema.applications).values(values).returning({ id: schema.applications.id });
-  return c.json({ id: row.id }, 201);
+  return created(c, { id: row.id });
 });
 
+// keep route semantics used in your docs
 applicationsRoutes.post("/:id/withdraw", async (c) => {
-  const session = await requireSession(c);
-
+  const me = await requireSession(c);
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   await db
     .update(schema.applications)
     .set({ status: "withdrawn" })
-    .where(and(eq(schema.applications.id, id), eq(schema.applications.userId, session.id)));
+    .where(and(eq(schema.applications.id, id), eq(schema.applications.userId, me.id)));
 
-  return c.json({ ok: true });
+  return ok(c, { ok: true });
 });

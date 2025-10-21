@@ -3,86 +3,103 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
-import { requireSession } from "../_utils/auth";
+import { requireSession, ok, created, badReq } from "../_utils/auth";
 
 export const projectsRoutes = new Hono();
 
-function isAdmin(t?: string) { return t === "admin"; }
-function isOrg(t?: string) { return t === "organisation"; }
+type ProjectCard = {
+  id: number;
+  title: string;
+  summary: string | null;
+  organisation: { id: string; slug: string | null };
+  location: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  slotsTotal: number;
+  slotsFilled: number;
+  status: (typeof schema.projectStatusEnum.enumValues)[number];
+  createdAt: string;
+};
 
-projectsRoutes.get("/", async c => {
+type ProjectDetail = {
+  id: number;
+  title: string;
+  description: string;
+  organisation: { id: string; slug: string | null };
+  address: {
+    location: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    postalCode: string | null;
+    latitude: number | null;
+    longitude: number | null;
+  };
+  capacity: { slotsTotal: number; slotsFilled: number };
+  status: (typeof schema.projectStatusEnum.enumValues)[number];
+};
+
+projectsRoutes.get("/", async (c) => {
   const q = c.req.query("q")?.trim();
   const categoryId = c.req.query("categoryId") ? Number(c.req.query("categoryId")) : undefined;
-  const tagIds = c.req.queries("tagId")?.map(Number).filter(n => !Number.isNaN(n)) ?? [];
-  const status = (c.req.query("status") ?? "approved") as typeof schema.projectStatusEnum.enumValues[number];
+  const tagIds = c.req.queries("tagId")?.map(Number).filter((n) => !Number.isNaN(n)) ?? [];
+  const status = (c.req.query("status") ?? "approved") as (typeof schema.projectStatusEnum.enumValues)[number];
 
   const conditions = [eq(schema.projects.status, status)];
   if (q) conditions.push(ilike(schema.projects.title, `%${q}%`));
   if (categoryId) conditions.push(eq(schema.projects.categoryId, categoryId));
 
-  let rows;
-  if (tagIds.length) {
-    rows = await db
-      .select({
-        id: schema.projects.id,
-        title: schema.projects.title,
-        summary: schema.projects.summary,
-        orgId: schema.projects.orgId,
-        orgSlug: schema.organisations.slug,
-        location: schema.projects.location,
-        latitude: schema.projects.latitude,
-        longitude: schema.projects.longitude,
-        slotsTotal: schema.projects.slotsTotal,
-        slotsFilled: schema.projects.slotsFilled,
-        status: schema.projects.status,
-        createdAt: schema.projects.createdAt,
-      })
-      .from(schema.projects)
-      .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
-      .innerJoin(schema.projectTags, eq(schema.projectTags.projectId, schema.projects.id))
-      .where(and(...conditions, inArray(schema.projectTags.tagId, tagIds)))
-      .orderBy(desc(schema.projects.createdAt));
-  } else {
-    rows = await db
-      .select({
-        id: schema.projects.id,
-        title: schema.projects.title,
-        summary: schema.projects.summary,
-        orgId: schema.projects.orgId,
-        orgSlug: schema.organisations.slug,
-        location: schema.projects.location,
-        latitude: schema.projects.latitude,
-        longitude: schema.projects.longitude,
-        slotsTotal: schema.projects.slotsTotal,
-        slotsFilled: schema.projects.slotsFilled,
-        status: schema.projects.status,
-        createdAt: schema.projects.createdAt,
-      })
-      .from(schema.projects)
-      .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
-      .where(and(...conditions))
-      .orderBy(desc(schema.projects.createdAt));
-  }
+  const baseSelect = {
+    id: schema.projects.id,
+    title: schema.projects.title,
+    summary: schema.projects.summary,
+    orgId: schema.projects.orgId,
+    orgSlug: schema.organisations.slug,
+    location: schema.projects.location,
+    latitude: schema.projects.latitude,
+    longitude: schema.projects.longitude,
+    slotsTotal: schema.projects.slotsTotal,
+    slotsFilled: schema.projects.slotsFilled,
+    status: schema.projects.status,
+    createdAt: schema.projects.createdAt,
+  };
 
-  const payload = rows.map(r => ({
-    id: r.id,
-    title: r.title,
-    summary: r.summary,
-    organisation: { id: r.orgId, slug: r.orgSlug },
-    location: r.location,
-    latitude: r.latitude,
-    longitude: r.longitude,
-    slotsTotal: r.slotsTotal,
-    slotsFilled: r.slotsFilled,
-    status: r.status,
-    createdAt: (r.createdAt as any)?.toISOString?.() ?? String(r.createdAt),
-  }));
-  return c.json(payload);
+  const rows = tagIds.length
+    ? await db
+        .select(baseSelect)
+        .from(schema.projects)
+        .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
+        .innerJoin(schema.projectTags, eq(schema.projectTags.projectId, schema.projects.id))
+        .where(and(...conditions, inArray(schema.projectTags.tagId, tagIds)))
+        .orderBy(desc(schema.projects.createdAt))
+    : await db
+        .select(baseSelect)
+        .from(schema.projects)
+        .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
+        .where(and(...conditions))
+        .orderBy(desc(schema.projects.createdAt));
+
+  return ok<ProjectCard[]>(
+    c,
+    rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      summary: r.summary,
+      organisation: { id: r.orgId, slug: r.orgSlug },
+      location: r.location,
+      latitude: r.latitude,
+      longitude: r.longitude,
+      slotsTotal: r.slotsTotal,
+      slotsFilled: r.slotsFilled,
+      status: r.status,
+      createdAt: (r.createdAt as any)?.toISOString?.() ?? String(r.createdAt),
+    })),
+  );
 });
 
-projectsRoutes.get("/:id", async c => {
+projectsRoutes.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   const row = await db
     .select({
@@ -109,7 +126,7 @@ projectsRoutes.get("/:id", async c => {
 
   if (!row.length) return c.json({ error: "Not found" }, 404);
   const p = row[0];
-  return c.json({
+  return ok<ProjectDetail>(c, {
     id: p.id,
     title: p.title,
     description: p.description,
@@ -128,9 +145,9 @@ projectsRoutes.get("/:id", async c => {
   });
 });
 
-projectsRoutes.get("/:id/sessions", async c => {
+projectsRoutes.get("/:id/sessions", async (c) => {
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   const sessions = await db
     .select({
@@ -144,18 +161,22 @@ projectsRoutes.get("/:id/sessions", async c => {
     .where(eq(schema.projectSessions.projectId, id))
     .orderBy(schema.projectSessions.startsAt);
 
-  return c.json(sessions.map(s => ({
-    id: s.id,
-    startsAt: (s.startsAt as any)?.toISOString?.() ?? String(s.startsAt),
-    endsAt: (s.endsAt as any)?.toISOString?.() ?? String(s.endsAt),
-    capacity: s.capacity,
-    locationNote: s.locationNote,
-  })));
+  return ok(
+    c,
+    sessions.map((s) => ({
+      id: s.id,
+      startsAt: (s.startsAt as any)?.toISOString?.() ?? String(s.startsAt),
+      endsAt: (s.endsAt as any)?.toISOString?.() ?? String(s.endsAt),
+      capacity: s.capacity,
+      locationNote: s.locationNote,
+    })),
+  );
 });
 
-projectsRoutes.get("/sessions/upcoming", async c => {
-  const session = await requireSession(c);
-  if (session.accountType !== "student") return c.json({ error: "Forbidden" }, 403);
+// sessions student is accepted into (requires student)
+projectsRoutes.get("/sessions/upcoming", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "student") return c.json({ error: "Forbidden" }, 403);
 
   const rows = await db
     .select({
@@ -168,33 +189,50 @@ projectsRoutes.get("/sessions/upcoming", async c => {
     .from(schema.projectSessions)
     .innerJoin(schema.projects, eq(schema.projectSessions.projectId, schema.projects.id))
     .innerJoin(schema.applications, eq(schema.applications.projectId, schema.projects.id))
-    .where(and(
-      eq(schema.applications.userId, session.id),
-      eq(schema.applications.status, "accepted"),
-      sql`${schema.projectSessions.startsAt} >= now()`
-    ));
+    .where(and(eq(schema.applications.userId, me.id), eq(schema.applications.status, "accepted"), sql`${schema.projectSessions.startsAt} >= now()`));
 
-  return c.json(rows.map(r => ({
-    id: r.id,
-    title: r.title,
-    date: (r.startsAt as any)?.toISOString?.() ?? String(r.startsAt),
-    time: (r.endsAt as any)?.toISOString?.() ?? String(r.endsAt),
-    location: r.location,
-  })));
+  return ok(
+    c,
+    rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      date: (r.startsAt as any)?.toISOString?.() ?? String(r.startsAt),
+      time: (r.endsAt as any)?.toISOString?.() ?? String(r.endsAt),
+      location: r.location,
+    })),
+  );
 });
 
-projectsRoutes.post("/", async c => {
-  const session = await requireSession(c);
-  if (session.accountType !== "admin" && session.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
+// create listing (org/admin)
+projectsRoutes.post("/", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "admin" && me.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
 
-  const body = await c.req.json().catch(() => null as any);
+  const body = (await c.req.json().catch(() => null)) as
+    | {
+        orgId?: string;
+        title?: string;
+        description?: string;
+        summary?: string | null;
+        categoryId?: number | null;
+        location?: string | null;
+        addressLine1?: string | null;
+        addressLine2?: string | null;
+        city?: string | null;
+        postalCode?: string | null;
+        latitude?: number | null;
+        longitude?: number | null;
+        slotsTotal?: number | null;
+      }
+    | null;
+
   if (!body?.orgId || !body?.title || !body?.description) {
-    return c.json({ error: "Missing required fields" }, 400);
+    return badReq(c, "Missing required fields");
   }
 
   const [org] = await db.select().from(schema.organisations).where(eq(schema.organisations.userId, body.orgId)).limit(1);
   if (!org) return c.json({ error: "Organisation not found" }, 404);
-  if (session.accountType === "organisation" && body.orgId !== session.id) return c.json({ error: "Not your organisation" }, 403);
+  if (me.accountType === "organisation" && body.orgId !== me.id) return c.json({ error: "Not your organisation" }, 403);
 
   const [inserted] = await db
     .insert(schema.projects)
@@ -212,50 +250,52 @@ projectsRoutes.post("/", async c => {
       latitude: body.latitude ?? null,
       longitude: body.longitude ?? null,
       slotsTotal: body.slotsTotal ?? 0,
-      createdBy: session.id,
-      status: session.accountType === "admin" ? "approved" : "pending",
+      createdBy: me.id,
+      status: me.accountType === "admin" ? "approved" : "pending",
     })
     .returning({ id: schema.projects.id });
 
-  return c.json({ id: inserted.id }, 201);
+  return created(c, { id: inserted.id });
 });
 
-projectsRoutes.patch("/:id", async c => {
-  const session = await requireSession(c);
-  if (session.accountType !== "admin" && session.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
+// update (admin or owning org)
+projectsRoutes.patch("/:id", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "admin" && me.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
 
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   const [p] = await db.select({ orgId: schema.projects.orgId }).from(schema.projects).where(eq(schema.projects.id, id)).limit(1);
   if (!p) return c.json({ error: "Not found" }, 404);
-  if (session.accountType === "organisation" && p.orgId !== session.id) return c.json({ error: "Not your organisation" }, 403);
+  if (me.accountType === "organisation" && p.orgId !== me.id) return c.json({ error: "Not your organisation" }, 403);
 
-  const body = (await c.req.json().catch(() => ({}))) as Partial<{
+  const body = ((await c.req.json().catch(() => ({}))) ?? {}) as Partial<{
     title: string;
     summary: string | null;
     description: string;
-    status: "draft" | "pending" | "approved" | "closed" | "archived";
+    status: (typeof schema.projectStatusEnum.enumValues)[number];
     slotsTotal: number;
   }>;
 
-  if (session.accountType !== "admin") delete (body as any).status;
+  if (me.accountType !== "admin") delete (body as any).status;
 
   await db.update(schema.projects).set(body).where(eq(schema.projects.id, id));
-  return c.json({ ok: true });
+  return ok(c, { ok: true });
 });
 
-projectsRoutes.delete("/:id", async c => {
-  const session = await requireSession(c);
-  if (session.accountType !== "admin" && session.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
+// delete (admin or owning org)
+projectsRoutes.delete("/:id", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "admin" && me.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
 
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   const [p] = await db.select({ orgId: schema.projects.orgId }).from(schema.projects).where(eq(schema.projects.id, id)).limit(1);
   if (!p) return c.json({ error: "Not found" }, 404);
-  if (session.accountType === "organisation" && p.orgId !== session.id) return c.json({ error: "Not your organisation" }, 403);
+  if (me.accountType === "organisation" && p.orgId !== me.id) return c.json({ error: "Not your organisation" }, 403);
 
   await db.delete(schema.projects).where(eq(schema.projects.id, id));
-  return c.json({ ok: true });
+  return ok(c, { ok: true });
 });
