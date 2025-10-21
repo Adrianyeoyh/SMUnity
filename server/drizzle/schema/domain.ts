@@ -188,8 +188,8 @@ export const timesheets = pgTable("timesheets", {
   date: timestamp("date").notNull(),
   hours: integer("hours").notNull(),
   description: varchar("description", { length: 300 }),
-  verified: boolean("verified").notNull().default(false).references(() => users.id),
-  verifiedBy: text("verified_by"),
+  verified: boolean("verified").notNull().default(false),
+  verifiedBy: text("verified_by").references(() => users.id),
   verifiedAt: timestamp("verified_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
