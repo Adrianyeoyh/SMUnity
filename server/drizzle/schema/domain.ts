@@ -26,7 +26,7 @@ export const users = pgTable("users", {
   .notNull(),
   image: text("image"),
   passwordHash: varchar("password_hash", { length: 255 }), // null for OAuth students
-  accountType: accountTypeEnum("account_type").notNull().default("student"),   // student | organisation | admin
+  accountType: accountTypeEnum("account_type"),   // student | organisation | admin
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at")
   .$defaultFn(() => /* @__PURE__ */ new Date())
