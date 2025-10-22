@@ -13,7 +13,11 @@ const RequestCreate = z.object({
   requesterName: z.string().min(1).nullish(),
   orgName: z.string().min(2),
   orgDescription: z.string().nullish(),
-  website: z.string().url().nullish(),
+  website: z
+    .string()
+    .url()
+    .or(z.literal("")) // ✅ allow empty string
+    .nullish(),
 });
 
 organisationRequestsRoutes.post("/", async (c) => {

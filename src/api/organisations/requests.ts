@@ -5,7 +5,7 @@ export async function createOrganisationRequest(payload: {
   orgDescription?: string | null;
   website?: string | null;
 }) {
-  const res = await fetch("/api/organisations/requests", {
+  const res = await fetch(`${process.env.SERVER_URL}/api/organisations/requests`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
