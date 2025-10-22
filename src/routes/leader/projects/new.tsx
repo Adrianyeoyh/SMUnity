@@ -66,7 +66,7 @@ function NewProjectPage() {
       return res.json() as Promise<{ id: string; status: string }>;
     },
     onSuccess: (data) => {
-      nav({ to: "/leader" }); // or `/leader/projects/${data.id}/edit`
+      nav({ to: "/leader/dashboard" }); 
     },
   });
 
