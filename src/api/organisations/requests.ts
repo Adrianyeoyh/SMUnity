@@ -11,5 +11,5 @@ export async function createOrganisationRequest(payload: {
     body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error("Failed to create organisation request");
-  return res.json() as Promise<{ requestEmail: string }>;
+  return res.json() as Promise<{ requesterEmail: string }>;
 }
