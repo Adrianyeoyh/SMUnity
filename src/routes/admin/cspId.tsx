@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-export const Route = createFileRoute("/admin/$cspId")({
+export const Route = createFileRoute("/admin/cspId")({
   component: LeaderCspDetail,
 });
 

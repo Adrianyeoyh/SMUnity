@@ -461,7 +461,7 @@
 
 
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
@@ -489,6 +489,8 @@ export const Route = createFileRoute("/admin/adminDashboard")({
 });
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+
   // Mock data for demonstration
   const stats = {
     totalCSPs: 12,
@@ -834,7 +836,10 @@ function AdminDashboard() {
                       <Button size="sm" className="flex-1">
                         Manage
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate({ to: "/admin/cspId" })}>
                         View
                       </Button>
                     </div>
