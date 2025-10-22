@@ -20,7 +20,7 @@ organisationRequestsRoutes.post("/", async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = RequestCreate.safeParse(body);
   if (!parsed.success) return badReq(c, "Missing or invalid fields");
-
+  try {
   const [ins] = await db
     .insert(schema.organisationRequests)
     .values({
@@ -30,9 +30,17 @@ organisationRequestsRoutes.post("/", async (c) => {
       orgDescription: parsed.data.orgDescription ?? null,
       website: parsed.data.website ?? null,
     })
-    .returning({ id: schema.organisationRequests.id });
+    .returning({ requesterEmail: schema.organisationRequests.requesterEmail });
 
-  return created(c, { id: ins.id });
+  return created(c, { requesterEmail: ins.requesterEmail });
+  } catch (err: any) {
+    if (err.code === "23505") {
+      return badReq(c, "A request for this email already exists.");
+    }
+
+    console.error("Error inserting organisation request:", err);
+    return badReq(c, "Unexpected server error");
+  }
 });
 
 organisationRequestsRoutes.get("/", async (c) => {

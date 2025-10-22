@@ -20,6 +20,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as AuthRequestRouteImport } from './routes/auth/request'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -81,6 +82,11 @@ const AuthSignupRoute = AuthSignupRouteImport.update({
   path: '/auth/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRequestRoute = AuthRequestRouteImport.update({
+  id: '/auth/request',
+  path: '/auth/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRoute
 }
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
   fileRoutesById: FileRoutesById
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthRequestRoute: typeof AuthRequestRoute
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRoute
 }
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/request': {
+      id: '/auth/request'
+      path: '/auth/request'
+      fullPath: '/auth/request'
+      preLoaderRoute: typeof AuthRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/auth/login'
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthRequestRoute: AuthRequestRoute,
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRoute,
 }

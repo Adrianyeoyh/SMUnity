@@ -215,9 +215,8 @@ export const organiserInvites = pgTable("organiser_invites", {
 });
 
 export const organisationRequests = pgTable("organisation_requests", {
-  id: serial("id").primaryKey(),
-  requesterUserId: text("requested_by_user_id"),
-  requesterEmail: text("requester_email").notNull(), // external email for non-SMU
+  id: uuid("id").defaultRandom().primaryKey(), // ✅ UUID PK
+  requesterEmail: text("requester_email").notNull().unique(), // external email for non-SMU
   requesterName: text("requester_name"),
   orgName: varchar("org_name", { length: 160 }).notNull(),
   orgDescription: text("org_description"),

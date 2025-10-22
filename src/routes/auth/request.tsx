@@ -1,0 +1,174 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+
+import { Button } from "#client/components/ui/button";
+import { Input } from "#client/components/ui/input";
+import { Textarea } from "#client/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "#client/components/ui/form";
+import { env } from "#client/env";
+
+import { createOrganisationRequest } from '#client/api/organisations/requests'
+
+export const Route = createFileRoute('/auth/request')({
+  component: RouteComponent,
+})
+
+const organiserRequestSchema = z.object({
+  email: z.string().email("Valid email required"),
+  name: z.string().min(1, "Name is required"),
+  organisationName: z.string().min(2, "Organisation name required"),
+  organisationDescription: z.string().min(5, "Description required"),
+  website: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+});
+
+type OrganiserRequestForm = z.infer<typeof organiserRequestSchema>;
+
+function RouteComponent() {
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<OrganiserRequestForm>({
+    resolver: zodResolver(organiserRequestSchema),
+    defaultValues: {
+      email: "",
+      name: "",
+      organisationName: "",
+      organisationDescription: "",
+      website: "",
+    },
+  });
+
+  async function onSubmit(values: OrganiserRequestForm) {
+    setLoading(true);
+    try {
+      const data = await createOrganisationRequest({
+      requesterEmail: values.email,
+      requesterName: values.name,
+      orgName: values.organisationName,
+      orgDescription: values.organisationDescription,
+      website: values.website || null,
+    });
+
+    toast.success(`Request submitted! Your ID: ${data.id}`);
+    form.reset();
+
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow p-6">
+        <h1 className="text-2xl font-semibold mb-2 text-center">
+          Organiser Account Request
+        </h1>
+        <p className="text-sm text-muted-foreground text-center mb-6">
+          Fill in this form to request an organiser account.
+        </p>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="contact@organisation.sg" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Your Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Jane Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="organisationName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Organisation Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Helping Hands" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="organisationDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Organisation Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe your organisation's mission or activities"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Website (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.org" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Request"}
+            </Button>
+          </form>
+        </Form>
+
+        <Button
+          variant="ghost"
+          className="w-full mt-3"
+          onClick={() => (window.location.href = "/auth/signup")}
+        >
+          Back to Sign Up
+        </Button>
+      </div>
+    </div>
+  );
+}
+
