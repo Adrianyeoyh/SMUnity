@@ -225,6 +225,7 @@ export const organisationRequests = pgTable("organisation_requests", {
   decidedBy: text("decided_by").references(() => users.id),
   decidedAt: timestamp("decided_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  comments: text("comments"),
 }, (t) => ({
   requesterIdx: index("org_requests_email_idx").on(t.requesterEmail),
   statusIdx: index("org_requests_status_idx").on(t.status),
