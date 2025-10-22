@@ -24,7 +24,7 @@ External organisers request to join SMUnity; admins review and approve.
 
 **Response**
 ```json
-{ "id": 1 }
+{ "requesterEmail": "contact@ngo.sg" }
 ```
 
 ---
