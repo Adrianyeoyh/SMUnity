@@ -25,6 +25,7 @@ import { Route as AuthRequestRouteImport } from './routes/auth/request'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AuthAdminOnlyRouteImport } from './routes/auth/adminOnly'
 import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$applicantId'
 import { Route as AdminDashboard1RouteImport } from './routes/admin/dashboard1'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
@@ -112,6 +113,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthAdminOnlyRoute = AuthAdminOnlyRouteImport.update({
+  id: '/auth/adminOnly',
+  path: '/auth/adminOnly',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApplicantsApplicantIdRoute = ApplicantsApplicantIdRouteImport.update({
   id: '/applicants/$applicantId',
   path: '/applicants/$applicantId',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard1': typeof AdminDashboard1Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
+  '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard1': typeof AdminDashboard1Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
+  '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard1': typeof AdminDashboard1Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
+  '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/cspId'
     | '/admin/dashboard1'
     | '/applicants/$applicantId'
+    | '/auth/adminOnly'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/admin/cspId'
     | '/admin/dashboard1'
     | '/applicants/$applicantId'
+    | '/auth/adminOnly'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/admin/cspId'
     | '/admin/dashboard1'
     | '/applicants/$applicantId'
+    | '/auth/adminOnly'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -305,6 +317,7 @@ export interface RootRouteChildren {
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboard1Route: typeof AdminDashboard1Route
   ApplicantsApplicantIdRoute: typeof ApplicantsApplicantIdRoute
+  AuthAdminOnlyRoute: typeof AuthAdminOnlyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -429,6 +442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/adminOnly': {
+      id: '/auth/adminOnly'
+      path: '/auth/adminOnly'
+      fullPath: '/auth/adminOnly'
+      preLoaderRoute: typeof AuthAdminOnlyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/applicants/$applicantId': {
       id: '/applicants/$applicantId'
       path: '/applicants/$applicantId'
@@ -500,6 +520,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboard1Route: AdminDashboard1Route,
   ApplicantsApplicantIdRoute: ApplicantsApplicantIdRoute,
+  AuthAdminOnlyRoute: AuthAdminOnlyRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,

@@ -3,9 +3,9 @@ import { useState } from "react";
 import { auth } from "#client/lib/auth";
 import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
+import { Input } from "#client/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
-import { Separator } from "#client/components/ui/separator";
-import { AlertCircle, HeartHandshake } from "lucide-react";
+import { AlertCircle, HeartHandshake, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/auth/signup")({
   component: Signup,
@@ -16,18 +16,40 @@ function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleGoogleSignup() {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    confirm: "",
+  });
+
+  // 👁️ Track visibility states
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  async function handleEmailSignup(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!form.email) return setError("Email is required.");
+    if (form.password.length < 8) return setError("Password must be at least 8 characters.");
+    if (form.password !== form.confirm) return setError("Passwords do not match.");
+
     try {
       setIsLoading(true);
-      setError(null);
-      // Trigger Better Auth Google OAuth flow
-      await auth.signIn.social({
-        provider: "google",
-        // callbackURL: `${`${process.env.VITE_APP_URL}/api/auth/callback/google`}/api/auth/callback/google`,
+
+      const result = await auth.signUp.emailAndPassword({
+        email: form.email,
+        password: form.password,
       });
-      // After redirect, your guard endpoint will handle domain enforcement.
+
+      if (result.error) {
+        throw new Error(result.error.message || "Sign-up failed");
+      }
+
+      toast.success("Account created. Please verify your email to continue.");
+      navigate({ to: "/auth/login" });
     } catch (err: any) {
-      const msg = err instanceof Error ? err.message : "Unexpected error";
+      const msg = err instanceof Error ? err.message : "Sign-up failed";
       setError(msg);
       toast.error("Sign-up failed", { description: msg });
     } finally {
@@ -46,7 +68,7 @@ function Signup() {
           </div>
           <CardTitle className="font-heading text-2xl">Join SMUnity</CardTitle>
           <CardDescription className="font-body">
-            Sign up with your <span className="font-semibold">@smu.edu.sg</span> account
+            Sign up with your requested email account
           </CardDescription>
         </CardHeader>
 
@@ -58,50 +80,79 @@ function Signup() {
             </div>
           )}
 
-          <Button
-            onClick={handleGoogleSignup}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center"
-          >
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                fill="#4285F4"
+          <form onSubmit={handleEmailSignup} className="space-y-4">
+            {/* EMAIL */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Email</label>
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                required
               />
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                fill="#34A853"
-              />
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                fill="#EA4335"
-              />
-            </svg>
-            {isLoading ? "Redirecting..." : "Continue with Google"}
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground font-body">
-                For CSP organisers
-              </span>
+
+            {/* PASSWORD FIELD */}
+            <div className="space-y-1 relative">
+              <label className="text-sm font-medium">Password</label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="text-center text-sm text-muted-foreground">
-            Request account creation via{" "}
-            <Link to="/auth/request" className="text-primary hover:text-primary/80">
-              admin approval form
-            </Link>
-          </div>
+            {/* CONFIRM PASSWORD FIELD */}
+            <div className="space-y-1 relative">
+              <label className="text-sm font-medium">Confirm Password</label>
+              <div className="relative">
+                <Input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={form.confirm}
+                  onChange={(e) => setForm((f) => ({ ...f, confirm: e.target.value }))}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showConfirm ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
 
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Creating account..." : "Create account"}
+            </Button>
+          </form>
+
+          {/* SIGN-IN LINK */}
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link to="/auth/login" className="text-primary hover:text-primary/80">

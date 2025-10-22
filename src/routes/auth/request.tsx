@@ -163,9 +163,9 @@ function RouteComponent() {
         <Button
           variant="ghost"
           className="w-full mt-3"
-          onClick={() => (window.location.href = "/auth/signup")}
+          onClick={() => (window.location.href = "/auth/login")}
         >
-          Back to Sign Up
+          Back to Sign In
         </Button>
       </div>
     </div>

@@ -106,8 +106,22 @@ export const auth = betterAuth({
           const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
           const isStudent = Boolean(studentMatch);
           const accountType = isStudent ? "student" : "organisation";
-
           // 🧭 Update users table
+
+          if (email === "admin@smunity.sg") {
+            await db
+              .update(schema.users)
+              .set({
+                accountType: "admin",
+                isActive: true,
+                updatedAt: new Date(),
+              })
+              .where(eq(schema.users.id, user.id));
+
+            // ✅ nothing to return
+            return;
+          }
+
           await db
             .update(schema.users)
             .set({

@@ -9,7 +9,8 @@ import { organisationsRoutes } from "./organisations/index";
 import { organisationRequestsRoutes } from "./organisations/requests";
 import { adminDashboardRoutes } from "./admin/dashboard";
 import { dashboardRoutes } from "./dashboard";
-import { authRoutes } from "./auth/routes";
+import { auth } from "#server/lib/auth"
+// import { authRoutes } from "./auth/routes";
 
 // add-ons already in your repo
 import { taxonomiesRoutes } from "./taxonomies/index";
@@ -30,7 +31,10 @@ apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 apiRouter.route("/organisations/members", orgMembersRoutes);
 apiRouter.route("/admin/dashboard", adminDashboardRoutes);
 apiRouter.route("/dashboard", dashboardRoutes);
-apiRouter.route("/auth", authRoutes);
+// apiRouter.route("/auth", authRoutes);
+apiRouter.on(["POST", "GET"], "/auth/*", (c) => {
+ return auth.handler(c.req.raw);
+});
 apiRouter.route("/taxonomies", taxonomiesRoutes);
 apiRouter.route("/timesheets", timesheetsRoutes);
 

@@ -25,5 +25,5 @@
       "#shared/*": ["./shared/*"]
     }
   },
-  "include": ["vite.config.ts", "server"]
+  "include": ["vite.config.ts", "server","scripts"]
 }

@@ -3,8 +3,13 @@ import { useState, useEffect } from "react";
 import { auth } from "#client/lib/auth";
 import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
+import { Input } from "#client/components/ui/input";
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "#client/components/ui/card";
 import { Separator } from "#client/components/ui/separator";
 import { HeartHandshake, AlertCircle } from "lucide-react";
@@ -15,10 +20,9 @@ export const Route = createFileRoute("/auth/login")({
 
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
+  const [emailLogin, setEmailLogin] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
-
   const navigate = useNavigate();
-  // Read ?redirectTo=/something from the URL if present
   const search = useSearch({ from: "/auth/login" });
   const redirectTo = search.redirectTo || "/dashboard";
 
@@ -26,22 +30,16 @@ function Login() {
     try {
       setIsLoading(true);
       setError(null);
-
-      // 👇 include redirect information for OAuth callback
       const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(
         redirectTo
       )}`;
-
       const result = await auth.signIn.social({
         provider: "google",
         callbackURL: callbackUrl,
       });
-
       if (result.data?.url) {
-        // Redirect user to Google OAuth
         window.location.href = result.data.url;
       } else if (result.data?.user) {
-        // Direct login (no external redirect)
         navigate({ to: redirectTo });
       }
     } catch (err: any) {
@@ -53,7 +51,37 @@ function Login() {
     }
   }
 
-  // 👇 Optional: auto-redirect after successful login (if BetterAuth restores session)
+  async function handleEmailLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const result = await auth.signIn.emailAndPassword({
+        email: emailLogin.email,
+        password: emailLogin.password,
+      });
+
+      if (result?.error) throw new Error(result.error.message);
+
+      const userType = result.data?.user?.accountType;
+      if (userType === "student") {
+        throw new Error("Students must use Google sign-in with SMU email.");
+      }
+
+      toast.success("Login successful");
+
+      // Redirect based on user type
+      if (userType === "admin") navigate({ to: "/admin/dashboard" });
+      else if (userType === "organisation") navigate({ to: "/csp/dashboard" });
+      else navigate({ to: redirectTo });
+    } catch (err: any) {
+      const msg = err instanceof Error ? err.message : "Login failed";
+      setError(msg);
+      toast.error("Login failed", { description: msg });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     async function checkSession() {
       const session = await auth.getSession();
@@ -74,7 +102,7 @@ function Login() {
             </div>
           </div>
           <CardTitle className="font-heading text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in with your SMU Google account</CardDescription>
+          <CardDescription>Sign in with your <span className="font-semibold">@smu.edu.sg</span> account</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -85,6 +113,7 @@ function Login() {
             </div>
           )}
 
+          {/* GOOGLE OAUTH */}
           <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
@@ -111,22 +140,65 @@ function Login() {
             {isLoading ? "Redirecting..." : "Continue with Google"}
           </Button>
 
+          {/* --- SEPARATOR --- */}
           <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground font-body">
-                Need an account?
+                Organisation / Admin Login
               </span>
             </div>
           </div>
 
+          {/* --- ORG/ADMIN LOGIN FORM --- */}
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="Email"
+              value={emailLogin.email}
+              onChange={(e) => setEmailLogin({ ...emailLogin, email: e.target.value })}
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={emailLogin.password}
+              onChange={(e) => setEmailLogin({ ...emailLogin, password: e.target.value })}
+              required
+            />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign in"}
+            </Button>
+          </form>
+
+          {/* --- SEPARATOR FOR SIGNUP --- */}
+          <div className="relative mt-6">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground font-body text-center leading-tight">
+                Need an account?
+                <br />
+                <span className="normal-case text-[11px] text-muted-foreground/70">
+                  (For CSP organisers only)
+                </span>
+              </span>
+            </div>
+          </div>
           <div className="text-center text-sm text-muted-foreground">
+            Request account creation via{" "}
+            <Link to="/auth/request" className="text-primary hover:text-primary/80">
+              admin approval form
+            </Link>
+          </div>
+          {/* <div className="text-center text-sm text-muted-foreground">
             <Link to="/auth/signup" className="text-primary hover:text-primary/80">
               Sign up with SMU
             </Link>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
