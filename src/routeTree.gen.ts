@@ -13,7 +13,6 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavouritesRouteImport } from './routes/favourites'
-import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -21,6 +20,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as AuthRequestRouteImport } from './routes/auth/request'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -45,11 +45,6 @@ const MapRoute = MapRouteImport.update({
 const FavouritesRoute = FavouritesRouteImport.update({
   id: '/favourites',
   path: '/favourites',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FavoritesRoute = FavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -87,6 +82,11 @@ const AuthSignupRoute = AuthSignupRouteImport.update({
   path: '/auth/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRequestRoute = AuthRequestRouteImport.update({
+  id: '/auth/request',
+  path: '/auth/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
@@ -119,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -129,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRoute
 }
@@ -138,7 +138,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -148,6 +147,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRoute
 }
@@ -158,7 +158,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/favorites': typeof FavoritesRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -168,6 +167,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRoute
 }
@@ -179,7 +179,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -189,6 +188,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
   fileRoutesByTo: FileRoutesByTo
@@ -198,7 +198,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -208,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
   id:
@@ -217,7 +217,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/favorites'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -227,6 +226,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
   fileRoutesById: FileRoutesById
@@ -237,7 +237,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
-  FavoritesRoute: typeof FavoritesRoute
   FavouritesRoute: typeof FavouritesRoute
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
@@ -247,6 +246,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthRequestRoute: typeof AuthRequestRoute
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRoute
 }
@@ -279,13 +279,6 @@ declare module '@tanstack/react-router' {
       path: '/favourites'
       fullPath: '/favourites'
       preLoaderRoute: typeof FavouritesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/favorites': {
-      id: '/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -337,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/request': {
+      id: '/auth/request'
+      path: '/auth/request'
+      fullPath: '/auth/request'
+      preLoaderRoute: typeof AuthRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/auth/login'
@@ -381,7 +381,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
-  FavoritesRoute: FavoritesRoute,
   FavouritesRoute: FavouritesRoute,
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
@@ -391,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthRequestRoute: AuthRequestRoute,
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRoute,
 }

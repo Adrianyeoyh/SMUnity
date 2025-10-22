@@ -2,92 +2,100 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { and, desc, eq } from "drizzle-orm";
-import { assertRole, requireSession } from "#server/api/_utils/auth";
+import { eq, desc } from "drizzle-orm";
+import { requireSession, assertRole, ok, created, badReq, notFound } from "../_utils/auth";
+import { z } from "zod";
 
-export const orgRequestsRoutes = new Hono();
+export const organisationRequestsRoutes = new Hono();
 
-export type CreateOrgRequestPayload = {
-  requesterEmail: string;
-  requesterName?: string | null;
-  orgName: string;
-  orgDescription?: string | null;
-  website?: string | null;
-};
-export type CreateOrgRequestResponse = { ok: true; id: number };
+const RequestCreate = z.object({
+  requesterEmail: z.string().email(),
+  requesterName: z.string().min(1).nullish(),
+  orgName: z.string().min(2),
+  orgDescription: z.string().nullish(),
+  website: z.string().url().nullish(),
+});
 
-// Public: POST /api/organisations/requests
-orgRequestsRoutes.post("/", async c => {
-  let requestedByUserId: string | null = null;
-  // allow anonymous submission, but attach user id when authenticated
+organisationRequestsRoutes.post("/", async (c) => {
+  const body = await c.req.json().catch(() => null);
+  const parsed = RequestCreate.safeParse(body);
+  if (!parsed.success) return badReq(c, "Missing or invalid fields");
   try {
-    const user = await requireSession(c);
-    requestedByUserId = user.id;
-  } catch (_) {}
+  const [ins] = await db
+    .insert(schema.organisationRequests)
+    .values({
+      requesterEmail: parsed.data.requesterEmail.toLowerCase(),
+      requesterName: parsed.data.requesterName ?? null,
+      orgName: parsed.data.orgName,
+      orgDescription: parsed.data.orgDescription ?? null,
+      website: parsed.data.website ?? null,
+    })
+    .returning({ requesterEmail: schema.organisationRequests.requesterEmail });
 
-  const body: CreateOrgRequestPayload = await c.req.json();
+  return created(c, { requesterEmail: ins.requesterEmail });
+  } catch (err: any) {
+    if (err.code === "23505") {
+      return badReq(c, "A request for this email already exists.");
+    }
 
-  const [ins] = await db.insert(schema.organisationRequests).values({
-    requestedByUserId,
-    requesterEmail: body.requesterEmail.toLowerCase(),
-    requesterName: body.requesterName ?? null,
-    orgName: body.orgName,
-    orgDescription: body.orgDescription ?? null,
-    website: body.website ?? null,
-    status: "pending",
-  }).returning({ id: schema.organisationRequests.id });
-
-  return c.json<CreateOrgRequestResponse>({ ok: true, id: ins.id });
+    console.error("Error inserting organisation request:", err);
+    return badReq(c, "Unexpected server error");
+  }
 });
 
-export type AdminOrgRequestItem = {
-  id: number;
-  requesterEmail: string;
-  orgName: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: string;
-};
+organisationRequestsRoutes.get("/", async (c) => {
+  const me = await requireSession(c);
+  assertRole(me, ["admin"]);
 
-// Admin: GET /api/organisations/requests
-orgRequestsRoutes.get("/", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["admin"]);
+  const rows = await db
+    .select()
+    .from(schema.organisationRequests)
+    .orderBy(desc(schema.organisationRequests.createdAt));
 
-  const rows = await db.select({
-    id: schema.organisationRequests.id,
-    requesterEmail: schema.organisationRequests.requesterEmail,
-    orgName: schema.organisationRequests.orgName,
-    status: schema.organisationRequests.status,
-    createdAt: schema.organisationRequests.createdAt,
-  }).from(schema.organisationRequests).orderBy(desc(schema.organisationRequests.createdAt));
-
-  const list: AdminOrgRequestItem[] = rows.map(r => ({
-    id: r.id,
-    requesterEmail: r.requesterEmail,
-    orgName: r.orgName,
-    status: r.status,
-    createdAt: r.createdAt!.toISOString(),
-  }));
-
-  return c.json(list);
+  return ok(c, rows);
 });
 
-export type DecidePayload = { approve: boolean; note?: string | null };
-export type DecideResponse = { ok: true };
-
-// Admin: POST /api/organisations/requests/:id/decide
-orgRequestsRoutes.post("/:id/decide", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["admin"]);
+organisationRequestsRoutes.post("/:id/decide", async (c) => {
+  const me = await requireSession(c);
+  assertRole(me, ["admin"]);
 
   const id = Number(c.req.param("id"));
-  const body: DecidePayload = await c.req.json();
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
-  await db.update(schema.organisationRequests).set({
-    status: body.approve ? "approved" : "rejected",
-    decidedBy: user.id,
-    decidedAt: new Date(),
-  }).where(eq(schema.organisationRequests.id, id));
+  const body = (await c.req.json().catch(() => null)) as { approve?: boolean } | null;
+  if (!body) return badReq(c, "Missing body");
+  const approve = !!body.approve;
 
-  return c.json<DecideResponse>({ ok: true });
+  // ensure it exists
+  const existing = await db
+    .select({ id: schema.organisationRequests.id })
+    .from(schema.organisationRequests)
+    .where(eq(schema.organisationRequests.id, id))
+    .limit(1);
+  if (!existing.length) return notFound(c);
+
+  await db
+    .update(schema.organisationRequests)
+    .set({ status: approve ? "approved" : "rejected", decidedBy: me.id, decidedAt: new Date() })
+    .where(eq(schema.organisationRequests.id, id));
+
+  if (approve) {
+    // emit an organiser invite token (7 days)
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const [{ requesterEmail }] = await db
+      .select({ requesterEmail: schema.organisationRequests.requesterEmail })
+      .from(schema.organisationRequests)
+      .where(eq(schema.organisationRequests.id, id))
+      .limit(1);
+    await db.insert(schema.organiserInvites).values({
+      email: requesterEmail.toLowerCase(),
+      token,
+      approved: true,
+      expiresAt,
+      createdAt: new Date(),
+    });
+  }
+
+  return ok(c, { ok: true });
 });

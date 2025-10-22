@@ -2,56 +2,22 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { auth } from "#server/lib/auth";
-import { and, desc, eq, ilike, inArray } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { requireSession, ok, created, badReq } from "../_utils/auth";
 
 export const projectsRoutes = new Hono();
 
-// --- helpers ---
-async function getSession(c: any) {
-  const res = await auth.handler(
-    new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }),
-  );
-  const data = (await res.clone().json().catch(() => ({}))) as {
-    user?: { id: string; email: string };
-    data?: { user?: { id: string; email: string } };
-  };
-  const user = data.user ?? data.data?.user;
-  return user ? { userId: user.id, email: user.email.toLowerCase() } : null;
-}
-
-async function getAccountType(userId: string) {
-  const u = await db.query.users.findFirst({
-    where: (t, { eq }) => eq(t.id, userId),
-    columns: { accountType: true },
-  });
-  return (u?.accountType as "student" | "organisation" | "admin" | undefined) ?? null;
-}
-
-function isAdmin(t: string | null) { return t === "admin"; }
-function isOrg(t: string | null) { return t === "organisation"; }
-
-// Check if org user can manage a given organisationId
-async function canManageOrg(userId: string, orgId: number): Promise<boolean> {
-  const org = await db.query.organisations.findFirst({
-    where: (t, { eq }) => eq(t.id, orgId),
-    columns: { createdBy: true },
-  });
-  return !!org && org.createdBy === userId;
-}
-
-// -- TYPES --
 type ProjectCard = {
   id: number;
   title: string;
   summary: string | null;
-  organisation: { id: number; name: string };
+  organisation: { id: string; slug: string | null };
   location: string | null;
   latitude: number | null;
   longitude: number | null;
   slotsTotal: number;
   slotsFilled: number;
-  status: "draft" | "pending" | "approved" | "closed" | "archived";
+  status: (typeof schema.projectStatusEnum.enumValues)[number];
   createdAt: string;
 };
 
@@ -59,7 +25,7 @@ type ProjectDetail = {
   id: number;
   title: string;
   description: string;
-  organisation: { id: number; name: string };
+  organisation: { id: string; slug: string | null };
   address: {
     location: string | null;
     addressLine1: string | null;
@@ -70,97 +36,70 @@ type ProjectDetail = {
     longitude: number | null;
   };
   capacity: { slotsTotal: number; slotsFilled: number };
-  status: "draft" | "pending" | "approved" | "closed" | "archived";
+  status: (typeof schema.projectStatusEnum.enumValues)[number];
 };
 
-type ProjectSessionRow = {
-  id: number;
-  startsAt: string;
-  endsAt: string;
-  capacity: number | null;
-  locationNote: string | null;
-};
-
-// ---------- PUBLIC: list projects (cards) ----------
-projectsRoutes.get("/", async c => {
+projectsRoutes.get("/", async (c) => {
   const q = c.req.query("q")?.trim();
-  const categoryId = c.req.query("categoryId") ? Number(c.req.query("categoryId")) : null;
-  const tagIds = c.req.queries("tagId")?.map(Number).filter(n => !Number.isNaN(n)) ?? [];
-  const status = (c.req.query("status") ?? "approved") as typeof schema.projectStatusEnum.enumValues[number];
+  const categoryId = c.req.query("categoryId") ? Number(c.req.query("categoryId")) : undefined;
+  const tagIds = c.req.queries("tagId")?.map(Number).filter((n) => !Number.isNaN(n)) ?? [];
+  const status = (c.req.query("status") ?? "approved") as (typeof schema.projectStatusEnum.enumValues)[number];
 
-  // build conditions
   const conditions = [eq(schema.projects.status, status)];
   if (q) conditions.push(ilike(schema.projects.title, `%${q}%`));
   if (categoryId) conditions.push(eq(schema.projects.categoryId, categoryId));
 
-  let query;
+  const baseSelect = {
+    id: schema.projects.id,
+    title: schema.projects.title,
+    summary: schema.projects.summary,
+    orgId: schema.projects.orgId,
+    orgSlug: schema.organisations.slug,
+    location: schema.projects.location,
+    latitude: schema.projects.latitude,
+    longitude: schema.projects.longitude,
+    slotsTotal: schema.projects.slotsTotal,
+    slotsFilled: schema.projects.slotsFilled,
+    status: schema.projects.status,
+    createdAt: schema.projects.createdAt,
+  };
 
-  if (tagIds.length > 0) {
-    query = db
-      .select({
-        id: schema.projects.id,
-        title: schema.projects.title,
-        summary: schema.projects.summary,
-        orgId: schema.projects.orgId,
-        orgName: schema.organisations.name,
-        location: schema.projects.location,
-        latitude: schema.projects.latitude,
-        longitude: schema.projects.longitude,
-        slotsTotal: schema.projects.slotsTotal,
-        slotsFilled: schema.projects.slotsFilled,
-        status: schema.projects.status,
-        createdAt: schema.projects.createdAt,
-      })
-      .from(schema.projects)
-      .innerJoin(schema.organisations, eq(schema.organisations.id, schema.projects.orgId))
-      .innerJoin(schema.projectTags, eq(schema.projectTags.projectId, schema.projects.id))
-      .where(and(...conditions, inArray(schema.projectTags.tagId, tagIds)))
-      .orderBy(desc(schema.projects.createdAt));
-  } else {
-    query = db
-      .select({
-        id: schema.projects.id,
-        title: schema.projects.title,
-        summary: schema.projects.summary,
-        orgId: schema.projects.orgId,
-        orgName: schema.organisations.name,
-        location: schema.projects.location,
-        latitude: schema.projects.latitude,
-        longitude: schema.projects.longitude,
-        slotsTotal: schema.projects.slotsTotal,
-        slotsFilled: schema.projects.slotsFilled,
-        status: schema.projects.status,
-        createdAt: schema.projects.createdAt,
-      })
-      .from(schema.projects)
-      .innerJoin(schema.organisations, eq(schema.organisations.id, schema.projects.orgId))
-      .where(and(...conditions))
-      .orderBy(desc(schema.projects.createdAt));
-  }
+  const rows = tagIds.length
+    ? await db
+        .select(baseSelect)
+        .from(schema.projects)
+        .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
+        .innerJoin(schema.projectTags, eq(schema.projectTags.projectId, schema.projects.id))
+        .where(and(...conditions, inArray(schema.projectTags.tagId, tagIds)))
+        .orderBy(desc(schema.projects.createdAt))
+    : await db
+        .select(baseSelect)
+        .from(schema.projects)
+        .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
+        .where(and(...conditions))
+        .orderBy(desc(schema.projects.createdAt));
 
-  const rows = await query;
-  const payload = rows.map(r => ({
-    id: r.id,
-    title: r.title,
-    summary: r.summary,
-    organisation: { id: r.orgId, name: r.orgName },
-    location: r.location,
-    latitude: r.latitude,
-    longitude: r.longitude,
-    slotsTotal: r.slotsTotal,
-    slotsFilled: r.slotsFilled,
-    status: r.status,
-    createdAt: r.createdAt?.toISOString() ?? new Date().toISOString(),
-  }));
-
-  return c.json(payload);
+  return ok<ProjectCard[]>(
+    c,
+    rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      summary: r.summary,
+      organisation: { id: r.orgId, slug: r.orgSlug },
+      location: r.location,
+      latitude: r.latitude,
+      longitude: r.longitude,
+      slotsTotal: r.slotsTotal,
+      slotsFilled: r.slotsFilled,
+      status: r.status,
+      createdAt: (r.createdAt as any)?.toISOString?.() ?? String(r.createdAt),
+    })),
+  );
 });
 
-
-// ---------- PUBLIC: project detail (minimal) ----------
-projectsRoutes.get("/:id", async c => {
+projectsRoutes.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json<{ error: string }>({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   const row = await db
     .select({
@@ -169,7 +108,7 @@ projectsRoutes.get("/:id", async c => {
       description: schema.projects.description,
       status: schema.projects.status,
       orgId: schema.projects.orgId,
-      orgName: schema.organisations.name,
+      orgSlug: schema.organisations.slug,
       location: schema.projects.location,
       addressLine1: schema.projects.addressLine1,
       addressLine2: schema.projects.addressLine2,
@@ -181,18 +120,17 @@ projectsRoutes.get("/:id", async c => {
       slotsFilled: schema.projects.slotsFilled,
     })
     .from(schema.projects)
-    .innerJoin(schema.organisations, eq(schema.organisations.id, schema.projects.orgId))
+    .innerJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
     .where(eq(schema.projects.id, id))
     .limit(1);
 
-  if (row.length === 0) return c.json<{ error: string }>({ error: "Not found" }, 404);
-
+  if (!row.length) return c.json({ error: "Not found" }, 404);
   const p = row[0];
-  const payload: ProjectDetail = {
+  return ok<ProjectDetail>(c, {
     id: p.id,
     title: p.title,
     description: p.description,
-    organisation: { id: p.orgId, name: p.orgName },
+    organisation: { id: p.orgId, slug: p.orgSlug },
     address: {
       location: p.location,
       addressLine1: p.addressLine1,
@@ -203,15 +141,13 @@ projectsRoutes.get("/:id", async c => {
       longitude: p.longitude,
     },
     capacity: { slotsTotal: p.slotsTotal, slotsFilled: p.slotsFilled },
-    status: p.status as ProjectDetail["status"],
-  };
-  return c.json<ProjectDetail>(payload);
+    status: p.status,
+  });
 });
 
-// ---------- PUBLIC: project sessions (by project) ----------
-projectsRoutes.get("/:id/sessions", async c => {
+projectsRoutes.get("/:id/sessions", async (c) => {
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json<{ error: string }>({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
   const sessions = await db
     .select({
@@ -225,23 +161,22 @@ projectsRoutes.get("/:id/sessions", async c => {
     .where(eq(schema.projectSessions.projectId, id))
     .orderBy(schema.projectSessions.startsAt);
 
-  const payload: ProjectSessionRow[] = sessions.map(s => ({
-    id: s.id,
-    startsAt: s.startsAt.toISOString(),
-    endsAt: s.endsAt.toISOString(),
-    capacity: s.capacity,
-    locationNote: s.locationNote,
-  }));
-  return c.json<ProjectSessionRow[]>(payload);
+  return ok(
+    c,
+    sessions.map((s) => ({
+      id: s.id,
+      startsAt: (s.startsAt as any)?.toISOString?.() ?? String(s.startsAt),
+      endsAt: (s.endsAt as any)?.toISOString?.() ?? String(s.endsAt),
+      capacity: s.capacity,
+      locationNote: s.locationNote,
+    })),
+  );
 });
 
-// ---------- STUDENT: upcoming accepted sessions ----------
-projectsRoutes.get("/sessions/upcoming", async c => {
-  const session = await getSession(c);
-  if (!session) return c.json<{ error: string }>({ error: "Unauthorized" }, 401);
-
-  const type = await getAccountType(session.userId);
-  if (type !== "student") return c.json<{ error: string }>({ error: "Forbidden" }, 403);
+// sessions student is accepted into (requires student)
+projectsRoutes.get("/sessions/upcoming", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "student") return c.json({ error: "Forbidden" }, 403);
 
   const rows = await db
     .select({
@@ -254,51 +189,52 @@ projectsRoutes.get("/sessions/upcoming", async c => {
     .from(schema.projectSessions)
     .innerJoin(schema.projects, eq(schema.projectSessions.projectId, schema.projects.id))
     .innerJoin(schema.applications, eq(schema.applications.projectId, schema.projects.id))
-    .where(and(eq(schema.applications.userId, session.userId), eq(schema.applications.status, "accepted")));
+    .where(and(eq(schema.applications.userId, me.id), eq(schema.applications.status, "accepted"), sql`${schema.projectSessions.startsAt} >= now()`));
 
-  const payload = rows.map(r => ({
-    id: r.id,
-    title: r.title,
-    date: r.startsAt.toISOString(),
-    time: r.endsAt.toISOString(),
-    location: r.location,
-  })) as { id: number; title: string; date: string; time: string; location: string | null }[];
-
-  return c.json(payload);
+  return ok(
+    c,
+    rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      date: (r.startsAt as any)?.toISOString?.() ?? String(r.startsAt),
+      time: (r.endsAt as any)?.toISOString?.() ?? String(r.endsAt),
+      location: r.location,
+    })),
+  );
 });
 
-// ---------- ORG/ADMIN: create project (listing) ----------
-projectsRoutes.post("/", async c => {
-  const session = await getSession(c);
-  if (!session) return c.json<{ error: string }>({ error: "Unauthorized" }, 401);
-  const type = await getAccountType(session.userId);
-  if (!isAdmin(type) && !isOrg(type)) return c.json<{ error: string }>({ error: "Forbidden" }, 403);
+// create listing (org/admin)
+projectsRoutes.post("/", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "admin" && me.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
 
-  const body = (await c.req.json().catch(() => null)) as null | {
-    orgId: number;
-    title: string;
-    summary?: string;
-    description: string;
-    categoryId?: number | null;
-    location?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    postalCode?: string | null;
-    latitude?: number | null;
-    longitude?: number | null;
-    slotsTotal?: number;
-  };
-  if (!body || !body.orgId || !body.title || !body.description) {
-    return c.json<{ error: string }>({ error: "Missing required fields" }, 400);
+  const body = (await c.req.json().catch(() => null)) as
+    | {
+        orgId?: string;
+        title?: string;
+        description?: string;
+        summary?: string | null;
+        categoryId?: number | null;
+        location?: string | null;
+        addressLine1?: string | null;
+        addressLine2?: string | null;
+        city?: string | null;
+        postalCode?: string | null;
+        latitude?: number | null;
+        longitude?: number | null;
+        slotsTotal?: number | null;
+      }
+    | null;
+
+  if (!body?.orgId || !body?.title || !body?.description) {
+    return badReq(c, "Missing required fields");
   }
 
-  if (isOrg(type)) {
-    const ok = await canManageOrg(session.userId, body.orgId);
-    if (!ok) return c.json<{ error: string }>({ error: "Not your organisation" }, 403);
-  }
+  const [org] = await db.select().from(schema.organisations).where(eq(schema.organisations.userId, body.orgId)).limit(1);
+  if (!org) return c.json({ error: "Organisation not found" }, 404);
+  if (me.accountType === "organisation" && body.orgId !== me.id) return c.json({ error: "Not your organisation" }, 403);
 
-  const inserted = await db
+  const [inserted] = await db
     .insert(schema.projects)
     .values({
       orgId: body.orgId,
@@ -314,70 +250,52 @@ projectsRoutes.post("/", async c => {
       latitude: body.latitude ?? null,
       longitude: body.longitude ?? null,
       slotsTotal: body.slotsTotal ?? 0,
-      createdBy: session.userId,
-      status: isAdmin(type) ? "approved" : "pending",
+      createdBy: me.id,
+      status: me.accountType === "admin" ? "approved" : "pending",
     })
     .returning({ id: schema.projects.id });
 
-  return c.json<{ id: number }>({ id: inserted[0].id }, 201);
+  return created(c, { id: inserted.id });
 });
 
-// ---------- ORG/ADMIN: update project ----------
-projectsRoutes.patch("/:id", async c => {
-  const session = await getSession(c);
-  if (!session) return c.json<{ error: string }>({ error: "Unauthorized" }, 401);
-  const type = await getAccountType(session.userId);
-  if (!isAdmin(type) && !isOrg(type)) return c.json<{ error: string }>({ error: "Forbidden" }, 403);
+// update (admin or owning org)
+projectsRoutes.patch("/:id", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "admin" && me.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
 
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json<{ error: string }>({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
-  const proj = await db.query.projects.findFirst({
-    where: (t, { eq }) => eq(t.id, id),
-    columns: { orgId: true },
-  });
-  if (!proj) return c.json<{ error: string }>({ error: "Not found" }, 404);
-  if (!isAdmin(type)) {
-    const ok = await canManageOrg(session.userId, proj.orgId);
-    if (!ok) return c.json<{ error: string }>({ error: "Not your organisation" }, 403);
-  }
+  const [p] = await db.select({ orgId: schema.projects.orgId }).from(schema.projects).where(eq(schema.projects.id, id)).limit(1);
+  if (!p) return c.json({ error: "Not found" }, 404);
+  if (me.accountType === "organisation" && p.orgId !== me.id) return c.json({ error: "Not your organisation" }, 403);
 
-  const body = (await c.req.json().catch(() => ({}))) as Partial<{
+  const body = ((await c.req.json().catch(() => ({}))) ?? {}) as Partial<{
     title: string;
     summary: string | null;
     description: string;
-    status: "draft" | "pending" | "approved" | "closed" | "archived";
+    status: (typeof schema.projectStatusEnum.enumValues)[number];
     slotsTotal: number;
   }>;
 
-  // Non-admins cannot self-approve
-  if (!isAdmin(type)) delete body.status;
+  if (me.accountType !== "admin") delete (body as any).status;
 
   await db.update(schema.projects).set(body).where(eq(schema.projects.id, id));
-  return c.json<{ ok: true }>({ ok: true });
+  return ok(c, { ok: true });
 });
 
-// ---------- ADMIN/ORG: delete project ----------
-projectsRoutes.delete("/:id", async c => {
-  const session = await getSession(c);
-  if (!session) return c.json<{ error: string }>({ error: "Unauthorized" }, 401);
-  const type = await getAccountType(session.userId);
-  if (!isAdmin(type) && !isOrg(type)) return c.json<{ error: string }>({ error: "Forbidden" }, 403);
+// delete (admin or owning org)
+projectsRoutes.delete("/:id", async (c) => {
+  const me = await requireSession(c);
+  if (me.accountType !== "admin" && me.accountType !== "organisation") return c.json({ error: "Forbidden" }, 403);
 
   const id = Number(c.req.param("id"));
-  if (Number.isNaN(id)) return c.json<{ error: string }>({ error: "Invalid id" }, 400);
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
 
-  const proj = await db.query.projects.findFirst({
-    where: (t, { eq }) => eq(t.id, id),
-    columns: { orgId: true },
-  });
-  if (!proj) return c.json<{ error: string }>({ error: "Not found" }, 404);
-
-  if (!isAdmin(type)) {
-    const ok = await canManageOrg(session.userId, proj.orgId);
-    if (!ok) return c.json<{ error: string }>({ error: "Not your organisation" }, 403);
-  }
+  const [p] = await db.select({ orgId: schema.projects.orgId }).from(schema.projects).where(eq(schema.projects.id, id)).limit(1);
+  if (!p) return c.json({ error: "Not found" }, 404);
+  if (me.accountType === "organisation" && p.orgId !== me.id) return c.json({ error: "Not your organisation" }, 403);
 
   await db.delete(schema.projects).where(eq(schema.projects.id, id));
-  return c.json<{ ok: true }>({ ok: true });
+  return ok(c, { ok: true });
 });

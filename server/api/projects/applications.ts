@@ -2,60 +2,85 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { and, desc, eq } from "drizzle-orm";
-import { assertRole, requireSession } from "#server/api/_utils/auth";
+import { and, eq, desc } from "drizzle-orm";
+import { requireSession, assertRole, ok, created, badReq } from "../_utils/auth";
+import { applicationCreateSchema } from "../_utils/validators";
 
 export const applicationsRoutes = new Hono();
 
-export type MyApplication = {
+export type MyApplicationCard = {
   id: number;
-  status: "pending" | "accepted" | "rejected" | "waitlisted" | "withdrawn" | "cancelled";
-  project: { id: number; title: string };
+  status: (typeof schema.applicationStatusEnum.enumValues)[number];
+  motivation: string | null;
   submittedAt: string;
+  project: { id: number; title: string };
 };
 
-// GET /api/projects/applications  (student only)
-applicationsRoutes.get("/", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["student"]);
+applicationsRoutes.get("/", async (c) => {
+  const me = await requireSession(c);
 
-  const apps = await db.select({
-    id: schema.applications.id,
-    status: schema.applications.status,
-    submittedAt: schema.applications.submittedAt,
-    projectId: schema.projects.id,
-    projectTitle: schema.projects.title,
-  }).from(schema.applications)
-    .leftJoin(schema.projects, eq(schema.projects.id, schema.applications.projectId))
-    .where(eq(schema.applications.userId, user.id))
+  const status = c.req.query("status") as (typeof schema.applicationStatusEnum.enumValues)[number] | undefined;
+  const where = status
+    ? and(eq(schema.applications.userId, me.id), eq(schema.applications.status, status))
+    : eq(schema.applications.userId, me.id);
+
+  const rows = await db
+    .select({
+      id: schema.applications.id,
+      status: schema.applications.status,
+      motivation: schema.applications.motivation,
+      submittedAt: schema.applications.submittedAt,
+      projectId: schema.projects.id,
+      title: schema.projects.title,
+    })
+    .from(schema.applications)
+    .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
+    .where(where)
     .orderBy(desc(schema.applications.submittedAt));
 
-  const list: MyApplication[] = apps.map(a => ({
-    id: a.id,
-    status: a.status,
-    submittedAt: a.submittedAt?.toISOString() ?? new Date().toISOString(),
-    project: { id: a.projectId!, title: a.projectTitle! },
-  }));
-
-  return c.json(list);
+  return ok<MyApplicationCard[]>(
+    c,
+    rows.map((r) => ({
+      id: r.id,
+      status: r.status,
+      motivation: r.motivation,
+      submittedAt: (r.submittedAt as any)?.toISOString?.() ?? String(r.submittedAt),
+      project: { id: r.projectId, title: r.title },
+    })),
+  );
 });
 
-export type ApplyPayload = { projectId: number; sessionId?: number | null; motivation?: string };
-export type ApplyResponse = { ok: true; id: number };
+applicationsRoutes.post("/", async (c) => {
+  const me = await requireSession(c);
+  assertRole(me, ["student"]);
 
-// POST /api/projects/applications  (student only)
-applicationsRoutes.post("/", async c => {
-  const user = await requireSession(c);
-  assertRole(user, ["student"]);
+  const body = await c.req.json().catch(() => null);
+  const parsed = applicationCreateSchema.safeParse(body);
+  if (!parsed.success) return badReq(c, "Invalid body");
 
-  const body: ApplyPayload = await c.req.json();
+  const [row] = await db
+    .insert(schema.applications)
+    .values({
+      projectId: parsed.data.projectId,
+      userId: me.id,
+      motivation: parsed.data.motivation ?? null,
+      sessionId: parsed.data.sessionId ?? null,
+    })
+    .returning({ id: schema.applications.id });
 
-  const [ins] = await db.insert(schema.applications).values({
-    projectId: body.projectId,
-    sessionId: body.sessionId ?? null,
-    userId: user.id,
-    motivation: body.motivation ?? null,
-  }).returning({ id: schema.applications.id });
+  return created(c, { id: row.id });
+});
 
-  return c.json<ApplyResponse>({ ok: true, id: ins.id });
+// keep route semantics used in your docs
+applicationsRoutes.post("/:id/withdraw", async (c) => {
+  const me = await requireSession(c);
+  const id = Number(c.req.param("id"));
+  if (Number.isNaN(id)) return badReq(c, "Invalid id");
+
+  await db
+    .update(schema.applications)
+    .set({ status: "withdrawn" })
+    .where(and(eq(schema.applications.id, id), eq(schema.applications.userId, me.id)));
+
+  return ok(c, { ok: true });
 });

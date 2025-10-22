@@ -16,7 +16,7 @@ const app = new Hono()
   .use(
     "/*",
     serveStatic({
-      root: "./dist/static",
+      root: "dist/static",
       index: "index.html",
       onNotFound: (path) => {
         console.log(path);

@@ -2,57 +2,69 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { and, desc, eq } from "drizzle-orm";
-import { requireSession } from "#server/api/_utils/auth";
+import { and, eq, desc } from "drizzle-orm";
+import { requireSession, ok, badReq } from "../_utils/auth";
+import { favouriteToggleSchema } from "../_utils/validators";
 
 export const favouritesRoutes = new Hono();
 
-export type favouriteItem = { id: number; title: string; location: string | null; savedAt: string };
+export type FavouriteCard = { id: number; title: string; location: string | null; savedAt: string };
 
-// GET /api/projects/favourites
-favouritesRoutes.get("/", async c => {
-  const user = await requireSession(c);
+favouritesRoutes.get("/", async (c) => {
+  const me = await requireSession(c);
 
-  const rows = await db.select({
-    savedAt: schema.savedProjects.savedAt,
-    projectId: schema.projects.id,
-    title: schema.projects.title,
-    location: schema.projects.location,
-  })
+  const rows = await db
+    .select({
+      projectId: schema.savedProjects.projectId,
+      title: schema.projects.title,
+      location: schema.projects.location,
+      savedAt: schema.savedProjects.savedAt,
+    })
     .from(schema.savedProjects)
     .innerJoin(schema.projects, eq(schema.savedProjects.projectId, schema.projects.id))
-    .where(eq(schema.savedProjects.userId, user.id))
+    .where(eq(schema.savedProjects.userId, me.id))
     .orderBy(desc(schema.savedProjects.savedAt));
 
-  const list: favouriteItem[] = rows.map(r => ({
-    id: r.projectId,
-    title: r.title,
-    location: r.location,
-    savedAt: r.savedAt?.toISOString() ?? new Date().toISOString(),
-  }));
-
-  return c.json(list);
+  return ok<FavouriteCard[]>(
+    c,
+    rows.map((r) => ({
+      id: r.projectId,
+      title: r.title,
+      location: r.location,
+      savedAt: (r.savedAt as any)?.toISOString?.() ?? String(r.savedAt),
+    })),
+  );
 });
 
-export type TogglefavouritePayload = { projectId: number };
-export type TogglefavouriteResponse = { added?: true; removed?: true };
+// toggle
+favouritesRoutes.post("/", async (c) => {
+  const me = await requireSession(c);
+  const body = await c.req.json().catch(() => null);
+  const parsed = favouriteToggleSchema.safeParse(body);
+  if (!parsed.success) return badReq(c, "Missing projectId");
 
-// POST /api/projects/favourites
-favouritesRoutes.post("/", async c => {
-  const user = await requireSession(c);
-  const body: TogglefavouritePayload = await c.req.json();
+  const projectId = parsed.data.projectId;
 
-  const existing = await db.query.savedProjects.findFirst({
-    where: (t, ops) => and(eq(t.userId, user.id), eq(t.projectId, body.projectId)),
-  });
+  const existing = await db
+    .select()
+    .from(schema.savedProjects)
+    .where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, me.id)))
+    .limit(1);
 
-  if (existing) {
-    await db.delete(schema.savedProjects).where(
-      and(eq(schema.savedProjects.userId, user.id), eq(schema.savedProjects.projectId, body.projectId))
-    );
-    return c.json<TogglefavouriteResponse>({ removed: true });
+  if (existing.length) {
+    await db.delete(schema.savedProjects).where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, me.id)));
+    return c.json({ removed: true });
+  } else {
+    await db.insert(schema.savedProjects).values({ projectId, userId: me.id });
+    return c.json({ added: true });
   }
+});
 
-  await db.insert(schema.savedProjects).values({ projectId: body.projectId, userId: user.id });
-  return c.json<TogglefavouriteResponse>({ added: true });
+// explicit delete (idempotent)
+favouritesRoutes.delete("/", async (c) => {
+  const me = await requireSession(c);
+  const projectId = Number(c.req.query("projectId"));
+  if (!projectId) return badReq(c, "Missing projectId");
+  await db.delete(schema.savedProjects).where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, me.id)));
+  return ok(c, { ok: true });
 });

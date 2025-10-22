@@ -90,14 +90,14 @@ function Signup() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground font-body">
-                For non-SMU organisers
+                For CSP organisers
               </span>
             </div>
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
             Request account creation via{" "}
-            <Link to="/organiser-request" className="text-primary hover:text-primary/80">
+            <Link to="/auth/request" className="text-primary hover:text-primary/80">
               admin approval form
             </Link>
           </div>

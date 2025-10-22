@@ -2,152 +2,50 @@
 import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { eq, and, count, sql, desc } from "drizzle-orm";
-import { requireSession, assertRole } from "#server/api/_utils/auth";
+import { eq, and, sql } from "drizzle-orm";
+import { requireSession, ok } from "./_utils/auth";
 
 export const dashboardRoutes = new Hono();
 
-/**
- * GET /api/dashboard/overview
- * -> Returns summary stats for the student dashboard
- */
-dashboardRoutes.get("/overview", async (c) => {
-  try {
-    const user = await requireSession(c);
-    assertRole(user, ["student"]);
+type StudentDashboard = { type: "student"; applications: number; verifiedHours: number };
+type OrgDashboard = { type: "organisation"; totalProjects: number; totalApplicants: number };
+type AdminDashboard = { type: "admin" };
 
-    // total verified hours
-    const totalHours = await db
-      .select({ total: sql<number>`COALESCE(SUM(${schema.timesheets.hours}), 0)` })
-      .from(schema.timesheets)
-      .where(and(eq(schema.timesheets.userId, user.id), eq(schema.timesheets.verified, true)))
-      .then((rows) => rows[0]?.total ?? 0);
+dashboardRoutes.get("/", async (c) => {
+  const me = await requireSession(c);
 
-    // completed projects (count of distinct projects with verified hours)
-    const completedProjects = await db
-      .select({ count: count() })
-      .from(schema.timesheets)
-      .where(and(eq(schema.timesheets.userId, user.id), eq(schema.timesheets.verified, true)))
-      .then((r) => r[0].count ?? 0);
-
-    // active (accepted) applications
-    const activeApplications = await db
-      .select({ count: count() })
-      .from(schema.applications)
-      .where(and(eq(schema.applications.userId, user.id), eq(schema.applications.status, "accepted")))
-      .then((r) => r[0].count ?? 0);
-
-    return c.json({
-      name: user.email.split("@")[0].replace(".", " "),
-      email: user.email,
-      totalHours,
-      requiredHours: 80,
-      completedProjects,
-      activeApplications,
-    });
-  } catch (err: any) {
-    return c.json({ error: err.message }, err.status ?? 500);
-  }
-});
-
-/**
- * GET /api/dashboard/ongoing
- * -> Lists ongoing CSPs student is participating in
- */
-dashboardRoutes.get("/ongoing", async (c) => {
-  try {
-    const user = await requireSession(c);
-    assertRole(user, ["student"]);
-
-    const ongoing = await db
-      .select({
-        id: schema.projects.id,
-        title: schema.projects.title,
-        organisation: schema.organisations.name,
-        location: schema.projects.location,
-        nextSession: sql<string>`MIN(${schema.projectSessions.startsAt})`,
-        hoursCompleted: sql<number>`COALESCE(SUM(${schema.timesheets.hours}), 0)`,
-        totalHours: sql<number>`40`, // placeholder (could come from project metadata later)
-      })
-      .from(schema.applications)
-      .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
-      .innerJoin(schema.organisations, eq(schema.projects.orgId, schema.organisations.id))
-      .leftJoin(schema.projectSessions, eq(schema.projectSessions.projectId, schema.projects.id))
-      .leftJoin(schema.timesheets, eq(schema.timesheets.projectId, schema.projects.id))
-      .where(and(eq(schema.applications.userId, user.id), eq(schema.applications.status, "accepted")))
-      .groupBy(schema.projects.id, schema.organisations.name, schema.projects.location)
-      .orderBy(desc(schema.projects.createdAt))
-      .limit(4);
-
-    return c.json(ongoing);
-  } catch (err: any) {
-    return c.json({ error: err.message }, err.status ?? 500);
-  }
-});
-
-/**
- * GET /api/dashboard/applications
- * -> Returns list of pending or accepted applications
- */
-dashboardRoutes.get("/applications", async (c) => {
-  try {
-    const user = await requireSession(c);
-    assertRole(user, ["student"]);
-
+  if (me.accountType === "student") {
     const apps = await db
-      .select({
-        id: schema.applications.id,
-        title: schema.projects.title,
-        organisation: schema.organisations.name,
-        status: schema.applications.status,
-        appliedDate: schema.applications.submittedAt,
-      })
+      .select({ count: sql<number>`count(*)::int` })
+      .from(schema.applications)
+      .where(eq(schema.applications.userId, me.id));
+    const hours = await db
+      .select({ count: sql<number>`coalesce(sum(${schema.timesheets.hours}),0)::int` })
+      .from(schema.timesheets)
+      .where(and(eq(schema.timesheets.userId, me.id), eq(schema.timesheets.verified, true)));
+    return ok<StudentDashboard>(c, {
+      type: "student",
+      applications: apps[0]?.count ?? 0,
+      verifiedHours: hours[0]?.count ?? 0,
+    });
+  }
+
+  if (me.accountType === "organisation") {
+    const projects = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(schema.projects)
+      .where(eq(schema.projects.orgId, me.id));
+    const applicants = await db
+      .select({ count: sql<number>`count(*)::int` })
       .from(schema.applications)
       .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
-      .innerJoin(schema.organisations, eq(schema.projects.orgId, schema.organisations.id))
-      .where(eq(schema.applications.userId, user.id))
-      .orderBy(desc(schema.applications.submittedAt))
-      .limit(5);
-
-    return c.json(apps);
-  } catch (err: any) {
-    return c.json({ error: err.message }, err.status ?? 500);
+      .where(eq(schema.projects.orgId, me.id));
+    return ok<OrgDashboard>(c, {
+      type: "organisation",
+      totalProjects: projects[0]?.count ?? 0,
+      totalApplicants: applicants[0]?.count ?? 0,
+    });
   }
-});
 
-/**
- * GET /api/dashboard/sessions
- * -> Returns upcoming CSP sessions
- */
-dashboardRoutes.get("/sessions", async (c) => {
-  try {
-    const user = await requireSession(c);
-    assertRole(user, ["student"]);
-
-    const now = new Date();
-    const sessions = await db
-      .select({
-        id: schema.projectSessions.id,
-        title: schema.projects.title,
-        date: schema.projectSessions.startsAt,
-        time: schema.projectSessions.endsAt,
-        location: schema.projects.location,
-      })
-      .from(schema.applications)
-      .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
-      .innerJoin(schema.projectSessions, eq(schema.projectSessions.projectId, schema.projects.id))
-      .where(
-        and(
-          eq(schema.applications.userId, user.id),
-          eq(schema.applications.status, "accepted"),
-          sql`${schema.projectSessions.startsAt} > ${now}`
-        ),
-      )
-      .orderBy(schema.projectSessions.startsAt)
-      .limit(5);
-
-    return c.json(sessions);
-  } catch (err: any) {
-    return c.json({ error: err.message }, err.status ?? 500);
-  }
+  return ok<AdminDashboard>(c, { type: "admin" });
 });
