@@ -116,16 +116,19 @@ function MyApplications() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl font-bold text-foreground mb-2">
+      {/* Header */}
+      <div className="border-b bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
             My Applications
           </h1>
-          <p className="text-muted-foreground font-body">
+          <p className="text-muted-foreground font-body text-lg">
             Track the status of your CSP applications
           </p>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6">
 
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">

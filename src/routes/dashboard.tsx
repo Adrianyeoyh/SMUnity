@@ -96,17 +96,20 @@ function Dashboard() {
   const progressPercentage = (user.totalHours / user.requiredHours) * 100;
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
             Welcome back, {user.name}!
           </h1>
-          <p className="text-muted-foreground font-body">
+          <p className="text-muted-foreground font-body text-lg">
             Track your community service journey and upcoming commitments
           </p>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6">
 
         {/* CSU Module Reminder */}
         <Card className="mb-8 bg-gradient-to-r from-pink-500/10 to-primary/5">

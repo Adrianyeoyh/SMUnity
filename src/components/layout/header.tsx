@@ -23,7 +23,7 @@ import ProfileMenu from "#client/components/layout/profileMenu.tsx";
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isJiggling, setIsJiggling] = useState(false);
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth();
 
   // Fake notifications data
   const notifications = [
@@ -112,6 +112,10 @@ export function Header() {
                   <span>Discover CSPs</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
+              </>
+            ) : user?.role === 'admin' ? (
+              <>
+                {/* Admin navigation - only notifications and profile */}
               </>
             ) : (
               <>
@@ -353,6 +357,34 @@ export function Header() {
                         Get Started
                       </Button>
                     </Link>
+                  </div>
+                </>
+              ) : user?.role === 'admin' ? (
+                <>
+                  {/* Admin mobile navigation - only profile and logout */}
+                  <Link 
+                    to="/profile" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                  <div className="pt-4 border-t">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
                   </div>
                 </>
               ) : (

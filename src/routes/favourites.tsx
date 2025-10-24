@@ -79,17 +79,22 @@ function favourites() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+      {/* Header */}
+      <div className="border-b bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+            My Favourites
+          </h1>
+          <p className="text-muted-foreground font-body text-lg">
+            CSPs you've saved for later
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6">
+        {/* Header Actions */}
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="font-heading text-3xl font-bold text-foreground mb-2">
-              My Favourites
-            </h1>
-            <p className="text-muted-foreground font-body">
-              CSPs you've saved for later
-            </p>
-          </div>
+          <div></div>
           <div className="flex space-x-2">
             <Button variant="outline" size="sm">
               <Filter className="mr-2 h-4 w-4" />

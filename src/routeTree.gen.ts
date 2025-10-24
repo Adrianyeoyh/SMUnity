@@ -22,13 +22,12 @@ import { Route as LeaderDashboardRouteImport } from './routes/leader/dashboard'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthRequestRouteImport } from './routes/auth/request'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgotPassword'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthAdminOnlyRouteImport } from './routes/auth/adminOnly'
 import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$applicantId'
-import { Route as AdminDashboard1RouteImport } from './routes/admin/dashboard1'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
+import { Route as AdminArchiveAdminRouteImport } from './routes/admin/archiveAdmin'
 import { Route as AdminAdminDashboardRouteImport } from './routes/admin/adminDashboard'
 import { Route as LeaderProjectsNewRouteImport } from './routes/leader/projects/new'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
@@ -98,14 +97,9 @@ const AuthRequestRoute = AuthRequestRouteImport.update({
   path: '/auth/request',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: '/auth/forgot-password',
-  path: '/auth/forgot-password',
+  id: '/auth/forgotPassword',
+  path: '/auth/forgotPassword',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -123,14 +117,14 @@ const ApplicantsApplicantIdRoute = ApplicantsApplicantIdRouteImport.update({
   path: '/applicants/$applicantId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDashboard1Route = AdminDashboard1RouteImport.update({
-  id: '/admin/dashboard1',
-  path: '/admin/dashboard1',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminCspIdRoute = AdminCspIdRouteImport.update({
   id: '/admin/cspId',
   path: '/admin/cspId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminArchiveAdminRoute = AdminArchiveAdminRouteImport.update({
+  id: '/admin/archiveAdmin',
+  path: '/admin/archiveAdmin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
@@ -160,13 +154,12 @@ export interface FileRoutesByFullPath {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/adminDashboard': typeof AdminAdminDashboardRoute
+  '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
-  '/admin/dashboard1': typeof AdminDashboard1Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
+  '/auth/forgotPassword': typeof AuthForgotPasswordRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
@@ -185,13 +178,12 @@ export interface FileRoutesByTo {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/adminDashboard': typeof AdminAdminDashboardRoute
+  '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
-  '/admin/dashboard1': typeof AdminDashboard1Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
+  '/auth/forgotPassword': typeof AuthForgotPasswordRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
@@ -211,13 +203,12 @@ export interface FileRoutesById {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/admin/adminDashboard': typeof AdminAdminDashboardRoute
+  '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
-  '/admin/dashboard1': typeof AdminDashboard1Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
+  '/auth/forgotPassword': typeof AuthForgotPasswordRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
@@ -238,13 +229,12 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/adminDashboard'
+    | '/admin/archiveAdmin'
     | '/admin/cspId'
-    | '/admin/dashboard1'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
-    | '/auth/forgot-password'
-    | '/auth/login'
+    | '/auth/forgotPassword'
     | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
@@ -263,13 +253,12 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/adminDashboard'
+    | '/admin/archiveAdmin'
     | '/admin/cspId'
-    | '/admin/dashboard1'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
-    | '/auth/forgot-password'
-    | '/auth/login'
+    | '/auth/forgotPassword'
     | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
@@ -288,13 +277,12 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/admin/adminDashboard'
+    | '/admin/archiveAdmin'
     | '/admin/cspId'
-    | '/admin/dashboard1'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
-    | '/auth/forgot-password'
-    | '/auth/login'
+    | '/auth/forgotPassword'
     | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
@@ -314,13 +302,12 @@ export interface RootRouteChildren {
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
+  AdminArchiveAdminRoute: typeof AdminArchiveAdminRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
-  AdminDashboard1Route: typeof AdminDashboard1Route
   ApplicantsApplicantIdRoute: typeof ApplicantsApplicantIdRoute
   AuthAdminOnlyRoute: typeof AuthAdminOnlyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthLoginRoute: typeof AuthLoginRoute
   AuthRequestRoute: typeof AuthRequestRoute
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRouteWithChildren
@@ -421,17 +408,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRequestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/forgot-password': {
-      id: '/auth/forgot-password'
-      path: '/auth/forgot-password'
-      fullPath: '/auth/forgot-password'
+    '/auth/forgotPassword': {
+      id: '/auth/forgotPassword'
+      path: '/auth/forgotPassword'
+      fullPath: '/auth/forgotPassword'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -456,18 +436,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApplicantsApplicantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/dashboard1': {
-      id: '/admin/dashboard1'
-      path: '/admin/dashboard1'
-      fullPath: '/admin/dashboard1'
-      preLoaderRoute: typeof AdminDashboard1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/cspId': {
       id: '/admin/cspId'
       path: '/admin/cspId'
       fullPath: '/admin/cspId'
       preLoaderRoute: typeof AdminCspIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/archiveAdmin': {
+      id: '/admin/archiveAdmin'
+      path: '/admin/archiveAdmin'
+      fullPath: '/admin/archiveAdmin'
+      preLoaderRoute: typeof AdminArchiveAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/adminDashboard': {
@@ -517,13 +497,12 @@ const rootRouteChildren: RootRouteChildren = {
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
+  AdminArchiveAdminRoute: AdminArchiveAdminRoute,
   AdminCspIdRoute: AdminCspIdRoute,
-  AdminDashboard1Route: AdminDashboard1Route,
   ApplicantsApplicantIdRoute: ApplicantsApplicantIdRoute,
   AuthAdminOnlyRoute: AuthAdminOnlyRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
-  AuthLoginRoute: AuthLoginRoute,
   AuthRequestRoute: AuthRequestRoute,
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRouteWithChildren,
