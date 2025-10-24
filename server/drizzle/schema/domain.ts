@@ -113,6 +113,7 @@ export const projects = pgTable("projects", {
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
   description: text("description").notNull(),
+  requiredHours: integer("required_hours").notNull().default(0),
   categoryId: integer("category_id").references(() => categories.id),
   location: varchar("location", { length: 255 }),
   addressLine1: varchar("address_line1", { length: 255 }),
@@ -230,3 +231,13 @@ export const organisationRequests = pgTable("organisation_requests", {
   requesterIdx: index("org_requests_email_idx").on(t.requesterEmail),
   statusIdx: index("org_requests_status_idx").on(t.status),
 }));
+
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").references(() => users.id).notNull(),
+  type: notificationTypeEnum("type").notNull(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
