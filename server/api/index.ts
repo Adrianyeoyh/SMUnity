@@ -9,7 +9,7 @@ import { organisationsRoutes } from "./organisations/index";
 import { organisationRequestsRoutes } from "./organisations/requests";
 import { adminDashboardRoutes } from "./admin/dashboard";
 import { dashboardRoutes } from "./dashboard";
-import { auth } from "#server/lib/auth"
+import { auth } from "../lib/auth"
 // import { authRoutes } from "./auth/routes";
 
 // add-ons already in your repo

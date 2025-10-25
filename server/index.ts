@@ -6,6 +6,7 @@ import { env } from "#server/env.ts";
 import { auth } from "#server/lib/auth.ts";
 
 import { apiRouter } from '#server/api'
+import { authMiddleware } from "./middlewares/auth";
 
 const app = new Hono()
   .get("/health", (c) => {
@@ -34,7 +35,8 @@ app.use(
   })
 );
 
-app.route("/api", apiRouter);
+app.use(authMiddleware).route("/api", apiRouter);
+
 
 app
   .basePath("/api")

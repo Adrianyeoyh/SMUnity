@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 import { fetchAdminDashboard } from "#client/api/admin/dashboard.ts";
 import { requireSession } from "#server/api/_utils/auth.ts";
+import { authClient } from "@/lib/client"
 
 type OrganiserStatus = "pending" | "approved" | "rejected";
 

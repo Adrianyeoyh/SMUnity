@@ -4,8 +4,10 @@ import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { sql, eq } from "drizzle-orm";
 import { requireSession, assertRole, ok } from "../_utils/auth";
+import { adminMiddleware, AuthVariables } from "#server/middlewares/auth.ts";
+import { createApp } from "#server/factory.ts";
 
-export const adminDashboardRoutes = new Hono();
+export const adminDashboardRoutes = createApp().use(adminMiddleware);
 
 export type AdminDashboardResponse = {
   totals: {
@@ -20,13 +22,16 @@ export type AdminDashboardResponse = {
 
 adminDashboardRoutes.get("/", async (c) => {
   // const me = await requireSession(c);
-  const me = await requireSession(c).catch((err) => {
-    console.error("❌ No session:", err);
-    throw err;
-  });
+  // const me = await requireSession(c).catch((err) => {
+  //   console.error("❌ No session:", err);
+  //   throw err;
+  // });
 
-  console.log("✅ Session from Better-Auth:", me);
-  assertRole(me, ["admin"]);
+  // console.log("✅ Session from Better-Auth:", me);
+  // assertRole(me, ["admin"]);
+  const session = c.get("user");
+  console.log(session);
+  session
 
   const usersCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.user);
   const studentsCount = await db

@@ -18,11 +18,9 @@ export class ApiError extends Error {
 }
 
 export async function requireSession(c: any): Promise<UserSession> {
-  const res = await auth.handler(
-    new Request(c.req.url, { method: "GET", headers: c.req.raw.headers }),
-  );
-  const data = await res.clone().json().catch(() => ({} as any));
-  const u = (data as any).user ?? (data as any).data?.user;
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  const u = session?.user
+  console.log(u)
   if (!u?.id || !u?.email || !u?.accountType) {
     throw new ApiError(401, "Not authenticated");
   }
