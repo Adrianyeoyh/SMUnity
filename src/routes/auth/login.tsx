@@ -13,8 +13,12 @@ import {
 } from "#client/components/ui/card";
 import { Separator } from "#client/components/ui/separator";
 import { HeartHandshake, AlertCircle } from "lucide-react";
+import { z } from "zod";
 
 export const Route = createFileRoute("/auth/login")({
+  validateSearch: z.object({
+    redirectTo: z.string().optional(),
+  }),
   component: Login,
 });
 
@@ -35,13 +39,14 @@ function Login() {
       )}`;
       const result = await auth.signIn.social({
         provider: "google",
-        callbackURL: callbackUrl,
+        callbackURL: "http://localhost:4000/dashboard",
+        //  callbackUrl,
       });
-      if (result.data?.url) {
-        window.location.href = result.data.url;
-      } else if (result.data?.user) {
-        navigate({ to: redirectTo });
-      }
+      // if (result.data?.url) {
+      //   window.location.href = result.data.url;
+      // } else if (result.data?.user) {
+      //   navigate({ to: redirectTo });
+      // }
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Unexpected error";
       setError(msg);
@@ -55,24 +60,28 @@ function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const result = await auth.signIn.emailAndPassword({
+      const result = await auth.signIn.email({
         email: emailLogin.email,
         password: emailLogin.password,
+        rememberMe: true,
       });
 
       if (result?.error) throw new Error(result.error.message);
 
-      const userType = result.data?.user?.accountType;
+      // const userType = result.data?.user?.accountType;
+      const userType = result.data?.user?.name;
+
+      console.log(userType);
       if (userType === "student") {
         throw new Error("Students must use Google sign-in with SMU email.");
       }
 
       toast.success("Login successful");
 
-      // Redirect based on user type
-      if (userType === "admin") navigate({ to: "/admin/dashboard" });
-      else if (userType === "organisation") navigate({ to: "/csp/dashboard" });
-      else navigate({ to: redirectTo });
+            // Redirect based on user type
+      if (userType === "Admin") navigate({ to: "/admin/dashboard" });
+      // else if (userType === "organisation") navigate({ to: "/csp/dashboard" });
+      else navigate({ to: "/organisations/dashboard" });
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setError(msg);

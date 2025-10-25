@@ -37,10 +37,10 @@ manageApplicationsRoutes.get("/", async (c) => {
       motivation: schema.applications.motivation,
       submittedAt: schema.applications.submittedAt,
       userId: schema.applications.userId,
-      applicantEmail: schema.users.email,
+      applicantEmail: schema.user.email,
     })
     .from(schema.applications)
-    .innerJoin(schema.users, eq(schema.users.id, schema.applications.userId))
+    .innerJoin(schema.user, eq(schema.user.id, schema.applications.userId))
     .where(and(
       eq(schema.applications.projectId, projectId),
       st ? eq(schema.applications.status, st) : sql`TRUE`

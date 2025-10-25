@@ -10,7 +10,7 @@ export const usersRoutes = new Hono();
 usersRoutes.get("/me", async (c) => {
   const session = await requireSession(c);
 
-  const [user] = await db.select().from(schema.users).where(eq(schema.users.id, session.id)).limit(1);
+  const [user] = await db.select().from(schema.user).where(eq(schema.user.id, session.id)).limit(1);
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
   const [profile] = await db.select().from(schema.profiles).where(eq(schema.profiles.userId, session.id)).limit(1);

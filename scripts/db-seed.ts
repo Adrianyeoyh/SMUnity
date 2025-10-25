@@ -1,12 +1,12 @@
 import { hashPassword } from "better-auth/crypto";
-import { db } from '#server/drizzle/db';
-import { users } from "#server/drizzle/schema/domain.ts";
-import { account } from "#server/drizzle/schema/auth.ts";
+import { db } from '../server/drizzle/db';
+import { user } from "../server/drizzle/schema";
+import { account } from "../server/drizzle/schema/auth.ts";
 
 await db.transaction(async (tx) => {
     // Admin user
     await tx
-      .insert(users)
+      .insert(user)
       .values({
         id: "admin",
         name: "Admin",
@@ -28,3 +28,5 @@ await db.transaction(async (tx) => {
       })
       .onConflictDoNothing();
 })
+
+process.exit(0)

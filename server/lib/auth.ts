@@ -12,12 +12,29 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
-      user: schema.users,
-      session: schema.session,
+      user: schema.user,
       account: schema.account,
+      session: schema.session,
       verification: schema.verification,
     },
   }),
+  user: {
+    additionalFields: {
+      isActive: {
+        type: 'boolean',
+        required: true,
+        defaultValue: true,
+        input: true, // Allows user to set this field during registration or profile updates
+      },
+      // Add other custom fields as needed
+      accountType: {
+        type: 'string',
+        required: true,
+        defaultValue: 'student',
+        input: false, // Hides this field from user input
+      },
+    },
+  },
 
   baseURL: env.VITE_APP_URL + "/api/auth",
   secret: env.BETTER_AUTH_SECRET,
@@ -79,25 +96,6 @@ export const auth = betterAuth({
               message: "SMU staff and faculty are not eligible for student accounts.",
             });
           }
-
-          // 🧠 CASE 3: External organiser (must have valid invite)
-          const invite = await db.query.organiserInvites.findFirst({
-            where: (t, { and, eq, gt }) =>
-              and(eq(t.email, email), eq(t.approved, true), gt(t.expiresAt, new Date())),
-          });
-
-          if (!invite) {
-            throw new APIError("BAD_REQUEST", {
-              message:
-                "Only invited organisers may register manually. Please request approval from SMUnity admin.",
-            });
-          }
-
-          // Consume invite after successful validation
-          await db
-            .delete(schema.organiserInvites)
-            .where(eq(schema.organiserInvites.email, email));
-
           return { data: user };
         },
 
@@ -108,28 +106,28 @@ export const auth = betterAuth({
           const accountType = isStudent ? "student" : "organisation";
           // 🧭 Update users table
 
-          if (email === "admin@smunity.sg") {
-            await db
-              .update(schema.users)
-              .set({
-                accountType: "admin",
-                isActive: true,
-                updatedAt: new Date(),
-              })
-              .where(eq(schema.users.id, user.id));
+          // if (email === "admin@smunity.sg") {
+          //   await db
+          //     .update(schema.users)
+          //     .set({
+          //       accountType: "admin",
+          //       isActive: true,
+          //       updatedAt: new Date(),
+          //     })
+          //     .where(eq(schema.users.id, user.id));
 
-            // ✅ nothing to return
-            return;
-          }
+          //   // ✅ nothing to return
+          //   return;
+          // }
 
           await db
-            .update(schema.users)
+            .update(schema.user)
             .set({
               accountType,
               isActive: true,
               updatedAt: new Date(),
             })
-            .where(eq(schema.users.id, user.id));
+            .where(eq(schema.user.id, user.id));
 
           // 🧭 Students → create profile row
           if (isStudent) {

@@ -1,21 +1,22 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { users } from "./domain";
+import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
-// export const user = pgTable("user", {
-//   id: text("id").primaryKey(),
-//   name: text("name").notNull(),
-//   email: text("email").notNull().unique(),
-//   emailVerified: boolean("email_verified")
-//     .$defaultFn(() => false)
-//     .notNull(),
-//   image: text("image"),
-//   createdAt: timestamp("created_at")
-//     .$defaultFn(() => /* @__PURE__ */ new Date())
-//     .notNull(),
-//   updatedAt: timestamp("updated_at")
-//     .$defaultFn(() => /* @__PURE__ */ new Date())
-//     .notNull(),
-// });
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified")
+    .$defaultFn(() => false)
+    .notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  accountType: text("account_type").default("student").notNull(),
+});
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -27,7 +28,7 @@ export const session = pgTable("session", {
   userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
 });
 
 export const account = pgTable("account", {
@@ -36,7 +37,7 @@ export const account = pgTable("account", {
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),

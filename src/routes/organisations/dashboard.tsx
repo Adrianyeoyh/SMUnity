@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, X, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Contact } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/leader/dashboard")({
+export const Route = createFileRoute("/organisations/dashboard")({
   component: LeaderDashboard,
 });
 

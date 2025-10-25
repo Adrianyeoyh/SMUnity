@@ -4,6 +4,7 @@ import {
   primaryKey, uniqueIndex, index, pgEnum, real, customType
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { user } from "./auth";
 
 // ---------- Enums ----------
 export const accountTypeEnum = pgEnum("account_type", ["student", "organisation", "admin"]);
@@ -16,29 +17,28 @@ export const notificationTypeEnum = pgEnum("notification_type", ["info", "warnin
 export const interviewOutcomeEnum = pgEnum("interview_outcome", ["pending", "pass", "fail", "no_show", "reschedule"]);
 export const requestStatusEnum = pgEnum("request_status", ["pending", "approved", "rejected"]);
 
-// ---------- USERS (unified authentication root) ----------
-export const users = pgTable("users", {
-  id: text("user_id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified")
-  .$defaultFn(() => false)
-  .notNull(),
-  image: text("image"),
-  passwordHash: varchar("password_hash", { length: 255 }), // null for OAuth students
-  accountType: accountTypeEnum("account_type"),   // student | organisation | admin
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at")
-  .$defaultFn(() => /* @__PURE__ */ new Date())
-  .notNull(),
-  updatedAt: timestamp("updated_at")
-  .$defaultFn(() => /* @__PURE__ */ new Date())
-  .notNull(),
-});
+// ---------- user (unified authentication root) ----------
+// export const users = pgTable("users", {
+//   id: text("user_id").primaryKey(),
+//   name: text("name").notNull(),
+//   email: text("email").notNull().unique(),
+//   emailVerified: boolean("email_verified")
+//   .$defaultFn(() => false)
+//   .notNull(),
+//   image: text("image"),
+//   accountType: accountTypeEnum("account_type"),   // student | organisation | admin
+//   isActive: boolean("is_active").notNull().default(true),
+//   createdAt: timestamp("created_at")
+//   .$defaultFn(() => /* @__PURE__ */ new Date())
+//   .notNull(),
+//   updatedAt: timestamp("updated_at")
+//   .$defaultFn(() => /* @__PURE__ */ new Date())
+//   .notNull(),
+// });
 
 // ---------- PROFILES (extended user info) ----------
 export const profiles = pgTable("profiles", {
-  userId: text("user_id").primaryKey().references(() => users.id),
+  userId: text("user_id").primaryKey().references(() => user.id),
   phone: varchar("phone", { length: 50 }),
 
   // ---- Student fields ----
@@ -57,11 +57,11 @@ export const profiles = pgTable("profiles", {
 
 // ---------- ORGANISATIONS (CSP providers) ----------
 export const organisations = pgTable("organisations", {
-  userId: text("user_id").primaryKey().references(() => users.id).notNull(),
+  userId: text("user_id").primaryKey().references(() => user.id).notNull(),
   slug: varchar("slug", { length: 160 }).notNull(),
   description: text("description"),
   website: varchar("website", { length: 255 }),
-  createdBy: text("created_by").references(() => users.id).notNull(), // admin
+  createdBy: text("created_by").references(() => user.id).notNull(), // admin
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   deletedAt: timestamp("deleted_at"),
@@ -72,15 +72,14 @@ export const organisations = pgTable("organisations", {
 }));
 
 // ---------- MEMBERSHIPS ----------
-export const orgMemberships = pgTable("org_memberships", {
-  orgId: text("org_id").notNull().references(() => organisations.userId),
+export const projMemberships = pgTable("project_memberships", {
+  projId: uuid("project_id").notNull().references(() => projects.id),
   userId: text("user_id").notNull().references(() => profiles.userId),
-  roleLabel: varchar("role_label", { length: 50 }),
   invitedAt: timestamp("invited_at").defaultNow().notNull(),
   acceptedAt: timestamp("accepted_at"),
 }, (t) => ({
-  pk: primaryKey({ columns: [t.orgId, t.userId] }),
-  byUser: index("org_memberships_user_idx").on(t.userId),
+  pk: primaryKey({ columns: [t.projId, t.userId] }),
+  byUser: index("proj_memberships_user_idx").on(t.userId),
 }));
 
 // ---------- TAXONOMIES ----------
@@ -108,7 +107,7 @@ const tsvector = customType<{ data: string }>({
 });
 
 export const projects = pgTable("projects", {
-  id: serial("project_id").primaryKey(),
+  id: uuid("project_id").defaultRandom().primaryKey(),
   orgId: text("org_id").references(() => organisations.userId).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
@@ -125,8 +124,8 @@ export const projects = pgTable("projects", {
   slotsTotal: integer("slots_total").notNull().default(0),
   slotsFilled: integer("slots_filled").notNull().default(0),
   status: projectStatusEnum("status").notNull().default("pending"),
-  createdBy: text("created_by").references(() => users.id).notNull(),
-  approvedBy: text("approved_by").references(() => users.id), 
+  createdBy: text("created_by").references(() => user.id).notNull(),
+  approvedBy: text("approved_by").references(() => user.id), 
   approvedAt: timestamp("approved_at"),
   search: tsvector("search"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -138,7 +137,7 @@ export const projects = pgTable("projects", {
 }));
 
 export const projectTags = pgTable("project_tags", {
-  projectId: integer("project_id").notNull().references(() => projects.id),
+  projectId: uuid("project_id").notNull().references(() => projects.id),
   tagId: integer("tag_id").notNull().references(() => tags.id),
 }, (t) => ({
   pk: primaryKey({ columns: [t.projectId, t.tagId] }),
@@ -146,7 +145,7 @@ export const projectTags = pgTable("project_tags", {
 
 export const projectSessions = pgTable("project_sessions", {
   id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull().references(() => projects.id),
+  projectId: uuid("project_id").notNull().references(() => projects.id),
   startsAt: timestamp("starts_at").notNull(),
   endsAt: timestamp("ends_at").notNull(),
   capacity: integer("capacity"),
@@ -159,8 +158,8 @@ export const projectSessions = pgTable("project_sessions", {
 // ---------- APPLICATIONS ----------
 export const applications = pgTable("applications", {
   id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull().references(() => projects.id),
-  userId: text("user_id").references(() => users.id).notNull(),
+  projectId: uuid("project_id").notNull().references(() => projects.id),
+  userId: text("user_id").references(() => user.id).notNull(),
   status: applicationStatusEnum("status").notNull().default("pending"),
   sessionId: integer("session_id").references(() => projectSessions.id),
   motivation: text("motivation"),
@@ -183,21 +182,21 @@ export const applicationReviews = pgTable("application_reviews", {
 // ---------- TIMESHEETS ----------
 export const timesheets = pgTable("timesheets", {
   id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull().references(()=>projects.id),
+  projectId: uuid("project_id").notNull().references(()=>projects.id),
   userId: text("user_id").references(() => profiles.userId).notNull(),
   sessionId: integer("session_id").references(() => projectSessions.id),
   date: timestamp("date").notNull(),
   hours: integer("hours").notNull(),
   description: varchar("description", { length: 300 }),
   verified: boolean("verified").notNull().default(false),
-  verifiedBy: text("verified_by").references(() => users.id),
+  verifiedBy: text("verified_by").references(() => user.id),
   verifiedAt: timestamp("verified_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // ---------- SAVED PROJECTS ----------
 export const savedProjects = pgTable("saved_projects", {
-  projectId: integer("project_id").notNull().references(()=>projects.id),
+  projectId: uuid("project_id").notNull().references(()=>projects.id),
   userId: text("user_id").references(() => profiles.userId).notNull(),
   savedAt: timestamp("saved_at").defaultNow().notNull(),
 }, (t) => ({
@@ -206,16 +205,16 @@ export const savedProjects = pgTable("saved_projects", {
 }));
 
 // ---------- ORGANISATION INVITES ----------
-export const organiserInvites = pgTable("organiser_invites", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull(),
-  token: text("token").notNull(),
-  approved: boolean("approved").notNull().default(true),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// export const organiserInvites = pgTable("organiser_invites", { //need to be deprecated
+//   id: serial("id").primaryKey(),
+//   email: text("email").notNull(),
+//   token: text("token").notNull(),
+//   approved: boolean("approved").notNull().default(true),
+//   expiresAt: timestamp("expires_at").notNull(),
+//   createdAt: timestamp("created_at").defaultNow().notNull(),
+// });
 
-export const organisationRequests = pgTable("organisation_requests", {
+export const organisationRequests = pgTable("organisation_requests", { 
   id: uuid("id").defaultRandom().primaryKey(), // ✅ UUID PK
   requesterEmail: text("requester_email").notNull().unique(), // external email for non-SMU
   requesterName: text("requester_name"),
@@ -223,7 +222,7 @@ export const organisationRequests = pgTable("organisation_requests", {
   orgDescription: text("org_description"),
   website: varchar("website", { length: 255 }),
   status: requestStatusEnum("status").notNull().default("pending"),
-  decidedBy: text("decided_by").references(() => users.id),
+  decidedBy: text("decided_by").references(() => user.id),
   decidedAt: timestamp("decided_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   comments: text("comments"),
@@ -234,7 +233,7 @@ export const organisationRequests = pgTable("organisation_requests", {
 
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  userId: text("user_id").references(() => user.id).notNull(),
   type: notificationTypeEnum("type").notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),

@@ -29,7 +29,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e .env --",
     "test": "vitest run",
-    "auth:generate": "bun dlx @better-auth/cli generate --output server/drizzle/schema/auth.ts --config server/lib/auth.ts",
+    "auth:generate": "bunx cli generate --output server/drizzle/schema/auth.ts --config server/lib/auth.ts",
     "db:push": "bun with-env drizzle-kit push",
     "db:studio": "bun with-env drizzle-kit studio",
     "ui:add": "bunx --bun shadcn add"

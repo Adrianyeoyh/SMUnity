@@ -18,18 +18,19 @@ import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LeaderDashboardRouteImport } from './routes/leader/dashboard'
+import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthRequestRouteImport } from './routes/auth/request'
-import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgotPassword'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthAdminOnlyRouteImport } from './routes/auth/adminOnly'
 import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$applicantId'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
 import { Route as AdminArchiveAdminRouteImport } from './routes/admin/archiveAdmin'
-import { Route as AdminAdminDashboardRouteImport } from './routes/admin/adminDashboard'
-import { Route as LeaderProjectsNewRouteImport } from './routes/leader/projects/new'
+import { Route as OrganisationsProjectsNewRouteImport } from './routes/organisations/projects/new'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 
 const ProfileRoute = ProfileRouteImport.update({
@@ -77,9 +78,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LeaderDashboardRoute = LeaderDashboardRouteImport.update({
-  id: '/leader/dashboard',
-  path: '/leader/dashboard',
+const OrganisationsDashboardRoute = OrganisationsDashboardRouteImport.update({
+  id: '/organisations/dashboard',
+  path: '/organisations/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CspCspIdRoute = CspCspIdRouteImport.update({
@@ -97,9 +98,14 @@ const AuthRequestRoute = AuthRequestRouteImport.update({
   path: '/auth/request',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: '/auth/forgotPassword',
-  path: '/auth/forgotPassword',
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -117,6 +123,11 @@ const ApplicantsApplicantIdRoute = ApplicantsApplicantIdRouteImport.update({
   path: '/applicants/$applicantId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCspIdRoute = AdminCspIdRouteImport.update({
   id: '/admin/cspId',
   path: '/admin/cspId',
@@ -127,16 +138,12 @@ const AdminArchiveAdminRoute = AdminArchiveAdminRouteImport.update({
   path: '/admin/archiveAdmin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
-  id: '/admin/adminDashboard',
-  path: '/admin/adminDashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LeaderProjectsNewRoute = LeaderProjectsNewRouteImport.update({
-  id: '/leader/projects/new',
-  path: '/leader/projects/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const OrganisationsProjectsNewRoute =
+  OrganisationsProjectsNewRouteImport.update({
+    id: '/organisations/projects/new',
+    path: '/organisations/projects/new',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
@@ -153,19 +160,20 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgotPassword': typeof AuthForgotPasswordRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
-  '/leader/dashboard': typeof LeaderDashboardRoute
+  '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/leader/projects/new': typeof LeaderProjectsNewRoute
+  '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -177,19 +185,20 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgotPassword': typeof AuthForgotPasswordRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
-  '/leader/dashboard': typeof LeaderDashboardRoute
+  '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/leader/projects/new': typeof LeaderProjectsNewRoute
+  '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -202,19 +211,20 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/adminDashboard': typeof AdminAdminDashboardRoute
   '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgotPassword': typeof AuthForgotPasswordRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
-  '/leader/dashboard': typeof LeaderDashboardRoute
+  '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/leader/projects/new': typeof LeaderProjectsNewRoute
+  '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -228,19 +238,20 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/adminDashboard'
     | '/admin/archiveAdmin'
     | '/admin/cspId'
+    | '/admin/dashboard'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
-    | '/auth/forgotPassword'
+    | '/auth/forgot-password'
+    | '/auth/login'
     | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
-    | '/leader/dashboard'
+    | '/organisations/dashboard'
     | '/csp/$cspId/apply'
-    | '/leader/projects/new'
+    | '/organisations/projects/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -252,19 +263,20 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/adminDashboard'
     | '/admin/archiveAdmin'
     | '/admin/cspId'
+    | '/admin/dashboard'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
-    | '/auth/forgotPassword'
+    | '/auth/forgot-password'
+    | '/auth/login'
     | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
-    | '/leader/dashboard'
+    | '/organisations/dashboard'
     | '/csp/$cspId/apply'
-    | '/leader/projects/new'
+    | '/organisations/projects/new'
   id:
     | '__root__'
     | '/'
@@ -276,19 +288,20 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/adminDashboard'
     | '/admin/archiveAdmin'
     | '/admin/cspId'
+    | '/admin/dashboard'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
-    | '/auth/forgotPassword'
+    | '/auth/forgot-password'
+    | '/auth/login'
     | '/auth/request'
     | '/auth/signup'
     | '/csp/$cspId'
-    | '/leader/dashboard'
+    | '/organisations/dashboard'
     | '/csp/$cspId/apply'
-    | '/leader/projects/new'
+    | '/organisations/projects/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,18 +314,19 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
-  AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminArchiveAdminRoute: typeof AdminArchiveAdminRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
   ApplicantsApplicantIdRoute: typeof ApplicantsApplicantIdRoute
   AuthAdminOnlyRoute: typeof AuthAdminOnlyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
   AuthRequestRoute: typeof AuthRequestRoute
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRouteWithChildren
-  LeaderDashboardRoute: typeof LeaderDashboardRoute
-  LeaderProjectsNewRoute: typeof LeaderProjectsNewRoute
+  OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
+  OrganisationsProjectsNewRoute: typeof OrganisationsProjectsNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -380,11 +394,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/leader/dashboard': {
-      id: '/leader/dashboard'
-      path: '/leader/dashboard'
-      fullPath: '/leader/dashboard'
-      preLoaderRoute: typeof LeaderDashboardRouteImport
+    '/organisations/dashboard': {
+      id: '/organisations/dashboard'
+      path: '/organisations/dashboard'
+      fullPath: '/organisations/dashboard'
+      preLoaderRoute: typeof OrganisationsDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/csp/$cspId': {
@@ -408,10 +422,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRequestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/forgotPassword': {
-      id: '/auth/forgotPassword'
-      path: '/auth/forgotPassword'
-      fullPath: '/auth/forgotPassword'
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -436,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApplicantsApplicantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/cspId': {
       id: '/admin/cspId'
       path: '/admin/cspId'
@@ -450,18 +478,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArchiveAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/adminDashboard': {
-      id: '/admin/adminDashboard'
-      path: '/admin/adminDashboard'
-      fullPath: '/admin/adminDashboard'
-      preLoaderRoute: typeof AdminAdminDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leader/projects/new': {
-      id: '/leader/projects/new'
-      path: '/leader/projects/new'
-      fullPath: '/leader/projects/new'
-      preLoaderRoute: typeof LeaderProjectsNewRouteImport
+    '/organisations/projects/new': {
+      id: '/organisations/projects/new'
+      path: '/organisations/projects/new'
+      fullPath: '/organisations/projects/new'
+      preLoaderRoute: typeof OrganisationsProjectsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/csp/$cspId/apply': {
@@ -496,18 +517,19 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
-  AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminArchiveAdminRoute: AdminArchiveAdminRoute,
   AdminCspIdRoute: AdminCspIdRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
   ApplicantsApplicantIdRoute: ApplicantsApplicantIdRoute,
   AuthAdminOnlyRoute: AuthAdminOnlyRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthLoginRoute: AuthLoginRoute,
   AuthRequestRoute: AuthRequestRoute,
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRouteWithChildren,
-  LeaderDashboardRoute: LeaderDashboardRoute,
-  LeaderProjectsNewRoute: LeaderProjectsNewRoute,
+  OrganisationsDashboardRoute: OrganisationsDashboardRoute,
+  OrganisationsProjectsNewRoute: OrganisationsProjectsNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

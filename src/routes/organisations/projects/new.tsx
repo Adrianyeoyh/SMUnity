@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Badge } from "#client/components/ui/badge";
 import { format } from "date-fns";
 
-export const Route = createFileRoute("/leader/projects/new")({
+export const Route = createFileRoute("/organisations/projects/new")({
   component: NewProjectPage,
 });
 

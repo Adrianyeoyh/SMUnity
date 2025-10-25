@@ -26,6 +26,7 @@ import {
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
+import { fetchAdminDashboard } from "#client/api/admin/dashboard.ts";
 
 type OrganiserStatus = "pending" | "approved" | "rejected";
 
@@ -328,7 +329,7 @@ const initialOrganiserQueue: OrganiserRecord[] = [
 ];
 
 
-export const Route = createFileRoute("/admin/adminDashboard")({
+export const Route = createFileRoute("/admin/dashboard")({
   component: AdminDashboard,
 });
 
@@ -352,33 +353,60 @@ function AdminDashboard() {
   });
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
-  const stats = useMemo(() => {
-    const totals = organiserQueue.reduce(
-      (acc, organiser) => {
-        acc.total += 1;
-        if (organiser.status === "pending") acc.pending += 1;
-        if (organiser.status === "approved") acc.approved += 1;
-        if (organiser.status === "rejected") acc.rejected += 1;
-        return acc;
-      },
-      {
-        total: 0,
-        pending: 0,
-        approved: 0,
-        rejected: 0,
-      },
-    );
+  const [stats, setStats] = useState<{
+  activeOrganisations: number;
+  totalCSPListings: number;
+  activeUsers: number;
+  serviceHours: number;
+  pending: number;
+} | null>(null);
 
-    return {
-      activeOrganisations: 12, // Mock data - active organisations
-      totalCSPListings: totals.total,
-      activeUsers: 245, // Mock data - active users
-      serviceHours: 1847, // Mock data - total service hours
-      pending: totals.pending,
-      approved: totals.approved,
-      rejected: totals.rejected,
-    };
-  }, [organiserQueue]);
+useEffect(() => {
+  async function loadDashboard() {
+    try {
+      const data = await fetchAdminDashboard();
+      setStats({
+        activeOrganisations: data.totals.organisations,
+        totalCSPListings: data.totals.projects,
+        activeUsers: data.totals.users,
+        serviceHours: data.totals.serviceHours,
+        pending: data.pendingOrgRequests,
+      });
+    } catch (err) {
+      console.error("Failed to load admin dashboard:", err);
+    }
+  }
+
+  loadDashboard();
+}, []);
+
+  // const stats = useMemo(() => {
+  //   const totals = organiserQueue.reduce(
+  //     (acc, organiser) => {
+  //       acc.total += 1;
+  //       if (organiser.status === "pending") acc.pending += 1;
+  //       if (organiser.status === "approved") acc.approved += 1;
+  //       if (organiser.status === "rejected") acc.rejected += 1;
+  //       return acc;
+  //     },
+  //     {
+  //       total: 0,
+  //       pending: 0,
+  //       approved: 0,
+  //       rejected: 0,
+  //     },
+  //   );
+
+  //   return {
+  //     activeOrganisations: 12, // Mock data - active organisations
+  //     totalCSPListings: totals.total,
+  //     activeUsers: 245, // Mock data - active users
+  //     serviceHours: 1847, // Mock data - total service hours
+  //     pending: totals.pending,
+  //     approved: totals.approved,
+  //     rejected: totals.rejected,
+  //   };
+  // }, [organiserQueue]);
 
   const filteredQueue = useMemo(() => {
     let filtered = organiserQueue;
@@ -548,7 +576,7 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Active Organisations</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{stats.activeOrganisations}</CardTitle>
+                  <CardTitle className="font-heading text-3xl text-primary">{stats?.activeOrganisations ?? 0}</CardTitle>
                 </div>
                 <div className="bg-blue-100 rounded-full p-3 ml-4">
                   <Building2 className="h-6 w-6 text-blue-600" />
@@ -567,7 +595,7 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Total CSP Listings</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{stats.totalCSPListings}</CardTitle>
+                  <CardTitle className="font-heading text-3xl text-primary">{stats?.totalCSPListings ?? 0}</CardTitle>
                 </div>
                 <div className="bg-green-100 rounded-full p-3 ml-4">
                   <ClipboardList className="h-6 w-6 text-green-600" />
@@ -576,7 +604,7 @@ function AdminDashboard() {
             </CardHeader>
              <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
-                {stats.approved} approved · {stats.pending} pending
+                {stats?.approved} approved · {stats?.pending} pending
               </div>
             </CardContent>
           </Card>
@@ -586,7 +614,7 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Active Users</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{stats.activeUsers}</CardTitle>
+                  <CardTitle className="font-heading text-3xl text-primary">{stats?.activeUsers ?? 0}</CardTitle>
                 </div>
                 <div className="bg-orange-100 rounded-full p-3 ml-4">
                   <UserCheck className="h-6 w-6 text-orange-600" />
@@ -605,7 +633,7 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Service Hours</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{stats.serviceHours}</CardTitle>
+                  <CardTitle className="font-heading text-3xl text-primary">{stats?.serviceHours ?? 0}</CardTitle>
                 </div>
                 <div className="bg-purple-100 rounded-full p-3 ml-4">
                   <Clock4 className="h-6 w-6 text-purple-600" />
@@ -645,7 +673,7 @@ function AdminDashboard() {
                 <TabsList className="flex w-full flex-wrap justify-start gap-2">
                   <TabsTrigger value="all" className="font-body">All</TabsTrigger>
               <TabsTrigger value="pending" className="font-body">
-                Pending {stats.pending > 0 && `(${stats.pending})`}
+                Pending {stats?.pending > 0 && `(${stats?.pending})`}
               </TabsTrigger>
                   <TabsTrigger value="approved" className="font-body">Approved</TabsTrigger>
                   <TabsTrigger value="rejected" className="font-body">Rejected</TabsTrigger>
