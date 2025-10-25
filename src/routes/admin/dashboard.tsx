@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchAdminDashboard } from "#client/api/admin/dashboard.ts";
+import { requireSession } from "#server/api/_utils/auth.ts";
 
 type OrganiserStatus = "pending" | "approved" | "rejected";
 
@@ -334,6 +335,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function AdminDashboard() {
+
   const [organiserQueue, setOrganiserQueue] = useState<OrganiserRecord[]>(initialOrganiserQueue);
   const [tabValue, setTabValue] = useState<"all" | OrganiserStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");

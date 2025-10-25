@@ -19,7 +19,13 @@ export type AdminDashboardResponse = {
 };
 
 adminDashboardRoutes.get("/", async (c) => {
-  const me = await requireSession(c);
+  // const me = await requireSession(c);
+  const me = await requireSession(c).catch((err) => {
+    console.error("❌ No session:", err);
+    throw err;
+  });
+
+  console.log("✅ Session from Better-Auth:", me);
   assertRole(me, ["admin"]);
 
   const usersCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.user);

@@ -39,6 +39,11 @@ export const auth = betterAuth({
   baseURL: env.VITE_APP_URL + "/api/auth",
   secret: env.BETTER_AUTH_SECRET,
   telemetry: { enabled: false },
+  cookies: {
+    domain: "localhost",   // applies to all localhost ports
+    sameSite: "lax",       // allows cross-site (cross-port) requests
+    secure: false,         // true only for HTTPS in production
+  },
 
   // ── Email + Password for organisers
   emailAndPassword: {

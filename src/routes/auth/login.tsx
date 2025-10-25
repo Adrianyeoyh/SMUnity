@@ -78,9 +78,8 @@ function Login() {
 
       toast.success("Login successful");
 
-            // Redirect based on user type
+
       if (userType === "Admin") navigate({ to: "/admin/dashboard" });
-      // else if (userType === "organisation") navigate({ to: "/csp/dashboard" });
       else navigate({ to: "/organisations/dashboard" });
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Login failed";
