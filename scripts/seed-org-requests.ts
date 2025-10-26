@@ -1,6 +1,9 @@
 import { db } from "../server/drizzle/db";
 import { organisationRequests } from "../server/drizzle/schema/domain";
 
+await db.delete(organisationRequests);
+console.log("🗑️ Cleared organisation_requests table");
+
 await db.insert(organisationRequests).values([
   {
     requesterEmail: "sarah@heartfullkitchen.org",

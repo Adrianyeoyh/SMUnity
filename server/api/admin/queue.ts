@@ -113,13 +113,57 @@ queue.post("/:id/reject", async (c) => {
   const id = c.req.param("id");
   const admin = c.get("user");
 
-  await db.update(organisationRequests)
-    .set({
-      status: "rejected",
-      decidedBy: admin.id,
-      decidedAt: new Date(),
-    })
-    .where(eq(organisationRequests.id, id));
+  try {
+    // Step 1️⃣ - Fetch organisation request
+    const [req] = await db
+      .select()
+      .from(organisationRequests)
+      .where(eq(organisationRequests.id, id));
 
-  return c.json({ success: true });
+    if (!req) {
+      return c.json({ error: "Organisation request not found" }, 404);
+    }
+
+    // Step 2️⃣ - Update status
+    await db
+      .update(organisationRequests)
+      .set({
+        status: "rejected",
+        decidedBy: admin.id,
+        decidedAt: new Date(),
+      })
+      .where(eq(organisationRequests.id, id));
+
+    // Step 3️⃣ - Send rejection email
+    const reason = req.comments
+      ? `<p><b>Admin Comments:</b> ${req.comments}</p>`
+      : "";
+
+    await mailer.sendMail({
+      to: req.requesterEmail,
+      subject: "Your SMUnity Organisation Request Has Been Rejected",
+      html: `
+        <p>Dear ${req.requesterName || "Organisation"},</p>
+        <p>We regret to inform you that your organisation request for 
+        <b>${req.orgName}</b> has been <b>rejected</b>.</p>
+        ${reason}
+        <p>If you believe this was a mistake or would like to revise your application, 
+        please contact the SMUnity admin team for clarification.</p>
+        <p>Thank you for your interest in contributing to the SMU community.</p>
+        <p>Best regards,<br/>SMUnity Admin Team</p>
+      `,
+    });
+
+    // Step 4️⃣ - Return success
+    return c.json({
+      success: true,
+      message: "Organisation request rejected and notification sent.",
+    });
+  } catch (error) {
+    console.error("Rejection error:", error);
+    return c.json(
+      { error: "Failed to reject organisation request" },
+      500
+    );
+  }
 });
