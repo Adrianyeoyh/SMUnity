@@ -18,9 +18,18 @@ import { timesheetsRoutes } from "./timesheets/index";
 import { manageApplicationsRoutes } from "./projects/manage-applications";
 import { orgMembersRoutes } from "./organisations/members";
 
+
+//NEW UPDATES
+import admin from "./admin";
+
+
 export const apiRouter = new Hono();
 
-// routes
+// NEW ROUTES
+apiRouter.route("/admin", admin);
+
+
+// OLD ROUTES
 apiRouter.route("/users", usersRoutes);
 apiRouter.route("/projects", projectsRoutes);
 apiRouter.route("/projects/applications", applicationsRoutes);
@@ -29,7 +38,7 @@ apiRouter.route("/projects/favourites", favouritesRoutes);
 apiRouter.route("/organisations", organisationsRoutes);
 apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 apiRouter.route("/organisations/members", orgMembersRoutes);
-apiRouter.route("/admin/dashboard", adminDashboardRoutes);
+// apiRouter.route("/admin/dashboard", adminDashboardRoutes);
 apiRouter.route("/dashboard", dashboardRoutes);
 // apiRouter.route("/auth", authRoutes);
 apiRouter.on(["POST", "GET"], "/auth/*", (c) => {

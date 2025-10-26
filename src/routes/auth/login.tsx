@@ -65,21 +65,26 @@ function Login() {
         password: emailLogin.password,
         rememberMe: true,
       });
-
       if (result?.error) throw new Error(result.error.message);
 
       // const userType = result.data?.user?.accountType;
-      const userType = result.data?.user?.name;
+      const u = result.data?.user;
+      const name = u?.name;
+      const email = u?.email?.toLowerCase();
 
-      console.log(userType);
-      if (userType === "student") {
+      const isSMUDomain = email.endsWith("@smu.edu.sg");
+      const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
+      const isStudent = Boolean(studentMatch);
+
+      console.log(name);
+      if (isStudent && isSMUDomain) {
         throw new Error("Students must use Google sign-in with SMU email.");
       }
 
       toast.success("Login successful");
 
 
-      if (userType === "Admin") navigate({ to: "/admin/dashboard" });
+      if (name === "Admin") navigate({ to: "/admin/dashboard" });
       else navigate({ to: "/organisations/dashboard" });
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Login failed";

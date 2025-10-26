@@ -27,6 +27,7 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthAdminOnlyRouteImport } from './routes/auth/adminOnly'
 import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$applicantId'
+import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
 import { Route as AdminArchiveAdminRouteImport } from './routes/admin/archiveAdmin'
@@ -123,6 +124,11 @@ const ApplicantsApplicantIdRoute = ApplicantsApplicantIdRouteImport.update({
   path: '/applicants/$applicantId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboard2Route = AdminDashboard2RouteImport.update({
+  id: '/admin/dashboard2',
+  path: '/admin/dashboard2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dashboard2': typeof AdminDashboard2Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dashboard2': typeof AdminDashboard2Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dashboard2': typeof AdminDashboard2Route
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin/archiveAdmin'
     | '/admin/cspId'
     | '/admin/dashboard'
+    | '/admin/dashboard2'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/admin/archiveAdmin'
     | '/admin/cspId'
     | '/admin/dashboard'
+    | '/admin/dashboard2'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/admin/archiveAdmin'
     | '/admin/cspId'
     | '/admin/dashboard'
+    | '/admin/dashboard2'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   AdminArchiveAdminRoute: typeof AdminArchiveAdminRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDashboard2Route: typeof AdminDashboard2Route
   ApplicantsApplicantIdRoute: typeof ApplicantsApplicantIdRoute
   AuthAdminOnlyRoute: typeof AuthAdminOnlyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -457,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApplicantsApplicantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/dashboard2': {
+      id: '/admin/dashboard2'
+      path: '/admin/dashboard2'
+      fullPath: '/admin/dashboard2'
+      preLoaderRoute: typeof AdminDashboard2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -520,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminArchiveAdminRoute: AdminArchiveAdminRoute,
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminDashboard2Route: AdminDashboard2Route,
   ApplicantsApplicantIdRoute: ApplicantsApplicantIdRoute,
   AuthAdminOnlyRoute: AuthAdminOnlyRoute,
   AuthCallbackRoute: AuthCallbackRoute,

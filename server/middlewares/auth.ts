@@ -1,7 +1,6 @@
 import { createMiddleware } from "hono/factory";
 
 import { db } from "../drizzle/db";
-// import { AuthVariables } from "../factory";
 import { auth } from "../lib/auth";
 
 export type AuthVariables = {

@@ -17,25 +17,6 @@ export const notificationTypeEnum = pgEnum("notification_type", ["info", "warnin
 export const interviewOutcomeEnum = pgEnum("interview_outcome", ["pending", "pass", "fail", "no_show", "reschedule"]);
 export const requestStatusEnum = pgEnum("request_status", ["pending", "approved", "rejected"]);
 
-// ---------- user (unified authentication root) ----------
-// export const users = pgTable("users", {
-//   id: text("user_id").primaryKey(),
-//   name: text("name").notNull(),
-//   email: text("email").notNull().unique(),
-//   emailVerified: boolean("email_verified")
-//   .$defaultFn(() => false)
-//   .notNull(),
-//   image: text("image"),
-//   accountType: accountTypeEnum("account_type"),   // student | organisation | admin
-//   isActive: boolean("is_active").notNull().default(true),
-//   createdAt: timestamp("created_at")
-//   .$defaultFn(() => /* @__PURE__ */ new Date())
-//   .notNull(),
-//   updatedAt: timestamp("updated_at")
-//   .$defaultFn(() => /* @__PURE__ */ new Date())
-//   .notNull(),
-// });
-
 // ---------- PROFILES (extended user info) ----------
 export const profiles = pgTable("profiles", {
   userId: text("user_id").primaryKey().references(() => user.id),
@@ -61,6 +42,7 @@ export const organisations = pgTable("organisations", {
   slug: varchar("slug", { length: 160 }).notNull(),
   description: text("description"),
   website: varchar("website", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
   createdBy: text("created_by").references(() => user.id).notNull(), // admin
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -221,6 +203,7 @@ export const organisationRequests = pgTable("organisation_requests", {
   orgName: varchar("org_name", { length: 160 }).notNull(),
   orgDescription: text("org_description"),
   website: varchar("website", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
   status: requestStatusEnum("status").notNull().default("pending"),
   decidedBy: text("decided_by").references(() => user.id),
   decidedAt: timestamp("decided_at"),

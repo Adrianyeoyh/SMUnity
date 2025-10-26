@@ -28,8 +28,6 @@ import {
 import { toast } from "sonner";
 import { fetchAdminDashboard } from "#client/api/admin/dashboard.ts";
 import { createOrganiser } from "#client/api/admin/create.ts";
-import { fetchApprovalQueue, approveRequest, rejectRequest } from "#client/api/admin/queue.ts";
-
 
 type OrganiserStatus = "pending" | "approved" | "rejected";
 
@@ -332,7 +330,7 @@ const initialOrganiserQueue: OrganiserRecord[] = [
 ];
 
 
-export const Route = createFileRoute("/admin/dashboard")({
+export const Route = createFileRoute("/admin/dashboard2")({
   component: AdminDashboard,
 });
 
@@ -367,55 +365,24 @@ function AdminDashboard() {
   pending: number;
 } | null>(null);
 
-  useEffect(() => {
-    async function loadDashboard() {
-      try {
-        const data = await fetchAdminDashboard();
-        setStats({
-          activeOrganisations: data.totals.organisations,
-          totalCSPListings: data.totals.projects,
-          activeUsers: data.totals.users,
-          serviceHours: data.totals.serviceHours,
-          pending: data.pendingOrgRequests,
-        });
-      } catch (err) {
-        console.error("Failed to load admin dashboard:", err);
-      }
+useEffect(() => {
+  async function loadDashboard() {
+    try {
+      const data = await fetchAdminDashboard();
+      setStats({
+        activeOrganisations: data.totals.organisations,
+        totalCSPListings: data.totals.projects,
+        activeUsers: data.totals.users,
+        serviceHours: data.totals.serviceHours,
+        pending: data.pendingOrgRequests,
+      });
+    } catch (err) {
+      console.error("Failed to load admin dashboard:", err);
+    }
   }
 
   loadDashboard();
-  }, []);
-
-  useEffect(() => {
-    async function loadQueue() {
-      try {
-              const data = await fetchApprovalQueue();
-
-      // 🧩 Transform DB schema → frontend shape
-      const formatted = data.map((req: any) => ({
-        id: req.id,
-        organiserName: req.requesterName || "Unknown",
-        organisationName: req.orgName,
-        email: req.requesterEmail,
-        phone: req.phone || "",
-        submittedOn: req.createdAt
-          ? new Date(req.createdAt).toISOString().split("T")[0]
-          : "",
-        status: req.status,
-        reviewedOn: req.decidedAt
-          ? new Date(req.decidedAt).toISOString().split("T")[0]
-          : undefined,
-        reviewedBy: req.decidedBy || undefined,
-      }));
-
-      setOrganiserQueue(formatted);
-      } catch (err) {
-        console.error("Failed to load approval queue:", err);
-      }
-    }
-    loadQueue();
-  }, []);
-
+}, []);
 
   const filteredQueue = useMemo(() => {
     let filtered = organiserQueue;
@@ -470,29 +437,30 @@ function AdminDashboard() {
   }, [currentPage]);
 
 
-  const handleStatusChange = async (id: string, status: OrganiserStatus) => {
-    try {
-      if (status === "approved") await approveRequest(id);
-      else await rejectRequest(id);
+  const handleStatusChange = (id: string, status: OrganiserStatus) => {
+    const organiser = organiserQueue.find(org => org.id === id);
+    
+    setOrganiserQueue((prev) =>
+      prev.map((organiser) => 
+        organiser.id === id 
+          ? { 
+              ...organiser, 
+              status,
+              reviewedOn: new Date().toISOString().split('T')[0],
+              reviewedBy: "Admin"
+            }
+          : organiser
+      ),
+    );
 
-      // Optimistic UI update
-      setOrganiserQueue(prev =>
-        prev.map(org =>
-          org.id === id
-            ? { ...org, status, reviewedOn: new Date().toISOString().split("T")[0], reviewedBy: "Admin" }
-            : org
-        )
-      );
+    const label = statusLabel[status];
+    const notify = status === "rejected" ? toast.error : toast.success;
 
-      const notify = status === "rejected" ? toast.error : toast.success;
-      notify(`Organiser ${status}`, {
-        description: "Decision has been recorded successfully.",
-      });
-    } catch (error) {
-      toast.error("Action failed", { description: (error as Error).message });
-    }
+    notify(`Organiser '${organiser?.organiserName}' successfully ${status}`, {
+      description: "Organiser has been notified of this decision.",
+      className: status === "rejected" ? "bg-red-50 border border-red-200 font-body" : "bg-green-50 border border-green-200 font-body",
+    });
   };
-
 
   const handleOrganiserSubmit = async () => {
   setHasAttemptedSubmit(true);
@@ -557,6 +525,7 @@ function AdminDashboard() {
     });
   }
 };
+
 
 
   const handleOrganiserFormChange = (field: string, value: string) => {
