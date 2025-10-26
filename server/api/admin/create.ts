@@ -7,18 +7,10 @@ import { sql, eq } from "drizzle-orm";
 import { adminMiddleware } from "#server/middlewares/auth.ts";
 import { createApp } from "#server/factory.ts";
 import { error } from "console";
+import { slugify } from "#server/helper/index.ts";
 
 export const adminCreate = createApp()
 // .use(adminMiddleware); 
-
-
-function slugify(input: string): string {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[\s\W-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 const createOrgSchema = z.object({
   organiserName: z.string().min(1),
@@ -71,7 +63,7 @@ adminCreate.post("/", async (c) => {
 
     return c.json({ success: true, message: "Organisation created successfully" }, 200);
   } catch (err) {
-    console.error("❌ Error creating organisation:", err);
+    console.error("Error creating organisation:", err);
     return c.json({ success: false, error: err || "Unknown error" }, 500);
   }
 })

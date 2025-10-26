@@ -386,6 +386,21 @@ function AdminDashboard() {
   loadDashboard();
   }, []);
 
+  const refreshStats = async () => {
+  try {
+    const data = await fetchAdminDashboard();
+    setStats({
+      activeOrganisations: data.totals.organisations,
+      totalCSPListings: data.totals.projects,
+      activeUsers: data.totals.users,
+      serviceHours: data.totals.serviceHours,
+      pending: data.pendingOrgRequests,
+    });
+  } catch (err) {
+    console.error("Failed to refresh dashboard stats:", err);
+  }
+};
+
   useEffect(() => {
     async function loadQueue() {
       try {
@@ -483,6 +498,8 @@ function AdminDashboard() {
             : org
         )
       );
+
+      await refreshStats();
 
       const notify = status === "rejected" ? toast.error : toast.success;
       notify(`Organiser ${status}`, {

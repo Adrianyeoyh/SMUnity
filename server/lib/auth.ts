@@ -79,96 +79,105 @@ export const auth = betterAuth({
 
   plugins: [openAPI({ path: "/docs" })],
 
-  // ── Role assignment and linked record creation
   databaseHooks: {
     user: {
       create: {
         before: async (user) => {
           const email = user.email?.toLowerCase() ?? "";
-
           const isSMUDomain = email.endsWith("@smu.edu.sg");
           const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
           const isStudent = Boolean(studentMatch);
 
-          // 🧠 CASE 1: SMU student (Google OAuth)
+          // 🧠 CASE 1: SMU student → allowed
           if (isSMUDomain && isStudent) {
             return { data: user };
           }
 
-          // 🧠 CASE 2: SMU staff or professor (no year in email)
+          // 🧠 CASE 2: SMU staff or professor → must be verified organiser
           if (isSMUDomain && !isStudent) {
-            throw new APIError("FORBIDDEN", {
-              message: "SMU staff and faculty are not eligible for student accounts.",
-            });
+            const [orgReq] = await db
+              .select()
+              .from(schema.organisationRequests)
+              .where(and(
+                eq(schema.organisationRequests.requesterEmail, email),
+                eq(schema.organisationRequests.status, "approved")
+              ));
+
+            if (!orgReq) {
+              throw new APIError("FORBIDDEN", {
+                message:
+                  "This SMU email is not recognised as a student or approved organisation. Please request organiser access first.",
+              });
+            }
+
+            // Organisation request approved → allow account creation
+            return { data: user };
           }
+
+          // 🧠 CASE 3: external organiser (non-SMU domain)
           return { data: user };
         },
 
-        after: async (user) => {
-          const email = user.email?.toLowerCase() ?? "";
-          const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
-          const isStudent = Boolean(studentMatch);
-          const accountType = isStudent ? "student" : "organisation";
-          // 🧭 Update users table
 
-          // if (email === "admin@smunity.sg") {
-          //   await db
-          //     .update(schema.users)
-          //     .set({
-          //       accountType: "admin",
-          //       isActive: true,
-          //       updatedAt: new Date(),
-          //     })
-          //     .where(eq(schema.users.id, user.id));
+       after: async (user) => {
+        const email = user.email?.toLowerCase() ?? "";
+        const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
+        const isStudent = Boolean(studentMatch);
+        const accountType = isStudent ? "student" : "organisation";
 
-          //   // ✅ nothing to return
-          //   return;
-          // }
+        await db
+          .update(schema.user)
+          .set({
+            accountType,
+            isActive: true,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.user.id, user.id));
 
+        // 🧭 Student setup
+        if (isStudent) {
+          const entryYear = studentMatch ? Number(studentMatch[1]) : null;
           await db
-            .update(schema.user)
-            .set({
-              accountType,
-              isActive: true,
+            .insert(schema.profiles)
+            .values({
+              userId: user.id,
+              school: null,
+              entryYear,
+              skills: [],
+              interests: [],
+            })
+            .onConflictDoNothing();
+          return;
+        }
+
+        // 🧭 Organisation setup
+        const [orgReq] = await db
+          .select()
+          .from(schema.organisationRequests)
+          .where(and(
+            eq(schema.organisationRequests.requesterEmail, email),
+            eq(schema.organisationRequests.status, "approved")
+          ));
+
+        // only create if an approved org request exists
+        if (orgReq) {
+          const slug = orgReq.orgName.toLowerCase().trim().replace(/[\s\W-]+/g, "-");
+          await db
+            .insert(schema.organisations)
+            .values({
+              userId: user.id,
+              slug,
+              description: orgReq.orgDescription ?? null,
+              website: orgReq.website ?? null,
+              phone: orgReq.phone ?? null,
+              createdBy: orgReq.decidedBy ?? user.id,
+              createdAt: new Date(),
               updatedAt: new Date(),
             })
-            .where(eq(schema.user.id, user.id));
+            .onConflictDoNothing();
+        }
+      },
 
-          // 🧭 Students → create profile row
-          if (isStudent) {
-            const entryYear = studentMatch ? Number(studentMatch[1]) : null;
-
-            await db
-              .insert(schema.profiles)
-              .values({
-                userId: user.id,
-                school: null,
-                entryYear,
-                skills: [],
-                interests: [],
-              })
-              .onConflictDoNothing();
-          }
-
-          // 🧭 Organisers → create organisation row
-          if (!isStudent) {
-            // Derive basic slug from email (before @)
-            const slug = email.split("@")[0].replace(/[^a-z0-9]+/g, "-");
-
-            await db
-              .insert(schema.organisations)
-              .values({
-                userId: user.id,
-                slug,
-                description: null,
-                website: null,
-                createdBy: user.id,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              })
-              .onConflictDoNothing();
-          }
-        },
       },
     },
   },
