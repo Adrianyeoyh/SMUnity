@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Input } from "#client/components/ui/input";
@@ -10,26 +9,6 @@ import { Label } from "#client/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Badge } from "#client/components/ui/badge";
 import { format } from "date-fns";
-
-// ---------- Constants ----------
-
-interface ProjectCreateInput {
-  title: string;
-  summary: string;
-  type: string;
-  location_text: string;
-  skill_tags: string[];
-  image_url?: string;
-  start_date?: Date;
-  end_date?: Date;
-  slots_total: number;
-  about_provide?: string;
-  about_do?: string;
-  about_skills_required?: string;
-  csp_founded_year?: string;
-  csp_projects_completed?: number;
-  csp_volunteers_participated?: number;
-}
 
 // ---------- Constants ----------
 
@@ -48,21 +27,11 @@ const CATEGORY_OPTIONS = [
 
 const DISTRICTS = [
   "Admiralty","Aljunied","Amber","Alexandra","Ang Mo Kio","Balestier","Bedok",
-  "Bendemeer","Bidadari","Bishan","Boon Keng","Boon Lay","Boat Quay","Bukit Batok",
-  "Bukit Merah","Bukit Panjang","Bukit Timah","Buona Vista","Bugis","Clementi",
-  "Clementi Park","Choa Chu Kang","Changi","City Hall","Dakota","Dover","Dunearn",
-  "Dunman","Eunos","Farrer Park","Flora Drive","Fort Canning","Frankel","Geylang",
-  "Harbourfront","Hillview","Holland","Hougang","Joo Chiat","Jurong East",
-  "Jurong West","Kaki Bukit","Kallang","Katong","Kembangan","Keppel","Kovan",
-  "Kranji","Lim Chu Kang","Little India","Lentor","Lorong Ah Soo","Loyang",
-  "MacPherson","Mandai","Marine Parade","Marina Downtown","Meyer","Newton",
-  "Novena","Orchard","Pasir Panjang","Pasir Ris","Paya Lebar Central","Potong Pasir",
-  "Punggol","Queenstown","Raffles Place","River Valley","Rochor","Seletar",
-  "Seletar Hill","Sembawang","Sengkang","Sengkang West","Sentosa","Serangoon",
-  "Shenton Way","Siglap","Somerset","Springleaf","Sungei Gedong","Suntec City",
-  "Tanah Merah","Tampines","Tanglin","Telok Blangah","Telok Kurau","Thomson",
-  "Tengah","Tiong Bahru","Toa Payoh","Ubi","Ulu Pandan","Upper Aljunied",
-  "Upper Bukit Timah","Upper Changi","Upper East Coast","Watten","West Coast",
+  "Bishan","Boon Lay","Bukit Batok","Bukit Merah","Bukit Timah","Buona Vista","Bugis",
+  "Clementi","Choa Chu Kang","City Hall","Eunos","Farrer Park","Geylang","Harbourfront",
+  "Holland","Hougang","Jurong East","Jurong West","Katong","Kovan","MacPherson","Mandai",
+  "Marine Parade","Novena","Orchard","Pasir Ris","Pasir Panjang","Punggol","Queenstown",
+  "Sembawang","Sengkang","Serangoon","Siglap","Tampines","Tiong Bahru","Toa Payoh",
   "Woodlands","Yishun",
 ];
 
@@ -74,31 +43,38 @@ const TAG_CHOICES = [
   "Children", "Kids", "Less Privileged", "Art", "School", "Education",
 ];
 
-// ---------- Extended FormInput ----------
-
 // ---------- Types ----------
-type FormInput = ProjectCreateInput & {
-  // discover.tsx + $cspId.tsx extras
+type FormInput = {
+  title: string;
+  summary: string;
+  category: string;
   project_type: "local" | "overseas";
+
   description: string;
-  requirements?: string;               // kept here (About section)
-  required_hours: number;
+  about_provide: string;
+  about_do: string;
+  requirements: string;
+  skill_tags: string[];
+
+  district: string;
+  google_maps: string;
+  location_text: string;
+  remote: boolean;
+
+  repeat_interval: number;
+  repeat_unit: "day" | "week" | "month" | "year";
+  days_of_week: string[];
+  time_start: string;
+  time_end: string;
+  start_date: Date | undefined;
+  end_date: Date | undefined;
   application_deadline?: Date;
-  image_urls?: string[];
-  is_remote?: boolean;
 
-  // new meta fields
-  district?: string;                   // single-select
-  google_maps_url?: string;            // url to map / place
-  skills_needed: string[];             // array from clickable buttons
-  project_tags: string[];              // array from clickable buttons
+  commitable_hours: number;
+  slots: number;
 
-  // Google Calendar–style recurrence stored in meta.schedule
-  repeat_interval?: number;                     // default 1
-  repeat_unit?: "day" | "week" | "month" | "year";
-  days_of_week?: string[];                      // only for week unit
-  time_start?: string;                          // "HH:MM"
-  time_end?: string;                            // "HH:MM"
+  image_url: string;
+  project_tags: [];
 };
 
 export const Route = createFileRoute("/organisations/projects/new")({
@@ -119,140 +95,122 @@ function NewProjectPage() {
     defaultValues: {
       title: "",
       summary: "",
-      type: CATEGORY_OPTIONS[0],
-      location_text: "",
-      skill_tags: [],
-      image_url: "",
-      start_date: undefined,
-      end_date: undefined,
-      slots_total: 10,
+      category: CATEGORY_OPTIONS[0],
+      project_type: "local",
+
       description: "",
+      about_provide: "",
       about_do: "",
       requirements: "",
-      about_provide: "",
-      about_skills_required: "",
-      csp_founded_year: "",
-      csp_projects_completed: undefined,
-      csp_volunteers_participated: undefined,
-      project_type: "local",
-      required_hours: 0,
-      application_deadline: undefined,
-      image_urls: [],
-      is_remote: false,
+      skill_tags: [],
+
       district: "",
-      google_maps_url: "",
-      skills_needed: [],
-      project_tags: [],
+      google_maps: "",
+      location_text: "",
+      remote: false,
+
       repeat_interval: 1,
       repeat_unit: "week",
       days_of_week: [],
       time_start: "",
       time_end: "",
+      start_date: undefined,
+      end_date: undefined,
+      application_deadline: undefined,
+
+      commitable_hours: 40,
+      slots: 10,
+
+      image_url: "",
+      project_tags: [],
     },
   });
 
+  // ---------- API mutation ----------
   const m = useMutation({
     mutationFn: async (data: FormInput) => {
-      // keep existing API working
-      const legacyPayload = {
+      const payload = {
         title: data.title,
         summary: data.summary,
-        type: data.type,
-        // legacy: store the selected district into location_text for now
-        location_text: data.district || data.location_text || "",
-        skill_tags: data.skill_tags ?? [],
-        image_url: data.image_url,
-        start_date: data.start_date,
-        end_date: data.end_date,
-        slots_total: data.slots_total,
-        // about fields kept here for now (still part of base)
-        about_provide: data.about_provide,
-        about_do: data.about_do,
-        about_skills_required: data.about_skills_required ?? "",
-        csp_founded_year: data.csp_founded_year ?? "",
-        csp_projects_completed: data.csp_projects_completed,
-        csp_volunteers_participated: data.csp_volunteers_participated,
-      };
-
-      // extras go to meta (store as JSONB on backend)
-      const meta = {
+        category: data.category,
         project_type: data.project_type,
         description: data.description,
+        about_provide: data.about_provide,
+        about_do: data.about_do,
         requirements: data.requirements,
-        required_hours: data.required_hours,
+        skill_tags: data.skill_tags,
+        district: data.district,
+        google_maps: data.google_maps,
+        location_text: data.location_text,
+        remote: data.remote,
+        repeat_interval: data.repeat_interval,
+        repeat_unit: data.repeat_unit,
+        days_of_week: data.days_of_week,
+        time_start: data.time_start,
+        time_end: data.time_end,
+        start_date: data.start_date,
+        end_date: data.end_date,
         application_deadline: data.application_deadline,
-        image_urls: data.image_urls ?? [],
-        is_remote: data.is_remote ?? false,
-        district: data.district || "",
-        google_maps_url: data.google_maps_url || "",
-        skills_needed: data.skills_needed ?? [],
-        project_tags: data.project_tags ?? [],
-        schedule: {
-          repeat_interval: data.repeat_interval ?? 1,
-          repeat_unit: data.repeat_unit ?? "week",
-          days_of_week: data.days_of_week ?? [],
-          time_start: data.time_start || null,
-          time_end: data.time_end || null,
-        },
+        commitable_hours: data.commitable_hours,
+        slots: data.slots,
+        image_url: data.image_url,
+        project_tags: data.project_tags
       };
 
-      const res = await fetch("/api/leader/projects", {
+      const res = await fetch("/api/organisations/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...legacyPayload, meta }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Failed to create project");
-      return res.json() as Promise<{ id: string; status: string }>;
+      return res.json();
     },
     onSuccess: () => nav({ to: "/leader/dashboard" }),
   });
 
   const onSubmit: SubmitHandler<FormInput> = (data) => m.mutate(data);
 
-  // ---------- watches for preview ----------
+  // ---------- watchers ----------
   const title = watch("title");
   const summary = watch("summary");
-  const category = watch("type");
+  const category = watch("category");
   const projectType = watch("project_type");
   const district = watch("district");
-  const googleMapsUrl = watch("google_maps_url");
+  const googleMaps = watch("google_maps");
   const imageUrl = watch("image_url");
-  const imageUrls = watch("image_urls");
-  const selectedSkills = watch("skills_needed");
+  const selectedSkills = watch("skill_tags");
   const start = watch("start_date");
   const end = watch("end_date");
-  const slots = watch("slots_total");
+  const slots = watch("slots");
   const description = watch("description");
   const aboutDo = watch("about_do");
   const requirements = watch("requirements");
   const aboutProvide = watch("about_provide");
   const deadline = watch("application_deadline");
-  const requiredHours = watch("required_hours");
+  const hours = watch("commitable_hours");
   const repeatInterval = watch("repeat_interval");
   const repeatUnit = watch("repeat_unit");
-  const daysOfWeek = watch("days_of_week") || [];
+  const daysOfWeek = watch("days_of_week");
   const timeStart = watch("time_start");
   const timeEnd = watch("time_end");
-  const isRemote = watch("is_remote");
-  const projectTags = watch("project_tags") || [];
+  const isRemote = watch("remote");
+  const projectTags = watch("project_tags");
 
+  // ---------- UI ----------
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
       <form className="lg:col-span-2 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-        {/* ---------- BASIC INFORMATION ---------- */}
+        {/* BASIC INFO */}
         <Card>
           <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register("title")} aria-invalid={!!errors.title} />
-              {errors.title && <p className="text-sm text-red-600">{errors.title.message}</p>}
+              <Input id="title" {...register("title")} />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="summary">Short summary</Label>
               <Textarea id="summary" rows={3} {...register("summary")} />
-              {errors.summary && <p className="text-sm text-red-600">{errors.summary.message}</p>}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -260,25 +218,23 @@ function NewProjectPage() {
                 <Label>Category</Label>
                 <Select
                   value={category}
-                  onValueChange={(v) => setValue("type", v as FormInput["type"])}
+                  onValueChange={(v) => setValue("category", v)}
                 >
-                  <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                   <SelectContent>
                     {CATEGORY_OPTIONS.map((opt) => (
                       <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.type && <p className="text-sm text-red-600">{errors.type.message}</p>}
               </div>
-
               <div className="space-y-2">
                 <Label>Project Type</Label>
                 <Select
                   value={projectType}
-                  onValueChange={(v) => setValue("project_type", v as FormInput["project_type"])}
+                  onValueChange={(v) => setValue("project_type", v as "local" | "overseas")}
                 >
-                  <SelectTrigger><SelectValue placeholder="Local or Overseas" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="local">Local</SelectItem>
                     <SelectItem value="overseas">Overseas</SelectItem>
@@ -289,8 +245,8 @@ function NewProjectPage() {
           </CardContent>
         </Card>
 
-        {/* ---------- ABOUT THIS PROJECT ---------- */}
-        <Card>
+        {/* ABOUT */}
+<Card>
           <CardHeader><CardTitle>About This Project</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -313,51 +269,43 @@ function NewProjectPage() {
               <Textarea id="about_provide" rows={4} {...register("about_provide")} />
             </div>
           </CardContent>
-        </Card>
-
-        {/* ---------- SKILLS & REQUIREMENTS ---------- */}
-        <Card>
-          <CardHeader><CardTitle>Skills & Requirements</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Select the skills volunteers will need.</p>
+          <CardHeader><CardTitle>Skills Required</CardTitle></CardHeader>
+          <CardContent>
             <Controller
               control={control}
-              name="skills_needed"
-              render={({ field }) => {
-                const value: string[] = field.value ?? [];
-                return (
-                  <div className="flex flex-wrap gap-2">
-                    {SKILL_CHOICES.map((skill) => {
-                      const selected = value.includes(skill);
-                      return (
-                        <Button
-                          key={skill}
-                          type="button"
-                          variant={selected ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => {
-                            const next = selected ? value.filter((s) => s !== skill) : [...value, skill];
-                            field.onChange(next);
-                          }}
-                          onBlur={field.onBlur}
-                          aria-pressed={selected}
-                        >
-                          {skill}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                );
-              }}
+              name="skill_tags"
+              render={({ field }) => (
+                <div className="flex flex-wrap gap-2">
+                  {SKILL_CHOICES.map((skill) => {
+                    const selected = field.value.includes(skill);
+                    return (
+                      <Button
+                        key={skill}
+                        type="button"
+                        variant={selected ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          const next = selected
+                            ? field.value.filter((s) => s !== skill)
+                            : [...field.value, skill];
+                          field.onChange(next);
+                        }}
+                      >
+                        {skill}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
             />
           </CardContent>
         </Card>
 
-        {/* ---------- LOGISTICS & SCHEDULE (merged) ---------- */}
+        {/* SKILLS */}
         <Card>
-          <CardHeader><CardTitle>Logistics & Schedule</CardTitle></CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <CardHeader><CardTitle>Location</CardTitle></CardHeader>
+          <CardContent>
+             <div className="grid gap-4 sm:grid-cols-2">
               {/* DISTRICT SELECT */}
               <div className="space-y-2">
                 <Label>District</Label>
@@ -386,35 +334,42 @@ function NewProjectPage() {
               {/* GOOGLE MAPS + REMOTE TOGGLE */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="google_maps_url">Google Maps URL</Label>
+                  <Label htmlFor="google_maps">Google Maps URL</Label>
                   <Input
-                    id="google_maps_url"
+                    id="google_maps"
                     type="url"
                     placeholder="https://maps.google.com/..."
-                    {...register("google_maps_url")}
+                    {...register("google_maps")}
                     disabled={isRemote}
                   />
                 </div>
                 <div className="flex items-center gap-2 mt-6">
                   <input
-                    id="is_remote"
+                    id="remote"
                     type="checkbox"
-                    {...register("is_remote")}
+                    {...register("remote")}
                     onChange={(e) => {
                       const checked = e.target.checked;
-                      setValue("is_remote", checked);
+                      setValue("remote", checked);
                       if (checked) {
                         setValue("district", "Remote");
-                        setValue("google_maps_url", "");
+                        setValue("google_maps", "");
                       } else {
                         setValue("district", "");
                       }
                     }}
                   />
-                  <Label htmlFor="is_remote" className="cursor-pointer">Remote?</Label>
+                  <Label htmlFor="remote" className="cursor-pointer">Remote?</Label>
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* ---------- LOGISTICS & SCHEDULE (merged) ---------- */}
+        <Card>
+          <CardHeader><CardTitle>Listing Schedule</CardTitle></CardHeader>
+          <CardContent className="space-y-6">
 
             {/* Dates */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -522,13 +477,13 @@ function NewProjectPage() {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="slots_total">Total slots</Label>
-                <Input id="slots_total" type="number" min={1} {...register("slots_total", { valueAsNumber: true })} />
-                {errors.slots_total && <p className="text-sm text-red-600">{errors.slots_total.message}</p>}
+                <Label htmlFor="slots">Total slots</Label>
+                <Input id="slots" type="number" min={1} {...register("slots", { valueAsNumber: true })} />
+                {errors.slots && <p className="text-sm text-red-600">{errors.slots.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="required_hours">Total service hours</Label>
-                <Input id="required_hours" type="number" min={0} {...register("required_hours", { valueAsNumber: true })} />
+                <Label htmlFor="commitable_hours">Total service hours</Label>
+                <Input id="commitable_hours" type="number" min={0} {...register("commitable_hours", { valueAsNumber: true })} />
               </div>
             </div>
           </CardContent>
@@ -544,7 +499,7 @@ function NewProjectPage() {
               {errors.image_url && <p className="text-sm text-red-600">{errors.image_url.message}</p>}
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="image_urls">Additional image URLs (one per line)</Label>
               <Textarea
                 id="image_urls"
@@ -559,7 +514,7 @@ function NewProjectPage() {
                       : [],
                 })}
               />
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
@@ -616,30 +571,8 @@ function NewProjectPage() {
           <CardContent className="space-y-2 text-sm">
             <div><span className="font-medium">Title: </span>{title || "—"}</div>
             <div><span className="font-medium">Category: </span>{category}</div>
-            <div><span className="font-medium">Project Type: </span>{projectType}</div>
-            <div><span className="font-medium">District: </span>{district || "—"}{isRemote ? " • Remote" : ""}</div>
-            {googleMapsUrl ? (
-              <div className="truncate">
-                <span className="font-medium">Google Maps: </span>
-                <a className="text-blue-600 underline" href={googleMapsUrl} target="_blank" rel="noreferrer">
-                  {googleMapsUrl}
-                </a>
-              </div>
-            ) : null}
-            <div><span className="font-medium">Schedule: </span>
-              {`Every ${repeatInterval} ${repeatUnit}${repeatInterval && repeatInterval > 1 ? "s" : ""}`}
-              {daysOfWeek.length ? ` • ${daysOfWeek.join(", ")}` : ""}
-              {(timeStart || timeEnd) ? ` • ${timeStart || "?"}–${timeEnd || "?"}` : ""}
-            </div>
-            <div><span className="font-medium">Dates: </span>
-              {start ? format(start, "dd MMM yyyy") : "—"} – {end ? format(end, "dd MMM yyyy") : "—"}
-            </div>
-            <div><span className="font-medium">Application Deadline: </span>{deadline ? format(deadline, "dd MMM yyyy") : "—"}</div>
-            <div><span className="font-medium">Service Hours: </span>{requiredHours || 0}h</div>
-            <div><span className="font-medium">Slots: </span>{slots}</div>
-
             <div><span className="font-medium">Summary: </span><p className="mt-1 text-muted-foreground">{summary || "—"}</p></div>
-
+            <div><span className="font-medium">Project Type: </span>{projectType}</div>
             <div><span className="font-medium">Detailed Description</span><p className="mt-1 text-muted-foreground">{description || "—"}</p></div>
             <div><span className="font-medium">What you’ll do</span><p className="mt-1 text-muted-foreground">{aboutDo || "—"}</p></div>
             <div><span className="font-medium">Requirements</span><p className="mt-1 text-muted-foreground">{requirements || "—"}</p></div>
@@ -655,6 +588,28 @@ function NewProjectPage() {
                 </div>
               ) : "—"}
             </div>
+            <div><span className="font-medium">District: </span>{district || "—"}{isRemote ? " • Remote" : ""}</div>
+            {googleMaps ? (
+              <div className="truncate">
+                <span className="font-medium">Google Maps: </span>
+                <a className="text-blue-600 underline" href={googleMaps} target="_blank" rel="noreferrer">
+                  {googleMaps}
+                </a>
+              </div>
+            ) : null}
+            <div><span className="font-medium">Schedule: </span>
+              {`Every ${repeatInterval} ${repeatUnit}${repeatInterval && repeatInterval > 1 ? "s" : ""}`}
+              {daysOfWeek.length ? ` • ${daysOfWeek.join(", ")}` : ""}
+              {(timeStart || timeEnd) ? ` • ${timeStart || "?"}–${timeEnd || "?"}` : ""}
+            </div>
+            <div><span className="font-medium">Dates: </span>
+              {start ? format(start, "dd MMM yyyy") : "—"} to {end ? format(end, "dd MMM yyyy") : "—"}
+            </div>
+            <div><span className="font-medium">Application Deadline: </span>{deadline ? format(deadline, "dd MMM yyyy") : "—"}</div>
+            <div><span className="font-medium">Service Hours: </span>{hours || 0}h</div>
+            <div><span className="font-medium">Slots: </span>{slots}</div>
+
+
 
             <div>
               <span className="font-medium">Project tags: </span>
@@ -676,20 +631,6 @@ function NewProjectPage() {
               ) : "—"}
             </div>
 
-            <div>
-              <span className="font-medium">Additional images:</span>
-              <div className="mt-2 space-y-2">
-                {(imageUrls ?? []).length ? (
-                  (imageUrls ?? []).map((url, i) => (
-                    <img key={`${url}-${i}`} src={url} alt={`Project image ${i + 1}`} className="w-full h-28 object-cover rounded-md border" />
-                  ))
-                ) : <span className="text-muted-foreground">—</span>}
-              </div>
-            </div>
-
-            <div className="pt-2 text-xs text-muted-foreground">
-              Status will be <span className="font-medium">pending_review</span> until an admin approves it.
-            </div>
           </CardContent>
         </Card>
       </div>
