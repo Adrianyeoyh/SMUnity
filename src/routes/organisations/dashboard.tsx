@@ -147,7 +147,7 @@ function LeaderDashboard() {
       description: "Redirecting you to the listing builder.",
     });
     setTimeout(() => {
-      navigate({ to: "/leader/projects/new" });
+      navigate({ to: "/organisations/projects/new" });
     }, 200);
   }, [navigate]);
 

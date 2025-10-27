@@ -6,11 +6,7 @@ import { projectsRoutes } from "./projects/index";
 import { applicationsRoutes } from "./projects/applications";
 import { favouritesRoutes } from "./projects/favourites";
 import { organisationsRoutes } from "./organisations/index";
-import { organisationRequestsRoutes } from "./organisations/requests";
-import { adminDashboardRoutes } from "./admin/dashboard";
-import { dashboardRoutes } from "./dashboard";
 import { auth } from "../lib/auth"
-// import { authRoutes } from "./auth/routes";
 
 // add-ons already in your repo
 import { taxonomiesRoutes } from "./taxonomies/index";
@@ -21,12 +17,14 @@ import { orgMembersRoutes } from "./organisations/members";
 
 //NEW UPDATES
 import admin from "./admin";
+import { organisationRequestsRoutes } from "./organisations/requests";
 
 
 export const apiRouter = new Hono();
 
 // NEW ROUTES
 apiRouter.route("/admin", admin);
+apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 
 
 // OLD ROUTES
@@ -36,11 +34,9 @@ apiRouter.route("/projects/applications", applicationsRoutes);
 apiRouter.route("/projects/applications/manage", manageApplicationsRoutes);
 apiRouter.route("/projects/favourites", favouritesRoutes);
 apiRouter.route("/organisations", organisationsRoutes);
-apiRouter.route("/organisations/requests", organisationRequestsRoutes);
+
 apiRouter.route("/organisations/members", orgMembersRoutes);
-// apiRouter.route("/admin/dashboard", adminDashboardRoutes);
-apiRouter.route("/dashboard", dashboardRoutes);
-// apiRouter.route("/auth", authRoutes);
+
 apiRouter.on(["POST", "GET"], "/auth/*", (c) => {
  return auth.handler(c.req.raw);
 });

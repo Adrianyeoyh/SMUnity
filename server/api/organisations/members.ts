@@ -5,7 +5,7 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { and, eq } from "drizzle-orm";
-import { requireSession, assertRole, ok, badReq, notFound, forbidden, created } from "../_utils/auth";
+// import { requireSession, assertRole, ok, badReq, notFound, forbidden, created } from "../_utils/auth";
 import { z } from "zod";
 
 export const orgMembersRoutes = new Hono();

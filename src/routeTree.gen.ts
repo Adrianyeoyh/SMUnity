@@ -30,7 +30,6 @@ import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$
 import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
-import { Route as AdminArchiveAdminRouteImport } from './routes/admin/archiveAdmin'
 import { Route as OrganisationsProjectsNewRouteImport } from './routes/organisations/projects/new'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 
@@ -139,11 +138,6 @@ const AdminCspIdRoute = AdminCspIdRouteImport.update({
   path: '/admin/cspId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminArchiveAdminRoute = AdminArchiveAdminRouteImport.update({
-  id: '/admin/archiveAdmin',
-  path: '/admin/archiveAdmin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OrganisationsProjectsNewRoute =
   OrganisationsProjectsNewRouteImport.update({
     id: '/organisations/projects/new',
@@ -166,7 +160,6 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -192,7 +185,6 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -219,7 +211,6 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
-  '/admin/archiveAdmin': typeof AdminArchiveAdminRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -247,7 +238,6 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/archiveAdmin'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -273,7 +263,6 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/archiveAdmin'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -299,7 +288,6 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
-    | '/admin/archiveAdmin'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -326,7 +314,6 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
-  AdminArchiveAdminRoute: typeof AdminArchiveAdminRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboard2Route: typeof AdminDashboard2Route
@@ -491,13 +478,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCspIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/archiveAdmin': {
-      id: '/admin/archiveAdmin'
-      path: '/admin/archiveAdmin'
-      fullPath: '/admin/archiveAdmin'
-      preLoaderRoute: typeof AdminArchiveAdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/organisations/projects/new': {
       id: '/organisations/projects/new'
       path: '/organisations/projects/new'
@@ -537,7 +517,6 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
-  AdminArchiveAdminRoute: AdminArchiveAdminRoute,
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboard2Route: AdminDashboard2Route,

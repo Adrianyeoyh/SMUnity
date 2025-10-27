@@ -3,8 +3,8 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { and, eq, desc } from "drizzle-orm";
-import { requireSession, ok, badReq } from "../_utils/auth";
-import { favouriteToggleSchema } from "../_utils/validators";
+// import { requireSession, ok, badReq } from "../_utils/auth";
+// import { favouriteToggleSchema } from "../_utils/validators";
 
 export const favouritesRoutes = new Hono();
 

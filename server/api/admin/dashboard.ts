@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { sql, eq } from "drizzle-orm";
-import { ok } from "../_utils/auth";
+import { ok } from "#server/helper/index.ts";
 import { adminMiddleware, AuthVariables } from "#server/middlewares/auth.ts";
 import { createApp } from "#server/factory.ts";
 

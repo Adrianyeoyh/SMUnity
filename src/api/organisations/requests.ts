@@ -3,9 +3,10 @@ export async function createOrganisationRequest(payload: {
   requesterName: string;
   orgName: string;
   orgDescription?: string | null;
+  phone: string,
   website?: string | null;
 }) {
-  const res = await fetch(`${process.env.VITE_SERVER_URL}/api/organisations/requests`, {
+  const res = await fetch("/api/organisations/requests", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

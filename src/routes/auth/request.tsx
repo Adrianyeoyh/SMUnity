@@ -29,6 +29,7 @@ const organiserRequestSchema = z.object({
   name: z.string().min(1, "Name is required"),
   organisationName: z.string().min(2, "Organisation name required"),
   organisationDescription: z.string().min(5, "Description required"),
+  phone: z.string().min(8,"Valid Phone Number required"),
   website: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
 });
 
@@ -44,6 +45,7 @@ function RouteComponent() {
       name: "",
       organisationName: "",
       organisationDescription: "",
+      phone: "",
       website: "",
     },
   });
@@ -56,6 +58,7 @@ function RouteComponent() {
       requesterName: values.name,
       orgName: values.organisationName,
       orgDescription: values.organisationDescription,
+      phone: values.phone,
       website: values.website || null,
     });
 
@@ -134,6 +137,20 @@ function RouteComponent() {
                       placeholder="Describe your organisation's mission or activities"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="+65 8999 8999" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

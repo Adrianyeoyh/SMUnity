@@ -1,9 +1,7 @@
 // server/api/admin/queue.ts
-import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import { organisationRequests, user, organisations, account } from "#server/drizzle/schema";
 import { eq, desc } from "drizzle-orm";
-import { adminMiddleware } from "#server/middlewares/auth";
 import { createApp } from "#server/factory.ts";
 import { hashPassword } from "better-auth/crypto";
 import crypto from "crypto";
@@ -21,23 +19,6 @@ queue.get("/", async (c) => {
   return c.json({ data: results });
 });
 
-// --- POST approve
-// queue.post("/:id/approve", async (c) => {
-//   const id = c.req.param("id");
-//   const admin = c.get("user");
-
-//   await db.update(organisationRequests)
-//     .set({
-//       status: "approved",
-//       decidedBy: admin.id,
-//       decidedAt: new Date(),
-//     })
-//     .where(eq(organisationRequests.id, id));
-
-// // console.log("hit")
-
-//   return c.json({ success: true });
-// });
 
 queue.post("/:id/approve", async (c) => {
   const id = c.req.param("id");

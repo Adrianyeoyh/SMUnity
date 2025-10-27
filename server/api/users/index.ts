@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
-import { requireSession } from "../_utils/auth";
+// import { requireSession } from "../_utils/auth";
 
 export const usersRoutes = new Hono();
 

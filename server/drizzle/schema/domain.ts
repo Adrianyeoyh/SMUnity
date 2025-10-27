@@ -89,34 +89,39 @@ const tsvector = customType<{ data: string }>({
 });
 
 export const projects = pgTable("projects", {
+  // existing columns...
   id: uuid("project_id").defaultRandom().primaryKey(),
   orgId: text("org_id").references(() => organisations.userId).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
   description: text("description").notNull(),
   requiredHours: integer("required_hours").notNull().default(0),
+
   categoryId: integer("category_id").references(() => categories.id),
+  type: varchar("type", { length: 20 }).default("local").notNull(), // <-- NEW (local/overseas)
   location: varchar("location", { length: 255 }),
-  addressLine1: varchar("address_line1", { length: 255 }),
-  addressLine2: varchar("address_line2", { length: 255 }),
-  city: varchar("city", { length: 120 }),
-  postalCode: varchar("postal_code", { length: 20 }),
-  latitude: real("latitude"),
-  longitude: real("longitude"),
+  isRemote: boolean("is_remote").default(false).notNull(), // <-- NEW
+  applyBy: timestamp("apply_by"), // <-- NEW
+  imageUrl: varchar("image_url", { length: 255 }), // <-- NEW
+
+  aboutProvide: text("about_provide"),
+  aboutDo: text("about_do"),
+  skillsRequired: text("skills_required"),
+
   slotsTotal: integer("slots_total").notNull().default(0),
   slotsFilled: integer("slots_filled").notNull().default(0),
   status: projectStatusEnum("status").notNull().default("pending"),
+
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+
   createdBy: text("created_by").references(() => user.id).notNull(),
-  approvedBy: text("approved_by").references(() => user.id), 
+  approvedBy: text("approved_by").references(() => user.id),
   approvedAt: timestamp("approved_at"),
-  search: tsvector("search"),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (t) => ({
-  idxOrg: index("projects_org_idx").on(t.orgId),
-  idxStatus: index("projects_status_idx").on(t.status),
-  idxGeo: index("projects_geo_idx").on(t.latitude, t.longitude),
-}));
+});
 
 export const projectTags = pgTable("project_tags", {
   projectId: uuid("project_id").notNull().references(() => projects.id),
@@ -186,15 +191,6 @@ export const savedProjects = pgTable("saved_projects", {
   byUser: index("saved_user_idx").on(t.userId),
 }));
 
-// ---------- ORGANISATION INVITES ----------
-// export const organiserInvites = pgTable("organiser_invites", { //need to be deprecated
-//   id: serial("id").primaryKey(),
-//   email: text("email").notNull(),
-//   token: text("token").notNull(),
-//   approved: boolean("approved").notNull().default(true),
-//   expiresAt: timestamp("expires_at").notNull(),
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-// });
 
 export const organisationRequests = pgTable("organisation_requests", { 
   id: uuid("id").defaultRandom().primaryKey(), // ✅ UUID PK
