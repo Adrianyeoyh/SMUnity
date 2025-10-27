@@ -4,6 +4,7 @@ import { auth } from "#client/lib/auth";
 import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
 import { Input } from "#client/components/ui/input";
+import { Checkbox } from "#client/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -25,7 +26,9 @@ export const Route = createFileRoute("/auth/login")({
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [emailLogin, setEmailLogin] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth/login" });
   const redirectTo = search.redirectTo || "/dashboard";
@@ -58,12 +61,20 @@ function Login() {
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
+    setError(null);
+
+    if (!emailLogin.email || !emailLogin.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await auth.signIn.email({
         email: emailLogin.email,
         password: emailLogin.password,
-        rememberMe: true,
+        rememberMe: rememberMe,
       });
       if (result?.error) throw new Error(result.error.message);
 
@@ -166,21 +177,56 @@ function Login() {
           </div>
 
           {/* --- ORG/ADMIN LOGIN FORM --- */}
-          <form onSubmit={handleEmailLogin} className="space-y-4">
-            <Input
-              type="email"
-              placeholder="Email"
-              value={emailLogin.email}
-              onChange={(e) => setEmailLogin({ ...emailLogin, email: e.target.value })}
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={emailLogin.password}
-              onChange={(e) => setEmailLogin({ ...emailLogin, password: e.target.value })}
-              required
-            />
+          <form onSubmit={handleEmailLogin} className="space-y-4" noValidate>
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={emailLogin.email}
+                onChange={(e) => setEmailLogin({ ...emailLogin, email: e.target.value })}
+                className={hasAttemptedSubmit && !emailLogin.email ? 'border-destructive' : ''}
+              />
+              {hasAttemptedSubmit && !emailLogin.email && (
+                <p className="text-sm text-destructive font-body">
+                  Please enter your email address
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Password"
+                value={emailLogin.password}
+                onChange={(e) => setEmailLogin({ ...emailLogin, password: e.target.value })}
+                className={hasAttemptedSubmit && !emailLogin.password ? 'border-destructive' : ''}
+              />
+              {hasAttemptedSubmit && !emailLogin.password && (
+                <p className="text-sm text-destructive font-body">
+                  Please enter your password
+                </p>
+              )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="remember-me" 
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="text-sm font-body leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Remember me
+                  </label>
+                </div>
+                <Link 
+                  to="/auth/forgot-password" 
+                  className="text-sm text-primary hover:text-primary/80"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>

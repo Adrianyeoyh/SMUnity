@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRequestRouteImport } from './routes/auth/request'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
@@ -91,6 +92,11 @@ const CspCspIdRoute = CspCspIdRouteImport.update({
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/auth/signup',
   path: '/auth/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRequestRoute = AuthRequestRouteImport.update({
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/request'
+    | '/auth/reset-password'
     | '/auth/signup'
     | '/csp/$cspId'
     | '/organisations/dashboard'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/request'
+    | '/auth/reset-password'
     | '/auth/signup'
     | '/csp/$cspId'
     | '/organisations/dashboard'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/request'
+    | '/auth/reset-password'
     | '/auth/signup'
     | '/csp/$cspId'
     | '/organisations/dashboard'
@@ -323,6 +335,7 @@ export interface RootRouteChildren {
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRequestRoute: typeof AuthRequestRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRouteWithChildren
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
@@ -413,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/signup'
       fullPath: '/auth/signup'
       preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/request': {
@@ -526,6 +546,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRequestRoute: AuthRequestRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRouteWithChildren,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
