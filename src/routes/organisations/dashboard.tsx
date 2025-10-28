@@ -17,9 +17,11 @@ import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, X, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Contact } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { fetchOrgDashboard } from "#client/api/organisations/dashboard.ts";
 
 export const Route = createFileRoute("/organisations/dashboard")({
-  component: LeaderDashboard,
+  component: OrgDashboard,
   
 });
 
@@ -32,8 +34,7 @@ const applicationStatusConfig: Record<ApplicationStatus, { label: string; tone: 
   rejected: { label: "Rejected", tone: "bg-red-100 text-red-800" },
 };
 
-function LeaderDashboard() {
-  const routerState = useRouterState();
+function OrgDashboard() {
 
   const listings = [
     {
@@ -131,6 +132,11 @@ function LeaderDashboard() {
   const [listingSort, setListingSort] = useState<"date_asc" | "date_desc" | "applications_desc" | "applications_asc">("date_asc");
   const applicationsSectionRef = useRef<HTMLDivElement | null>(null);
 
+  const { data: summary, isLoading, isError } = useQuery({
+      queryKey: ["orgDashboard"],
+      queryFn: fetchOrgDashboard,
+    });
+
   const statusTabs = [
     { value: "all", label: "All" },
     { value: "open", label: "Open" },
@@ -144,6 +150,8 @@ function LeaderDashboard() {
     { value: "applications_desc", label: "Applications · High to low" },
     { value: "applications_asc", label: "Applications · Low to high" },
   ] as const;
+
+  
 
   const handleCreateListing = useCallback(() => {
     toast.success("Start a new listing", {
@@ -262,19 +270,19 @@ function LeaderDashboard() {
     return sorted;
   }, [listingSort, listingStatusFilter, listings]);
 
-  const summary = useMemo(() => {
-    const pending = applications.filter((application) => application.status === "pending").length;
-    const shortlisted = applications.filter((application) => application.status === "shortlisted").length;
-    const confirmed = applications.filter((application) => application.status === "confirmed").length;
+  // const summary = useMemo(() => {
+  //   const pending = applications.filter((application) => application.status === "pending").length;
+  //   const shortlisted = applications.filter((application) => application.status === "shortlisted").length;
+  //   const confirmed = applications.filter((application) => application.status === "confirmed").length;
 
-    return {
-      listings: listings.length,
-      totalApplications: applications.length,
-      pending,
-      shortlisted,
-      confirmed,
-    };
-  }, [listings.length, applications]);
+  //   return {
+  //     listings: listings.length,
+  //     totalApplications: applications.length,
+  //     pending,
+  //     shortlisted,
+  //     confirmed,
+  //   };
+  // }, [listings.length, applications]);
 
   const countFor = useCallback(
     (status: ApplicationStatus | "all") =>
@@ -295,6 +303,9 @@ function LeaderDashboard() {
       ),
     [applications, listingFilter],
   );
+
+  if (isLoading) return <div className="p-8 text-muted-foreground text-lg">Loading dashboard data...</div>;
+  if (isError || !summary) return <div className="p-8 text-red-500 text-lg">Failed to load dashboard stats.</div>;
 
   return (
     <div className="min-h-screen bg-background">
@@ -322,7 +333,7 @@ function LeaderDashboard() {
           </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium font-body">Active listings</CardTitle>
@@ -371,6 +382,57 @@ function LeaderDashboard() {
             <CardContent>
               <p className="text-3xl font-heading font-semibold">{summary.confirmed}</p>
               <p className="text-xs text-muted-foreground font-body">Ready to be onboarded</p>
+            </CardContent>
+          </Card> */}
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Active listings</CardTitle>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.listings}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Currently published opportunities
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Total applications</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.totalApplications}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Across every listing
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Pending review</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.pending}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Waiting for your decision
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Confirmed volunteers</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.confirmed}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Ready to be onboarded
+              </p>
             </CardContent>
           </Card>
         </div>
