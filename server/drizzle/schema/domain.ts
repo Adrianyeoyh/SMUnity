@@ -1,15 +1,23 @@
 // server/drizzle/schema/domain.ts
 import {
   pgTable, text, varchar, integer, serial, timestamp, boolean, jsonb, uuid,
-  primaryKey, uniqueIndex, index, pgEnum, real, customType
+  primaryKey, uniqueIndex, index, pgEnum, real, customType,
+  time,
+  date
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { user } from "./auth";
+import { url } from "inspector";
 
 // ---------- Enums ----------
 export const accountTypeEnum = pgEnum("account_type", ["student", "organisation", "admin"]);
-export const projectStatusEnum = pgEnum("project_status", ["draft", "pending", "approved", "closed", "archived"]);
-export const applicationStatusEnum = pgEnum("application_status", ["pending", "accepted", "rejected", "waitlisted", "withdrawn", "cancelled"]);
+export const applicationStatusEnum = pgEnum("application_status", ["pending", "accepted", "rejected", "confirmed", "withdrawn", "cancelled"]);
+//pending means user has sent an application
+//accepted means org has accepted application
+//rejected means org has rejected
+//confirmed means user has confirmed the application
+//withdrawn means user has withdrawn the application
+//cancelled mean user has cancelled the application before org made a decision
 export const verificationActionEnum = pgEnum("verification_action", ["submitted", "approved", "rejected", "closed", "reopened"]);
 export const attachmentOwnerEnum = pgEnum("attachment_owner", ["project", "organisation", "profile", "application"]);
 export const requirementTypeEnum = pgEnum("requirement_type", ["CSU_MODULE", "ONTRAC"]);
@@ -73,13 +81,13 @@ export const categories = pgTable("categories", {
   catSlugUnique: uniqueIndex("category_slug_unique").on(t.slug),
 }));
 
-export const tags = pgTable("tags", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 60 }).notNull(),
-  slug: varchar("slug", { length: 120 }).notNull(),
-}, (t) => ({
-  tagSlugUnique: uniqueIndex("tag_slug_unique").on(t.slug),
-}));
+// export const tags = pgTable("tags", {
+//   id: serial("id").primaryKey(),
+//   name: varchar("name", { length: 60 }).notNull(),
+//   slug: varchar("slug", { length: 120 }).notNull(),
+// }, (t) => ({
+//   tagSlugUnique: uniqueIndex("tag_slug_unique").on(t.slug),
+// }));
 
 // ---------- PROJECTS ----------
 const tsvector = customType<{ data: string }>({
@@ -94,53 +102,50 @@ export const projects = pgTable("projects", {
   orgId: text("org_id").references(() => organisations.userId).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
-  description: text("description").notNull(),
-  requiredHours: integer("required_hours").notNull().default(0),
-
   categoryId: integer("category_id").references(() => categories.id),
   type: varchar("type", { length: 20 }).default("local").notNull(), // <-- NEW (local/overseas)
-  location: varchar("location", { length: 255 }),
-  isRemote: boolean("is_remote").default(false).notNull(), // <-- NEW
-  applyBy: timestamp("apply_by"), // <-- NEW
-  imageUrl: varchar("image_url", { length: 255 }), // <-- NEW
 
+  description: text("description").notNull(),
   aboutProvide: text("about_provide"),
   aboutDo: text("about_do"),
-  skillsRequired: text("skills_required"),
+  requirements: text("requirements"),
+  skillTags: text("skill_tags").array().default(sql`ARRAY[]::text[]`),
 
-  slotsTotal: integer("slots_total").notNull().default(0),
-  slotsFilled: integer("slots_filled").notNull().default(0),
-  status: projectStatusEnum("status").notNull().default("pending"),
-
+  district: varchar("district", { length: 120 }),
+  googleMaps: varchar("google_maps", { length: 1024 }),
   latitude: real("latitude"),
   longitude: real("longitude"),
+  isRemote: boolean("is_remote").default(false).notNull(),
 
-  createdBy: text("created_by").references(() => user.id).notNull(),
-  approvedBy: text("approved_by").references(() => user.id),
-  approvedAt: timestamp("approved_at"),
+  repeatInterval: integer("repeat_interval"),
+  repeatUnit: varchar("repeat_unit", { length: 10 }),
+  daysOfWeek: text("days_of_week").array(),
+  timeStart: time("time_start"),
+  timeEnd: time("time_end"),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  applyBy: timestamp("apply_by"), // <-- NEW
+
+  slotsTotal: integer("slots_total").notNull().default(0),
+  requiredHours: integer("required_hours").notNull().default(0),
+  imageUrl: varchar("image_url", { length: 1024 }), 
+  projectTags: text("project_tags").array().default(sql`ARRAY[]::text[]`),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const projectTags = pgTable("project_tags", {
-  projectId: uuid("project_id").notNull().references(() => projects.id),
-  tagId: integer("tag_id").notNull().references(() => tags.id),
-}, (t) => ({
-  pk: primaryKey({ columns: [t.projectId, t.tagId] }),
-}));
 
-export const projectSessions = pgTable("project_sessions", {
-  id: serial("id").primaryKey(),
-  projectId: uuid("project_id").notNull().references(() => projects.id),
-  startsAt: timestamp("starts_at").notNull(),
-  endsAt: timestamp("ends_at").notNull(),
-  capacity: integer("capacity"),
-  locationNote: varchar("location_note", { length: 255 }),
-}, (t) => ({
-  byProject: index("sessions_project_idx").on(t.projectId),
-  byTime: index("sessions_time_idx").on(t.startsAt),
-}));
+// export const projectSessions = pgTable("project_sessions", {
+//   id: serial("id").primaryKey(),
+//   projectId: uuid("project_id").notNull().references(() => projects.id),
+//   startsAt: timestamp("starts_at").notNull(),
+//   endsAt: timestamp("ends_at").notNull(),
+//   capacity: integer("capacity"),
+//   locationNote: varchar("location_note", { length: 255 }),
+// }, (t) => ({
+//   byProject: index("sessions_project_idx").on(t.projectId),
+//   byTime: index("sessions_time_idx").on(t.startsAt),
+// }));
 
 // ---------- APPLICATIONS ----------
 export const applications = pgTable("applications", {
@@ -148,7 +153,7 @@ export const applications = pgTable("applications", {
   projectId: uuid("project_id").notNull().references(() => projects.id),
   userId: text("user_id").references(() => user.id).notNull(),
   status: applicationStatusEnum("status").notNull().default("pending"),
-  sessionId: integer("session_id").references(() => projectSessions.id),
+  // sessionId: integer("session_id").references(() => projectSessions.id),
   motivation: text("motivation"),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
   decidedAt: timestamp("decided_at"),
@@ -171,7 +176,7 @@ export const timesheets = pgTable("timesheets", {
   id: serial("id").primaryKey(),
   projectId: uuid("project_id").notNull().references(()=>projects.id),
   userId: text("user_id").references(() => profiles.userId).notNull(),
-  sessionId: integer("session_id").references(() => projectSessions.id),
+  // sessionId: integer("session_id").references(() => projectSessions.id),
   date: timestamp("date").notNull(),
   hours: integer("hours").notNull(),
   description: varchar("description", { length: 300 }),

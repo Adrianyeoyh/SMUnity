@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/organisations/dashboard")({
   component: LeaderDashboard,
+  
 });
 
 type ApplicationStatus = "pending" | "shortlisted" | "confirmed" | "rejected";
@@ -32,6 +33,8 @@ const applicationStatusConfig: Record<ApplicationStatus, { label: string; tone: 
 };
 
 function LeaderDashboard() {
+  const routerState = useRouterState();
+
   const listings = [
     {
       id: "csp-001",
@@ -147,7 +150,7 @@ function LeaderDashboard() {
       description: "Redirecting you to the listing builder.",
     });
     setTimeout(() => {
-      navigate({ to: "/organisations/projects/new" });
+      navigate({ to: "/organisations/listing/new" });
     }, 200);
   }, [navigate]);
 

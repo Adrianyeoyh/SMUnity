@@ -31,7 +31,7 @@ import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$
 import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
-import { Route as OrganisationsProjectsNewRouteImport } from './routes/organisations/projects/new'
+import { Route as OrganisationsListingNewRouteImport } from './routes/organisations/listing/new'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 
 const ProfileRoute = ProfileRouteImport.update({
@@ -144,12 +144,11 @@ const AdminCspIdRoute = AdminCspIdRouteImport.update({
   path: '/admin/cspId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganisationsProjectsNewRoute =
-  OrganisationsProjectsNewRouteImport.update({
-    id: '/organisations/projects/new',
-    path: '/organisations/projects/new',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+const OrganisationsListingNewRoute = OrganisationsListingNewRouteImport.update({
+  id: '/organisations/listing/new',
+  path: '/organisations/listing/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
@@ -180,7 +179,7 @@ export interface FileRoutesByFullPath {
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
+  '/organisations/listing/new': typeof OrganisationsListingNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -206,7 +205,7 @@ export interface FileRoutesByTo {
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
+  '/organisations/listing/new': typeof OrganisationsListingNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -233,7 +232,7 @@ export interface FileRoutesById {
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
+  '/organisations/listing/new': typeof OrganisationsListingNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -261,7 +260,7 @@ export interface FileRouteTypes {
     | '/csp/$cspId'
     | '/organisations/dashboard'
     | '/csp/$cspId/apply'
-    | '/organisations/projects/new'
+    | '/organisations/listing/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -287,7 +286,7 @@ export interface FileRouteTypes {
     | '/csp/$cspId'
     | '/organisations/dashboard'
     | '/csp/$cspId/apply'
-    | '/organisations/projects/new'
+    | '/organisations/listing/new'
   id:
     | '__root__'
     | '/'
@@ -313,7 +312,7 @@ export interface FileRouteTypes {
     | '/csp/$cspId'
     | '/organisations/dashboard'
     | '/csp/$cspId/apply'
-    | '/organisations/projects/new'
+    | '/organisations/listing/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -339,7 +338,7 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRouteWithChildren
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
-  OrganisationsProjectsNewRoute: typeof OrganisationsProjectsNewRoute
+  OrganisationsListingNewRoute: typeof OrganisationsListingNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -498,11 +497,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCspIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organisations/projects/new': {
-      id: '/organisations/projects/new'
-      path: '/organisations/projects/new'
-      fullPath: '/organisations/projects/new'
-      preLoaderRoute: typeof OrganisationsProjectsNewRouteImport
+    '/organisations/listing/new': {
+      id: '/organisations/listing/new'
+      path: '/organisations/listing/new'
+      fullPath: '/organisations/listing/new'
+      preLoaderRoute: typeof OrganisationsListingNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/csp/$cspId/apply': {
@@ -550,7 +549,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRouteWithChildren,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
-  OrganisationsProjectsNewRoute: OrganisationsProjectsNewRoute,
+  OrganisationsListingNewRoute: OrganisationsListingNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

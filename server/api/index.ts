@@ -5,7 +5,7 @@ import { usersRoutes } from "./users/index";
 import { projectsRoutes } from "./projects/index";
 import { applicationsRoutes } from "./projects/applications";
 import { favouritesRoutes } from "./projects/favourites";
-import { organisationsRoutes } from "./organisations/index";
+
 import { auth } from "../lib/auth"
 
 // add-ons already in your repo
@@ -17,6 +17,7 @@ import { orgMembersRoutes } from "./organisations/members";
 
 //NEW UPDATES
 import admin from "./admin";
+import organisationsRoutes from "./organisations";
 import { organisationRequestsRoutes } from "./organisations/requests";
 
 
@@ -25,6 +26,8 @@ export const apiRouter = new Hono();
 // NEW ROUTES
 apiRouter.route("/admin", admin);
 apiRouter.route("/organisations/requests", organisationRequestsRoutes);
+apiRouter.route("/organisations", organisationsRoutes);
+
 
 
 // OLD ROUTES
@@ -33,7 +36,6 @@ apiRouter.route("/projects", projectsRoutes);
 apiRouter.route("/projects/applications", applicationsRoutes);
 apiRouter.route("/projects/applications/manage", manageApplicationsRoutes);
 apiRouter.route("/projects/favourites", favouritesRoutes);
-apiRouter.route("/organisations", organisationsRoutes);
 
 apiRouter.route("/organisations/members", orgMembersRoutes);
 
