@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Input } from "#client/components/ui/input";
 import { Textarea } from "#client/components/ui/textarea";
@@ -12,7 +13,9 @@ import { format } from "date-fns";
 import { FormInput, CATEGORY_OPTIONS, DISTRICTS, SKILL_CHOICES, TAG_CHOICES } from "#client/helper/index.ts";
 import { createOrganisationProject } from "#client/api/organisations/listing";
 import { toast } from "sonner";
+
 // ---------- Constants ----------
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export const Route = createFileRoute("/organisations/new")({
   component: NewProjectPage,
@@ -27,7 +30,11 @@ function NewProjectPage() {
     setValue,
     watch,
     control,
-    formState: { errors, isSubmitting },
+    setError,
+    clearErrors,
+    getValues,
+    trigger,
+    formState: { errors, isSubmitting, touchedFields, dirtyFields, isValid },
   } = useForm<FormInput>({
     defaultValues: {
       title: "",
@@ -45,8 +52,8 @@ function NewProjectPage() {
       google_maps: "",
       remote: false,
 
-      repeat_interval: 1,
-      repeat_unit: "week",
+      repeat_interval: 1, // numeric sessions/week
+      repeat_unit: "week", // locked to 'week'
       days_of_week: [],
       time_start: "",
       time_end: "",
@@ -61,24 +68,22 @@ function NewProjectPage() {
       project_tags: [],
     },
     mode: "onChange",
+    reValidateMode: "onChange",
+    criteriaMode: "all",
+    shouldFocusError: true,
   });
 
   // ---------- API mutation ----------
-
-
-const m = useMutation({
-  mutationFn: createOrganisationProject,
-  onSuccess: () => {
-    toast.success("Project created successfully!");
-    nav({ to: "/organisations/dashboard" });
-  },
-  onError: (err: any) => {
-    toast.error(err.message || "Failed to create project");
-  },
-});
-
-
-  const onSubmit: SubmitHandler<FormInput> = (data) => m.mutate(data);
+  const m = useMutation({
+    mutationFn: createOrganisationProject,
+    onSuccess: () => {
+      toast.success("Project created successfully!");
+      nav({ to: "/organisations/dashboard" });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create project");
+    },
+  });
 
   // ---------- watchers ----------
   const title = watch("title");
@@ -106,6 +111,161 @@ const m = useMutation({
   const isRemote = watch("remote");
   const projectTags = watch("project_tags");
 
+  // ISO string for tomorrow to use as <input min>
+
+
+// ---------- helpers ----------
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * DAY_MS;
+
+const startOfDay = (d: Date) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
+const todayStart = () => {
+  const t = new Date();
+  t.setHours(0, 0, 0, 0);
+  return t;
+};
+
+const daysBetween = (a?: Date, b?: Date) => {
+  if (!a || !b) return 0;
+  return Math.floor((startOfDay(b).getTime() - startOfDay(a).getTime()) / DAY_MS);
+};
+
+const toMinutes = (hhmm: string) => {
+  if (!hhmm) return 0;
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + (m || 0);
+};
+
+const perSessionHours = (startStr: string, endStr: string) => {
+  if (!startStr || !endStr) return 0;
+  const mins = toMinutes(endStr) - toMinutes(startStr);
+  return mins / 60;
+};
+
+const diffWeeks = (s?: Date, e?: Date): number => {
+  if (!(s instanceof Date) || !(e instanceof Date)) return 0;
+  const ms = e.getTime() - s.getTime();
+  if (!(ms > 0)) return 0;
+  const weeks = Math.ceil(ms / WEEK_MS);
+  return Number.isFinite(weeks) ? Math.max(1, weeks) : 0;
+};
+
+  const tomorrowIso = useMemo(() => {
+    const t = todayStart();
+    t.setDate(t.getDate() + 1);
+    return t.toISOString().split("T")[0];
+  }, []);
+
+  // track whether user has manually adjusted commitable_hours (so we don't overwrite)
+  const userHoursTouchedRef = useRef(false);
+  useEffect(() => {
+    if (touchedFields.commitable_hours || dirtyFields.commitable_hours) {
+      userHoursTouchedRef.current = true;
+    }
+  }, [touchedFields.commitable_hours, dirtyFields.commitable_hours]);
+
+  // Auto-calc commitable hours when schedule changes (unless user has adjusted manually)
+  useEffect(() => {
+    const weeks = diffWeeks(start, end);
+    const per = perSessionHours(timeStart, timeEnd);
+    const expected = weeks * (repeatInterval || 0) * per;
+
+    if (!userHoursTouchedRef.current) {
+      if (Number.isFinite(expected)) {
+        setValue("commitable_hours", Math.round(expected));
+      }
+    }
+  }, [start, end, timeStart, timeEnd, repeatInterval, setValue]);
+
+  // Derived expected hours (for UI hint)
+  const expectedHours = useMemo(() => {
+    const weeks = diffWeeks(start, end);
+    const per = perSessionHours(timeStart, timeEnd);
+    const expected = weeks * (repeatInterval || 0) * per;
+    return Number.isFinite(expected) ? Math.round(expected) : 0;
+  }, [start, end, timeStart, timeEnd, repeatInterval]);
+
+  // ---------- Reactive validations ----------
+  // Dates: validate reactively whenever *any* related date changes
+  useEffect(() => {
+    const s = start;
+    const e = end;
+    const dl = deadline;
+
+    // Reusable helpers
+    const tomorrow = todayStart();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const beforeTomorrow = (d?: Date) => (d ? startOfDay(d).getTime() < tomorrow.getTime() : false);
+
+    // A) Each date must be >= tomorrow (strictly after today)
+    if (s) {
+      if (beforeTomorrow(s)) setError("start_date", { type: "validate", message: "Start date must be after today (≥ tomorrow)" });
+      else clearErrors("start_date");
+    }
+    if (e) {
+      if (beforeTomorrow(e)) setError("end_date", { type: "validate", message: "End date must be after today (≥ tomorrow)" });
+      else clearErrors("end_date");
+    }
+    if (dl) {
+      if (beforeTomorrow(dl)) setError("application_deadline", { type: "validate", message: "Application deadline must be after today (≥ tomorrow)" });
+      else clearErrors("application_deadline");
+    }
+
+    // B) End date cannot be earlier than start date (symmetrical errors; runs when either changes)
+    if (s && e) {
+      if (e.getTime() < s.getTime()) {
+        setError("start_date", { type: "validate", message: "Start date must be on or before end date" });
+        setError("end_date", { type: "validate", message: "End date cannot be earlier than start date" });
+      } else {
+        // Clear only if not violating rule A
+        if (!beforeTomorrow(s)) clearErrors("start_date");
+        if (!beforeTomorrow(e)) clearErrors("end_date");
+      }
+    }
+
+    // C) Application deadline must be at least 1 day before the start date
+    if (dl && s) {
+      const gapDays = daysBetween(dl, s); // start - deadline
+      if (gapDays < 1) {
+        setError("application_deadline", { type: "validate", message: "Application deadline must be at least 1 day before the start date" });
+        setError("start_date", { type: "validate", message: "Start date must be at least 1 day after the application deadline" });
+      } else {
+        if (!beforeTomorrow(dl)) clearErrors("application_deadline");
+        if (!(e && e.getTime() < s.getTime()) && !beforeTomorrow(s)) clearErrors("start_date");
+      }
+    }
+  }, [start, end, deadline, setError, clearErrors]);
+
+  // Rule 2: End time must be >= start time and at least 1 hour ahead
+  useEffect(() => {
+    if (timeStart && timeEnd) {
+      const diffMins = toMinutes(timeEnd) - toMinutes(timeStart);
+      if (diffMins < 60) {
+        setError("time_end", { type: "validate", message: "End time must be ≥ 1 hour after start time" });
+      } else {
+        clearErrors("time_end");
+      }
+    }
+  }, [timeStart, timeEnd, setError, clearErrors]);
+
+  // Rule 5: Hours must be within ±10 of expected (and expected must be computable)
+  useEffect(() => {
+    trigger("commitable_hours");
+  }, [start, end, timeStart, timeEnd, repeatInterval, trigger]);
+
+  // Ensure days_of_week cannot exceed repeatInterval; (UI limits already)
+
+  // ---------- submit with validations (kept as guardrails; most checks are reactive now) ----------
+  const onSubmit: SubmitHandler<FormInput> = (data) => {
+    data.repeat_unit = "week"; // lock unit
+    m.mutate(data);
+  };
+
   // ---------- UI ----------
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
@@ -117,12 +277,12 @@ const m = useMutation({
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input id="title" {...register("title",  { required: "Title is required" })} />
-              {errors.title && <p className="text-sm text-red-600">{errors.title.message}</p>}
+              {errors.title && <p className="text-sm text-red-600">{errors.title.message as string}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="summary">Short summary</Label>
               <Textarea id="summary" rows={3} {...register("summary",  { required: "Summary is required" })} />
-              {errors.summary && <p className="text-sm text-red-600">{errors.summary.message}</p>}
+              {errors.summary && <p className="text-sm text-red-600">{errors.summary.message as string}</p>}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -158,28 +318,31 @@ const m = useMutation({
         </Card>
 
         {/* ABOUT */}
-<Card>
+        <Card>
           <CardHeader><CardTitle>About This Project</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="description">Detailed Description</Label>
+              <Label htmlFor="description">Detailed Project Description</Label>
               <Textarea id="description" rows={6} {...register("description", { required: "Description is required" })} />
-              {errors.description && <p className="text-sm text-red-600">{errors.description.message}</p>}
+              {errors.description && <p className="text-sm text-red-600">{errors.description.message as string}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="about_do">What you’ll do</Label>
+              <Label htmlFor="about_do">What students will do</Label>
               <Textarea id="about_do" rows={4} {...register("about_do", { required: "Please describe what volunteers will do" })} />
+              {errors.about_do && <p className="text-sm text-red-600">{errors.about_do.message as string}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="requirements">Requirements</Label>
+              <Label htmlFor="requirements">Student Requirements</Label>
               <Textarea id="requirements" rows={4} {...register("requirements",  { required: "Please list requirements" })} />
+              {errors.requirements && <p className="text-sm text-red-600">{errors.requirements.message as string}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="about_provide">What we provide</Label>
+              <Label htmlFor="about_provide">What you will equip students with</Label>
               <Textarea id="about_provide" rows={4} {...register("about_provide", { required: "Please describe what is provided" })} />
+              {errors.about_provide && <p className="text-sm text-red-600">{errors.about_provide.message as string}</p>}
             </div>
           </CardContent>
           <CardHeader><CardTitle>Skills Required</CardTitle></CardHeader>
@@ -187,7 +350,7 @@ const m = useMutation({
             <Controller
               control={control}
               name="skill_tags"
-              rules={{ validate: (v) => v.length > 0 || "Select at least one skill" }}
+              rules={{ validate: (v) => (v?.length || 0) > 0 || "Select at least one skill" }}
               render={({ field }) => (
                 <div className="flex flex-wrap gap-2">
                   {SKILL_CHOICES.map((skill) => {
@@ -200,7 +363,7 @@ const m = useMutation({
                         size="sm"
                         onClick={() => {
                           const next = selected
-                            ? field.value.filter((s) => s !== skill)
+                            ? field.value.filter((s: string) => s !== skill)
                             : [...field.value, skill];
                           field.onChange(next);
                         }}
@@ -212,7 +375,7 @@ const m = useMutation({
                 </div>
               )}
             />
-            {errors.skill_tags && <p className="text-sm text-red-600">{errors.skill_tags.message}</p>}
+            {errors.skill_tags && <p className="text-sm text-red-600">{String(errors.skill_tags.message)}</p>}
           </CardContent>
         </Card>
 
@@ -220,7 +383,7 @@ const m = useMutation({
         <Card>
           <CardHeader><CardTitle>Location</CardTitle></CardHeader>
           <CardContent>
-             <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {/* DISTRICT SELECT */}
               <div className="space-y-2">
                 <Label>District</Label>
@@ -245,6 +408,7 @@ const m = useMutation({
                     </Select>
                   )}
                 />
+                {errors.district && <p className="text-sm text-red-600">{errors.district.message as string}</p>}
               </div>
 
               {/* GOOGLE MAPS + REMOTE TOGGLE */}
@@ -258,6 +422,7 @@ const m = useMutation({
                     {...register("google_maps", { required: !watch("remote") || "Map link is required unless remote" })}
                     disabled={isRemote}
                   />
+                  {errors.google_maps && <p className="text-sm text-red-600">{errors.google_maps.message as string}</p>}
                 </div>
                 <div className="flex items-center gap-2 mt-6">
                   <input
@@ -299,12 +464,14 @@ const m = useMutation({
                     <Input
                       id="start_date"
                       type="date"
+                      min={tomorrowIso}
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                      aria-invalid={!!errors.start_date}
                     />
                   )}
                 />
-                {errors.start_date && <p className="text-sm text-red-600">{errors.start_date.message}</p>}
+                {errors.start_date && <p className="text-sm text-red-600">{errors.start_date.message as string}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end_date">End date</Label>
@@ -316,12 +483,14 @@ const m = useMutation({
                     <Input
                       id="end_date"
                       type="date"
+                      min={tomorrowIso}
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                      aria-invalid={!!errors.end_date}
                     />
                   )}
                 />
-                {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message}</p>}
+                {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message as string}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="application_deadline">Application deadline</Label>
@@ -333,67 +502,126 @@ const m = useMutation({
                     <Input
                       id="application_deadline"
                       type="date"
+                      min={tomorrowIso}
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                      aria-invalid={!!errors.application_deadline}
                     />
                   )}
                 />
-                {errors.application_deadline && <p className="text-sm text-red-600">{errors.application_deadline.message}</p>}
-
+                {errors.application_deadline && <p className="text-sm text-red-600">{errors.application_deadline.message as string}</p>}
               </div>
             </div>
 
-            {/* Repeats: Every [interval] [unit] */}
+            {/* Repeats: Every [interval] [unit => locked to week] */}
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <Label className="font-medium w-32">Repeats every</Label>
-              <div className="flex gap-2 flex-1">
+              <div className="flex gap-2 flex-1 items-center">
                 <Input
                   type="number"
                   min={1}
                   step={1}
                   className="w-20"
                   {...register("repeat_interval", { required: "Repeat interval is required", valueAsNumber: true })}
+                  aria-invalid={!!errors.repeat_interval}
                 />
-                {errors.repeat_interval && <p className="text-sm text-red-600">{errors.repeat_interval.message}</p>}
-                <Select
-                  value={watch("repeat_unit")}
-                  onValueChange={(v) => setValue("repeat_unit", v as FormInput["repeat_unit"])}
-                >
-                  <SelectTrigger className="w-[150px]"><SelectValue placeholder="Unit" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="day">Day(s)</SelectItem>
-                    <SelectItem value="week">Week(s)</SelectItem>
-                    <SelectItem value="month">Month(s)</SelectItem>
-                    <SelectItem value="year">Year(s)</SelectItem>
-                  </SelectContent>
-                </Select>
+                {errors.repeat_interval && <p className="text-sm text-red-600">{errors.repeat_interval.message as string}</p>}
+                <span className="text-sm text-muted-foreground">week(s)</span>
               </div>
+            </div>
+
+            {/* Days of the week selection (limited by repeat_interval) */}
+            <div className="space-y-2">
+              <Label>Days of the week</Label>
+              <Controller
+                control={control}
+                name="days_of_week"
+                rules={{
+                  validate: (v) =>
+                    ((v?.length || 0) === (repeatInterval || 0))
+                      ? true
+                      : `Select exactly ${repeatInterval || 0} day${(repeatInterval || 0) === 1 ? "" : "s"} per week`,
+                }}
+                render={({ field }) => {
+                  const value: string[] = field.value ?? [];
+                  return (
+                    <div className="flex flex-wrap gap-2">
+                      {DAYS.map((day) => {
+                        const selected = value.includes(day);
+                        const disable = !selected && value.length >= (repeatInterval || 0);
+                        return (
+                          <Button
+                            key={day}
+                            type="button"
+                            variant={selected ? "default" : "outline"}
+                            size="sm"
+                            disabled={disable}
+                            onClick={() => {
+                              const next = selected
+                                ? value.filter((d) => d !== day)
+                                : [...value, day];
+                              field.onChange(next);
+                            }}
+                            aria-pressed={selected}
+                          >
+                            {day}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  );
+                }}
+              />
+              {errors.days_of_week && <p className="text-sm text-red-600">{String(errors.days_of_week.message)}</p>}
             </div>
 
             {/* Time window */}
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="time_start">Start time</Label>
-                <Input id="time_start" type="time" step={300} {...register("time_start", { required: "Start time is required" })} />
-                {errors.time_start && <p className="text-sm text-red-600">{errors.time_start.message}</p>}
+                <Input id="time_start" type="time" step={300} {...register("time_start", { required: "Start time is required" })} aria-invalid={!!errors.time_start} />
+                {errors.time_start && <p className="text-sm text-red-600">{errors.time_start.message as string}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time_end">End time</Label>
-                <Input id="time_end" type="time" step={300} {...register("time_end", { required: "End time is required" })} />
-                {errors.time_end && <p className="text-sm text-red-600">{errors.time_end.message}</p>}
+                <Input id="time_end" type="time" step={300} {...register("time_end", { required: "End time is required" })} aria-invalid={!!errors.time_end} />
+                {errors.time_end && <p className="text-sm text-red-600">{errors.time_end.message as string}</p>}
               </div>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="slots">Total slots</Label>
-                <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} />
-                {errors.slots && <p className="text-sm text-red-600">{errors.slots.message}</p>}
+                <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} aria-invalid={!!errors.slots} />
+                {errors.slots && <p className="text-sm text-red-600">{errors.slots.message as string}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="commitable_hours">Total service hours</Label>
-                <Input id="commitable_hours" type="number" min={0} {...register("commitable_hours", { required: "Service hours are required", valueAsNumber: true })} />
-                {errors.commitable_hours && <p className="text-sm text-red-600">{errors.commitable_hours.message}</p>}
+                <Input
+                  id="commitable_hours"
+                  type="number"
+                  min={0}
+                  {...register("commitable_hours", {
+                    required: "Service hours are required",
+                    valueAsNumber: true,
+                    validate: (v) => {
+                      const s = getValues("start_date");
+                      const e = getValues("end_date");
+                      const ts = getValues("time_start");
+                      const te = getValues("time_end");
+                      const ri = getValues("repeat_interval");
+                      const weeks = diffWeeks(s, e);
+                      const per = perSessionHours(ts, te);
+                      const expected = weeks * (ri || 0) * per;
+                      if (!(Number.isFinite(expected) && expected > 0)) return "Complete the schedule fields to compute service hours";
+                      if (Math.abs((v || 0) - expected) > 10) return `Service hours too far from expected (${Math.round(expected)}h ±10h allowed)`;
+                      return true;
+                    },
+                  })}
+                  aria-invalid={!!errors.commitable_hours}
+                />
+                <p className="text-xs text-muted-foreground">Expected: {expectedHours || "—"}h (±10h allowed)</p>
+                {errors.commitable_hours && <p className="text-sm text-red-600">{errors.commitable_hours.message as string}</p>}
               </div>
             </div>
           </CardContent>
@@ -412,11 +640,10 @@ const m = useMutation({
                 {...register("image_url", { required: "Feature image URL is required" })}
                 aria-invalid={!!errors.image_url}
               />
-              {errors.image_url && <p className="text-sm text-red-600">{errors.image_url.message}</p>}
+              {errors.image_url && <p className="text-sm text-red-600">{errors.image_url.message as string}</p>}
             </div>
           </CardContent>
         </Card>
-
 
         {/* ---------- PROJECT TAGS ---------- */}
         <Card>
@@ -426,7 +653,7 @@ const m = useMutation({
             <Controller
               control={control}
               name="project_tags"
-              rules={{ validate: (v) => v.length > 0 || "Select at least one project tag" }}
+              rules={{ validate: (v) => (v?.length || 0) > 0 || "Select at least one project tag" }}
               render={({ field }) => {
                 const value: string[] = field.value ?? [];
                 return (
@@ -454,13 +681,13 @@ const m = useMutation({
                 );
               }}
             />
-            {errors.project_tags && <p className="text-sm text-red-600">{errors.project_tags.message}</p>}
+            {errors.project_tags && <p className="text-sm text-red-600">{errors.project_tags.message as string}</p>}
           </CardContent>
         </Card>
 
         <div className="flex items-center justify-end gap-3 mb-8">
           <Button type="button" variant="ghost" onClick={() => history.back()}>Cancel</Button>
-          <Button type="submit" disabled={isSubmitting || m.isPending}>
+          <Button type="submit" disabled={!isValid || isSubmitting || m.isPending}>
             {m.isPending ? "Creating…" : "Create listing"}
           </Button>
         </div>
@@ -484,7 +711,7 @@ const m = useMutation({
               <span className="font-medium">Skills you’ll need: </span>
               {selectedSkills?.length ? (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {selectedSkills.map((s) => (
+                  {selectedSkills.map((s: string) => (
                     <Badge key={s} variant="secondary">{s}</Badge>
                   ))}
                 </div>
@@ -511,13 +738,11 @@ const m = useMutation({
             <div><span className="font-medium">Service Hours: </span>{hours || 0}h</div>
             <div><span className="font-medium">Slots: </span>{slots}</div>
 
-
-
             <div>
               <span className="font-medium">Project tags: </span>
               {projectTags.length ? (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {projectTags.map((t) => (
+                  {projectTags.map((t: string) => (
                     <Badge key={t} variant="secondary">{t}</Badge>
                   ))}
                 </div>
@@ -539,3 +764,5 @@ const m = useMutation({
     </div>
   );
 }
+
+export default NewProjectPage;

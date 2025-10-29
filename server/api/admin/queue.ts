@@ -54,7 +54,7 @@ queue.post("/:id/approve", async (c) => {
     body: JSON.stringify({
     email: req.requesterEmail,
     password: randomPassword,
-    name: req.requesterName || req.orgName,
+    name: req.orgName,
     }),
     })
     );

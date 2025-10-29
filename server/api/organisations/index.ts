@@ -9,7 +9,8 @@ import listing from "./listing";
 import dashboard from "./dashboard";
 
 
-const organisationsRoutes = createApp().use(organisationMiddleware);
+const organisationsRoutes = createApp()
+.use(organisationMiddleware);
 
 organisationsRoutes.route("/dashboard", dashboard);
 organisationsRoutes.route("/listing", listing);

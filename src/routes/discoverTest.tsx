@@ -26,12 +26,10 @@ import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-map
 type MapTypeStyle = google.maps.MapTypeStyle;
 type LatLngLiteral = google.maps.LatLngLiteral;
 type GoogleMapInstance = google.maps.Map;
-import { useQuery } from "@tanstack/react-query";
-import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
 
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/discover")({
+export const Route = createFileRoute("/discoverTest")({
   component: DiscoverCSPs,
   validateSearch: (search: Record<string, unknown>): { 
     q?: string; 
@@ -81,9 +79,6 @@ type CspLocation = {
   description: string;
   skills: string[];
   tags: string[];
-  timeStart?: string | null;
-  timeEnd?: string | null;
-  daysOfWeek?: string[] | null;
 };
 
 const MINIMAL_MAP_STYLE: MapTypeStyle[] = [
@@ -145,35 +140,9 @@ const formatDateRange = (startDate: string, endDate?: string) => {
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };
 
-function formatScheduleFromFields(csp: CspLocation): string {
-  const { timeStart, timeEnd, daysOfWeek } = csp;
-
-  const to12h = (hhmmss?: string | null) => {
-    if (!hhmmss) return null;
-    const [hh, mm] = hhmmss.split(":");
-    const d = new Date();
-    d.setHours(Number(hh), Number(mm), 0, 0);
-    return d.toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit", hour12: true });
-    // examples: "8:30 AM"
-  };
-
-  const start = to12h(timeStart);
-  const end = to12h(timeEnd);
-  const timePart = start && end ? `${start} – ${end}` : start || end || "";
-
-  const daysPart = (daysOfWeek && daysOfWeek.length) ? daysOfWeek.join(", ") : "";
-
-  return [timePart, daysPart].filter(Boolean).join(", ");
-}
-
-
 function DiscoverCSPs() {
-  const { data: cspLocations = [], isLoading, isError } = useQuery({
-  queryKey: ["discover-projects"],
-  queryFn: fetchDiscoverProjects,
-});
-  const navigate = useNavigate({ from: "/discover" });
-  const searchParams = useSearch({ from: "/discover" });
+  const navigate = useNavigate({ from: "/discoverTest" });
+  const searchParams = useSearch({ from: "/discoverTest" });
   
   const [selectedCategory, setSelectedCategory] = useState<string>(searchParams.category || "all");
   const [searchQuery, setSearchQuery] = useState(searchParams.q || "");
@@ -232,20 +201,433 @@ function DiscoverCSPs() {
   ];
 
   // Mock data for demonstration
-  if (isLoading)
-  return (
-    <div className="p-12 text-center text-muted-foreground">
-      <Loader2 className="h-6 w-6 animate-spin mx-auto mb-3" />
-      Loading available projects…
-    </div>
-  );
-
-if (isError)
-  return (
-    <div className="p-12 text-center text-destructive">
-      Failed to load projects. Please try again later.
-    </div>
-  );
+  const cspLocations: CspLocation[] = [
+    {
+      id: "1",
+      title: "Project Candela",
+      organisation: "SMU Rotaract",
+      location: "Kranji",
+      category: "Community",
+      startDate: "2025-03-15",
+      endDate: "2025-06-15",
+      duration: "2h, Every Tuesday",
+      serviceHours: 40,
+      maxVolunteers: 15,
+      currentVolunteers: 8,
+      latitude: 1.3496,
+      longitude: 103.9568,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-28",
+      description: "Join us to challenge and debunk negative stereotypes surrounding foreign workers while raising awareness among Singaporeans about the experiences and contributions of migrant workers.",
+      skills: ["Communication", "Patience", "Teaching", "Empathy"],
+      tags: ["Migrant", "Migrant Workers", "Community"]
+    },
+    {
+      id: "2",
+      title: "Beach Cleanup at East Coast Park",
+      organisation: "Green Singapore",
+      location: "East Coast Park",
+      category: "Environment",
+      startDate: "2025-02-20",
+      endDate: "2025-02-20",
+      duration: "4h, One-time",
+      serviceHours: 8,
+      maxVolunteers: 50,
+      currentVolunteers: 48,
+      latitude: 1.3048,
+      longitude: 103.9318,
+      isRemote: false,
+      status: "closing-soon",
+      applicationDeadline: "2025-02-15",
+      description: "Join us for a beach cleanup initiative.",
+      skills: ["Teamwork", "Physical Activity", "Outdoor"],
+      tags: ["Environment", "Beach", "Cleanup"]
+    },
+    {
+      id: "3",
+      title: "Virtual Mentoring Program",
+      organisation: "Youth Connect",
+      location: "Remote",
+      category: "Mentoring",
+      startDate: "2025-03-01",
+      endDate: "2025-08-31",
+      duration: "1h, Weekly",
+      serviceHours: 60,
+      maxVolunteers: 25,
+      currentVolunteers: 25,
+      latitude: null,
+      longitude: null,
+      isRemote: true,
+      status: "full",
+      applicationDeadline: "2025-02-10",
+      description: "Provide virtual mentorship to at-risk youth.",
+      skills: ["Mentoring", "Communication", "Leadership", "Active Listening"],
+      tags: ["Mentoring", "Youth", "Virtual"]
+    },
+    {
+      id: "4",
+      title: "Community Garden Project",
+      organisation: "Green Thumbs",
+      location: "Jurong West",
+      category: "Environment",
+      startDate: "2025-02-10",
+      endDate: "2025-05-10",
+      duration: "2h, Every Sunday",
+      serviceHours: 20,
+      maxVolunteers: 30,
+      currentVolunteers: 15,
+      latitude: 1.3396,
+      longitude: 103.7068,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-01-31",
+      description: "Help maintain and develop community gardens.",
+      skills: ["Gardening", "Teamwork", "Physical Activity"],
+      tags: ["Environment", "Gardening", "Community"]
+    },
+    {
+      id: "5",
+      title: "Senior Care Support Program",
+      organisation: "Golden Years",
+      location: "Toa Payoh",
+      category: "Elderly",
+      startDate: "2025-02-15",
+      endDate: "2025-07-15",
+      duration: "2h, Biweekly",
+      serviceHours: 30,
+      maxVolunteers: 20,
+      currentVolunteers: 7,
+      latitude: 1.3329,
+      longitude: 103.8483,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-05",
+      description: "Provide companionship and support to elderly residents.",
+      skills: ["Empathy", "Communication", "Patience", "Care"],
+      tags: ["Healthcare", "Elderly", "Companionship"]
+    },
+    {
+      id: "6",
+      title: "Food Bank Volunteer",
+      organisation: "Food for All",
+      location: "Jurong West",
+      category: "Community",
+      startDate: "2025-01-15",
+      endDate: "2025-01-15",
+      duration: "3h, One-time",
+      serviceHours: 15,
+      maxVolunteers: 40,
+      currentVolunteers: 40,
+      latitude: 1.3401,
+      longitude: 103.7098,
+      isRemote: false,
+      status: "closed",
+      applicationDeadline: "2025-01-10",
+      description: "Help sort, pack, and distribute food items to families in need.",
+      skills: ["Teamwork", "organisation", "Service"],
+      tags: ["Community", "Food", "Charity"]
+    },
+    {
+      id: "7",
+      title: "Arts & Crafts Workshop for Kids",
+      organisation: "Creative Minds",
+      location: "Bishan",
+      category: "Arts & Culture",
+      startDate: "2025-03-05",
+      endDate: "2025-04-15",
+      duration: "3h, Every Saturday",
+      serviceHours: 25,
+      maxVolunteers: 12,
+      currentVolunteers: 5,
+      latitude: 1.3521,
+      longitude: 103.8487,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-20",
+      description: "Teach children creative arts and crafts skills.",
+      skills: ["Creativity", "Teaching", "Art", "Patience"],
+      tags: ["Arts", "Culture", "Workshop", "Children"]
+    },
+    {
+      id: "8",
+      title: "Project Kidleidoscope",
+      organisation: "SMU Kidleidoscope",
+      location: "Central",
+      category: "Mentoring",
+      startDate: "2025-12-07",
+      endDate: "2025-06-07",
+      duration: "2h, Every Wednesday",
+      serviceHours: 20,
+      maxVolunteers: 50,
+      currentVolunteers: 15,
+      latitude: 1.3,
+      longitude: 103.85,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-11-15",
+      description: "Empower children from less priviledged backgrounds to pursue their dreams.",
+      skills: ["Empathy", "Communication", "Patience", "Basic Art Skills"],
+      tags: ["Children", "Kids", "Less Privileged", "Art", "School", "Education"]
+    },
+    {
+      id: "9",
+      title: "Coding Classes for Underprivileged Youth",
+      organisation: "Tech for Good",
+      location: "Remote",
+      category: "Coding",
+      startDate: "2025-03-10",
+      endDate: "2025-09-10",
+      duration: "2h, Twice Weekly",
+      serviceHours: 50,
+      maxVolunteers: 20,
+      currentVolunteers: 8,
+      latitude: null,
+      longitude: null,
+      isRemote: true,
+      status: "open",
+      applicationDeadline: "2025-02-28",
+      description: "Teach basic programming and computer skills to youth.",
+      skills: ["Programming", "Teaching", "Patience", "Technology"],
+      tags: ["Education", "Technology", "Youth", "Virtual", "Mentoring", "Coding"]
+    },
+    {
+      id: "10",
+      title: "Animal Shelter Volunteer",
+      organisation: "Paws & Claws",
+      location: "Pasir Ris",
+      category: "Animal Welfare",
+      startDate: "2025-02-18",
+      endDate: "2025-06-18",
+      duration: "3h, Weekly",
+      serviceHours: 12,
+      maxVolunteers: 25,
+      currentVolunteers: 18,
+      latitude: 1.373,
+      longitude: 103.9496,
+      isRemote: false,
+      status: "closing-soon",
+      applicationDeadline: "2025-02-10",
+      description: "Help care for rescued animals at our shelter.",
+      skills: ["Animal Care", "Physical Activity", "Compassion", "Teamwork"],
+      tags: ["Community", "Animals", "Welfare"]
+    },
+    {
+      id: "11",
+      title: "Heritage Trail Guide",
+      organisation: "Singapore Heritage",
+      location: "Chinatown",
+      category: "Arts & Culture",
+      startDate: "2025-03-15",
+      endDate: "2025-06-15",
+      duration: "2h, Weekends",
+      serviceHours: 18,
+      maxVolunteers: 10,
+      currentVolunteers: 10,
+      latitude: 1.2838,
+      longitude: 103.8436,
+      isRemote: false,
+      status: "full",
+      applicationDeadline: "2025-02-25",
+      description: "Guide tours through Singapore's cultural heritage sites.",
+      skills: ["Public Speaking", "History", "Communication", "Storytelling"],
+      tags: ["Arts", "Culture", "Heritage", "Tourism"]
+    },
+    {
+      id: "12",
+      title: "Youth Sports Coaching",
+      organisation: "Sports for All",
+      location: "Clementi",
+      category: "Sports & Leisure",
+      startDate: "2025-02-22",
+      endDate: "2025-07-22",
+      duration: "2h, Every Friday",
+      serviceHours: 35,
+      maxVolunteers: 18,
+      currentVolunteers: 11,
+      latitude: 1.3162,
+      longitude: 103.7649,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-12",
+      description: "Coach underprivileged youth in various sports activities.",
+      skills: ["Sports", "Leadership", "Teamwork", "Coaching"],
+      tags: ["Community", "Sports", "Youth", "Coaching"]
+    },
+    {
+      id: "13",
+      title: "Environmental Education Workshop",
+      organisation: "Green Singapore",
+      location: "Woodlands",
+      category: "Environment",
+      startDate: "2025-03-08",
+      endDate: "2025-04-08",
+      duration: "2h, Monthly",
+      serviceHours: 16,
+      maxVolunteers: 22,
+      currentVolunteers: 9,
+      latitude: 1.4382,
+      longitude: 103.7891,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-25",
+      description: "Conduct workshops on environmental conservation and sustainability.",
+      skills: ["Teaching", "Environmental Science", "Presentation", "Public Speaking"],
+      tags: ["Environment", "Education", "Workshop", "Sustainability"]
+    },
+    {
+      id: "14",
+      title: "Hospital Companionship Program",
+      organisation: "Care & Comfort",
+      location: "Novena",
+      category: "Community",
+      startDate: "2025-02-28",
+      endDate: "2025-08-28",
+      duration: "3h, Biweekly",
+      serviceHours: 45,
+      maxVolunteers: 15,
+      currentVolunteers: 6,
+      latitude: 1.3202,
+      longitude: 103.8438,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-18",
+      description: "Provide companionship to patients in hospitals.",
+      skills: ["Empathy", "Active Listening", "Patience", "Care"],
+      tags: ["Healthcare", "Hospital", "Companionship", "Elderly"]
+    },
+    {
+      id: "15",
+      title: "Digital Literacy for Seniors",
+      organisation: "Tech Seniors",
+      location: "Bedok",
+      category: "Elderly",
+      startDate: "2025-03-12",
+      endDate: "2025-06-12",
+      duration: "2h, Weekly",
+      serviceHours: 28,
+      maxVolunteers: 16,
+      currentVolunteers: 7,
+      latitude: 1.3236,
+      longitude: 103.9273,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-03-01",
+      description: "Teach elderly residents how to use smartphones and computers.",
+      skills: ["Teaching", "Patience", "Technology", "Communication"],
+      tags: ["Education", "Technology", "Elderly", "Digital", "Mentoring"]
+    },
+    {
+      id: "16",
+      title: "Education Support in Rural Cambodia",
+      organisation: "SMU Global Outreach",
+      location: "Cambodia",
+      category: "Mentoring",
+      type: "overseas",
+      startDate: "2025-06-01",
+      endDate: "2025-06-14",
+      duration: "Full day, 2 weeks",
+      serviceHours: 100,
+      maxVolunteers: 20,
+      currentVolunteers: 12,
+      latitude: null,
+      longitude: null,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-04-15",
+      description: "Teach English and basic computer skills to children in rural Cambodian schools. Immersive cultural experience with accommodation provided.",
+      skills: ["Teaching", "Adaptability", "Cross-cultural Communication", "Patience"],
+      tags: ["Overseas", "Education", "Teaching", "Cambodia", "Youth"]
+    },
+    {
+      id: "17",
+      title: "Marine Conservation Project - Thailand",
+      organisation: "Ocean Guardians International",
+      location: "Phuket, Thailand",
+      category: "Environment",
+      type: "overseas",
+      startDate: "2025-07-05",
+      endDate: "2025-07-19",
+      duration: "Full day, 2 weeks",
+      serviceHours: 120,
+      maxVolunteers: 15,
+      currentVolunteers: 8,
+      latitude: null,
+      longitude: null,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-05-01",
+      description: "Participate in coral reef restoration, marine wildlife surveys, and beach cleanups. Contribute to preserving Thailand's coastal ecosystems.",
+      skills: ["Swimming", "Marine Biology", "Physical Fitness", "Teamwork"],
+      tags: ["Overseas", "Environment", "Conservation", "Thailand", "Marine Life"]
+    },
+    {
+      id: "18",
+      title: "Virtual Tech Mentorship - Philippines",
+      organisation: "Code for Communities",
+      location: "Remote",
+      category: "Coding",
+      type: "overseas",
+      startDate: "2025-03-20",
+      endDate: "2025-08-20",
+      duration: "2h, Weekly",
+      serviceHours: 50,
+      maxVolunteers: 30,
+      currentVolunteers: 15,
+      latitude: null,
+      longitude: null,
+      isRemote: true,
+      status: "open",
+      applicationDeadline: "2025-03-10",
+      description: "Mentor Filipino students in web development and programming remotely. Flexible schedule with virtual sessions.",
+      skills: ["Programming", "Web Development", "Mentoring", "Communication"],
+      tags: ["Overseas", "Coding", "Virtual", "Philippines", "Youth", "Technology"]
+    },
+    {
+      id: "19",
+      title: "Community Building in Nepal",
+      organisation: "Habitat for Humanity Asia",
+      location: "Kathmandu, Nepal",
+      category: "Community",
+      type: "overseas",
+      startDate: "2025-05-15",
+      endDate: "2025-05-29",
+      duration: "Full day, 2 weeks",
+      serviceHours: 110,
+      maxVolunteers: 25,
+      currentVolunteers: 18,
+      latitude: null,
+      longitude: null,
+      isRemote: false,
+      status: "closing-soon",
+      applicationDeadline: "2025-03-30",
+      description: "Help build homes and community facilities for families in need. Hands-on construction work with local communities.",
+      skills: ["Physical Activity", "Teamwork", "Construction", "Leadership"],
+      tags: ["Overseas", "Community", "Building", "Nepal", "Housing"]
+    },
+    {
+      id: "20",
+      title: "Orphanage Care Program - Vietnam",
+      organisation: "Children First Asia",
+      location: "Ho Chi Minh City, Vietnam",
+      category: "Community",
+      type: "overseas",
+      startDate: "2025-08-01",
+      endDate: "2025-08-21",
+      duration: "Full day, 3 weeks",
+      serviceHours: 150,
+      maxVolunteers: 12,
+      currentVolunteers: 5,
+      latitude: null,
+      longitude: null,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-06-01",
+      description: "Provide care, education, and companionship to children at an orphanage. Teach English, organize activities, and support daily operations.",
+      skills: ["Childcare", "Teaching", "Empathy", "Creativity"],
+      tags: ["Overseas", "Children", "Orphanage", "Vietnam", "Care"]
+    },
+  ];
 
   const categories = [
     "all", "Community", "Mentoring", "Environment", "Elderly", "Arts & Culture", "Animal Welfare", "Sports & Leisure", "Coding"
@@ -667,18 +1049,11 @@ if (isError)
                           <MapPin className="h-4 w-4 flex-shrink-0" />
                           <span className="font-body truncate">{csp.location}</span>
                         </div>
-                        <div className="flex items-center flex-1 min-w-0">
-                          <Clock className="h-4 w-4 flex-shrink-0 mr-1.5" />
-                          <span
-                            className="font-body text-xs sm:text-sm text-muted-foreground leading-tight line-clamp-2 break-words pl-0.5"
-                            title={formatScheduleFromFields(csp) || (csp as any).duration || `${csp.serviceHours}h`}
-                          >
-                            {formatScheduleFromFields(csp) || (csp as any).duration || `${csp.serviceHours}h`}
-                          </span>
+                        <div className="flex items-center space-x-1 flex-1 min-w-0">
+                          <Clock className="h-4 w-4 flex-shrink-0" />
+                          <span className="font-body truncate">{duration}</span>
                         </div>
-
                       </div>
-
 
                       {/* Date + Volunteers Row */}
                       <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">

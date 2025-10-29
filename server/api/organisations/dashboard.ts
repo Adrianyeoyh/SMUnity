@@ -60,5 +60,55 @@ dashboard.get("/", async (c) => {
     });
 })
 
+dashboard.get("/listings", async (c) => {
+  const org = c.get("user");
+  if (!org) return c.json({ error: "Unauthorized" }, 401);
+
+  const listings = await db
+    .select({
+      id: schema.projects.id,
+      title: schema.projects.title,
+      summary: schema.projects.summary,
+      district: schema.projects.district,
+      googleMaps: schema.projects.googleMaps,
+      startDate: schema.projects.startDate,
+      endDate: schema.projects.endDate,
+      applyBy: schema.projects.applyBy,
+      slotsTotal: schema.projects.slotsTotal,
+      projectTags: schema.projects.projectTags,
+      skillTags: schema.projects.skillTags,
+      volunteerCount: sql<number>`COUNT(${schema.projMemberships.userId})`.as("volunteerCount"),
+
+      // derive the status dynamically using SQL CASE
+      status: sql<string>`
+        CASE
+          WHEN ${schema.projects.applyBy} > NOW() THEN 'open'
+          WHEN ${schema.projects.applyBy} <= NOW() AND ${schema.projects.startDate} > NOW() THEN 'shortlisting'
+          WHEN ${schema.projects.startDate} <= NOW() AND ${schema.projects.endDate} >= NOW() THEN 'ongoing'
+          ELSE 'archived'
+        END
+      `.as("status"),
+    })
+    .from(schema.projects)
+    .leftJoin(schema.projMemberships, eq(schema.projects.id, schema.projMemberships.projId))
+    .where(eq(schema.projects.orgId, org.id))
+    .groupBy(
+      schema.projects.id,
+      schema.projects.title,
+      schema.projects.summary,
+      schema.projects.district,
+      schema.projects.googleMaps,
+      schema.projects.startDate,
+      schema.projects.endDate,
+      schema.projects.applyBy,
+      schema.projects.slotsTotal,
+      schema.projects.projectTags,
+      schema.projects.skillTags,
+    )
+    .orderBy(sql`${schema.projects.createdAt} DESC`);
+  console.log("Listings fetched:", listings);
+  return c.json({ listings });
+});
+
 
 export default dashboard;

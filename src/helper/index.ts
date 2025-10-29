@@ -12,7 +12,6 @@ export type FormInput = {
 
   district: string;
   google_maps: string;
-  location_text: string;
   remote: boolean;
 
   repeat_interval: number;

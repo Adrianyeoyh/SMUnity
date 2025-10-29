@@ -29,8 +29,10 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "#client/hooks/use-auth";
 import { LoginModal } from "#client/components/loginModal";
+import { fetchCspById } from "#client/api/public/discover.ts";
+import { useQuery } from "@tanstack/react-query";
 
-export const Route = createFileRoute("/csp/$cspId")({
+export const Route = createFileRoute("/csp/$projectID")({
   component: CspDetail,
 });
 
@@ -147,65 +149,20 @@ const [showLoginModal, setShowLoginModal] = useState(false);
     };
   }, []);
 
-  // Mock data - in real app, this would come from the route params and API
-  const csp = {
-    id: "8",
-    title: "Project Kidleidoscope",
-    organisation: "SMU Kidleidoscope",
-    location: "Central",
-    category: "Mentoring",
-    startDate: "2025-12-07",
-    endDate: "2025-06-07",
-    duration: "2h, Every Wednesday",
-    applicationDeadline: "2025-11-15",
-    type: "local",
-    serviceHours: 20,
-    maxVolunteers: 50,
-    currentVolunteers: 15,
-    isRemote: false,
-    status: "open",
-    description: `Initiated in 2013, Project Kidleidoscope empowers children from less privileged backgrounds to pursue their dreams through confidence-building activities and creative expression opportunities. This local community service initiative recognises that nurturing a child's potential requires a holistic approach that develops self-awareness, environmental consciousness, cultural appreciation, and social responsibility.
+  const { projectID } = Route.useParams();
 
-What You'll Do:
-• Design engaging, interactive programmes that tap into each child's unique creativity
-• Facilitate "Love for Self" activities focusing on healthy lifestyle habits and emotional intelligence
-• Conduct "Love for the Environment" sessions tackling critical issues like global warming
-• Lead "Love for Culture and the Arts" activities exposing participants to music, theater, and performing arts
-• Organize "Love for Others" activities emphasising teamwork and interpersonal skills development
-• Build essential life skills across four foundational themes
+  const { data: csp, isLoading, isError } = useQuery({
+    queryKey: ["csp-detail", projectID],
+    queryFn: () => fetchCspById(projectID),
+  });
 
-Requirements:
-• Passion for working with children from diverse backgrounds
-• Strong communication and interpersonal skills
-• Creative thinking and program design abilities
-• Commitment to attend all sessions and training
-• Patience and empathy when working with children
+  if (isLoading)
+    return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
 
-What We Provide:
-• Comprehensive training and orientation program
-• Structured curriculum across four foundational themes
-• Support and mentorship from experienced volunteers
-• Opportunity to impact children's lives meaningfully
-• Certificate of completion and recognition`,
-    requirements: "Passion for working with children, strong communication skills, creative thinking abilities",
-    skills: ["Communication", "Patience", "Teaching", "Empathy", "Creativity", "Program Design"],
-    tags: ["Children", "Kids", "Less Privileged", "Art", "School", "Education"],
-    images: [
-      "https://c4sr.smu.edu.sg/sites/c4sr.smu.edu.sg/files/2025-07/05-LocalCSP-Kidleidoscope-IMG_0015.jpg"
-    ],
-    organisationInfo: {
-      name: "SMU Kidleidoscope",
-      description: "Kidleidoscope (stemming from the word \"kids\" and \"kaleidoscope\") is a SMU student community service initiative managed under the Centre for Social Responsibility (C4SR). Since its establishment, Kidleidoscope has been dedicated to creating opportunities for children to maximise their potential while building the confidence and life skills necessary for future success.",
-      website: "https://www.instagram.com/kscopesmu",
-      email: "commsvcs@smu.edu.sg",
-      phone: "+65 6828 0100",
-      address: "Centre for Social Responsibility, Office of Dean of Students, Singapore Management University, Li Ka Shing Library Building, 70 Stamford Road, #B1-38, Singapore 178901",
-      isVerified: true,
-      foundedYear: 2013,
-      totalProjects: 10,
-      totalVolunteers: 520
-    }
-  };
+  if (isError || !csp)
+    return <div className="p-12 text-center text-destructive">Failed to load project details.</div>;
+
+  
 
   const statusBadge = getStatusBadge(csp.status);
   const isApplicationOpen = csp.status === "open" || csp.status === "closing-soon";
@@ -310,10 +267,13 @@ What We Provide:
 
             {/* Image */}
             <div className="w-full">
-              {csp.images.map((image, index) => (
-                <div key={index} className="aspect-video rounded-xl overflow-hidden bg-muted/50 border shadow-sm hover:shadow-md transition-shadow">
-                  <img 
-                    src={image} 
+              {(csp.images ?? [csp.imageUrl]).filter(Boolean).map((image, index) => (
+                <div
+                  key={index}
+                  className="aspect-video rounded-xl overflow-hidden bg-muted/50 border shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <img
+                    src={image}
                     alt={`${csp.title} image ${index + 1}`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
@@ -332,25 +292,49 @@ What We Provide:
                   About This Project
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="prose prose-sm max-w-none font-body text-foreground">
-                  {csp.description.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4 last:mb-0 leading-relaxed">
-                      {paragraph.split('\n').map((line, i) => {
-                        // Bold section headings (lines ending with :)
-                        const isSectionHeading = line.trim().endsWith(':') && !line.includes('•');
-                        return (
-                          <span key={i}>
-                            {isSectionHeading ? <strong>{line}</strong> : line}
-                            {i < paragraph.split('\n').length - 1 && <br />}
-                          </span>
-                        );
-                      })}
+              <CardContent className="space-y-6">
+                {/* General description */}
+                {csp.description && (
+                  <div>
+                    <h3 className="font-heading text-lg mb-2">Overview</h3>
+                    <p className="text-sm font-body text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {csp.description}
                     </p>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {/* What you'll do */}
+                {csp.aboutDo && (
+                  <div>
+                    <h3 className="font-heading text-lg mb-2">What You’ll Do</h3>
+                    <p className="text-sm font-body text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {csp.aboutDo}
+                    </p>
+                  </div>
+                )}
+
+                {/* What we provide */}
+                {csp.aboutProvide && (
+                  <div>
+                    <h3 className="font-heading text-lg mb-2">What We Provide</h3>
+                    <p className="text-sm font-body text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {csp.aboutProvide}
+                    </p>
+                  </div>
+                )}
+
+                {/* Requirements */}
+                {csp.requirements && (
+                  <div>
+                    <h3 className="font-heading text-lg mb-2">Requirements</h3>
+                    <p className="text-sm font-body text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {csp.requirements}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
+
 
             {/* Skills & Requirements */}
             <Card>
@@ -380,84 +364,6 @@ What We Provide:
                   <p className="text-sm text-muted-foreground font-body leading-relaxed">
                     {csp.requirements}
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* organisation Info */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="font-heading text-xl">About {csp.organisationInfo.name}</CardTitle>
-                    <CardDescription className="mt-1 font-body">
-                      {csp.organisationInfo.isVerified && (
-                        <span className="inline-flex items-center text-green-600 text-sm">
-                          <CheckCircle className="mr-1 h-4 w-4" />
-                          Verified Organiser
-                        </span>
-                      )}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground font-body leading-relaxed">
-                    {csp.organisationInfo.description}
-                  </p>
-
-                  {/* organisation Stats */}
-                  <div className="grid grid-cols-3 p-4 bg-muted/20 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary font-heading">{csp.organisationInfo.foundedYear}</div>
-                      <div className="text-xs text-muted-foreground font-body">Founded</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary font-heading">{csp.organisationInfo.totalProjects}+</div>
-                      <div className="text-xs text-muted-foreground font-body">Projects</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary font-heading">{csp.organisationInfo.totalVolunteers}+</div>
-                      <div className="text-xs text-muted-foreground font-body">Volunteers</div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Contact Information */}
-                  <div className="space-y-3 text-sm">
-                    <h4 className="font-medium font-body">Contact Information:</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <span className="font-body text-muted-foreground">{csp.organisationInfo.address}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <a href={`mailto:${csp.organisationInfo.email}`} className="font-body text-primary hover:text-primary/80">
-                          {csp.organisationInfo.email}
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <a href={`tel:${csp.organisationInfo.phone}`} className="font-body text-muted-foreground hover:text-foreground">
-                          {csp.organisationInfo.phone}
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <a 
-                          href={csp.organisationInfo.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="font-body text-primary hover:text-primary/80"
-                        >
-                          Visit Website
-                        </a>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>

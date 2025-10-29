@@ -20,6 +20,7 @@ import { orgMembersRoutes } from "./organisations/members";
 import admin from "./admin";
 import organisationsRoutes from "./organisations";
 import { organisationRequestsRoutes } from "./organisations/requests";
+import discover from "./public/discover";
 
 
 export const apiRouter = new Hono();
@@ -28,8 +29,9 @@ export const apiRouter = new Hono();
 apiRouter.route("/admin", admin);
 apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 apiRouter.route("/organisations", organisationsRoutes);
+apiRouter.route("/discover", discover)
 
-
+  
 
 // OLD ROUTES
 apiRouter.route("/users", usersRoutes);

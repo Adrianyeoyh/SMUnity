@@ -20,10 +20,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
-import { useQuery } from "@tanstack/react-query";
-import { fetchListingById } from "#client/api/organisations/listing.ts";
 
-export const Route = createFileRoute("/organisations/$projectId")({
+export const Route = createFileRoute("/organisations/$projectIdTEST")({
   component: ListingApplicationsPage,
 });
 
@@ -34,6 +32,57 @@ type ApplicationStatus =
   | "confirmed"
   | "withdrawn"
   | "cancelled";
+
+// --- Mock Data (mirrors backend schema) ---
+const MOCK_PROJECTS = [
+  {
+    id: "proj-001",
+    title: "Community Garden Mentors",
+    orgName: "GreenHeart Society",
+    orgWebsite: "https://greenheart.sg",
+    orgPhone: "+65 9123 4567",
+    district: "Bukit Gombak",
+    googleMaps: "https://maps.google.com?q=Bukit+Gombak",
+    description:
+      "Help local families cultivate sustainable gardening practices and foster community bonding through green initiatives.",
+    aboutProvide:
+      "Training on gardening techniques, materials provided, and community support from experienced mentors.",
+    aboutDo:
+      "You’ll guide families in creating their own garden plots and educate them about eco-friendly practices.",
+    requirements: "Interest in sustainability and community work. No prior experience needed.",
+    skillTags: ["Mentorship", "Community", "Sustainability"],
+    projectTags: ["Outdoor", "Family", "Green Living"],
+    slotsTotal: 12,
+    requiredHours: 20,
+    startDate: "2025-04-05",
+    endDate: "2025-06-15",
+    applyBy: "2025-03-31",
+    isRemote: false,
+    type: "local",
+    volunteerCount: 8,
+  },
+];
+
+const MOCK_APPLICATIONS = [
+  {
+    id: "app-1045",
+    applicantId: "serena-liang",
+    applicant: "Serena Liang",
+    email: "serena.liang@smu.edu.sg",
+    submittedOn: "2025-03-04",
+    status: "pending" as ApplicationStatus,
+    motivation: "I love working with families and gardening.",
+  },
+  {
+    id: "app-1046",
+    applicantId: "jasper-teo",
+    applicant: "Jasper Teo",
+    email: "jasper.teo@smu.edu.sg",
+    submittedOn: "2025-03-01",
+    status: "accepted" as ApplicationStatus,
+    motivation: "Have prior volunteering experience with outdoor projects.",
+  },
+];
 
 const STATUS_TABS: Array<{ value: ApplicationStatus | "all"; label: string }> = [
   { value: "all", label: "All" },
@@ -55,58 +104,38 @@ const STATUS_META: Record<ApplicationStatus, { tone: string; label: string }> = 
 };
 
 function ListingApplicationsPage() {
-    const { projectId } = Route.useParams();
+  const { projectId } = Route.useParams();
   const navigate = useNavigate({ from: "/organisations/$projectId" });
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["listing", projectId],
-    queryFn: fetchListingById,
-  });
-
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(true); // <-- Collapsible state
 
-  // ✅ Always define hooks before conditionally rendering
-  const project = data?.project;
-  const applications = data?.applications ?? [];
-
+  const project = useMemo(() => MOCK_PROJECTS.find((p) => p.id === projectId) ?? null, [projectId]);
+  const applications = useMemo(() => MOCK_APPLICATIONS, []);
   const visibleApplications = useMemo(
     () =>
       statusFilter === "all"
         ? applications
-        : applications.filter((a: any) => a.status === statusFilter),
+        : applications.filter((a) => a.status === statusFilter),
     [applications, statusFilter]
   );
 
-  const fillPercentage = useMemo(() => {
-    if (!project) return 0;
-    return Math.round(
-      (Math.min(project.volunteerCount ?? 0, project.slotsTotal ?? 0) / (project.slotsTotal || 1)) *
-        100
-    );
-  }, [project]);
-
-  // ✅ Render conditionally *after* all hooks
-  if (isLoading)
-    return <div className="p-8 text-muted-foreground text-lg">Loading project data...</div>;
-
-  if (isError || !data)
-    return <div className="p-8 text-red-500 text-lg">Failed to load project details.</div>;
-
-  if (!project)
+  if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="p-6">
           <CardTitle>Project not found</CardTitle>
-          <CardDescription>
-            The project you’re looking for may have been removed.
-          </CardDescription>
+          <CardDescription>The project you’re looking for may have been removed.</CardDescription>
           <Button className="mt-4" onClick={() => navigate({ to: "/organisations/dashboard" })}>
             Return to Dashboard
           </Button>
         </Card>
       </div>
     );
+  }
+
+  const fillPercentage = Math.round(
+    (Math.min(project.volunteerCount, project.slotsTotal) / project.slotsTotal) * 100
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,7 +149,7 @@ function ListingApplicationsPage() {
           <div>
             <h1 className="font-heading text-3xl font-bold text-foreground">{project.title}</h1>
             <p className="text-muted-foreground font-body text-sm">
-              Organised by {project.orgName ?? "Unknown Organisation"} ({project.type})
+              Organised by {project.orgName} ({project.type})
             </p>
           </div>
         </div>
@@ -159,7 +188,7 @@ function ListingApplicationsPage() {
                 {/* Left Column */}
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    {(project.projectTags ?? []).map((tag: string) => (
+                    {project.projectTags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="capitalize">
                         {tag}
                       </Badge>
@@ -185,12 +214,12 @@ function ListingApplicationsPage() {
                     </p>
                     <p className="flex items-center gap-2 text-muted-foreground">
                       <Globe className="h-4 w-4" />{" "}
-                      <a href={project.org.website} target="_blank" className="underline">
-                        {project.org.website}
+                      <a href={project.orgWebsite} target="_blank" className="underline">
+                        {project.orgWebsite}
                       </a>
                     </p>
                     <p className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4" /> {project.org.phone}
+                      <Phone className="h-4 w-4" /> {project.orgPhone}
                     </p>
                   </SectionCard>
 
@@ -248,19 +277,17 @@ function ListingApplicationsPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {visibleApplications.map((app: any) => {
-                          const meta = STATUS_META[app.status as ApplicationStatus];
+                        {visibleApplications.map((app) => {
+                          const meta = STATUS_META[app.status];
                           return (
                             <TableRow key={app.id}>
                               <TableCell>
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2 text-sm font-semibold">
                                     <User className="h-4 w-4 text-muted-foreground" />
-                                    {app.applicant?.name ?? "Unknown"}
+                                    {app.applicant}
                                   </div>
-                                  <p className="text-xs text-muted-foreground">
-                                    {app.applicant?.email ?? ""}
-                                  </p>
+                                  <p className="text-xs text-muted-foreground">{app.email}</p>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -269,7 +296,7 @@ function ListingApplicationsPage() {
                               <TableCell>
                                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                   <CalendarDays className="h-4 w-4" />
-                                  {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+                                  {new Date(app.submittedOn).toLocaleDateString("en-GB")}
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -281,7 +308,7 @@ function ListingApplicationsPage() {
                                 <Button variant="ghost" size="sm" asChild>
                                   <Link
                                     to="/applicants/$applicantId"
-                                    params={{ applicantId: app.userId }}
+                                    params={{ applicantId: app.applicantId }}
                                   >
                                     View Profile
                                   </Link>

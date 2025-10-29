@@ -1,4 +1,4 @@
-// src/api/organisations/listing/new.ts
+// src/api/organisations/listing.ts
 import { FormInput } from "#client/helper";
 
 /**
@@ -18,7 +18,6 @@ export async function createOrganisationProject(data: FormInput) {
     skill_tags: data.skill_tags,
     district: data.district,
     google_maps: data.google_maps,
-    location_text: data.location_text,
     remote: data.remote,
     repeat_interval: data.repeat_interval,
     repeat_unit: data.repeat_unit,
@@ -47,3 +46,39 @@ export async function createOrganisationProject(data: FormInput) {
 
   return res.json();
 }
+
+// export async function fetchListingById({ queryKey }: any) {
+//   const [_key, projectId] = queryKey;
+//   const res = await fetch(`/organisations/listing/${projectId}`, {
+//     credentials: "include",
+//   });
+
+//   if (!res.ok) throw new Error("Failed to fetch project listing");
+//   return res.json();
+// }
+export async function fetchListingById({ queryKey }: any) {
+  const [_key, projectId] = queryKey;
+
+  try {
+    console.log("🔍 Fetching listing for projectId:", projectId);
+    const res = await fetch(`/api/organisations/listing/${projectId}`, {
+      credentials: "include",
+    });
+
+    console.log("📡 Response status:", res.status, res.statusText);
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("❌ Fetch failed:", res.status, text);
+      throw new Error(`Failed to fetch project listing: ${text}`);
+    }
+
+    const json = await res.json();
+    console.log("✅ Parsed JSON response:", json);
+    return json.data ?? json;
+  } catch (err) {
+    console.error("🚨 fetchListingById error:", err);
+    throw err;
+  }
+}
+

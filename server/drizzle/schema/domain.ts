@@ -5,7 +5,7 @@ import {
   time,
   date
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { sql, relations } from "drizzle-orm";
 import { user } from "./auth";
 import { url } from "inspector";
 
@@ -224,3 +224,19 @@ export const notifications = pgTable("notifications", {
   read: boolean("read").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const projectRelations = relations(projects, ({ one, many }) => ({
+  org: one(organisations, {
+    fields: [projects.orgId],
+    references: [organisations.userId],
+  }),
+  memberships: many(projMemberships),
+  applications: many(applications),
+}));
+
+export const organisationRelations = relations(organisations, ({ one }) => ({
+  user: one(user, {
+    fields: [organisations.userId],
+    references: [user.id],
+  }),
+}));
