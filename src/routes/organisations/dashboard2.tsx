@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrgDashboard } from "#client/api/organisations/dashboard.ts";
 
-export const Route = createFileRoute("/organisations/dashboard")({
+export const Route = createFileRoute("/organisations/dashboard2")({
   component: OrgDashboard,
   
 });

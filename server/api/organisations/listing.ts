@@ -56,7 +56,7 @@ listing.post("/new", async (c) => {
     orgId: user?.id,
     title: parsed.title,
     summary: parsed.summary,
-    categoryId: null, // convert category string → ID later
+    category: parsed.category,
     type: parsed.project_type,
     description: parsed.description,
     aboutProvide: parsed.about_provide,
@@ -68,7 +68,6 @@ listing.post("/new", async (c) => {
     googleMaps: parsed.google_maps,
     latitude: lat,
     longitude: lng,
-    location: parsed.location_text,
     isRemote: parsed.remote,
     repeatInterval: parsed.repeat_interval,
     repeatUnit: parsed.repeat_unit,

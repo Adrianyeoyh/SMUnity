@@ -43,7 +43,6 @@ function NewProjectPage() {
 
       district: "",
       google_maps: "",
-      location_text: "",
       remote: false,
 
       repeat_interval: 1,

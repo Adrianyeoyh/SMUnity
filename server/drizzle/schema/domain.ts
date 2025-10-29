@@ -73,13 +73,13 @@ export const projMemberships = pgTable("project_memberships", {
 }));
 
 // ---------- TAXONOMIES ----------
-export const categories = pgTable("categories", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  slug: varchar("slug", { length: 120 }).notNull(),
-}, (t) => ({
-  catSlugUnique: uniqueIndex("category_slug_unique").on(t.slug),
-}));
+// export const categories = pgTable("categories", {
+//   id: serial("id").primaryKey(),
+//   name: varchar("name", { length: 100 }).notNull(),
+//   slug: varchar("slug", { length: 120 }).notNull(),
+// }, (t) => ({
+//   catSlugUnique: uniqueIndex("category_slug_unique").on(t.slug),
+// }));
 
 // export const tags = pgTable("tags", {
 //   id: serial("id").primaryKey(),
@@ -102,7 +102,7 @@ export const projects = pgTable("projects", {
   orgId: text("org_id").references(() => organisations.userId).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
-  categoryId: integer("category_id").references(() => categories.id),
+  category: text("category"),
   type: varchar("type", { length: 20 }).default("local").notNull(), // <-- NEW (local/overseas)
 
   description: text("description").notNull(),
