@@ -19,7 +19,9 @@ import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganisationsNewRouteImport } from './routes/organisations/new'
 import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
+import { Route as OrganisationsProjectIdRouteImport } from './routes/organisations/$projectId'
 import { Route as CspCspIdRouteImport } from './routes/csp/$cspId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
@@ -86,9 +88,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganisationsNewRoute = OrganisationsNewRouteImport.update({
+  id: '/organisations/new',
+  path: '/organisations/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganisationsDashboardRoute = OrganisationsDashboardRouteImport.update({
   id: '/organisations/dashboard',
   path: '/organisations/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganisationsProjectIdRoute = OrganisationsProjectIdRouteImport.update({
+  id: '/organisations/$projectId',
+  path: '/organisations/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CspCspIdRoute = CspCspIdRouteImport.update({
@@ -191,7 +203,9 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
+  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
+  '/organisations/new': typeof OrganisationsNewRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/listing/new': typeof OrganisationsListingNewRoute
   '/organisations/listingapplications/$projectId': typeof OrganisationsListingapplicationsProjectIdRoute
@@ -219,7 +233,9 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
+  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
+  '/organisations/new': typeof OrganisationsNewRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/listing/new': typeof OrganisationsListingNewRoute
   '/organisations/listingapplications/$projectId': typeof OrganisationsListingapplicationsProjectIdRoute
@@ -248,7 +264,9 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
+  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
+  '/organisations/new': typeof OrganisationsNewRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/listing/new': typeof OrganisationsListingNewRoute
   '/organisations/listingapplications/$projectId': typeof OrganisationsListingapplicationsProjectIdRoute
@@ -278,7 +296,9 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/csp/$cspId'
+    | '/organisations/$projectId'
     | '/organisations/dashboard'
+    | '/organisations/new'
     | '/csp/$cspId/apply'
     | '/organisations/listing/new'
     | '/organisations/listingapplications/$projectId'
@@ -306,7 +326,9 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/csp/$cspId'
+    | '/organisations/$projectId'
     | '/organisations/dashboard'
+    | '/organisations/new'
     | '/csp/$cspId/apply'
     | '/organisations/listing/new'
     | '/organisations/listingapplications/$projectId'
@@ -334,7 +356,9 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/csp/$cspId'
+    | '/organisations/$projectId'
     | '/organisations/dashboard'
+    | '/organisations/new'
     | '/csp/$cspId/apply'
     | '/organisations/listing/new'
     | '/organisations/listingapplications/$projectId'
@@ -363,7 +387,9 @@ export interface RootRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRouteWithChildren
+  OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
+  OrganisationsNewRoute: typeof OrganisationsNewRoute
   OrganisationsListingNewRoute: typeof OrganisationsListingNewRoute
   OrganisationsListingapplicationsProjectIdRoute: typeof OrganisationsListingapplicationsProjectIdRoute
 }
@@ -440,11 +466,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organisations/new': {
+      id: '/organisations/new'
+      path: '/organisations/new'
+      fullPath: '/organisations/new'
+      preLoaderRoute: typeof OrganisationsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organisations/dashboard': {
       id: '/organisations/dashboard'
       path: '/organisations/dashboard'
       fullPath: '/organisations/dashboard'
       preLoaderRoute: typeof OrganisationsDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organisations/$projectId': {
+      id: '/organisations/$projectId'
+      path: '/organisations/$projectId'
+      fullPath: '/organisations/$projectId'
+      preLoaderRoute: typeof OrganisationsProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/csp/$cspId': {
@@ -590,7 +630,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRouteWithChildren,
+  OrganisationsProjectIdRoute: OrganisationsProjectIdRoute,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
+  OrganisationsNewRoute: OrganisationsNewRoute,
   OrganisationsListingNewRoute: OrganisationsListingNewRoute,
   OrganisationsListingapplicationsProjectIdRoute:
     OrganisationsListingapplicationsProjectIdRoute,
