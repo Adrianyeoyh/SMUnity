@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
@@ -17,6 +17,8 @@ import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Contact } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { fetchOrgDashboard } from "#client/api/organisations/dashboard.ts";
 
 export const Route = createFileRoute("/organisations/dashboard")({
   component: OrgDashboard,
@@ -129,6 +131,11 @@ function OrgDashboard() {
   const [listingSort, setListingSort] = useState<"date_asc" | "date_desc" | "applications_desc" | "applications_asc">("date_asc");
 
   const statusTabs = useMemo(
+  const { data: summary, isLoading, isError } = useQuery({
+      queryKey: ["orgDashboard"],
+      queryFn: fetchOrgDashboard,
+    });
+
     () => [
       { value: "all" as const, label: "All" },
       { value: "open" as const, label: "Open" },
@@ -242,19 +249,19 @@ function OrgDashboard() {
     return sorted;
   }, [listingSort, listingStatusFilter, listings]);
 
-  const summary = useMemo(() => {
-    const pending = applications.filter((application) => application.status === "pending").length;
-    const shortlisted = applications.filter((application) => application.status === "shortlisted").length;
-    const confirmed = applications.filter((application) => application.status === "confirmed").length;
+  // const summary = useMemo(() => {
+  //   const pending = applications.filter((application) => application.status === "pending").length;
+  //   const shortlisted = applications.filter((application) => application.status === "shortlisted").length;
+  //   const confirmed = applications.filter((application) => application.status === "confirmed").length;
 
-    return {
-      listings: listings.length,
-      totalApplications: applications.length,
-      pending,
-      shortlisted,
-      confirmed,
-    };
-  }, [listings.length, applications]);
+  //   return {
+  //     listings: listings.length,
+  //     totalApplications: applications.length,
+  //     pending,
+  //     shortlisted,
+  //     confirmed,
+  //   };
+  // }, [listings.length, applications]);
 
   const countFor = useCallback(
     (status: ApplicationStatus | "all") =>
@@ -267,6 +274,9 @@ function OrgDashboard() {
       applications.filter((application) => status === "all" || application.status === status),
     [applications],
   );
+
+  if (isLoading) return <div className="p-8 text-muted-foreground text-lg">Loading dashboard data...</div>;
+  if (isError || !summary) return <div className="p-8 text-red-500 text-lg">Failed to load dashboard stats.</div>;
 
   return (
     <div className="min-h-screen bg-background">

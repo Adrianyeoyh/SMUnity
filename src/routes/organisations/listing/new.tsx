@@ -9,75 +9,12 @@ import { Label } from "#client/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Badge } from "#client/components/ui/badge";
 import { format } from "date-fns";
-
+import { FormInput, CATEGORY_OPTIONS, DISTRICTS, SKILL_CHOICES, TAG_CHOICES } from "#client/helper/index.ts";
+import { createOrganisationProject } from "#client/api/organisations/listing";
+import { toast } from "sonner";
 // ---------- Constants ----------
 
-const CATEGORY_OPTIONS = [
-  "Teaching",
-  "Mentoring",
-  "Fundraising",
-  "Event Planning",
-  "Healthcare Support",
-  "Environmental Action",
-  "Logistics",
-  "Community Outreach",
-  "Administrative Support",
-  "Creative Media",
-];
-
-const DISTRICTS = [
-  "Admiralty","Aljunied","Amber","Alexandra","Ang Mo Kio","Balestier","Bedok",
-  "Bishan","Boon Lay","Bukit Batok","Bukit Merah","Bukit Timah","Buona Vista","Bugis",
-  "Clementi","Choa Chu Kang","City Hall","Eunos","Farrer Park","Geylang","Harbourfront",
-  "Holland","Hougang","Jurong East","Jurong West","Katong","Kovan","MacPherson","Mandai",
-  "Marine Parade","Novena","Orchard","Pasir Ris","Pasir Panjang","Punggol","Queenstown",
-  "Sembawang","Sengkang","Serangoon","Siglap","Tampines","Tiong Bahru","Toa Payoh",
-  "Woodlands","Yishun",
-];
-
-const SKILL_CHOICES = [
-  "Communication", "Patience", "Teaching", "Empathy", "Creativity", "Program Design",
-];
-
-const TAG_CHOICES = [
-  "Children", "Kids", "Less Privileged", "Art", "School", "Education",
-];
-
-// ---------- Types ----------
-type FormInput = {
-  title: string;
-  summary: string;
-  category: string;
-  project_type: "local" | "overseas";
-
-  description: string;
-  about_provide: string;
-  about_do: string;
-  requirements: string;
-  skill_tags: string[];
-
-  district: string;
-  google_maps: string;
-  location_text: string;
-  remote: boolean;
-
-  repeat_interval: number;
-  repeat_unit: "day" | "week" | "month" | "year";
-  days_of_week: string[];
-  time_start: string;
-  time_end: string;
-  start_date: Date | undefined;
-  end_date: Date | undefined;
-  application_deadline?: Date;
-
-  commitable_hours: number;
-  slots: number;
-
-  image_url: string;
-  project_tags: [];
-};
-
-export const Route = createFileRoute("/organisations/projects/new")({
+export const Route = createFileRoute("/organisations/listing/new")({
   component: NewProjectPage,
 });
 
@@ -124,49 +61,23 @@ function NewProjectPage() {
       image_url: "",
       project_tags: [],
     },
+    mode: "onChange",
   });
 
   // ---------- API mutation ----------
-  const m = useMutation({
-    mutationFn: async (data: FormInput) => {
-      const payload = {
-        title: data.title,
-        summary: data.summary,
-        category: data.category,
-        project_type: data.project_type,
-        description: data.description,
-        about_provide: data.about_provide,
-        about_do: data.about_do,
-        requirements: data.requirements,
-        skill_tags: data.skill_tags,
-        district: data.district,
-        google_maps: data.google_maps,
-        location_text: data.location_text,
-        remote: data.remote,
-        repeat_interval: data.repeat_interval,
-        repeat_unit: data.repeat_unit,
-        days_of_week: data.days_of_week,
-        time_start: data.time_start,
-        time_end: data.time_end,
-        start_date: data.start_date,
-        end_date: data.end_date,
-        application_deadline: data.application_deadline,
-        commitable_hours: data.commitable_hours,
-        slots: data.slots,
-        image_url: data.image_url,
-        project_tags: data.project_tags
-      };
 
-      const res = await fetch("/api/organisations/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to create project");
-      return res.json();
-    },
-    onSuccess: () => nav({ to: "/leader/dashboard" }),
-  });
+
+const m = useMutation({
+  mutationFn: createOrganisationProject,
+  onSuccess: () => {
+    toast.success("Project created successfully!");
+    nav({ to: "/organisations/dashboard" });
+  },
+  onError: (err: any) => {
+    toast.error(err.message || "Failed to create project");
+  },
+});
+
 
   const onSubmit: SubmitHandler<FormInput> = (data) => m.mutate(data);
 
@@ -206,11 +117,13 @@ function NewProjectPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register("title")} />
+              <Input id="title" {...register("title",  { required: "Title is required" })} />
+              {errors.title && <p className="text-sm text-red-600">{errors.title.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="summary">Short summary</Label>
-              <Textarea id="summary" rows={3} {...register("summary")} />
+              <Textarea id="summary" rows={3} {...register("summary",  { required: "Summary is required" })} />
+              {errors.summary && <p className="text-sm text-red-600">{errors.summary.message}</p>}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -251,22 +164,23 @@ function NewProjectPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="description">Detailed Description</Label>
-              <Textarea id="description" rows={6} {...register("description")} />
+              <Textarea id="description" rows={6} {...register("description", { required: "Description is required" })} />
+              {errors.description && <p className="text-sm text-red-600">{errors.description.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="about_do">What you’ll do</Label>
-              <Textarea id="about_do" rows={4} {...register("about_do")} />
+              <Textarea id="about_do" rows={4} {...register("about_do", { required: "Please describe what volunteers will do" })} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="requirements">Requirements</Label>
-              <Textarea id="requirements" rows={4} {...register("requirements")} />
+              <Textarea id="requirements" rows={4} {...register("requirements",  { required: "Please list requirements" })} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="about_provide">What we provide</Label>
-              <Textarea id="about_provide" rows={4} {...register("about_provide")} />
+              <Textarea id="about_provide" rows={4} {...register("about_provide", { required: "Please describe what is provided" })} />
             </div>
           </CardContent>
           <CardHeader><CardTitle>Skills Required</CardTitle></CardHeader>
@@ -274,6 +188,7 @@ function NewProjectPage() {
             <Controller
               control={control}
               name="skill_tags"
+              rules={{ validate: (v) => v.length > 0 || "Select at least one skill" }}
               render={({ field }) => (
                 <div className="flex flex-wrap gap-2">
                   {SKILL_CHOICES.map((skill) => {
@@ -298,10 +213,11 @@ function NewProjectPage() {
                 </div>
               )}
             />
+            {errors.skill_tags && <p className="text-sm text-red-600">{errors.skill_tags.message}</p>}
           </CardContent>
         </Card>
 
-        {/* SKILLS */}
+        {/* LOCATION */}
         <Card>
           <CardHeader><CardTitle>Location</CardTitle></CardHeader>
           <CardContent>
@@ -312,6 +228,7 @@ function NewProjectPage() {
                 <Controller
                   control={control}
                   name="district"
+                  rules={{ required: !watch("remote") || "District is required unless remote" }}
                   render={({ field }) => (
                     <Select
                       value={isRemote ? "Remote" : field.value || ""}
@@ -339,7 +256,7 @@ function NewProjectPage() {
                     id="google_maps"
                     type="url"
                     placeholder="https://maps.google.com/..."
-                    {...register("google_maps")}
+                    {...register("google_maps", { required: !watch("remote") || "Map link is required unless remote" })}
                     disabled={isRemote}
                   />
                 </div>
@@ -375,30 +292,57 @@ function NewProjectPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start_date">Start date</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  onChange={(e) => setValue("start_date", e.target.value ? new Date(e.target.value) : undefined)}
+                <Controller
+                  control={control}
+                  name="start_date"
+                  rules={{ required: "Start date is required" }}
+                  render={({ field }) => (
+                    <Input
+                      id="start_date"
+                      type="date"
+                      value={field.value ? field.value.toISOString().split("T")[0] : ""}
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                    />
+                  )}
                 />
+                {errors.start_date && <p className="text-sm text-red-600">{errors.start_date.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end_date">End date</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  onChange={(e) => setValue("end_date", e.target.value ? new Date(e.target.value) : undefined)}
+                <Controller
+                  control={control}
+                  name="end_date"
+                  rules={{ required: "End date is required" }}
+                  render={({ field }) => (
+                    <Input
+                      id="end_date"
+                      type="date"
+                      value={field.value ? field.value.toISOString().split("T")[0] : ""}
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                    />
+                  )}
                 />
+                {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="application_deadline">Application deadline</Label>
-                <Input
-                  id="application_deadline"
-                  type="date"
-                  onChange={(e) => setValue("application_deadline", e.target.value ? new Date(e.target.value) : undefined)}
+                <Controller
+                  control={control}
+                  name="application_deadline"
+                  rules={{ required: "Application deadline is required" }}
+                  render={({ field }) => (
+                    <Input
+                      id="application_deadline"
+                      type="date"
+                      value={field.value ? field.value.toISOString().split("T")[0] : ""}
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                    />
+                  )}
                 />
+                {errors.application_deadline && <p className="text-sm text-red-600">{errors.application_deadline.message}</p>}
+
               </div>
             </div>
-
 
             {/* Repeats: Every [interval] [unit] */}
             <div className="flex flex-col sm:flex-row gap-3 items-center">
@@ -409,8 +353,9 @@ function NewProjectPage() {
                   min={1}
                   step={1}
                   className="w-20"
-                  {...register("repeat_interval", { valueAsNumber: true })}
+                  {...register("repeat_interval", { required: "Repeat interval is required", valueAsNumber: true })}
                 />
+                {errors.repeat_interval && <p className="text-sm text-red-600">{errors.repeat_interval.message}</p>}
                 <Select
                   value={watch("repeat_unit")}
                   onValueChange={(v) => setValue("repeat_unit", v as FormInput["repeat_unit"])}
@@ -426,64 +371,30 @@ function NewProjectPage() {
               </div>
             </div>
 
-            {/* Choose days if weekly */}
-            {watch("repeat_unit") === "week" && (
-              <div className="space-y-2">
-                <Label>On days</Label>
-                <Controller
-                  control={control}
-                  name="days_of_week"
-                  render={({ field }) => {
-                    const value = field.value ?? [];
-                    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-                    return (
-                      <div className="flex flex-wrap gap-2">
-                        {days.map((d) => {
-                          const on = value.includes(d);
-                          return (
-                            <Button
-                              key={d}
-                              type="button"
-                              variant={on ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => {
-                                const next = on ? value.filter(x => x !== d) : [...value, d];
-                                field.onChange(next);
-                              }}
-                              aria-pressed={on}
-                            >
-                              {d.slice(0,3)}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    );
-                  }}
-                />
-              </div>
-            )}
-
             {/* Time window */}
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="time_start">Start time</Label>
-                <Input id="time_start" type="time" step={300} {...register("time_start")} />
+                <Input id="time_start" type="time" step={300} {...register("time_start", { required: "Start time is required" })} />
+                {errors.time_start && <p className="text-sm text-red-600">{errors.time_start.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time_end">End time</Label>
-                <Input id="time_end" type="time" step={300} {...register("time_end")} />
+                <Input id="time_end" type="time" step={300} {...register("time_end", { required: "End time is required" })} />
+                {errors.time_end && <p className="text-sm text-red-600">{errors.time_end.message}</p>}
               </div>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="slots">Total slots</Label>
-                <Input id="slots" type="number" min={1} {...register("slots", { valueAsNumber: true })} />
+                <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} />
                 {errors.slots && <p className="text-sm text-red-600">{errors.slots.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="commitable_hours">Total service hours</Label>
-                <Input id="commitable_hours" type="number" min={0} {...register("commitable_hours", { valueAsNumber: true })} />
+                <Input id="commitable_hours" type="number" min={0} {...register("commitable_hours", { required: "Service hours are required", valueAsNumber: true })} />
+                {errors.commitable_hours && <p className="text-sm text-red-600">{errors.commitable_hours.message}</p>}
               </div>
             </div>
           </CardContent>
@@ -495,28 +406,18 @@ function NewProjectPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="image_url">Feature image URL (legacy)</Label>
-              <Input id="image_url" type="url" placeholder="https://example.com/cover.jpg" {...register("image_url")} aria-invalid={!!errors.image_url} />
+              <Input
+                id="image_url"
+                type="url"
+                placeholder="https://example.com/cover.jpg"
+                {...register("image_url", { required: "Feature image URL is required" })}
+                aria-invalid={!!errors.image_url}
+              />
               {errors.image_url && <p className="text-sm text-red-600">{errors.image_url.message}</p>}
             </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="image_urls">Additional image URLs (one per line)</Label>
-              <Textarea
-                id="image_urls"
-                rows={3}
-                placeholder={"https://example.com/1.jpg\nhttps://example.com/2.jpg"}
-                {...register("image_urls", {
-                  setValueAs: (v) =>
-                    typeof v === "string"
-                      ? v.split("\n").map((s) => s.trim()).filter(Boolean)
-                      : Array.isArray(v)
-                      ? v
-                      : [],
-                })}
-              />
-            </div> */}
           </CardContent>
         </Card>
+
 
         {/* ---------- PROJECT TAGS ---------- */}
         <Card>
@@ -526,6 +427,7 @@ function NewProjectPage() {
             <Controller
               control={control}
               name="project_tags"
+              rules={{ validate: (v) => v.length > 0 || "Select at least one project tag" }}
               render={({ field }) => {
                 const value: string[] = field.value ?? [];
                 return (
@@ -553,6 +455,7 @@ function NewProjectPage() {
                 );
               }}
             />
+            {errors.project_tags && <p className="text-sm text-red-600">{errors.project_tags.message}</p>}
           </CardContent>
         </Card>
 
