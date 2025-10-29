@@ -130,19 +130,19 @@ function OrgDashboard() {
   const [listingStatusFilter, setListingStatusFilter] = useState<"all" | "open" | "shortlisting" | "archived">("all");
   const [listingSort, setListingSort] = useState<"date_asc" | "date_desc" | "applications_desc" | "applications_asc">("date_asc");
 
-  const statusTabs = useMemo(
   const { data: summary, isLoading, isError } = useQuery({
-      queryKey: ["orgDashboard"],
-      queryFn: fetchOrgDashboard,
-    });
+  queryKey: ["orgDashboard"],
+  queryFn: fetchOrgDashboard,
+  });
 
+  const statusTabs = useMemo(
     () => [
       { value: "all" as const, label: "All" },
       { value: "open" as const, label: "Open" },
       { value: "shortlisting" as const, label: "Shortlisting" },
       { value: "archived" as const, label: "Archived" },
     ],
-    [],
+    []
   );
 
   const sortOptions = useMemo(
