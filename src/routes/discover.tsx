@@ -22,7 +22,11 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-maps/api";
-import type { MapTypeStyle, LatLngLiteral, Map as GoogleMapInstance } from "google.maps";
+// import type { MapTypeStyle, LatLngLiteral, Map as GoogleMapInstance } from "google.maps";
+type MapTypeStyle = google.maps.MapTypeStyle;
+type LatLngLiteral = google.maps.LatLngLiteral;
+type GoogleMapInstance = google.maps.Map;
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/discover")({
@@ -60,14 +64,15 @@ type CspLocation = {
   organisation: string;
   location: string;
   category: string;
+  type?: "local" | "overseas";
   startDate: string;
   endDate?: string;
   duration: string;
   serviceHours: number;
   maxVolunteers: number;
   currentVolunteers: number;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   isRemote: boolean;
   status: string;
   applicationDeadline: string;
