@@ -4,22 +4,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#clie
 import { Badge } from "#client/components/ui/badge";
 import { Input } from "#client/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
-
 import { Label } from "#client/components/ui/label";
-import { 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Users, 
+import { env } from "#client/env.ts";
+import {
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
   Search,
   Grid3x3,
   List,
   Map as MapIcon,
   Navigation,
   Heart,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-maps/api";
+import type { MapTypeStyle, LatLngLiteral, Map as GoogleMapInstance } from "google.maps";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/discover")({
   component: DiscoverCSPs,
@@ -49,6 +53,45 @@ export const Route = createFileRoute("/discover")({
     };
   },
 });
+
+type CspLocation = {
+  id: string;
+  title: string;
+  organisation: string;
+  location: string;
+  category: string;
+  startDate: string;
+  endDate?: string;
+  duration: string;
+  serviceHours: number;
+  maxVolunteers: number;
+  currentVolunteers: number;
+  latitude?: number;
+  longitude?: number;
+  isRemote: boolean;
+  status: string;
+  applicationDeadline: string;
+  description: string;
+  skills: string[];
+  tags: string[];
+};
+
+const MINIMAL_MAP_STYLE: MapTypeStyle[] = [
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.medical", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.school", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.place_of_worship", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.government", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.sports_complex", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.attraction", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+  {
+    elementType: "labels.icon",
+    stylers: [{ visibility: "off" }],
+  },
+];
 
 // Helper function to get category color
 const getCategoryColor = (category: string) => {
@@ -153,7 +196,7 @@ function DiscoverCSPs() {
   ];
 
   // Mock data for demonstration
-  const cspLocations = [
+  const cspLocations: CspLocation[] = [
     {
       id: "1",
       title: "Project Candela",
@@ -923,31 +966,7 @@ function DiscoverCSPs() {
 
       {/* Map Section (conditional) */}
       {showMap && (
-        <div className="border-b">
-          <div className="container mx-auto px-4 py-6">
-            <Card className="h-[400px]">
-              <CardContent className="p-0 h-full">
-                <div className="h-full bg-muted/30 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <MapIcon className="h-16 w-16 text-muted-foreground mx-auto" />
-                    <div>
-                      <h3 className="font-heading text-lg font-semibold text-foreground mb-2">
-                        Interactive Map Coming Soon
-                      </h3>
-                      <p className="text-muted-foreground font-body">
-                        Showing {sortedCSPs.filter(csp => !csp.isRemote).length} location-based CSPs
-                      </p>
-                    </div>
-                    <Button variant="outline">
-                      <Navigation className="mr-2 h-4 w-4" />
-                      Use Current Location
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <MapSection sortedCSPs={sortedCSPs} />
       )}
 
       {/* Results */}
@@ -1227,6 +1246,217 @@ function DiscoverCSPs() {
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+type MapSectionProps = {
+  sortedCSPs: CspLocation[];
+};
+
+function MapSection({ sortedCSPs }: MapSectionProps) {
+  const nonRemoteCSPs = useMemo(
+    () =>
+      sortedCSPs.filter(
+        (csp) =>
+          !csp.isRemote &&
+          typeof csp.latitude === "number" &&
+          typeof csp.longitude === "number",
+      ),
+    [sortedCSPs],
+  );
+
+  const fallbackCenter = useMemo<LatLngLiteral>(
+    () => ({ lat: 1.3521, lng: 103.8198 }), // Singapore
+    [],
+  );
+
+  const defaultCenter = useMemo<LatLngLiteral>(
+    () =>
+      nonRemoteCSPs.length
+        ? {
+            lat: nonRemoteCSPs[0].latitude as number,
+            lng: nonRemoteCSPs[0].longitude as number,
+          }
+        : fallbackCenter,
+    [nonRemoteCSPs, fallbackCenter],
+  );
+
+  const [mapCenter, setMapCenter] =
+    useState<LatLngLiteral>(defaultCenter);
+  const [selectedCspId, setSelectedCspId] = useState<string | null>(null);
+  const [isGeolocating, setIsGeolocating] = useState(false);
+  const mapRef = useRef<GoogleMapInstance | null>(null);
+
+  useEffect(() => {
+    setMapCenter(defaultCenter);
+  }, [defaultCenter]);
+
+  const selectedCsp = useMemo(
+    () => nonRemoteCSPs.find((csp) => csp.id === selectedCspId) ?? null,
+    [nonRemoteCSPs, selectedCspId],
+  );
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: env.VITE_GOOGLE_MAPS_API_KEY,
+  });
+
+  const handleMapLoad = (map: GoogleMapInstance) => {
+    mapRef.current = map;
+  };
+
+  const handleMapUnmount = () => {
+    mapRef.current = null;
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      toast.error("Geolocation is not supported on this browser.");
+      return;
+    }
+    setIsGeolocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextCenter: LatLngLiteral = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setMapCenter(nextCenter);
+        mapRef.current?.panTo(nextCenter);
+        mapRef.current?.setZoom(13);
+        setIsGeolocating(false);
+      },
+      () => {
+        toast.error("Unable to retrieve your location.");
+        setIsGeolocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
+  return (
+    <div className="border-b bg-background">
+      <div className="container mx-auto px-4 py-6 space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h3 className="font-heading text-lg font-semibold text-foreground">
+              CSP Locations
+            </h3>
+            <p className="text-sm text-muted-foreground font-body">
+              Showing {nonRemoteCSPs.length} location-based CSP
+              {nonRemoteCSPs.length === 1 ? "" : "s"}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={handleUseCurrentLocation}
+            disabled={isGeolocating || !isLoaded}
+          >
+            {isGeolocating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Locating…
+              </>
+            ) : (
+              <>
+                <Navigation className="mr-2 h-4 w-4" />
+                Use Current Location
+              </>
+            )}
+          </Button>
+        </div>
+
+        <Card className="h-[420px] border border-border/70 bg-muted/10 shadow-sm">
+          <CardContent className="relative h-full overflow-hidden rounded-xl p-0">
+            {!isLoaded ? (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading map…
+              </div>
+            ) : loadError ? (
+              <div className="flex h-full items-center justify-center text-destructive">
+                Unable to load Google Maps. Please try again later.
+              </div>
+            ) : nonRemoteCSPs.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                <MapIcon className="h-12 w-12" />
+                <p>No location-based CSPs available at the moment.</p>
+              </div>
+            ) : (
+              <GoogleMap
+                mapContainerStyle={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "1rem",
+                  border: "1px solid rgba(148, 163, 184, 0.35)",
+                  background: "#f3f4f6",
+                }}
+                center={mapCenter}
+                zoom={12}
+                options={{
+                  streetViewControl: false,
+                  mapTypeControl: false,
+                  fullscreenControl: false,
+                  styles: MINIMAL_MAP_STYLE.length ? MINIMAL_MAP_STYLE : undefined,
+                  clickableIcons: false,
+                }}
+                onLoad={handleMapLoad}
+                onUnmount={handleMapUnmount}
+              >
+                {nonRemoteCSPs.map((csp) => (
+                  <Marker
+                    key={csp.id}
+                    position={{
+                      lat: csp.latitude as number,
+                      lng: csp.longitude as number,
+                    }}
+                    onClick={() => setSelectedCspId(csp.id)}
+                    title={csp.title}
+                  />
+                ))}
+
+                {selectedCsp && selectedCsp.latitude && selectedCsp.longitude && (
+                  <InfoWindow
+                    position={{
+                      lat: selectedCsp.latitude,
+                      lng: selectedCsp.longitude,
+                    }}
+                    onCloseClick={() => setSelectedCspId(null)}
+                  >
+                    <div className="space-y-2">
+                      <div>
+                        <h4 className="font-heading text-sm font-semibold text-foreground">
+                          {selectedCsp.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          {selectedCsp.organisation}
+                        </p>
+                      </div>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{selectedCsp.location}</span>
+                        </div>
+                        <div>
+                          Starts{" "}
+                          {new Date(selectedCsp.startDate).toLocaleDateString(
+                            "en-GB",
+                          )}
+                        </div>
+                        <div>{selectedCsp.serviceHours} service hours</div>
+                      </div>
+                      <Button asChild size="sm" className="h-8 px-3">
+                        <Link to={`/csp/${selectedCsp.id}`}>View details</Link>
+                      </Button>
+                    </div>
+                  </InfoWindow>
+                )}
+              </GoogleMap>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

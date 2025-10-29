@@ -1,9 +1,16 @@
 // #client/api/hooks.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "./client";
 import type {
-  MeRes, ProjectCard, ProjectDetail, ProjectSessionRow,
-  MyAppRow, FavCard, UpcomingRow
+  MeRes,
+  UpdateProfilePayload,
+  ProfileFormData,
+  ProjectCard,
+  ProjectDetail,
+  ProjectSessionRow,
+  MyAppRow,
+  FavCard,
+  UpcomingRow,
 } from "./types";
 
 // -------- users --------
@@ -11,6 +18,34 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: () => apiGet<MeRes>("/api/users/me"),
+  });
+}
+
+export function useUpdateProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePayload) => apiPatch<MeRes>("/api/users/me", payload),
+    onSuccess: (data) => {
+      qc.setQueryData<MeRes>(["me"], data);
+    },
+  });
+}
+
+export function useProfileSettings() {
+  return useQuery({
+    queryKey: ["profileForm"],
+    queryFn: () => apiGet<ProfileFormData>("/api/profile"),
+  });
+}
+
+export function useSaveProfileSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ProfileFormData) => apiPut<{ ok: true }>("/api/profile", payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["profileForm"] });
+      qc.invalidateQueries({ queryKey: ["me"] });
+    },
   });
 }
 

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileeditRouteImport } from './routes/profileedit'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
 import { Route as MapRouteImport } from './routes/map'
@@ -32,8 +33,14 @@ import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
 import { Route as OrganisationsProjectsNewRouteImport } from './routes/organisations/projects/new'
+import { Route as OrganisationsListingapplicationsProjectIdRouteImport } from './routes/organisations/listingapplications/$projectId'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 
+const ProfileeditRoute = ProfileeditRouteImport.update({
+  id: '/profileedit',
+  path: '/profileedit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -150,6 +157,12 @@ const OrganisationsProjectsNewRoute =
     path: '/organisations/projects/new',
     getParentRoute: () => rootRouteImport,
   } as any)
+const OrganisationsListingapplicationsProjectIdRoute =
+  OrganisationsListingapplicationsProjectIdRouteImport.update({
+    id: '/organisations/listingapplications/$projectId',
+    path: '/organisations/listingapplications/$projectId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
@@ -166,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
+  '/profileedit': typeof ProfileeditRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -180,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/listingapplications/$projectId': typeof OrganisationsListingapplicationsProjectIdRoute
   '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
 }
 export interface FileRoutesByTo {
@@ -192,6 +207,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
+  '/profileedit': typeof ProfileeditRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -206,6 +222,7 @@ export interface FileRoutesByTo {
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/listingapplications/$projectId': typeof OrganisationsListingapplicationsProjectIdRoute
   '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
 }
 export interface FileRoutesById {
@@ -219,6 +236,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
+  '/profileedit': typeof ProfileeditRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -233,6 +251,7 @@ export interface FileRoutesById {
   '/csp/$cspId': typeof CspCspIdRouteWithChildren
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/listingapplications/$projectId': typeof OrganisationsListingapplicationsProjectIdRoute
   '/organisations/projects/new': typeof OrganisationsProjectsNewRoute
 }
 export interface FileRouteTypes {
@@ -247,6 +266,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
+    | '/profileedit'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -261,6 +281,7 @@ export interface FileRouteTypes {
     | '/csp/$cspId'
     | '/organisations/dashboard'
     | '/csp/$cspId/apply'
+    | '/organisations/listingapplications/$projectId'
     | '/organisations/projects/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -273,6 +294,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
+    | '/profileedit'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -287,6 +309,7 @@ export interface FileRouteTypes {
     | '/csp/$cspId'
     | '/organisations/dashboard'
     | '/csp/$cspId/apply'
+    | '/organisations/listingapplications/$projectId'
     | '/organisations/projects/new'
   id:
     | '__root__'
@@ -299,6 +322,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/my-applications'
     | '/profile'
+    | '/profileedit'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -313,6 +337,7 @@ export interface FileRouteTypes {
     | '/csp/$cspId'
     | '/organisations/dashboard'
     | '/csp/$cspId/apply'
+    | '/organisations/listingapplications/$projectId'
     | '/organisations/projects/new'
   fileRoutesById: FileRoutesById
 }
@@ -326,6 +351,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
+  ProfileeditRoute: typeof ProfileeditRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboard2Route: typeof AdminDashboard2Route
@@ -339,11 +365,19 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   CspCspIdRoute: typeof CspCspIdRouteWithChildren
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
+  OrganisationsListingapplicationsProjectIdRoute: typeof OrganisationsListingapplicationsProjectIdRoute
   OrganisationsProjectsNewRoute: typeof OrganisationsProjectsNewRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profileedit': {
+      id: '/profileedit'
+      path: '/profileedit'
+      fullPath: '/profileedit'
+      preLoaderRoute: typeof ProfileeditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -505,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganisationsProjectsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organisations/listingapplications/$projectId': {
+      id: '/organisations/listingapplications/$projectId'
+      path: '/organisations/listingapplications/$projectId'
+      fullPath: '/organisations/listingapplications/$projectId'
+      preLoaderRoute: typeof OrganisationsListingapplicationsProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/csp/$cspId/apply': {
       id: '/csp/$cspId/apply'
       path: '/apply'
@@ -537,6 +578,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
+  ProfileeditRoute: ProfileeditRoute,
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboard2Route: AdminDashboard2Route,
@@ -550,6 +592,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   CspCspIdRoute: CspCspIdRouteWithChildren,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
+  OrganisationsListingapplicationsProjectIdRoute:
+    OrganisationsListingapplicationsProjectIdRoute,
   OrganisationsProjectsNewRoute: OrganisationsProjectsNewRoute,
 }
 export const routeTree = rootRouteImport

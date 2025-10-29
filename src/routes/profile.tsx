@@ -1,50 +1,71 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMe } from "#client/api/hooks";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Progress } from "#client/components/ui/progress";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  GraduationCap, 
-  MapPin, 
-  Calendar, 
-  Clock, 
+import {
+  Mail,
+  Phone,
+  GraduationCap,
+  MapPin,
+  Calendar,
+  Clock,
   Award,
   Edit,
   Settings,
   Heart,
   CheckCircle,
   XCircle,
-  Clock as ClockIcon
+  Clock as ClockIcon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-function Profile() {
-  // Mock user data
-  const user = {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@smu.edu.sg",
-    studentId: "12345678",
-    phone: "+65 9123 4567",
-    yearOfStudy: 3,
-    major: "Business",
-    skills: ["Leadership", "Communication", "Project Management", "Teaching"],
-    interests: ["Education", "Environment", "Community Service"],
-    totalServiceHours: 120,
-    requiredServiceHours: 200,
-    isCspLeader: false,
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
-    joinDate: "2022-08-15"
-  };
+const FALLBACK_PROFILE = {
+  name: "John Doe",
+  email: "john.doe@smu.edu.sg",
+  studentId: "12345678",
+  phone: "+65 9123 4567",
+  school: "Lee Kong Chian School of Business",
+  entryYear: 2022,
+  skills: ["Leadership", "Communication", "Project Management", "Teaching"],
+  interests: ["Education", "Environment", "Community Service"],
+  totalServiceHours: 120,
+  requiredServiceHours: 200,
+  image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
+  joinDate: "2022-08-15",
+};
 
-  // Mock applications data
+function Profile() {
+  const { data, isError } = useMe();
+  const profileData = data?.profile ?? null;
+
+  const currentYear = new Date().getFullYear();
+  const entryYear = profileData?.entryYear ?? FALLBACK_PROFILE.entryYear;
+  const yearOfStudy = entryYear ? Math.max(1, currentYear - entryYear + 1) : 1;
+
+  const displayName = data?.name ?? FALLBACK_PROFILE.name;
+  const displayEmail = data?.email ?? FALLBACK_PROFILE.email;
+  const displayStudentId = profileData?.studentId ?? (data ? "Not provided" : FALLBACK_PROFILE.studentId);
+  const displayPhone = profileData?.phone ?? (data ? "" : FALLBACK_PROFILE.phone);
+  const displaySchool = profileData?.school ?? (data ? "" : FALLBACK_PROFILE.school);
+  const displaySkills =
+    profileData?.skills && profileData.skills.length ? profileData.skills : data ? [] : FALLBACK_PROFILE.skills;
+  const displayInterests =
+    profileData?.interests && profileData.interests.length ? profileData.interests : data ? [] : FALLBACK_PROFILE.interests;
+  const avatarImage = data?.image ?? FALLBACK_PROFILE.image;
+
+  const totalServiceHours = data?.dashboard?.verifiedHours ?? FALLBACK_PROFILE.totalServiceHours;
+  const requiredServiceHours = FALLBACK_PROFILE.requiredServiceHours;
+  const progressPercentage = requiredServiceHours ? Math.min((totalServiceHours / requiredServiceHours) * 100, 100) : 0;
+  const hoursRemaining = Math.max(requiredServiceHours - totalServiceHours, 0);
+  const joinDate = FALLBACK_PROFILE.joinDate;
+
+  // Mock data for demo sections
   const applications = [
     {
       id: "1",
@@ -54,7 +75,7 @@ function Profile() {
       appliedDate: "2024-01-15",
       startDate: "2024-02-15",
       serviceHours: 40,
-      location: "Tampines"
+      location: "Tampines",
     },
     {
       id: "2",
@@ -64,7 +85,7 @@ function Profile() {
       appliedDate: "2024-01-20",
       startDate: "2024-02-20",
       serviceHours: 8,
-      location: "East Coast Park"
+      location: "East Coast Park",
     },
     {
       id: "3",
@@ -74,11 +95,10 @@ function Profile() {
       appliedDate: "2024-01-10",
       startDate: "2024-02-01",
       serviceHours: 30,
-      location: "Toa Payoh"
-    }
+      location: "Toa Payoh",
+    },
   ];
 
-  // Mock completed CSPs
   const completedCSPs = [
     {
       id: "1",
@@ -86,7 +106,7 @@ function Profile() {
       organisation: "Green Thumbs",
       completedDate: "2023-12-15",
       serviceHours: 20,
-      rating: 5
+      rating: 5,
     },
     {
       id: "2",
@@ -94,8 +114,8 @@ function Profile() {
       organisation: "Food for All",
       completedDate: "2023-11-30",
       serviceHours: 15,
-      rating: 4
-    }
+      rating: 4,
+    },
   ];
 
   const getStatusIcon = (status: string) => {
@@ -124,47 +144,38 @@ function Profile() {
     }
   };
 
-  const progressPercentage = (user.totalServiceHours / user.requiredServiceHours) * 100;
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        {isError && (
+          <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            We&apos;re showing placeholder data because we couldn&apos;t load your latest profile details.
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Profile Card */}
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center space-y-4">
                   <div className="relative inline-block">
-                    <img
-                      src={user.image}
-                      alt={user.name}
-                      className="h-24 w-24 rounded-full object-cover mx-auto"
-                    />
-                    <Button
-                      size="icon"
-                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
-                    >
-                      <Edit className="h-4 w-4" />
+                    <img src={avatarImage} alt={displayName} className="h-24 w-24 rounded-full object-cover mx-auto" />
+                    <Button size="icon" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full" asChild>
+                      <Link to="/profileedit">
+                        <Edit className="h-4 w-4" />
+                      </Link>
                     </Button>
                   </div>
                   <div>
-                    <h2 className="font-heading text-xl font-semibold text-foreground">
-                      {user.name}
-                    </h2>
+                    <h2 className="font-heading text-xl font-semibold text-foreground">{displayName}</h2>
                     <p className="text-muted-foreground font-body">
-                      {user.major} • Year {user.yearOfStudy}
+                      {displaySchool || "School not specified"} • Year {yearOfStudy}
                     </p>
-                    <p className="text-sm text-muted-foreground font-body">
-                      Student ID: {user.studentId}
-                    </p>
+                    <p className="text-sm text-muted-foreground font-body">Student ID: {displayStudentId}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Service Hours Progress */}
             <Card>
               <CardHeader>
                 <CardTitle className="font-heading text-lg">Service Hours Progress</CardTitle>
@@ -174,21 +185,16 @@ function Profile() {
                   <div className="flex justify-between text-sm">
                     <span className="font-body">Completed</span>
                     <span className="font-medium font-body">
-                      {user.totalServiceHours} / {user.requiredServiceHours} hours
+                      {totalServiceHours} / {requiredServiceHours} hours
                     </span>
                   </div>
                   <Progress value={progressPercentage} className="h-2" />
-                  <div className="text-xs text-muted-foreground font-body">
-                    {Math.round(progressPercentage)}% complete
-                  </div>
+                  <div className="text-xs text-muted-foreground font-body">{Math.round(progressPercentage)}% complete</div>
                 </div>
-                <div className="text-sm text-muted-foreground font-body">
-                  {user.requiredServiceHours - user.totalServiceHours} hours remaining
-                </div>
+                <div className="text-sm text-muted-foreground font-body">{hoursRemaining} hours remaining</div>
               </CardContent>
             </Card>
 
-            {/* Contact Info */}
             <Card>
               <CardHeader>
                 <CardTitle className="font-heading text-lg">Contact Information</CardTitle>
@@ -196,26 +202,25 @@ function Profile() {
               <CardContent className="space-y-3">
                 <div className="flex items-center space-x-3 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">{user.email}</span>
+                  <span className="font-body">{displayEmail}</span>
                 </div>
                 <div className="flex items-center space-x-3 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">{user.phone}</span>
+                  <span className="font-body">
+                    {displayPhone || <span className="text-muted-foreground">Add a phone number via Edit Profile</span>}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-3 text-sm">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">SMU Student</span>
+                  <span className="font-body">{displaySchool || "School not specified"}</span>
                 </div>
                 <div className="flex items-center space-x-3 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">
-                    Joined {new Date(user.joinDate).toLocaleDateString("en-GB")}
-                  </span>
+                  <span className="font-body">Joined {new Date(joinDate).toLocaleDateString("en-GB")}</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Skills & Interests */}
             <Card>
               <CardHeader>
                 <CardTitle className="font-heading text-lg">Skills & Interests</CardTitle>
@@ -223,33 +228,42 @@ function Profile() {
               <CardContent className="space-y-4">
                 <div>
                   <h4 className="font-medium mb-2 font-body">Skills</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {user.skills.map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
+                  {displaySkills.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {displaySkills.map((skill) => (
+                        <Badge key={skill} variant="secondary" className="text-xs">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground font-body">Add skills to highlight what you bring to each CSP.</p>
+                  )}
                 </div>
                 <div>
                   <h4 className="font-medium mb-2 font-body">Interests</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {user.interests.map((interest) => (
-                      <Badge key={interest} variant="outline" className="text-xs">
-                        {interest}
-                      </Badge>
-                    ))}
-                  </div>
+                  {displayInterests.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {displayInterests.map((interest) => (
+                        <Badge key={interest} variant="outline" className="text-xs">
+                          {interest}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground font-body">Choose interests to tailor recommendations for you.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
             <Card>
               <CardContent className="pt-6 space-y-3">
-                <Button className="w-full">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Profile
+                <Button className="w-full" asChild>
+                  <Link to="/profileedit">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </Link>
                 </Button>
                 <Button variant="outline" className="w-full">
                   <Settings className="mr-2 h-4 w-4" />
@@ -259,16 +273,14 @@ function Profile() {
             </Card>
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="applications" className="space-y-6">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="applications">My Applications</TabsTrigger>
                 <TabsTrigger value="completed">Completed CSPs</TabsTrigger>
-                <TabsTrigger value="favourites">favourites</TabsTrigger>
+                <TabsTrigger value="favourites">Favourites</TabsTrigger>
               </TabsList>
 
-              {/* Applications Tab */}
               <TabsContent value="applications" className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="font-heading text-xl font-semibold">My Applications</h3>
@@ -276,19 +288,14 @@ function Profile() {
                     View All
                   </Button>
                 </div>
-
                 <div className="space-y-4">
                   {applications.map((application) => (
                     <Card key={application.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start mb-4">
                           <div className="space-y-1">
-                            <h4 className="font-heading text-lg font-semibold">
-                              {application.cspTitle}
-                            </h4>
-                            <p className="text-muted-foreground font-body">
-                              {application.organisation}
-                            </p>
+                            <h4 className="font-heading text-lg font-semibold">{application.cspTitle}</h4>
+                            <p className="text-muted-foreground font-body">{application.organisation}</p>
                           </div>
                           <div className="flex items-center space-x-2">
                             {getStatusIcon(application.status)}
@@ -297,7 +304,6 @@ function Profile() {
                             </Badge>
                           </div>
                         </div>
-
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
                           <div className="flex items-center space-x-1">
                             <Calendar className="h-4 w-4" />
@@ -320,7 +326,6 @@ function Profile() {
                             <span className="font-body">{application.location}</span>
                           </div>
                         </div>
-
                         <div className="flex space-x-2">
                           <Button size="sm" variant="outline">
                             View Details
@@ -337,7 +342,6 @@ function Profile() {
                 </div>
               </TabsContent>
 
-              {/* Completed CSPs Tab */}
               <TabsContent value="completed" className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="font-heading text-xl font-semibold">Completed CSPs</h3>
@@ -345,28 +349,20 @@ function Profile() {
                     View All
                   </Button>
                 </div>
-
                 <div className="space-y-4">
                   {completedCSPs.map((csp) => (
                     <Card key={csp.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start mb-4">
                           <div className="space-y-1">
-                            <h4 className="font-heading text-lg font-semibold">
-                              {csp.title}
-                            </h4>
-                            <p className="text-muted-foreground font-body">
-                              {csp.organisation}
-                            </p>
+                            <h4 className="font-heading text-lg font-semibold">{csp.title}</h4>
+                            <p className="text-muted-foreground font-body">{csp.organisation}</p>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Award className="h-4 w-4 text-yellow-500" />
-                            <span className="text-sm font-medium font-body">
-                              {csp.rating}/5
-                            </span>
+                            <span className="text-sm font-medium font-body">{csp.rating}/5</span>
                           </div>
                         </div>
-
                         <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-4">
                           <div className="flex items-center space-x-1">
                             <Calendar className="h-4 w-4" />
@@ -379,7 +375,6 @@ function Profile() {
                             <span className="font-body">{csp.serviceHours} hours</span>
                           </div>
                         </div>
-
                         <div className="flex space-x-2">
                           <Button size="sm" variant="outline">
                             View Certificate
@@ -394,24 +389,20 @@ function Profile() {
                 </div>
               </TabsContent>
 
-              {/* favourites Tab */}
               <TabsContent value="favourites" className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-heading text-xl font-semibold">favourite CSPs</h3>
+                  <h3 className="font-heading text-xl font-semibold">Favourite CSPs</h3>
                   <Button variant="outline" size="sm">
                     View All
                   </Button>
                 </div>
-
                 <div className="text-center py-12">
                   <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h4 className="font-heading text-lg font-semibold mb-2">No favourites yet</h4>
                   <p className="text-muted-foreground font-body mb-4">
                     Start exploring CSPs and add them to your favourites
                   </p>
-                  <Button>
-                    Browse CSPs
-                  </Button>
+                  <Button>Browse CSPs</Button>
                 </div>
               </TabsContent>
             </Tabs>
@@ -421,3 +412,4 @@ function Profile() {
     </div>
   );
 }
+

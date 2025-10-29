@@ -2,6 +2,7 @@
 import { Hono } from "hono";
 
 import { usersRoutes } from "./users/index";
+import { profileRoutes } from "./profile/index";
 import { projectsRoutes } from "./projects/index";
 import { applicationsRoutes } from "./projects/applications";
 import { favouritesRoutes } from "./projects/favourites";
@@ -29,6 +30,7 @@ apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 
 // OLD ROUTES
 apiRouter.route("/users", usersRoutes);
+apiRouter.route("/profile", profileRoutes);
 apiRouter.route("/projects", projectsRoutes);
 apiRouter.route("/projects/applications", applicationsRoutes);
 apiRouter.route("/projects/applications/manage", manageApplicationsRoutes);

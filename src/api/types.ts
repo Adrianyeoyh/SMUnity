@@ -2,13 +2,39 @@
 export type AccountType = "student" | "organisation" | "admin";
 
 export type MeRes = {
-  userId: string;
+  id: string;
   email: string;
-  displayName: string | null;
+  name: string;
   accountType: AccountType;
-  totalHours: number;
-  completedProjects: number;
-  requiredHours: number;
+  image: string | null;
+  profile: {
+    phone: string | null;
+    studentId: string | null;
+    entryYear: number | null;
+    school: string | null;
+    skills: string[];
+    interests: string[];
+    csuCompletedAt: string | null;
+  } | null;
+  dashboard: {
+    applications: number;
+    verifiedHours: number;
+  };
+};
+
+export type UpdateProfilePayload = {
+  phone?: string | null;
+  school?: string | null;
+  studentId?: string | null;
+  skills?: string[];
+  interests?: string[];
+};
+
+export type ProfileFormData = {
+  phone: string;
+  faculty: string;
+  skills: string[];
+  interests: string[];
 };
 
 export type ProjectCard = {

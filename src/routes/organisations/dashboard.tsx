@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
@@ -15,11 +15,12 @@ import {
 } from "#client/components/ui/table";
 import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
-import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, X, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Contact } from "lucide-react";
+import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Contact } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/organisations/dashboard")({
-  component: LeaderDashboard,
+  component: OrgDashboard,
+  
 });
 
 type ApplicationStatus = "pending" | "shortlisted" | "confirmed" | "rejected";
@@ -31,7 +32,8 @@ const applicationStatusConfig: Record<ApplicationStatus, { label: string; tone: 
   rejected: { label: "Rejected", tone: "bg-red-100 text-red-800" },
 };
 
-function LeaderDashboard() {
+function OrgDashboard() {
+
   const listings = [
     {
       id: "csp-001",
@@ -123,31 +125,34 @@ function LeaderDashboard() {
 
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
-  const [listingFilter, setListingFilter] = useState<string | null>(null);
   const [listingStatusFilter, setListingStatusFilter] = useState<"all" | "open" | "shortlisting" | "archived">("all");
   const [listingSort, setListingSort] = useState<"date_asc" | "date_desc" | "applications_desc" | "applications_asc">("date_asc");
-  const applicationsSectionRef = useRef<HTMLDivElement | null>(null);
 
-  const statusTabs = [
-    { value: "all", label: "All" },
-    { value: "open", label: "Open" },
-    { value: "shortlisting", label: "Shortlisting" },
-    { value: "archived", label: "Archived" },
-  ] as const;
+  const statusTabs = useMemo(
+    () => [
+      { value: "all" as const, label: "All" },
+      { value: "open" as const, label: "Open" },
+      { value: "shortlisting" as const, label: "Shortlisting" },
+      { value: "archived" as const, label: "Archived" },
+    ],
+    [],
+  );
 
-  const sortOptions = [
-    { value: "date_asc", label: "Start date · Soonest" },
-    { value: "date_desc", label: "Start date · Latest" },
-    { value: "applications_desc", label: "Applications · High to low" },
-    { value: "applications_asc", label: "Applications · Low to high" },
-  ] as const;
-
+  const sortOptions = useMemo(
+    () => [
+      { value: "date_asc" as const, label: "Start date · Soonest" },
+      { value: "date_desc" as const, label: "Start date · Latest" },
+      { value: "applications_desc" as const, label: "Applications · High to low" },
+      { value: "applications_asc" as const, label: "Applications · Low to high" },
+    ],
+    [],
+  );
   const handleCreateListing = useCallback(() => {
     toast.success("Start a new listing", {
       description: "Redirecting you to the listing builder.",
     });
     setTimeout(() => {
-      navigate({ to: "/organisations/projects/new" });
+      navigate({ to: "/organisations/listing/new" });
     }, 200);
   }, [navigate]);
 
@@ -162,28 +167,6 @@ function LeaderDashboard() {
       description: `${listingTitle} has been removed from your dashboard.`,
     });
   }, []);
-
-  const handleViewApplicants = useCallback(
-    (listingId: string) => {
-      const listingTitle = listings.find((listing) => listing.id === listingId)?.title;
-      setListingFilter(listingId);
-      setStatusFilter("all");
-      requestAnimationFrame(() => {
-        applicationsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      if (listingTitle) {
-        toast.info("Filtered applications", {
-          description: `Showing applicants for ${listingTitle}.`,
-        });
-      }
-    },
-    [listings],
-  );
-
-  const activeListing = useMemo(
-    () => listings.find((listing) => listing.id === listingFilter) ?? null,
-    [listings, listingFilter],
-  );
 
   const getTagIcon = useCallback((tag: string) => {
     const baseClass = "h-3 w-3";
@@ -275,22 +258,14 @@ function LeaderDashboard() {
 
   const countFor = useCallback(
     (status: ApplicationStatus | "all") =>
-      applications.filter(
-        (application) =>
-          (status === "all" || application.status === status) &&
-          (!listingFilter || application.listingId === listingFilter),
-      ).length,
-    [applications, listingFilter],
+      applications.filter((application) => status === "all" || application.status === status).length,
+    [applications],
   );
 
   const filteredApplications = useCallback(
     (status: ApplicationStatus | "all") =>
-      applications.filter(
-        (application) =>
-          (status === "all" || application.status === status) &&
-          (!listingFilter || application.listingId === listingFilter),
-      ),
-    [applications, listingFilter],
+      applications.filter((application) => status === "all" || application.status === status),
+    [applications],
   );
 
   return (
@@ -299,7 +274,7 @@ function LeaderDashboard() {
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-8">
           <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            CSP Leader Dashboard
+            Organisation Dashboard
           </h1>
           <p className="text-muted-foreground font-body text-lg">
             Create listings, keep track of applications, and manage your volunteer pipeline.
@@ -319,7 +294,7 @@ function LeaderDashboard() {
           </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium font-body">Active listings</CardTitle>
@@ -368,6 +343,57 @@ function LeaderDashboard() {
             <CardContent>
               <p className="text-3xl font-heading font-semibold">{summary.confirmed}</p>
               <p className="text-xs text-muted-foreground font-body">Ready to be onboarded</p>
+            </CardContent>
+          </Card> */}
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Active listings</CardTitle>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.listings}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Currently published opportunities
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Total applications</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.totalApplications}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Across every listing
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Pending review</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.pending}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Waiting for your decision
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 flex justify-between items-center">
+              <CardTitle className="text-sm font-medium font-body">Confirmed volunteers</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-heading font-semibold">{summary.confirmed}</p>
+              <p className="text-xs text-muted-foreground font-body">
+                Ready to be onboarded
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -438,14 +464,11 @@ function LeaderDashboard() {
                 const fillTone = getFillTone(fillPercentage);
                 const fillBadgeTone = getFillBadgeTone(fillPercentage);
                 const fillLabel = getFillLabel(fillPercentage);
-                const isFocusedListing = listingFilter === listing.id;
 
                 return (
                   <div
                     key={listing.id}
-                    className={`rounded-2xl border bg-card/60 p-5 shadow-sm transition-all ${
-                      isFocusedListing ? "border-primary/60 shadow-lg shadow-primary/10" : "border-border/60"
-                    }`}
+                    className="rounded-2xl border border-border/60 bg-card/60 p-5 shadow-sm transition-all"
                   >
                     <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] lg:grid-cols-[minmax(0,1fr)_280px]">
                       <div className="space-y-4">
@@ -505,8 +528,13 @@ function LeaderDashboard() {
                           </p>
                         </div>
                         <div className="flex w-full flex-wrap gap-2 md:justify-end">
-                          <Button variant="outline" size="sm" onClick={() => handleViewApplicants(listing.id)}>
-                            View applicants
+                          <Button variant="outline" size="sm" asChild>
+                            <Link
+                              to="/organisations/listingapplications/$projectId"
+                              params={{ projectId: listing.id }}
+                            >
+                              View listing
+                            </Link>
                           </Button>
                           <Button
                             variant="secondary"
@@ -536,7 +564,7 @@ function LeaderDashboard() {
           </CardContent>
         </Card>
 
-        <div id="applications" ref={applicationsSectionRef}>
+        {/* <div id="applications">
           <Card>
             <CardHeader>
               <CardTitle className="font-heading text-xl">Applications</CardTitle>
@@ -545,24 +573,6 @@ function LeaderDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {activeListing && (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted px-3 py-2">
-                  <span className="text-sm font-body text-muted-foreground">
-                    Filtering by listing: <span className="font-medium text-foreground">{activeListing.title}</span>
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setListingFilter(null);
-                      toast.info("Listing filter cleared");
-                    }}
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Clear filter
-                  </Button>
-                </div>
-              )}
               <Tabs
                 value={statusFilter}
                 onValueChange={(value) => setStatusFilter(value as ApplicationStatus | "all")}
@@ -642,7 +652,7 @@ function LeaderDashboard() {
               </Tabs>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
         </div>
       </div>
     </div>

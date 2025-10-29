@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   client: {
     VITE_APP_URL: z.url(),
+    VITE_GOOGLE_MAPS_API_KEY: z.string(),
   },
   server: {
     NODE_ENV: z.enum(["development", "production"]).default("development"),
@@ -37,6 +38,7 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     VITE_APP_URL: process.env.VITE_APP_URL ?? `http://localhost:4000`,
+    VITE_GOOGLE_MAPS_API_KEY: process.env.VITE_GOOGLE_MAPS_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
 
     // Better Auth
