@@ -75,7 +75,9 @@ function Login() {
         email: emailLogin.email,
         password: emailLogin.password,
         rememberMe: rememberMe,
-      });
+      })
+      window.dispatchEvent(new Event("auth-change"));
+      ;
       if (result?.error) throw new Error(result.error.message);
 
       // const userType = result.data?.user?.accountType;
