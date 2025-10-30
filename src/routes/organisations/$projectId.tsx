@@ -22,6 +22,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { useQuery } from "@tanstack/react-query";
 import { fetchListingById } from "#client/api/organisations/listing.ts";
+import { format } from "date-fns";
 
 export const Route = createFileRoute("/organisations/$projectId")({
   component: ListingApplicationsPage,
@@ -115,7 +116,7 @@ function ListingApplicationsPage() {
         <div className="container mx-auto px-4 py-6 space-y-3">
           <Button variant="ghost" className="w-fit px-0" onClick={() => navigate({ to: "/organisations/dashboard" })}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to dashboard
+            Back to Dashboard
           </Button>
           <div>
             <h1 className="font-heading text-3xl font-bold text-foreground">{project.title}</h1>
@@ -137,21 +138,28 @@ function ListingApplicationsPage() {
                   Overview and key information for this listing.
                 </CardDescription>
               </div>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                  {isOpen ? (
-                    <>
-                      <ChevronUp className="h-4 w-4" />
-                      Hide Details
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-4 w-4" />
-                      Show Details
-                    </>
-                  )}
+              <div className="flex flex-row items-center gap-4">
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                    {isOpen ? (
+                      <>
+                        <ChevronUp className="h-4 w-4" />
+                        Hide Details
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-4 w-4" />
+                        Show Details
+                      </>
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <Button className="">
+                  <Link to="/organisations/preview/$projectPreview" params={{ projectPreview: project.id }}>
+                    Preview Listing
+                  </Link>
                 </Button>
-              </CollapsibleTrigger>
+              </div>
             </CardHeader>
 
             <CollapsibleContent>
@@ -169,10 +177,10 @@ function ListingApplicationsPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="District" value={project.district} />
-                    <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={`${project.startDate} – ${project.endDate}`} />
+                    <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={`${format(new Date(project.startDate), "yyyy-MM-dd")} – ${format(new Date(project.endDate), "yyyy-MM-dd")}`} />
                     <InfoRow icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Required Hours" value={`${project.requiredHours} hrs`} />
                     <InfoRow icon={<Users className="h-4 w-4 text-muted-foreground" />} label="Volunteers" value={`${project.volunteerCount} / ${project.slotsTotal}`} />
-                    <InfoRow icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />} label="Apply By" value={project.applyBy} />
+                    <InfoRow icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />} label="Apply By" value={format(new Date(project.applyBy), "yyyy-MM-dd")} />
                     <InfoRow icon={<Globe className="h-4 w-4 text-muted-foreground" />} label="Mode" value={project.isRemote ? "Remote" : "In-person"} />
                   </div>
                 </div>

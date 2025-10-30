@@ -39,6 +39,7 @@ import { Route as AdminOrganisationsRouteImport } from './routes/admin/organisat
 import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
+import { Route as OrganisationsPreviewProjectPreviewRouteImport } from './routes/organisations/preview/$projectPreview'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 
 const ProfileeditRoute = ProfileeditRouteImport.update({
@@ -193,6 +194,12 @@ const AdminCspIdRoute = AdminCspIdRouteImport.update({
   path: '/admin/cspId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganisationsPreviewProjectPreviewRoute =
+  OrganisationsPreviewProjectPreviewRouteImport.update({
+    id: '/organisations/preview/$projectPreview',
+    path: '/organisations/preview/$projectPreview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
   id: '/csp/$cspId/apply',
   path: '/csp/$cspId/apply',
@@ -231,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/new': typeof OrganisationsNewRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -264,6 +272,7 @@ export interface FileRoutesByTo {
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/new': typeof OrganisationsNewRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -298,6 +307,7 @@ export interface FileRoutesById {
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/new': typeof OrganisationsNewRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/organisations/dashboardTEST'
     | '/organisations/new'
     | '/csp/$cspId/apply'
+    | '/organisations/preview/$projectPreview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/organisations/dashboardTEST'
     | '/organisations/new'
     | '/csp/$cspId/apply'
+    | '/organisations/preview/$projectPreview'
   id:
     | '__root__'
     | '/'
@@ -399,6 +411,7 @@ export interface FileRouteTypes {
     | '/organisations/dashboardTEST'
     | '/organisations/new'
     | '/csp/$cspId/apply'
+    | '/organisations/preview/$projectPreview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -433,6 +446,7 @@ export interface RootRouteChildren {
   OrganisationsDashboardTESTRoute: typeof OrganisationsDashboardTESTRoute
   OrganisationsNewRoute: typeof OrganisationsNewRoute
   CspCspIdApplyRoute: typeof CspCspIdApplyRoute
+  OrganisationsPreviewProjectPreviewRoute: typeof OrganisationsPreviewProjectPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -647,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCspIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organisations/preview/$projectPreview': {
+      id: '/organisations/preview/$projectPreview'
+      path: '/organisations/preview/$projectPreview'
+      fullPath: '/organisations/preview/$projectPreview'
+      preLoaderRoute: typeof OrganisationsPreviewProjectPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/csp/$cspId/apply': {
       id: '/csp/$cspId/apply'
       path: '/csp/$cspId/apply'
@@ -689,6 +710,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrganisationsDashboardTESTRoute: OrganisationsDashboardTESTRoute,
   OrganisationsNewRoute: OrganisationsNewRoute,
   CspCspIdApplyRoute: CspCspIdApplyRoute,
+  OrganisationsPreviewProjectPreviewRoute:
+    OrganisationsPreviewProjectPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
