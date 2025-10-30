@@ -31,6 +31,7 @@ export type UpdateProfilePayload = {
 };
 
 export type ProfileFormData = {
+  studentId?: string | null;
   phone: string;
   faculty: string;
   skills: string[];

@@ -1,25 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useMe } from "#client/api/hooks";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Progress } from "#client/components/ui/progress";
-import {
-  Mail,
-  Phone,
-  GraduationCap,
-  MapPin,
-  Calendar,
-  Clock,
-  Award,
-  Edit,
-  Settings,
-  Heart,
-  CheckCircle,
-  XCircle,
-  Clock as ClockIcon,
-} from "lucide-react";
+import { Award, Calendar, Clock, Edit, GraduationCap, IdCard, Mail, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -57,47 +43,28 @@ function Profile() {
     profileData?.skills && profileData.skills.length ? profileData.skills : data ? [] : FALLBACK_PROFILE.skills;
   const displayInterests =
     profileData?.interests && profileData.interests.length ? profileData.interests : data ? [] : FALLBACK_PROFILE.interests;
-  const avatarImage = data?.image ?? FALLBACK_PROFILE.image;
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateAvatar = () => {
+      setCustomAvatar(window.localStorage.getItem("profileAvatarUrl"));
+    };
+    updateAvatar();
+    window.addEventListener("storage", updateAvatar);
+    return () => {
+      window.removeEventListener("storage", updateAvatar);
+    };
+  }, []);
+
+  const avatarImage = customAvatar ?? data?.image ?? FALLBACK_PROFILE.image;
 
   const totalServiceHours = data?.dashboard?.verifiedHours ?? FALLBACK_PROFILE.totalServiceHours;
   const requiredServiceHours = FALLBACK_PROFILE.requiredServiceHours;
   const progressPercentage = requiredServiceHours ? Math.min((totalServiceHours / requiredServiceHours) * 100, 100) : 0;
   const hoursRemaining = Math.max(requiredServiceHours - totalServiceHours, 0);
-  const joinDate = FALLBACK_PROFILE.joinDate;
-
-  // Mock data for demo sections
-  const applications = [
-    {
-      id: "1",
-      cspTitle: "Teaching English to Underprivileged Children",
-      organisation: "Hope Foundation",
-      status: "approved",
-      appliedDate: "2024-01-15",
-      startDate: "2024-02-15",
-      serviceHours: 40,
-      location: "Tampines",
-    },
-    {
-      id: "2",
-      cspTitle: "Environmental Cleanup at East Coast Park",
-      organisation: "Green Singapore",
-      status: "pending",
-      appliedDate: "2024-01-20",
-      startDate: "2024-02-20",
-      serviceHours: 8,
-      location: "East Coast Park",
-    },
-    {
-      id: "3",
-      cspTitle: "Senior Care Support",
-      organisation: "Golden Years",
-      status: "rejected",
-      appliedDate: "2024-01-10",
-      startDate: "2024-02-01",
-      serviceHours: 30,
-      location: "Toa Payoh",
-    },
-  ];
+  const joinDate = profileData?.joinDate ?? FALLBACK_PROFILE.joinDate;
+  const formattedJoinDate = joinDate ? new Date(joinDate).toLocaleDateString("en-GB") : "Not available";
 
   const completedCSPs = [
     {
@@ -118,118 +85,170 @@ function Profile() {
     },
   ];
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "pending":
-        return <ClockIcon className="h-4 w-4 text-yellow-500" />;
-      case "rejected":
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return null;
-    }
-  };
+  const aboutItems = [
+    {
+      icon: GraduationCap,
+      label: "School",
+      value: displaySchool || "School not specified",
+    },
+    {
+      icon: Calendar,
+      label: "Year of Study",
+      value: `Year ${yearOfStudy}`,
+    },
+    {
+      icon: IdCard,
+      label: "Student ID",
+      value: displayStudentId,
+    },
+    {
+      icon: Calendar,
+      label: "Joined",
+      value: formattedJoinDate,
+    },
+  ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const contactItems = [
+    {
+      icon: IdCard,
+      label: "Student ID",
+      value: displayStudentId,
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      value: displayEmail,
+    },
+    {
+      icon: Phone,
+      label: "Phone",
+      value: displayPhone || "Add a phone number via Edit Profile",
+      muted: !displayPhone,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-12">
         {isError && (
           <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             We&apos;re showing placeholder data because we couldn&apos;t load your latest profile details.
           </div>
         )}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center space-y-4">
-                  <div className="relative inline-block">
-                    <img src={avatarImage} alt={displayName} className="h-24 w-24 rounded-full object-cover mx-auto" />
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
+          <aside className="space-y-6">
+            <Card className="shadow-sm">
+              <CardContent className="space-y-6">
+                <div className="flex flex-col items-center space-y-4 text-center">
+                  <div className="relative">
+                    <img src={avatarImage} alt={displayName} className="h-24 w-24 rounded-full object-cover" />
                     <Button size="icon" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full" asChild>
-                      <Link to="/profileedit">
+                      <Link to="/profileedit" search={{ section: "avatar" }}>
                         <Edit className="h-4 w-4" />
                       </Link>
                     </Button>
                   </div>
-                  <div>
+                  <div className="space-y-1">
                     <h2 className="font-heading text-xl font-semibold text-foreground">{displayName}</h2>
-                    <p className="text-muted-foreground font-body">
-                      {displaySchool || "School not specified"} • Year {yearOfStudy}
-                    </p>
-                    <p className="text-sm text-muted-foreground font-body">Student ID: {displayStudentId}</p>
+                    <p className="text-sm text-muted-foreground font-body">{displaySchool || "School not specified"}</p>
+                    <p className="text-xs text-muted-foreground font-body uppercase tracking-wide">Year {yearOfStudy}</p>
                   </div>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/profileedit" search={{ section: "about" }}>
+                      Edit
+                    </Link>
+                  </Button>
+                </div>
+
+                <div className="space-y-6 text-left">
+                  <section>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">About</p>
+                    <div className="mt-3 space-y-3">
+                      {aboutItems.map((item) => (
+                        <div key={item.label} className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <item.icon className="h-4 w-4 text-muted-foreground" />
+                          <div className="leading-tight">
+                            <p className="font-medium text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground">{item.value}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Contact</p>
+                    <div className="mt-3 space-y-3">
+                      {contactItems.map((item) => (
+                        <div key={item.label} className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <item.icon className="h-4 w-4 text-muted-foreground" />
+                          <div className="leading-tight">
+                            <p className="font-medium text-foreground">{item.label}</p>
+                            <p className={`text-xs ${item.muted ? "text-muted-foreground/70" : "text-muted-foreground"}`}>
+                              {item.value}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
                 </div>
               </CardContent>
             </Card>
+          </aside>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-heading text-lg">Service Hours Progress</CardTitle>
+          <section className="space-y-6">
+            <Card className="shadow-sm">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-xl font-semibold">Service Overview</CardTitle>
+                <CardDescription>Track your progress towards {requiredServiceHours} required hours.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-body">Completed</span>
-                    <span className="font-medium font-body">
-                      {totalServiceHours} / {requiredServiceHours} hours
+              <CardContent className="space-y-6">
+                <div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-muted-foreground">Completed Hours</span>
+                    <span className="font-semibold text-foreground">
+                      {totalServiceHours} / {requiredServiceHours}
                     </span>
                   </div>
-                  <Progress value={progressPercentage} className="h-2" />
-                  <div className="text-xs text-muted-foreground font-body">{Math.round(progressPercentage)}% complete</div>
+                  <Progress value={progressPercentage} className="mt-3 h-2" />
                 </div>
-                <div className="text-sm text-muted-foreground font-body">{hoursRemaining} hours remaining</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-heading text-lg">Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center space-x-3 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">{displayEmail}</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">
-                    {displayPhone || <span className="text-muted-foreground">Add a phone number via Edit Profile</span>}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">{displaySchool || "School not specified"}</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body">Joined {new Date(joinDate).toLocaleDateString("en-GB")}</span>
+                <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground md:grid-cols-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide">Total Earned</p>
+                    <p className="text-base font-medium text-foreground">{totalServiceHours} hours</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide">Remaining</p>
+                    <p className="text-base font-medium text-foreground">{hoursRemaining} hours</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide">Completion</p>
+                    <p className="text-base font-medium text-foreground">{Math.round(progressPercentage)}%</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-heading text-lg">Skills & Interests</CardTitle>
+            <Card className="shadow-sm">
+              <CardHeader className="flex items-start justify-between space-y-0">
+                <div>
+                  <CardTitle className="text-xl font-semibold">Skills & Interests</CardTitle>
+                  <CardDescription>Organisations use these to tailor opportunities for you.</CardDescription>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/profileedit" search={{ section: "skills" }}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-2 font-body">Skills</h4>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Skills</p>
                   {displaySkills.length ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {displaySkills.map((skill) => (
                         <Badge key={skill} variant="secondary" className="text-xs">
                           {skill}
@@ -237,13 +256,15 @@ function Profile() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground font-body">Add skills to highlight what you bring to each CSP.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Add skills to highlight what you bring to each CSP.
+                    </p>
                   )}
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2 font-body">Interests</h4>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Interests</p>
                   {displayInterests.length ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {displayInterests.map((interest) => (
                         <Badge key={interest} variant="outline" className="text-xs">
                           {interest}
@@ -251,165 +272,71 @@ function Profile() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground font-body">Choose interests to tailor recommendations for you.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Choose interests to tailor recommendations for you.
+                    </p>
                   )}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-6 space-y-3">
-                <Button className="w-full" asChild>
-                  <Link to="/profileedit">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Profile
-                  </Link>
+            <Card className="shadow-sm">
+              <CardHeader className="flex items-start justify-between space-y-0">
+                <div>
+                  <CardTitle className="text-xl font-semibold">Completed CSPs</CardTitle>
+                  <CardDescription>Your recent service contributions.</CardDescription>
+                </div>
+                <Button variant="ghost" size="sm">
+                  View all
                 </Button>
-                <Button variant="outline" className="w-full">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {completedCSPs.map((csp) => (
+                  <Card key={csp.id} className="border border-border/60 shadow-none transition hover:border-border">
+                    <CardContent className="pt-4">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
+                        <div>
+                          <h4 className="font-heading text-base font-semibold text-foreground">{csp.title}</h4>
+                          <p className="text-sm text-muted-foreground font-body">{csp.organisation}</p>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Award className="h-4 w-4 text-yellow-500" />
+                          <span className="font-medium">{csp.rating}/5</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 grid grid-cols-1 gap-4 text-sm text-muted-foreground md:grid-cols-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Completed on {new Date(csp.completedDate).toLocaleDateString("en-GB")}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{csp.serviceHours} service hours</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline">
+                          View certificate
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          Leave review
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                {!completedCSPs.length && (
+                  <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
+                    Completed CSPs will appear here once you finish a project.
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </div>
-
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="applications" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="applications">My Applications</TabsTrigger>
-                <TabsTrigger value="completed">Completed CSPs</TabsTrigger>
-                <TabsTrigger value="favourites">Favourites</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="applications" className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-heading text-xl font-semibold">My Applications</h3>
-                  <Button variant="outline" size="sm">
-                    View All
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {applications.map((application) => (
-                    <Card key={application.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="pt-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="space-y-1">
-                            <h4 className="font-heading text-lg font-semibold">{application.cspTitle}</h4>
-                            <p className="text-muted-foreground font-body">{application.organisation}</p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(application.status)}
-                            <Badge className={getStatusColor(application.status)}>
-                              {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span className="font-body">
-                              Applied: {new Date(application.appliedDate).toLocaleDateString("en-GB")}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span className="font-body">
-                              Start: {new Date(application.startDate).toLocaleDateString("en-GB")}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Award className="h-4 w-4" />
-                            <span className="font-body">{application.serviceHours} hours</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <MapPin className="h-4 w-4" />
-                            <span className="font-body">{application.location}</span>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            View Details
-                          </Button>
-                          {application.status === "pending" && (
-                            <Button size="sm" variant="outline">
-                              Withdraw
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="completed" className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-heading text-xl font-semibold">Completed CSPs</h3>
-                  <Button variant="outline" size="sm">
-                    View All
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {completedCSPs.map((csp) => (
-                    <Card key={csp.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="pt-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="space-y-1">
-                            <h4 className="font-heading text-lg font-semibold">{csp.title}</h4>
-                            <p className="text-muted-foreground font-body">{csp.organisation}</p>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Award className="h-4 w-4 text-yellow-500" />
-                            <span className="text-sm font-medium font-body">{csp.rating}/5</span>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-4">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span className="font-body">
-                              Completed: {new Date(csp.completedDate).toLocaleDateString("en-GB")}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span className="font-body">{csp.serviceHours} hours</span>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            View Certificate
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            Leave Review
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="favourites" className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-heading text-xl font-semibold">Favourite CSPs</h3>
-                  <Button variant="outline" size="sm">
-                    View All
-                  </Button>
-                </div>
-                <div className="text-center py-12">
-                  <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h4 className="font-heading text-lg font-semibold mb-2">No favourites yet</h4>
-                  <p className="text-muted-foreground font-body mb-4">
-                    Start exploring CSPs and add them to your favourites
-                  </p>
-                  <Button>Browse CSPs</Button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+          </section>
         </div>
       </div>
     </div>
   );
 }
 
+export default Profile;
