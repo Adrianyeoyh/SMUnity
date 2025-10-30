@@ -35,6 +35,7 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthAdminOnlyRouteImport } from './routes/auth/adminOnly'
 import { Route as ApplicantsApplicantIdRouteImport } from './routes/applicants/$applicantId'
+import { Route as AdminOrganisationsRouteImport } from './routes/admin/organisations'
 import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
@@ -172,6 +173,11 @@ const ApplicantsApplicantIdRoute = ApplicantsApplicantIdRouteImport.update({
   path: '/applicants/$applicantId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminOrganisationsRoute = AdminOrganisationsRouteImport.update({
+  id: '/admin/organisations',
+  path: '/admin/organisations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboard2Route = AdminDashboard2RouteImport.update({
   id: '/admin/dashboard2',
   path: '/admin/dashboard2',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
+  '/admin/organisations': typeof AdminOrganisationsRoute
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
+  '/admin/organisations': typeof AdminOrganisationsRoute
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
+  '/admin/organisations': typeof AdminOrganisationsRoute
   '/applicants/$applicantId': typeof ApplicantsApplicantIdRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
+    | '/admin/organisations'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
+    | '/admin/organisations'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -371,6 +382,7 @@ export interface FileRouteTypes {
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
+    | '/admin/organisations'
     | '/applicants/$applicantId'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -404,6 +416,7 @@ export interface RootRouteChildren {
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboard2Route: typeof AdminDashboard2Route
+  AdminOrganisationsRoute: typeof AdminOrganisationsRoute
   ApplicantsApplicantIdRoute: typeof ApplicantsApplicantIdRoute
   AuthAdminOnlyRoute: typeof AuthAdminOnlyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -606,6 +619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApplicantsApplicantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/organisations': {
+      id: '/admin/organisations'
+      path: '/admin/organisations'
+      fullPath: '/admin/organisations'
+      preLoaderRoute: typeof AdminOrganisationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard2': {
       id: '/admin/dashboard2'
       path: '/admin/dashboard2'
@@ -652,6 +672,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboard2Route: AdminDashboard2Route,
+  AdminOrganisationsRoute: AdminOrganisationsRoute,
   ApplicantsApplicantIdRoute: ApplicantsApplicantIdRoute,
   AuthAdminOnlyRoute: AuthAdminOnlyRoute,
   AuthCallbackRoute: AuthCallbackRoute,

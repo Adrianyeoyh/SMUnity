@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
@@ -325,11 +325,14 @@ function AdminDashboard() {
                 Monitor platform performance, verify CSP submissions, and stay on top of recent activity
             </p>
           </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex gap-2">
+              <Button asChild variant="outline" className="inline-flex items-center gap-2">
+                <Link to="/admin/organisations">View Organisations</Link>
+              </Button>
               <Button className="inline-flex items-center gap-2" onClick={() => setShowOrganiserModal(true)}>
                 <Plus className="h-4 w-4" />
                 Create New Organiser
-          </Button>
+              </Button>
             </div>
           </div>
         </div>
