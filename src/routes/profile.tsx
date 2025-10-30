@@ -110,11 +110,6 @@ function Profile() {
 
   const contactItems = [
     {
-      icon: IdCard,
-      label: "Student ID",
-      value: displayStudentId,
-    },
-    {
       icon: Mail,
       label: "Email",
       value: displayEmail,
@@ -313,14 +308,6 @@ function Profile() {
                           <Clock className="h-4 w-4" />
                           <span>{csp.serviceHours} service hours</span>
                         </div>
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline">
-                          View certificate
-                        </Button>
-                        <Button size="sm" variant="ghost">
-                          Leave review
-                        </Button>
                       </div>
                     </CardContent>
                   </Card>

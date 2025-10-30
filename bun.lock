@@ -54,6 +54,7 @@
         "drizzle-orm": "^0.44.5",
         "embla-carousel-react": "^8.6.0",
         "framer-motion": "^12.23.22",
+        "gapi-script": "^1.2.0",
         "hono": "^4.9.1",
         "input-otp": "^1.4.2",
         "lucide-react": "^0.542.0",
@@ -85,6 +86,8 @@
         "@tanstack/router-devtools": "^1.99.9",
         "@tanstack/router-plugin": "^1.99.12",
         "@types/bun": "^1.2.21",
+        "@types/gapi": "^0.0.47",
+        "@types/gapi.auth2": "^0.0.61",
         "@types/node": "^22.15.29",
         "@types/nodemailer": "^7.0.1",
         "@types/react": "^19.1.6",
@@ -848,6 +851,10 @@
 
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
 
+    "@types/gapi": ["@types/gapi@0.0.47", "", {}, "sha512-/ZsLuq6BffMgbKMtZyDZ8vwQvTyKhKQ1G2K6VyWCgtHHhfSSXbk4+4JwImZiTjWNXfI2q1ZStAwFFHSkNoTkHA=="],
+
+    "@types/gapi.auth2": ["@types/gapi.auth2@0.0.61", "", { "dependencies": { "@types/gapi": "*" } }, "sha512-cn+omiRoE/LTxZncnVl1QhcLggOT0sJ8Yz9RXIsw5R2zLyRf+0o6kaZzJ/Gr3Sxz6i7J/+PbXAF8yeZipCaiWw=="],
+
     "@types/google.maps": ["@types/google.maps@3.58.1", "", {}, "sha512-X9QTSvGJ0nCfMzYOnaVs/k6/4L+7F5uCS+4iUmkLEls6J9S/Phv+m/i3mDeyc49ZBgwab3EFO1HEoBY7k98EGQ=="],
 
     "@types/json-schema": ["@types/json-schema@7.0.15", "", {}, "sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA=="],
@@ -1333,6 +1340,8 @@
     "fuzzysort": ["fuzzysort@3.1.0", "", {}, "sha512-sR9BNCjBg6LNgwvxlBd0sBABvQitkLzoVY9MYYROQVX/FvfJ4Mai9LsGhDgd8qYdds0bY77VzYd5iuB+v5rwQQ=="],
 
     "fzf": ["fzf@0.5.2", "", {}, "sha512-Tt4kuxLXFKHy8KT40zwsUPUkg1CrsgY25FxA2U/j/0WgEDCk3ddc/zLTCCcbSHX9FcKtLuVaDGtGE/STWC+j3Q=="],
+
+    "gapi-script": ["gapi-script@1.2.0", "", {}, "sha512-NKTVKiIwFdkO1j1EzcrWu/Pz7gsl1GmBmgh+qhuV2Ytls04W/Eg5aiBL91SCiBM9lU0PMu7p1hTVxhh1rPT5Lw=="],
 
     "gensync": ["gensync@1.0.0-beta.2", "", {}, "sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg=="],
 
