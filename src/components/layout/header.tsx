@@ -139,7 +139,31 @@ export function Header() {
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
               </>
-            ) : (
+            ) : user?.accountType === 'organisation' ? (
+              <>
+              <Link 
+                  to="/organisations/dashboard" 
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                ><LayoutDashboard className="h-4 w-4" />
+                  <span>Dashboard</span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
+              </Link>
+              <Link 
+                  to="/discover" 
+                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <Search className="h-4 w-4" />
+                  <span>Discover CSPs</span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
+                </Link>
+              </>     
+            ): (
               <>
                 <Link 
                   to="/dashboard" 
