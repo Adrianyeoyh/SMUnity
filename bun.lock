@@ -39,7 +39,6 @@
         "@radix-ui/react-toggle-group": "^1.1.11",
         "@radix-ui/react-tooltip": "^1.2.8",
         "@react-google-maps/api": "^2.20.7",
-        "@react-google-maps/api": "^2.20.7",
         "@t3-oss/env-core": "^0.13.8",
         "@tailwindcss/vite": "^4.1.12",
         "@tanstack/react-query-devtools": "^5.86.0",
@@ -56,7 +55,6 @@
         "drizzle-orm": "^0.44.5",
         "embla-carousel-react": "^8.6.0",
         "framer-motion": "^12.23.22",
-        "gapi-script": "^1.2.0",
         "gapi-script": "^1.2.0",
         "hono": "^4.9.1",
         "input-otp": "^1.4.2",
@@ -89,9 +87,6 @@
         "@tanstack/router-devtools": "^1.99.9",
         "@tanstack/router-plugin": "^1.99.12",
         "@types/bun": "^1.2.21",
-        "@types/gapi": "^0.0.47",
-        "@types/gapi.auth2": "^0.0.61",
-        "@types/google.maps": "^3.58.1",
         "@types/node": "^22.15.29",
         "@types/nodemailer": "^7.0.1",
         "@types/react": "^19.1.6",
@@ -854,10 +849,6 @@
     "@types/deep-eql": ["@types/deep-eql@4.0.2", "", {}, "sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw=="],
 
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
-
-    "@types/gapi": ["@types/gapi@0.0.47", "", {}, "sha512-/ZsLuq6BffMgbKMtZyDZ8vwQvTyKhKQ1G2K6VyWCgtHHhfSSXbk4+4JwImZiTjWNXfI2q1ZStAwFFHSkNoTkHA=="],
-
-    "@types/gapi.auth2": ["@types/gapi.auth2@0.0.61", "", { "dependencies": { "@types/gapi": "*" } }, "sha512-cn+omiRoE/LTxZncnVl1QhcLggOT0sJ8Yz9RXIsw5R2zLyRf+0o6kaZzJ/Gr3Sxz6i7J/+PbXAF8yeZipCaiWw=="],
 
     "@types/google.maps": ["@types/google.maps@3.58.1", "", {}, "sha512-X9QTSvGJ0nCfMzYOnaVs/k6/4L+7F5uCS+4iUmkLEls6J9S/Phv+m/i3mDeyc49ZBgwab3EFO1HEoBY7k98EGQ=="],
 
