@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fetchAdminOrganisations, type OrganisationRecord } from "#client/api/admin/organisations";
+import { fetchAdminOrganisations, suspendOrganisation, reactivateOrganisation, type OrganisationRecord } from "#client/api/admin/organisations";
 import { Button } from "#client/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Input } from "#client/components/ui/input";
 import { Badge } from "#client/components/ui/badge";
 import { ScrollArea } from "#client/components/ui/scroll-area";
@@ -10,6 +10,16 @@ import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Separator } from "#client/components/ui/separator";
 import { Calendar, Globe, Mail, Phone, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "#client/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "#client/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/admin/organisations")({
   component: AdminOrganisationsPage,
@@ -42,6 +52,10 @@ function AdminOrganisationsPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<OrganisationRecord | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOrg, setConfirmOrg] = useState<OrganisationRecord | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"suspend" | "reactivate">("suspend");
 
   useEffect(() => {
     let mounted = true;
@@ -89,6 +103,30 @@ function AdminOrganisationsPage() {
     })();
   }, [open, selected]);
 
+  const handleSuspend = async (org: OrganisationRecord) => {
+    if (org.status !== "active") return;
+    try {
+      setBusyId(org.id);
+      await suspendOrganisation(org.id);
+      setRecords((prev) => prev.map((r) => (r.id === org.id ? { ...r, status: "suspended" } : r)));
+      setSelected((prev) => (prev && prev.id === org.id ? { ...prev, status: "suspended" } : prev));
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleReactivate = async (org: OrganisationRecord) => {
+    if (org.status !== "suspended") return;
+    try {
+      setBusyId(org.id);
+      await reactivateOrganisation(org.id);
+      setRecords((prev) => prev.map((r) => (r.id === org.id ? { ...r, status: "active" } : r)));
+      setSelected((prev) => (prev && prev.id === org.id ? { ...prev, status: "active" } : prev));
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const filtered = useMemo(() => {
     let list = records;
     if (tab !== "all") list = list.filter((r) => r.status === tab);
@@ -127,9 +165,9 @@ function AdminOrganisationsPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 pt-6 pb-12">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="relative w-full md:w-[840px]">
+          <div className="relative w-full md:max-w-[640px] xl:max-w-[840px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search organisations..."
@@ -158,7 +196,7 @@ function AdminOrganisationsPage() {
           </Card>
         )}
 
-        <ScrollArea ref={scrollRef} className="max-h-[70vh] pr-2">
+        <ScrollArea ref={scrollRef}>
           <div className="space-y-4">
             {loading && Array.from({ length: 6 }).map((_, i) => (
               <Card key={i} className="animate-pulse">
@@ -190,21 +228,6 @@ function AdminOrganisationsPage() {
                           Created on: {formatDate(org.createdAt)} · {org.projects} projects
                         </span>
                       </CardDescription>
-                      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-muted-foreground font-body">
-                        <a href={`mailto:${org.email}`} className="inline-flex items-center gap-1 hover:text-primary">
-                          <Mail className="h-4 w-4" /> {org.email}
-                        </a>
-                        {org.phone && (
-                          <a href={`tel:${org.phone}`} className="inline-flex items-center gap-1 hover:text-primary">
-                            <Phone className="h-4 w-4" /> {org.phone}
-                          </a>
-                        )}
-                        {org.website && (
-                          <a href={org.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-primary">
-                            <Globe className="h-4 w-4" /> {org.website}
-                          </a>
-                        )}
-                      </div>
                     </div>
                     {org.status !== "pending" && (
                       <Badge className={`${statusBadge[org.status]} font-body capitalize`}>
@@ -213,31 +236,89 @@ function AdminOrganisationsPage() {
                     )}
                   </div>
                 </CardHeader>
+                <CardContent className="pt-1 pb-2">
+                  <div className="mt-0 flex flex-col md:flex-row md:items-center md:justify-between gap-1.5 md:gap-2">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-muted-foreground font-body">
+                      <a href={`mailto:${org.email}`} className="inline-flex items-center gap-1 hover:text-primary">
+                        <Mail className="h-4 w-4" /> {org.email}
+                      </a>
+                      {org.phone && (
+                        <a href={`tel:${org.phone}`} className="inline-flex items-center gap-1 hover:text-primary">
+                          <Phone className="h-4 w-4" /> {org.phone}
+                        </a>
+                      )}
+                      {org.website && (
+                        <a href={org.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-primary">
+                          <Globe className="h-4 w-4" /> {org.website}
+                        </a>
+                      )}
+                    </div>
+                    {org.status === "active" && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmOrg(org);
+                          setConfirmAction("suspend");
+                          setConfirmOpen(true);
+                        }}
+                        disabled={busyId === org.id}
+                      >
+                        {busyId === org.id ? "Suspending..." : "Suspend"}
+                      </Button>
+                    )}
+                    {org.status === "suspended" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmOrg(org);
+                          setConfirmAction("reactivate");
+                          setConfirmOpen(true);
+                        }}
+                        disabled={busyId === org.id}
+                      >
+                        {busyId === org.id ? "Reactivating..." : "Reactivate"}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
               </Card>
             ))}
           </div>
         </ScrollArea>
 
-        {!loading && filtered.length > 0 && (
-          totalPages > 1 ? (
-            <div className="mt-6 flex items-center justify-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
-                Previous
-              </Button>
-              <div className="text-sm text-muted-foreground font-body">
-                Showing {start + 1}-{Math.min(start + pageSize, filtered.length)} of {filtered.length} organisations
+        {!loading && (
+          (() => {
+            const end = filtered.length === 0 ? 0 : Math.min(start + pageSize, filtered.length);
+            const begin = filtered.length === 0 ? 1 : start + 1;
+            if (filtered.length > 0 && totalPages > 1) {
+              return (
+                <div className="mt-6 flex items-center justify-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
+                    Previous
+                  </Button>
+                  <div className="text-sm text-muted-foreground font-body">
+                    Showing {begin}-{end} of {filtered.length} results
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+                    Next
+                  </Button>
+                </div>
+              );
+            }
+            return (
+              <div className="mt-6 flex items-center justify-center">
+                <div className="text-sm text-muted-foreground font-body">
+                  Showing {begin}-{end} of {filtered.length} results
+                </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
-                Next
-              </Button>
-            </div>
-          ) : (
-            <div className="mt-6 flex items-center justify-center">
-              <div className="text-sm text-muted-foreground font-body">
-                Showing {start + 1}-{Math.min(start + pageSize, filtered.length)} of {filtered.length} organisations
-              </div>
-            </div>
-          )
+            );
+          })()
         )}
       </div>
 
@@ -285,11 +366,71 @@ function AdminOrganisationsPage() {
                     )}
                   </div>
                 </div>
+                {selected.status === "active" && (
+                  <div className="pt-2 flex items-center justify-end">
+                    {selected.status === "active" ? (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          setConfirmOrg(selected);
+                          setConfirmAction("suspend");
+                          setConfirmOpen(true);
+                        }}
+                        disabled={busyId === selected.id}
+                      >
+                        {busyId === selected.id ? "Suspending..." : "Suspend"}
+                      </Button>
+                    ) : selected.status === "suspended" ? (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => {
+                          setConfirmOrg(selected);
+                          setConfirmAction("reactivate");
+                          setConfirmOpen(true);
+                        }}
+                        disabled={busyId === selected.id}
+                      >
+                        {busyId === selected.id ? "Reactivating..." : "Reactivate"}
+                      </Button>
+                    ) : null}
+                  </div>
+                )}
               </div>
             </>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Suspend confirmation */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-heading">{confirmAction === "suspend" ? "Suspend organisation?" : "Reactivate organisation?"}</AlertDialogTitle>
+            <AlertDialogDescription className="font-body">
+              {confirmAction === "suspend"
+                ? `This will prevent ${confirmOrg?.name ?? "this organisation"} from creating or managing projects until reactivated.`
+                : `This will allow ${confirmOrg?.name ?? "this organisation"} to create and manage projects again.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!confirmOrg) return;
+                if (confirmAction === "suspend") await handleSuspend(confirmOrg);
+                else await handleReactivate(confirmOrg);
+                setConfirmOpen(false);
+                setConfirmOrg(null);
+              }}
+              disabled={!!busyId}
+            >
+              {busyId ? (confirmAction === "suspend" ? "Suspending..." : "Reactivating...") : (confirmAction === "suspend" ? "Confirm Suspend" : "Confirm Reactivate")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

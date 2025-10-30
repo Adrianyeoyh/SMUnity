@@ -59,4 +59,34 @@ export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
   ];
 }
 
+// Temporary stub to "suspend" an organisation client-side
+export async function suspendOrganisation(orgId: string): Promise<OrganisationRecord | null> {
+  // Simulate network delay
+  await new Promise((r) => setTimeout(r, 200));
+  // In real impl: await fetch(`/api/admin/organisations/${orgId}/suspend`, { method: 'POST' })
+  // For now just return a minimal object; caller should merge into state
+  return {
+    id: orgId,
+    name: "",
+    email: "",
+    projects: 0,
+    status: "suspended",
+    createdAt: new Date().toISOString(),
+  } as OrganisationRecord;
+}
+
+// Temporary stub to "reactivate" an organisation client-side
+export async function reactivateOrganisation(orgId: string): Promise<OrganisationRecord | null> {
+  await new Promise((r) => setTimeout(r, 200));
+  // In real impl: await fetch(`/api/admin/organisations/${orgId}/reactivate`, { method: 'POST' })
+  return {
+    id: orgId,
+    name: "",
+    email: "",
+    projects: 0,
+    status: "active",
+    createdAt: new Date().toISOString(),
+  } as OrganisationRecord;
+}
+
 

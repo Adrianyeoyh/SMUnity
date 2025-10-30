@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
@@ -325,14 +325,11 @@ function AdminDashboard() {
                 Monitor platform performance, verify CSP submissions, and stay on top of recent activity
             </p>
           </div>
-            <div className="flex-shrink-0 flex gap-2">
-              <Button asChild variant="outline" className="inline-flex items-center gap-2">
-                <Link to="/admin/organisations">View Organisations</Link>
-              </Button>
+            <div className="flex-shrink-0">
               <Button className="inline-flex items-center gap-2" onClick={() => setShowOrganiserModal(true)}>
                 <Plus className="h-4 w-4" />
                 Create New Organiser
-              </Button>
+          </Button>
             </div>
           </div>
         </div>
@@ -453,7 +450,7 @@ function AdminDashboard() {
               </Tabs>
             </div>
 
-              <ScrollArea ref={scrollAreaRef} className="max-h-[480px] overflow-x-hidden pr-2">
+              <ScrollArea ref={scrollAreaRef} className="max-h-[480px] overflow-x-hidden">
             <div className="space-y-4" data-section="request-list">
               {currentOrganisers.map((organiser) => (
                     <div
@@ -544,7 +541,7 @@ function AdminDashboard() {
             <div className="mt-6">
               <div className="text-center mb-4">
                 <p className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1}-{Math.min(endIndex, filteredQueue.length)} of {filteredQueue.length} requests
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredQueue.length)} of {filteredQueue.length} results
                 </p>
               </div>
               
