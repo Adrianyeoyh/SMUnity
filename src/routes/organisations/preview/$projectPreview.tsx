@@ -181,7 +181,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          <span className="font-body">Back to {csp.title}</span>
+          <span className="font-body">Back to {csp.title} Overview</span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
