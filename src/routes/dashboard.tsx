@@ -17,12 +17,44 @@ import {
   Target,
   BookOpen
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { initGoogleCalendar, addToGoogleCalendar } from "#client/utils/googleCalendar";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
 function Dashboard() {
+  const [isAddingToCalendar, setIsAddingToCalendar] = useState<string | null>(null);
+  // Function to handle adding session to Google Calendar
+  const handleAddToCalendar = (session: typeof upcomingSessions[0]) => {
+    if (!window.confirm(`Add "${session.title}" to your Google Calendar?`)) {
+      return;
+    }
+
+    setIsAddingToCalendar(session.id);
+
+    const result = addToGoogleCalendar({
+      title: session.title,
+      date: session.date,
+      time: session.time,
+      location: session.location,
+      description: `Community Service Project session at ${session.location}`,
+    });
+
+    setIsAddingToCalendar(null);
+
+    if (result.success) {
+    } else {
+      alert(' Failed to add to calendar. Please try again.');
+    }
+  };
+
+
+  // Initialize Google Calendar API when component mounts
+  useEffect(() => {
+    initGoogleCalendar();
+  }, []);
   // Mock user data
   const user = {
     name: "Sam Chong",
@@ -369,6 +401,22 @@ function Dashboard() {
                             {session.location}
                           </div>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full mt-2 text-xs"
+                          onClick={() => handleAddToCalendar(session)}
+                          disabled={isAddingToCalendar === session.id}
+                        >
+                          {isAddingToCalendar === session.id ? (
+                            'Adding...'
+                          ) : (
+                            <>
+                              <Calendar className="h-3 w-3 mr-1" />
+                              Add to Google Calendar
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   </div>
