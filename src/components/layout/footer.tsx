@@ -10,8 +10,8 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
+          <div className="space-y-4 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
                 <HeartHandshake className="h-6 w-6 text-white" />
               </div>
@@ -22,7 +22,7 @@ export function Footer() {
             <p className="text-sm text-muted-foreground font-body">
               Connecting SMU students with meaningful community service opportunities 
             </p>
-            <div className="flex space-x-4">
+            <div className="flex justify-center md:justify-start space-x-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <span>Made with love for SMU</span>
                 <Heart className="h-4 w-4 text" />
@@ -31,7 +31,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center md:text-left">
             <h3 className="font-heading font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -74,7 +74,7 @@ export function Footer() {
           </div>
 
           {/* For Organisations */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center md:text-left">
             <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>
@@ -108,10 +108,10 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center md:text-left">
             <h3 className="font-heading font-semibold text-foreground">Contact Us</h3>
             <div className="space-y-3">
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
                 <a 
                   href="mailto:adrian.yeo.2024@computing.smu.edu.sg" 
@@ -121,7 +121,7 @@ export function Footer() {
                   support@smunity.sg
                 </a>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />
                 <a 
                   href="tel:+6596724702" 
@@ -131,7 +131,7 @@ export function Footer() {
                   +65 9672 2702
                 </a>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <a 
                   href="https://maps.google.com/?q=Singapore+Management+University" 
@@ -150,7 +150,7 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-muted-foreground font-body">
-              © {currentYear} SMUnity. All rights reserved.
+              © {currentYear} SMUnity. All Rights Reserved
             </p>
             <div className="flex space-x-6">
               <a 
