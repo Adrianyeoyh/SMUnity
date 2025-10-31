@@ -188,7 +188,7 @@ function MyApplications() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-4 w-4" />
                       <span className="font-body">
@@ -203,6 +203,12 @@ function MyApplications() {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4" />
+                      <span className="font-body">
+                        End: {new Date(application.endDate).toLocaleDateString("en-GB")}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-4 w-4" />
                       <span className="font-body">{application.serviceHours} hours</span>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -210,6 +216,7 @@ function MyApplications() {
                       <span className="font-body">{application.location}</span>
                     </div>
                   </div>
+
 
                   <div className="mb-4">
                     <p className="text-sm text-muted-foreground font-body">
