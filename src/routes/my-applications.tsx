@@ -15,14 +15,27 @@ import {
 } from "lucide-react";
 import { addToGoogleCalendar } from "#client/utils/googleCalendar";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "#client/components/ui/dialog";
+import { Label } from "#client/components/ui/label";
+import { Textarea } from "#client/components/ui/textarea";
 
 export const Route = createFileRoute("/my-applications")({
   component: MyApplications,
 });
 
 function MyApplications() {
-  // Mock data for demonstration
   const [isAddingToCalendar, setIsAddingToCalendar] = useState<string | null>(null);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [withdrawalReason, setWithdrawalReason] = useState("");
+  const [showError, setShowError] = useState(false);
   
   const applications = [
     {
@@ -74,6 +87,7 @@ function MyApplications() {
       motivation: "I have leadership experience and want to mentor young people. This virtual format works well with my schedule."
     }
   ];
+
   const handleAddToCalendar = (application: typeof applications[0]) => {
     if (!window.confirm(`Add "${application.cspTitle}" to your Google Calendar?`)) {
       return;
@@ -81,11 +95,10 @@ function MyApplications() {
 
     setIsAddingToCalendar(application.id);
 
-    // Create event from application data
     const result = addToGoogleCalendar({
       title: application.cspTitle,
       date: application.startDate,
-      time: "9:00 AM - 5:00 PM", // You can adjust this or get from application data
+      time: "9:00 AM - 5:00 PM",
       location: application.location,
       description: `Community Service Project at ${application.organisation}\n\nService Hours: ${application.serviceHours}h\n\nYour Motivation: ${application.motivation}`,
     });
@@ -93,10 +106,44 @@ function MyApplications() {
     setIsAddingToCalendar(null);
 
     if (result.success) {
-      // Google Calendar opens in new tab - no need for alert
+      // Google Calendar opens in new tab
     } else {
       alert('❌ Failed to add to calendar. Please try again.');
     }
+  };
+
+  const handleWithdrawClick = (applicationId: string) => {
+    setSelectedApplicationId(applicationId);
+    setWithdrawalReason("");
+    setShowError(false);
+    setWithdrawDialogOpen(true);
+  };
+
+  const handleWithdrawSubmit = () => {
+    if (!withdrawalReason.trim()) {
+      setShowError(true);
+      return;
+    }
+
+    // Process withdrawal here
+    console.log("Withdrawing application:", selectedApplicationId);
+    console.log("Reason:", withdrawalReason);
+    
+    // Close dialog and reset
+    setWithdrawDialogOpen(false);
+    setWithdrawalReason("");
+    setShowError(false);
+    setSelectedApplicationId(null);
+    
+    // Show success message
+    alert("Application withdrawn successfully!");
+  };
+
+  const handleDialogClose = () => {
+    setWithdrawDialogOpen(false);
+    setWithdrawalReason("");
+    setShowError(false);
+    setSelectedApplicationId(null);
   };
 
   const getStatusIcon = (status: string) => {
@@ -143,7 +190,60 @@ function MyApplications() {
   const rejectedApplications = applications.filter(app => app.status === "rejected");
 
   return (
+    
     <div className="min-h-screen bg-background">
+      {/* Withdrawal Dialog */}
+      <Dialog open={withdrawDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="font-heading">Withdraw Application</DialogTitle>
+            <DialogDescription className="font-body">
+              Please provide a reason for withdrawing your application. This helps us improve our services.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="withdrawal-reason" className="font-body font-medium">
+                Reason for Withdrawal <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="withdrawal-reason"
+                placeholder="Please explain why you're withdrawing your application..."
+                value={withdrawalReason}
+                onChange={(e) => {
+                  setWithdrawalReason(e.target.value);
+                  if (showError && e.target.value.trim()) {
+                    setShowError(false);
+                  }
+                }}
+                className={`min-h-[120px] font-body ${
+                  showError ? 'border-red-500 focus-visible:ring-red-500' : ''
+                }`}
+              />
+              {showError && (
+                <p className="text-sm text-red-500 font-body">Required field</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter className="gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDialogClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleWithdrawSubmit}
+            >
+              Withdraw
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-8">
@@ -157,7 +257,6 @@ function MyApplications() {
       </div>
 
       <div className="container mx-auto px-4 py-6">
-
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="all">All ({applications.length})</TabsTrigger>
@@ -217,7 +316,6 @@ function MyApplications() {
                     </div>
                   </div>
 
-
                   <div className="mb-4">
                     <p className="text-sm text-muted-foreground font-body">
                       <strong>Your Motivation:</strong> {application.motivation}
@@ -236,7 +334,11 @@ function MyApplications() {
                       View Details
                     </Button>
                     {application.status === "pending" && (
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleWithdrawClick(application.id)}
+                      >
                         <FileText className="mr-2 h-4 w-4" />
                         Withdraw
                       </Button>
@@ -289,7 +391,11 @@ function MyApplications() {
                         <Eye className="mr-2 h-4 w-4" />
                         View Details
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleWithdrawClick(application.id)}
+                      >
                         <FileText className="mr-2 h-4 w-4" />
                         Withdraw
                       </Button>
