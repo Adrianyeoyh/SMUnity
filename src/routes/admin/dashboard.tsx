@@ -340,7 +340,7 @@ function AdminDashboard() {
               <Button className="inline-flex items-center gap-2" onClick={() => setShowOrganiserModal(true)}>
                 <Plus className="h-4 w-4" />
                 Create New Organiser
-          </Button>
+              </Button>
             </div>
           </div>
         </div>

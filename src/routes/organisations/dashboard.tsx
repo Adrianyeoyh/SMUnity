@@ -36,6 +36,20 @@ function OrgDashboard() {
     queryFn: fetchOrgListings,
   });
 
+  // Count of listings for each status
+  const listingCounts = useMemo(() => {
+    const counts = { open: 0, shortlisting: 0, ongoing: 0, archived: 0 };
+    const baseListings = listingsData?.listings ?? [];
+
+    baseListings.forEach((listing) => {
+      if (counts.hasOwnProperty(listing.status)) {
+        counts[listing.status as keyof typeof counts]++;
+      }
+    });
+
+    return counts;
+  }, [listingsData]);
+
   // --- State ---
   const [listingStatusFilter, setListingStatusFilter] =
     useState<"open" | "shortlisting" | "ongoing" | "archived">("open");
@@ -46,10 +60,10 @@ function OrgDashboard() {
   // --- Status Tabs ---
   const statusTabs = useMemo(
     () => [
-      { value: "open" as const, label: `Open (${listingStatusFilter.length})` },
-      { value: "shortlisting" as const, label: `Shortlisting (${listingStatusFilter.length})` },
-      { value: "ongoing" as const, label: "Ongoing" },
-      { value: "archived" as const, label: "Archived" },
+      { value: "open" as const, label: `Open (${listingCounts.open})` },
+      { value: "shortlisting" as const, label: `Shortlisting (${listingCounts.shortlisting})` },
+      { value: "ongoing" as const, label: `Ongoing (${listingCounts.ongoing})` },
+      { value: "archived" as const, label: `Archived (${listingCounts.archived})` },
     ],
     []
   );
@@ -171,26 +185,28 @@ function OrgDashboard() {
       {/* Header */}
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Organisation Dashboard
-          </h1>
-          <p className="text-muted-foreground font-body text-lg">
-            Create listings, keep track of applications, and manage your volunteer pipeline.
-          </p>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+                  Organisation Dashboard
+                </h1>
+                <p className="text-muted-foreground font-body text-lg">
+                  Create listings, keep track of applications, and manage your volunteer pipeline.
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <Button className="inline-flex items-center gap-2" onClick={handleCreateListing}>
+                  <Plus className="mr-2 h-4 w-4" />
+                    Create new listing
+                </Button>
+              </div>
+            </div>
         </div>
       </div>
       
 
       <div className="container mx-auto px-4 py-6">
-        <div className="space-y-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <Button onClick={handleCreateListing}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create new listing
-              </Button>
-            </div>
-          </div>
+        <div>
         {/* Top metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <Card>

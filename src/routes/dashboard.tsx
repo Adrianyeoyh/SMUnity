@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#clie
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Progress } from "#client/components/ui/progress";
+import { useMe } from "#client/api/hooks";
 import {
   Calendar,
   Clock,
@@ -32,6 +33,10 @@ function Dashboard() {
     activeApplications: 3,
     completedProjects: 2,
   };
+
+  // real user data
+  const { data } = useMe();
+  const userName = data?.name ?? user.name;
 
   // Mock ongoing projects
   const ongoingProjects = [
@@ -101,7 +106,7 @@ function Dashboard() {
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-8">
           <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Welcome back, {user.name}!
+            Welcome back, {userName}!
           </h1>
           <p className="text-muted-foreground font-body text-lg">
             Track your community service journey and upcoming commitments
