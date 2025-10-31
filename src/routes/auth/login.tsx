@@ -244,7 +244,7 @@ function Login() {
                 Need an account?
                 <br />
                 <span className="normal-case text-[11px] text-muted-foreground/70">
-                  (For CSP organisers only)
+                  (For CSP organisations only)
                 </span>
               </span>
             </div>

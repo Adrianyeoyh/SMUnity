@@ -1,3 +1,4 @@
+
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -8,6 +9,13 @@ import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
 import { Input } from "#client/components/ui/input";
 import { Textarea } from "#client/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "#client/components/ui/card";
 import {
   Form,
   FormControl,
@@ -73,16 +81,19 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow p-6">
-        <h1 className="text-2xl font-semibold mb-2 text-center">
-          Organiser Account Request
-        </h1>
-        <p className="text-sm text-muted-foreground text-center mb-6">
-          Fill in this form to request an organiser account.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-12 px-4">
+      <Card className="w-full max-w-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="font-heading text-2xl">
+            Organisation Account Request
+          </CardTitle>
+          <CardDescription>
+            Fill in this form to request an organisation account.
+          </CardDescription>
+        </CardHeader>
 
-        <Form {...form}>
+        <CardContent>
+          <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
@@ -135,6 +146,7 @@ function RouteComponent() {
                   <FormControl>
                     <Textarea
                       placeholder="Describe your organisation's mission or activities"
+                      className="min-h-[120px]"
                       {...field}
                     />
                   </FormControl>
@@ -179,12 +191,13 @@ function RouteComponent() {
 
         <Button
           variant="ghost"
-          className="w-full mt-3"
+          className="w-full mt-2"
           onClick={() => (window.location.href = "/auth/login")}
         >
           Back to Sign In
         </Button>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
