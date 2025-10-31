@@ -20,39 +20,48 @@ import {
   FormMessage,
 } from "#client/components/ui/form"
 import { Separator } from "#client/components/ui/separator"
+import { createApplication } from "#client/api/projects/index.ts"
+import { toast } from "sonner"
 
 const days = [
   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 ] as const
 
 const FormSchema = z.object({
-  // 1) motivation
+  // 1️⃣ Motivation
   motivation: z
     .string()
     .min(20, "Please write at least 20 characters.")
     .max(800, "Keep it under 800 characters."),
 
-  // 2) availability (checkbox group)
-  availability: z
-    .array(z.enum(days))
-    .min(1, "Pick at least one day you’re available."),
 
-  // 3) experience (radio)
+  // 3️⃣ Experience
   experience: z.enum(["none", "some", "extensive"]).refine(
     (val) => ["none", "some", "extensive"].includes(val),
     { message: "Select your prior experience." }
   ),
 
-  // 4) skills (short text)
+  // 4️⃣ Skills
   skills: z
     .string()
     .max(160, "160 characters max.")
     .transform((v) => (v?.trim() ? v.trim() : "")),
 
-  // 5) agreement (checkbox)
+  // 5️⃣ Agreement
   agree: z.boolean().refine((val) => val === true, {
     message: "You must agree to the code of conduct."
   }),
+
+  // 6️⃣ Schedule acknowledgement
+  acknowledgeSchedule: z.boolean().refine((val) => val === true, {
+    message: "You must acknowledge the project schedule before applying."
+  }),
+
+  // 7️⃣ Additional comments
+  comments: z
+    .string()
+    .max(500, "Maximum 500 characters.")
+    .optional(),
 })
 
 type FormValues = z.infer<typeof FormSchema>
@@ -75,6 +84,8 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
       experience: "none",
       skills: "",
       agree: false,
+      acknowledgeSchedule: false,
+      comments: "",
     },
   })
 
@@ -83,45 +94,47 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
   const [serverSuccess, setServerSuccess] = React.useState<string | null>(null)
 
   async function onSubmit(values: FormValues) {
-    setSubmitting(true)
-    setServerError(null)
-    setServerSuccess(null)
-    const payload = {
-      projectId,
-      data: values,
-      submittedAt: new Date().toISOString(),
-    }
+    setSubmitting(true);
+    setServerError(null);
+    setServerSuccess(null);
 
     try {
-      // TODO: replace with your real endpoint
-      // Example POST:
-      // const res = await fetch("/api/applications", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // })
-      // if (!res.ok) throw new Error(await res.text())
+      const response = await createApplication({
+        projectId,
+        ...values,
+      });
 
-      // simulate success:
-      await new Promise((r) => setTimeout(r, 600))
-      setServerSuccess("Application submitted! We’ll be in touch soon.")
-      onSubmitted?.(payload)
-      form.reset()
+      toast.success(response.message || "Application submitted!");
+      setServerSuccess(response.message);
+      onSubmitted?.({
+        projectId,
+        data: values,
+        submittedAt: new Date().toISOString(),
+      });
+      form.reset();
     } catch (err: any) {
-      setServerError(err?.message ?? "Something went wrong.")
-    } finally {
-      setSubmitting(false)
+        console.error("❌ Application submission failed:", err);
+
+        // Show a descriptive toast message
+        const message =
+          err?.message ||
+          (err?.response?.error ? `Server Error: ${err.response.error}` : "Failed to apply");
+
+        toast.error(message);
+        setServerError(message);
+      } finally {
+      setSubmitting(false);
     }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* 1) Motivation */}
+        {/* 1️⃣ Motivation */}
         <FormField
           control={form.control}
           name="motivation"
-          render={({ field }: { field: any }) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Why do you want to join?</FormLabel>
               <FormControl>
@@ -141,55 +154,11 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
 
         <Separator />
 
-        {/* 2) Availability (Checkbox group) */}
-        <FormField
-          control={form.control}
-          name="availability"
-          render={() => (
-            <FormItem>
-              <FormLabel>Which days are you available?</FormLabel>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {days.map((d) => (
-                  <FormField
-                    key={d}
-                    control={form.control}
-                    name="availability"
-                    render={({ field }: { field: any }) => {
-                      const checked = field.value?.includes(d)
-                      return (
-                        <FormItem className="flex items-center space-x-2 space-y-0 rounded-md border p-3">
-                          <FormControl>
-                            <Checkbox
-                              checked={checked}
-                              onCheckedChange={(v: any) => {
-                                const isChecked = Boolean(v)
-                                if (isChecked) field.onChange([...(field.value ?? []), d])
-                                else field.onChange((field.value ?? []).filter((x: typeof days[number]) => x !== d))
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-normal">{d}</FormLabel>
-                        </FormItem>
-                      )
-                    }}
-                  />
-                ))}
-              </div>
-              <FormDescription>
-                Pick at least one. You can update this later with the leader if needed.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Separator />
-
-        {/* 3) Experience (Radio group) */}
+        {/* 3️⃣ Experience */}
         <FormField
           control={form.control}
           name="experience"
-          render={({ field }: { field: any }) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Prior volunteering experience</FormLabel>
               <FormControl>
@@ -220,11 +189,11 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {/* 4) Skills */}
+        {/* 4️⃣ Skills */}
         <FormField
           control={form.control}
           name="skills"
-          render={({ field }: { field: any }) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Relevant skills or interests (optional)</FormLabel>
               <FormControl>
@@ -241,11 +210,11 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {/* 5) Agreement */}
+        {/* 5️⃣ Code of Conduct */}
         <FormField
           control={form.control}
           name="agree"
-          render={({ field }: { field: any }) => (
+          render={({ field }) => (
             <FormItem className="flex items-start gap-3 rounded-md border p-3">
               <FormControl>
                 <Checkbox
@@ -264,17 +233,68 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {serverError && (
-          <p className="text-sm text-destructive">{serverError}</p>
-        )}
-        {serverSuccess && (
-          <p className="text-sm text-emerald-600">{serverSuccess}</p>
-        )}
+        {/* 6️⃣ Schedule Acknowledgement */}
+        <FormField
+          control={form.control}
+          name="acknowledgeSchedule"
+          render={({ field }) => (
+            <FormItem className="flex items-start gap-3 rounded-md border p-3 bg-muted/40">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  I have read and acknowledge the project schedule
+                </FormLabel>
+                <FormDescription>
+                  This includes the start/end dates, meeting days, and session times.
+                </FormDescription>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* 7️⃣ Additional Comments */}
+        <FormField
+          control={form.control}
+          name="comments"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Additional Comments (optional)</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Any other remarks or special requests you’d like to share with the organisers."
+                  className="min-h-20"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+        {serverSuccess && <p className="text-sm text-emerald-600">{serverSuccess}</p>}
 
         <div className="flex items-center gap-2">
-          <Button type="submit" disabled={submitting}>
+          <Button
+            type="submit"
+            disabled={
+              submitting ||
+              !form.watch("agree") ||
+              !form.watch("acknowledgeSchedule") ||
+              !form.watch("motivation") ||
+              form.watch("motivation").trim().length < 20
+            }
+          >
             {submitting ? "Submitting..." : "Submit application"}
           </Button>
+
+
           <Button
             type="button"
             variant="ghost"

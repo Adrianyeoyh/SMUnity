@@ -3,17 +3,13 @@ import { Hono } from "hono";
 
 import { usersRoutes } from "./users/index";
 import { profileRoutes } from "./profile/index";
-import { projectsRoutes } from "./projects/index";
-import { applicationsRoutes } from "./projects/applications";
-import { favouritesRoutes } from "./projects/favourites";
+
 
 import { auth } from "../lib/auth"
 
 // add-ons already in your repo
 import { taxonomiesRoutes } from "./taxonomies/index";
 import { timesheetsRoutes } from "./timesheets/index";
-import { manageApplicationsRoutes } from "./projects/manage-applications";
-import { orgMembersRoutes } from "./organisations/members";
 
 
 //NEW UPDATES
@@ -21,6 +17,7 @@ import admin from "./admin";
 import organisationsRoutes from "./organisations";
 import { organisationRequestsRoutes } from "./organisations/requests";
 import discover from "./public/discover";
+import projects from "./projects"
 
 
 export const apiRouter = new Hono();
@@ -29,19 +26,15 @@ export const apiRouter = new Hono();
 apiRouter.route("/admin", admin);
 apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 apiRouter.route("/organisations", organisationsRoutes);
-apiRouter.route("/discover", discover)
+apiRouter.route("/discover", discover);
+apiRouter.route("/projects", projects);
 
   
 
 // OLD ROUTES
 apiRouter.route("/users", usersRoutes);
 apiRouter.route("/profile", profileRoutes);
-apiRouter.route("/projects", projectsRoutes);
-apiRouter.route("/projects/applications", applicationsRoutes);
-apiRouter.route("/projects/applications/manage", manageApplicationsRoutes);
-apiRouter.route("/projects/favourites", favouritesRoutes);
 
-apiRouter.route("/organisations/members", orgMembersRoutes);
 
 apiRouter.on(["POST", "GET"], "/auth/*", (c) => {
  return auth.handler(c.req.raw);

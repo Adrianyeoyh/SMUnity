@@ -3,7 +3,7 @@ import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Separator } from "#client/components/ui/separator";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "#client/components/ui/dialog";
+// import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "#client/components/ui/dialog";
 import { Label } from "#client/components/ui/label";
 import { Textarea } from "#client/components/ui/textarea";
 import { Progress } from "#client/components/ui/progress";
@@ -112,14 +112,7 @@ function CspDetail() {
 const { isLoggedIn } = useAuth();
 const [showLoginModal, setShowLoginModal] = useState(false);
   const [isfavourite, setIsfavourite] = useState(false);
-  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
-  const [applicationData, setApplicationData] = useState({
-    motivation: "",
-    experience: "",
-    availability: "",
-    additionalNotes: ""
-  });
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
 
   const handlefavourite = () => {
@@ -134,27 +127,6 @@ const [showLoginModal, setShowLoginModal] = useState(false);
     } catch (error) {
       toast.error("Failed to copy link");
     }
-  };
-
-  const handleApplicationSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Application Successfully Submitted!", {
-      description: "The CSP organisation will review your application and get back to you shortly.",
-      className: "bg-green-50 border border-green-200 font-body",
-      position: "top-right",
-      style: {
-        backgroundColor: "#f0fdf4",
-        color: "#166534",
-        border: "1px solid #bbf7d0",
-      },
-    });
-    setShowApplicationDialog(false);
-    setApplicationData({
-      motivation: "",
-      experience: "",
-      availability: "",
-      additionalNotes: ""
-    });
   };
 
   // Check if sidebar button is visible
@@ -492,11 +464,9 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                         size="lg"
                         onClick={() => {
                           if (!isLoggedIn) {
-                            // User not logged in → show login modal
                             setShowLoginModal(true);
                           } else {
-                            // User logged in → open application form
-                            setShowApplicationDialog(true);
+                            window.location.href = `/csp/${csp.id}/apply`;
                           }
                         }}
                       >
@@ -505,109 +475,6 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                       </Button>
 
 
-                      <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
-                        
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle className="font-heading text-2xl">Apply for {csp.title}</DialogTitle>
-                          <DialogDescription className="font-body">
-                            Tell us why you'd be a great fit for this community service project
-                          </DialogDescription>
-                        </DialogHeader>
-                        
-                        <form onSubmit={handleApplicationSubmit} className="space-y-6 mt-4">
-                          {/* CSU Module Reminder */}
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start space-x-3">
-                            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                            <div>
-                              <h4 className="font-heading font-semibold text-yellow-900 mb-1">
-                                Important: Complete CSU Module First
-                              </h4>
-                              <p className="text-sm text-yellow-800 font-body">
-                                Before applying, ensure you've completed the Community Service Unit (CSU) module on eLearn.
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Application Form */}
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="motivation" className="font-body font-medium">
-                                Why do you want to join this CSP? *
-                              </Label>
-                              <Textarea
-                                id="motivation"
-                                placeholder="Share your motivation and what draws you to this project..."
-                                className="min-h-[120px] font-body"
-                                value={applicationData.motivation}
-                                onChange={(e) => setApplicationData({...applicationData, motivation: e.target.value})}
-                                required
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="experience" className="font-body font-medium">
-                                Relevant Experience
-                              </Label>
-                              <Textarea
-                                id="experience"
-                                placeholder="Describe any relevant experience or skills you have..."
-                                className="min-h-[100px] font-body"
-                                value={applicationData.experience}
-                                onChange={(e) => setApplicationData({...applicationData, experience: e.target.value})}
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="availability" className="font-body font-medium">
-                                Availability *
-                              </Label>
-                              <Textarea
-                                id="availability"
-                                placeholder="When are you available? Please mention specific days/times..."
-                                className="min-h-[80px] font-body"
-                                value={applicationData.availability}
-                                onChange={(e) => setApplicationData({...applicationData, availability: e.target.value})}
-                                required
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="notes" className="font-body font-medium">
-                                Additional Notes
-                              </Label>
-                              <Textarea
-                                id="notes"
-                                placeholder="Any other information you'd like to share..."
-                                className="min-h-[80px] font-body"
-                                value={applicationData.additionalNotes}
-                                onChange={(e) => setApplicationData({...applicationData, additionalNotes: e.target.value})}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Submit Buttons */}
-                          <div className="flex gap-3 pt-4">
-                            <Button 
-                              type="button" 
-                              variant="outline" 
-                              className="flex-1"
-                              onClick={() => setShowApplicationDialog(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button 
-                              type="submit" 
-                              className="flex-1"
-                              disabled={!applicationData.motivation || !applicationData.availability}
-                            >
-                              <Send className="mr-2 h-4 w-4" />
-                              Submit Application
-                            </Button>
-                          </div>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
                     </div>
                   </>
                 ) : (
@@ -688,123 +555,43 @@ const [showLoginModal, setShowLoginModal] = useState(false);
 
         {/* Floating Apply Button - Only when sidebar button not visible */}
         {isApplicationOpen && showFloatingButton && (
-          <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="shadow-2xl hover:shadow-xl transition-shadow">
-                  <Send className="mr-2 h-5 w-5" />
-                  Apply Now
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="font-heading text-2xl">Apply for {csp.title}</DialogTitle>
-                  <DialogDescription className="font-body">
-                    Tell us why you'd be a great fit for this community service project
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <form onSubmit={handleApplicationSubmit} className="space-y-6 mt-4">
-                  {/* CSU Module Reminder */}
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start space-x-3">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-heading font-semibold text-yellow-900 mb-1">
-                        Important: Complete CSU Module First
-                      </h4>
-                      <p className="text-sm text-yellow-800 font-body">
-                        Before applying, ensure you've completed the Community Service Unit (CSU) module on eLearn.
-                      </p>
-                    </div>
-                  </div>
+          <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            {/* CSU Module Reminder */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 shadow-md max-w-xs">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-yellow-800 font-body">
+                    Complete CSU module on eLearn before applying.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-                  {/* Application Form */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="motivation-float" className="font-body font-medium">
-                        Why do you want to join this CSP? *
-                      </Label>
-                      <Textarea
-                        id="motivation-float"
-                        placeholder="Share your motivation and what draws you to this project..."
-                        className="min-h-[120px] font-body"
-                        value={applicationData.motivation}
-                        onChange={(e) => setApplicationData({...applicationData, motivation: e.target.value})}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="experience-float" className="font-body font-medium">
-                        Relevant Experience
-                      </Label>
-                      <Textarea
-                        id="experience-float"
-                        placeholder="Describe any relevant experience or skills you have..."
-                        className="min-h-[100px] font-body"
-                        value={applicationData.experience}
-                        onChange={(e) => setApplicationData({...applicationData, experience: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="availability-float" className="font-body font-medium">
-                        Availability *
-                      </Label>
-                      <Textarea
-                        id="availability-float"
-                        placeholder="When are you available? Please mention specific days/times..."
-                        className="min-h-[80px] font-body"
-                        value={applicationData.availability}
-                        onChange={(e) => setApplicationData({...applicationData, availability: e.target.value})}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="notes-float" className="font-body font-medium">
-                        Additional Notes
-                      </Label>
-                      <Textarea
-                        id="notes-float"
-                        placeholder="Any other information you'd like to share..."
-                        className="min-h-[80px] font-body"
-                        value={applicationData.additionalNotes}
-                        onChange={(e) => setApplicationData({...applicationData, additionalNotes: e.target.value})}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Submit Buttons */}
-                  <div className="flex gap-3 pt-4">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => setShowApplicationDialog(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      className="flex-1"
-                      disabled={!applicationData.motivation || !applicationData.availability}
-                    >
-                      <Send className="mr-2 h-4 w-4" />
-                      Submit Application
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+            {/* Apply Now Button */}
+            <Button
+              size="lg"
+              className="shadow-2xl hover:shadow-xl transition-shadow"
+              onClick={() => {
+                if (!isLoggedIn) {
+                  setShowLoginModal(true);
+                } else {
+                  window.location.href = `/csp/${csp.id}/apply`;
+                }
+              }}
+            >
+              <Send className="mr-2 h-5 w-5" />
+              Apply Now
+            </Button>
           </div>
         )}
+
+        <LoginModal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        redirectTo={`/csp/${csp.id}`}
+      />
+
       </div>
-      <LoginModal
-      open={showLoginModal}
-      onClose={() => setShowLoginModal(false)}
-      redirectTo={`/csp/${csp.id}`}
-    />
     </div>
-  );
-}
+)}
