@@ -46,8 +46,8 @@ function OrgDashboard() {
   // --- Status Tabs ---
   const statusTabs = useMemo(
     () => [
-      { value: "open" as const, label: "Open" },
-      { value: "shortlisting" as const, label: "Shortlisting" },
+      { value: "open" as const, label: `Open (${listingStatusFilter.length})` },
+      { value: "shortlisting" as const, label: `Shortlisting (${listingStatusFilter.length})` },
       { value: "ongoing" as const, label: "Ongoing" },
       { value: "archived" as const, label: "Archived" },
     ],

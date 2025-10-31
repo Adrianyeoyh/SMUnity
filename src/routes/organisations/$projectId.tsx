@@ -65,7 +65,7 @@ function ListingApplicationsPage() {
   });
 
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   // ✅ Always define hooks before conditionally rendering
   const project = data?.project;
