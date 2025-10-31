@@ -75,6 +75,38 @@ const formatDateRange = (startDate: string, endDate?: string) => {
   }
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };
+//   const formatDuration = (repeatInterval?: number | null, repeatUnit?: string | null) => {
+//   console.log(repeatInterval, repeatUnit)
+//   if (!repeatInterval || !repeatUnit) return "N/A";
+//   const unitLabel =
+//     repeatUnit === "day" ? "day(s)" :
+//     repeatUnit === "week" ? "week" :
+//     repeatUnit === "month" ? "month" :
+//     repeatUnit;
+//   return `${repeatInterval} time(s) a ${unitLabel}`;
+// };
+
+const formatTimeCommitment = (
+  daysOfWeek?: string[] | null,
+  timeStart?: string | null,
+  timeEnd?: string | null
+) => {
+  const days = daysOfWeek?.length ? daysOfWeek.join(", ") : "—";
+
+  const to12h = (time?: string | null) => {
+    if (!time) return null;
+    const [h, m] = time.split(":");
+    const d = new Date();
+    d.setHours(Number(h), Number(m));
+    return d.toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit", hour12: true });
+  };
+
+  const start = to12h(timeStart);
+  const end = to12h(timeEnd);
+  const timeRange = start && end ? `${start} – ${end}` : start || end || "";
+  return days !== "—" && timeRange ? `${days}, ${timeRange}` : days || timeRange || "N/A";
+};
+
 
 function CspDetail() {
 const { isLoggedIn } = useAuth();
@@ -151,10 +183,13 @@ const [showLoginModal, setShowLoginModal] = useState(false);
 
   const { projectID } = Route.useParams();
 
+
   const { data: csp, isLoading, isError } = useQuery({
     queryKey: ["csp-detail", projectID],
     queryFn: () => fetchCspById(projectID),
   });
+
+  console.log(csp);
 
   if (isLoading)
     return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
@@ -250,8 +285,11 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                 <div className="flex flex-col items-center text-center space-y-1">
                   <Clock className="h-5 w-5 text-primary" />
                   <span className="text-xs text-muted-foreground font-body">Duration</span>
-                  <span className="text-sm font-medium font-body">{csp.duration}</span>
+                  <span className="text-sm font-medium font-body">
+                    {csp.repeatInterval} time(s) a week
+                  </span>
                 </div>
+
                 <div className="flex flex-col items-center text-center space-y-1">
                   <Calendar className="h-5 w-5 text-primary" />
                   <span className="text-xs text-muted-foreground font-body">Start Date</span>
@@ -426,10 +464,13 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                           {formatDateRange(csp.startDate, csp.endDate)}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground font-body">Time Commitment:</span>
-                        <span className="font-medium font-body text-right">{csp.duration}</span>
-                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 text-sm font-body">
+                <span className="text-muted-foreground min-w-[120px] sm:text-right">Time Commitment:</span>
+                <span className="font-medium text-foreground break-words sm:whitespace-nowrap">
+                  {formatTimeCommitment(csp.daysOfWeek, csp.timeStart, csp.timeEnd)}
+                </span>
+              </div>
                     </div>
 
                     <Separator />

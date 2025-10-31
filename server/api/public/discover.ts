@@ -129,40 +129,50 @@ discover.get("/:projectId", async (c) => {
 
     // 3️⃣ Prepare clean payload
     const data = {
-        id: project.id,
-        title: project.title,
-        organisation: project.org?.user?.name ?? "Unknown Organisation",
-        location: project.district ?? "—",
-        category: project.category ?? "Community",
-        type: project.type ?? "local",
-        startDate: project.startDate,
-        endDate: project.endDate,
-        serviceHours: project.requiredHours ?? 0,
-        maxVolunteers: project.slotsTotal ?? 0,
-        currentVolunteers,
-        isRemote: project.isRemote,
-        status: "open",
-        // 🟢 Add all descriptive fields here:
-        description: project.description ?? "",
-        aboutDo: project.aboutDo ?? "",
-        aboutProvide: project.aboutProvide ?? "",
-        requirements: project.requirements ?? "",
-        skills: project.skillTags ?? [],
-        tags: project.projectTags ?? [],
-        imageUrl: project.imageUrl ?? "",
-        images: project.imageUrl ? [project.imageUrl] : [],
-        organisationInfo: {
-            name: project.org?.user?.name ?? "Unknown",
-            description: project.org?.description ?? "",
-            website: project.org?.website ?? "",
-            phone: project.org?.phone ?? "",
-            isVerified: true,
-        },
-        applicationDeadline: project.applyBy,
-        timeStart: project.timeStart,
-        timeEnd: project.timeEnd,
-        daysOfWeek: project.daysOfWeek,
-        };
+  id: project.id,
+  title: project.title,
+  organisation: project.org?.user?.name ?? "Unknown Organisation",
+  location: project.district ?? "—",
+  category: project.category ?? "Community",
+  type: project.type ?? "local",
+  startDate: project.startDate,
+  endDate: project.endDate,
+  serviceHours: project.requiredHours ?? 0,
+  maxVolunteers: project.slotsTotal ?? 0,
+  currentVolunteers,
+  isRemote: project.isRemote,
+  status: "open",
+
+  // Descriptive fields
+  description: project.description ?? "",
+  aboutDo: project.aboutDo ?? "",
+  aboutProvide: project.aboutProvide ?? "",
+  requirements: project.requirements ?? "",
+  skills: project.skillTags ?? [],
+  tags: project.projectTags ?? [],
+  imageUrl: project.imageUrl ?? "",
+  images: project.imageUrl ? [project.imageUrl] : [],
+
+  // Scheduling / Duration fields
+  repeatInterval: project.repeatInterval,
+  repeatUnit: project.repeatUnit,
+  daysOfWeek: project.daysOfWeek ?? [],
+  timeStart: project.timeStart,
+  timeEnd: project.timeEnd,
+
+  // Organisation info
+  organisationInfo: {
+    name: project.org?.user?.name ?? "Unknown",
+    description: project.org?.description ?? "",
+    website: project.org?.website ?? "",
+    phone: project.org?.phone ?? "",
+    email: project.org?.user?.email ?? "", // ✅ added
+    isVerified: true,
+  },
+
+  // Meta
+  applicationDeadline: project.applyBy,
+};
 
     console.log("✅ [csp] Payload ready:", data);
     return ok(c, data);
@@ -175,89 +185,3 @@ discover.get("/:projectId", async (c) => {
 
 
 export default discover;
-//   const today = new Date();
-
-//   // 1️⃣ Get projects where applyBy is not expired or null
-//   const projects = await db.query.projects.findMany({
-//     where: and(
-//       isNotNull(schema.projects.applyBy),
-//       gte(schema.projects.applyBy, today.toISOString())
-//     ),
-//     with: {
-//       org: {
-//         with: {
-//           user: {
-//             columns: {
-//               name: true, // from auth.user
-//             },
-//           },
-//         },
-//         columns: {
-//           userId: true,
-//           slug: true,
-//           website: true,
-//           phone: true,
-//         },
-//       },
-//     },
-//   });
-
-//   // 2️⃣ Count members for each project
-//   const memberships = await db
-//     .select({
-//       projId: schema.projMemberships.projId,
-//       count: sql<number>`count(*)`.as("count"),
-//     })
-//     .from(schema.projMemberships)
-//     .groupBy(schema.projMemberships.projId);
-
-//   const membershipMap = Object.fromEntries(
-//     memberships.map((m) => [m.projId, Number(m.count)])
-//   );
-
-//   // 3️⃣ Compute final payload
-//   const payload = projects.map((p) => {
-//     const volunteerCount = membershipMap[p.id] ?? 0;
-
-//     // compute project status
-//     const isFull = volunteerCount >= p.slotsTotal;
-//     const isClosed = p.applyBy && new Date(p.applyBy) < today;
-//     const isClosingSoon =
-//       !isClosed &&
-//       !isFull &&
-//       p.applyBy &&
-//       new Date(p.applyBy).getTime() - today.getTime() < 7 * 24 * 60 * 60 * 1000;
-
-//     let status = "open";
-//     if (isClosed) status = "closed";
-//     else if (isFull) status = "full";
-//     else if (isClosingSoon) status = "closing-soon";
-
-//     return {
-//       id: p.id,
-//       title: p.title,
-//       organisation: p.org.user?.name ?? "Unknown Organisation",
-//       location: p.district ?? "—",
-//       category: p.category ?? "Community",
-//       type: p.type ?? "local",
-//       startDate: p.startDate,
-//       endDate: p.endDate,
-//       duration: `${p.repeatInterval ?? ""} ${p.repeatUnit ?? ""}`.trim() || "N/A",
-//       serviceHours: p.requiredHours,
-//       maxVolunteers: p.slotsTotal,
-//       currentVolunteers: volunteerCount,
-//       latitude: p.latitude,
-//       longitude: p.longitude,
-//       isRemote: p.isRemote,
-//       status,
-//       applicationDeadline: p.applyBy,
-//       description: p.description,
-//       skills: p.skillTags ?? [],
-//       tags: p.projectTags ?? [],
-//     };
-//   });
-
-//   return ok(c, payload);
-// });
-
-// export default discover;
