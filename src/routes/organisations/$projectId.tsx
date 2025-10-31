@@ -191,48 +191,33 @@ function ListingApplicationsPage() {
             </CardHeader>
 
             <CollapsibleContent>
+              {/* Top Row */}
               <CardContent className="grid gap-6 md:grid-cols-[2fr,1fr]">
-                {/* Left Column */}
-                
-                  <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                     {(project.projectTags ?? []).map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="capitalize">
                         {tag}
                       </Badge>
                     ))}
-                  </div>
-                  <p className="text-muted-foreground font-body leading-relaxed">{project.description}</p>
+                </div>
+                <p className="text-muted-foreground font-body leading-relaxed mb-4">{project.description}</p>
+              </CardContent>
 
-                <div className="grid grid-cols-2 gap-4 space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-0">
-                    <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="District" value={project.district} />
-                    <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={`${format(new Date(project.startDate), "yyyy-MM-dd")} – ${format(new Date(project.endDate), "yyyy-MM-dd")}`} />
-                    <InfoRow icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Required Hours" value={`${project.requiredHours} hrs`} />
-                    <InfoRow icon={<Users className="h-4 w-4 text-muted-foreground" />} label="Volunteers" value={`${project.volunteerCount} / ${project.slotsTotal}`} />
-                    <InfoRow icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />} label="Apply By" value={format(new Date(project.applyBy), "yyyy-MM-dd")} />
-                    <InfoRow icon={<Globe className="h-4 w-4 text-muted-foreground" />} label="Mode" value={project.isRemote ? "Remote" : "In-person"} />
-                  </div>
-                  <div className="grid grid-cols-1">
-                    <SectionCard title="Organiser Details">
-                      <p className="flex items-center gap-2 text-muted-foreground">
-                        <Building2 className="h-4 w-4" /> {project.orgName}
-                      </p>
-                      <p className="flex items-center gap-2 text-muted-foreground">
-                        <Globe className="h-4 w-4" />{" "}
-                        <a href={project.org.website} target="_blank" className="underline">
-                          {project.org.website}
-                        </a>
-                      </p>
-                      <p className="flex items-center gap-2 text-muted-foreground">
-                        <Phone className="h-4 w-4" /> {project.org.phone}
-                      </p>
-                    </SectionCard>
-                  </div>
+              {/* Second Row */}
+              <CardContent className="grid md:gap-4 md:grid-cols-[2fr_1fr]">
+                {/* Left Column */}
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="District" value={project.district} />
+                  <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={`${format(new Date(project.startDate), "yyyy-MM-dd")} – ${format(new Date(project.endDate), "yyyy-MM-dd")}`} />
+                  <InfoRow icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Required Hours" value={`${project.requiredHours} hrs`} />
+                  <InfoRow icon={<Users className="h-4 w-4 text-muted-foreground" />} label="Volunteers" value={`${project.volunteerCount} / ${project.slotsTotal}`} />
+                  <InfoRow icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />} label="Apply By" value={format(new Date(project.applyBy), "yyyy-MM-dd")} />
+                  <InfoRow icon={<Globe className="h-4 w-4 text-muted-foreground" />} label="Mode" value={project.isRemote ? "Remote" : "In-person"} />
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-3">
-                  {/* <SectionCard title="Organiser Details">
+                <div className="grid grid-cols-1 mt-3 md:mt-0">
+                  <SectionCard title="Organiser Details">
                     <p className="flex items-center gap-2 text-muted-foreground">
                       <Building2 className="h-4 w-4" /> {project.orgName}
                     </p>
@@ -245,8 +230,13 @@ function ListingApplicationsPage() {
                     <p className="flex items-center gap-2 text-muted-foreground">
                       <Phone className="h-4 w-4" /> {project.org.phone}
                     </p>
-                  </SectionCard> */}
+                  </SectionCard>
+                </div>
+              </CardContent>
 
+              {/* Bottom Row */}
+              <CardContent>
+                <div className="space-y-3 mt-3">
                   <SectionCard title="What we provide" content={project.aboutProvide} />
                   <SectionCard title="What you’ll do" content={project.aboutDo} />
                   <SectionCard title="Requirements" content={project.requirements} />
