@@ -98,7 +98,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
+      toast("Link copied to clipboard!");
     } catch (error) {
       toast.error("Failed to copy link");
     }

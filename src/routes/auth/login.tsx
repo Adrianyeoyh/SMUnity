@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { auth } from "#client/lib/auth";
-import { toast } from "sonner";
 import { Button } from "#client/components/ui/button";
 import { Input } from "#client/components/ui/input";
 import { Checkbox } from "#client/components/ui/checkbox";
@@ -53,7 +52,6 @@ function Login() {
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Unexpected error";
       setError(msg);
-      toast.error("Sign-in failed", { description: msg });
     } finally {
       setIsLoading(false);
     }
@@ -94,15 +92,11 @@ function Login() {
         throw new Error("Students must use Google sign-in with SMU email.");
       }
 
-      toast.success("Login successful");
-
-
       if (name === "Admin") navigate({ to: "/admin/dashboard" });
       else navigate({ to: "/organisations/dashboard" });
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setError(msg);
-      toast.error("Login failed", { description: msg });
     } finally {
       setIsLoading(false);
     }

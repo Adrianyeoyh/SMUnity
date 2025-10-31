@@ -67,9 +67,6 @@ function OrgDashboard() {
 
   // --- UI Helper Functions ---
   const handleCreateListing = useCallback(() => {
-    toast.success("Start a new listing", {
-      description: "Redirecting you to the listing builder.",
-    });
     setTimeout(() => {
       navigate({ to: "/organisations/new" });
     }, 200);
@@ -139,7 +136,7 @@ function OrgDashboard() {
   const displayListings = useMemo(() => {
     const baseListings = listingsData?.listings ?? [];
     const filtered = baseListings.filter(
-      (listing) => listing.status === listingStatusFilter
+      (listing: { status: string; startDate: string; volunteerCount: number; [key: string]: any }) => listing.status === listingStatusFilter
     );
 
     const sorted = [...filtered].sort((a, b) => {
