@@ -20,12 +20,10 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground font-body">
-              Connecting SMU students with meaningful community service opportunities. 
-              Making a difference, one project at a time.
+              Connecting SMU students with meaningful community service opportunities 
             </p>
             <div className="flex space-x-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Heart className="h-4 w-4 text" />
                 <span>Made with love for SMU</span>
                 <Heart className="h-4 w-4 text" />
               </div>
@@ -37,23 +35,39 @@ export function Footer() {
             <h3 className="font-heading font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link 
+                  to="/" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/about" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/discover" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
                   Discover CSPs
                 </Link>
               </li>
               <li>
-                <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Map View
-                </Link>
-              </li>
-              <li>
-                <Link to="/my-applications" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  My Applications
-                </Link>
-              </li>
-              <li>
-                <Link to="/favourites" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Favourites
+                <Link 
+                  to="/auth/login" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  Student Login
                 </Link>
               </li>
             </ul>
@@ -64,22 +78,29 @@ export function Footer() {
             <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>
-                <a href="/organization/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link 
+                  to="/auth/login" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  Organisation Login
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/auth/request" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
                   Create Organisation
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/admin/adminDashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Organisation Dashboard
-                </a>
-              </li>
-              <li>
-                <a href="/help" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Help Center
-                </a>
-              </li>
-              <li>
-                <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a 
+                  href="mailto:adrian.yeo.2024@computing.smu.edu.sg" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
                   Contact Support
                 </a>
               </li>
@@ -92,15 +113,35 @@ export function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>support@smunity.sg</span>
+                <a 
+                  href="mailto:adrian.yeo.2024@computing.smu.edu.sg" 
+                  className="hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  support@smunity.sg
+                </a>
               </div>
               <div className="flex items-center space-x-3 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <span>+65 1234 5678</span>
+                <a 
+                  href="tel:+6596724702" 
+                  className="hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  +65 9672 2702
+                </a>
               </div>
               <div className="flex items-center space-x-3 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span>Singapore Management University</span>
+                <a 
+                  href="https://maps.google.com/?q=Singapore+Management+University" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                  Singapore Management University
+                </a>
               </div>
             </div>
           </div>
@@ -112,10 +153,18 @@ export function Footer() {
               © {currentYear} SMUnity. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <a 
+                href="/privacy" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
                 Privacy Policy
               </a>
-              <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <a 
+                href="/terms" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
                 Terms of Service
               </a>
             </div>
