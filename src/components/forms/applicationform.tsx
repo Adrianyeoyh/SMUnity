@@ -80,7 +80,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
     resolver: zodResolver(FormSchema),
     defaultValues: {
       motivation: "",
-      availability: [],
       experience: "none",
       skills: "",
       agree: false,
