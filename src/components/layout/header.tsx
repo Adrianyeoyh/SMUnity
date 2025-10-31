@@ -280,13 +280,8 @@ export function Header() {
                 {/* Auth Buttons - Only when not logged in */}
                 <div className="hidden md:flex items-center space-x-2">
                   <Link to="/auth/login">
-                    <Button variant="ghost">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/auth/signup">
                     <Button>
-                      Get Started
+                      Sign In
                     </Button>
                   </Link>
                 </div>
@@ -402,13 +397,8 @@ export function Header() {
                   </Link>
                   <div className="pt-4 border-t space-y-2">
                     <Link to="/auth/login" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full" variant="outline">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link to="/auth/signup" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full">
-                        Get Started
+                        Sign In
                       </Button>
                     </Link>
                   </div>
