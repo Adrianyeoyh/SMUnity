@@ -210,7 +210,7 @@ function AdminOrganisationsPage() {
             {!loading && current.map((org) => (
               <Card
                 key={org.id}
-                className="group hover:shadow-sm transition cursor-pointer"
+                className="group rounded-xl border border-border/60 bg-white transition shadow-sm hover:border-primary/40 hover:shadow-md cursor-pointer"
                 onClick={() => {
                   setSelected(org);
                   setOpen(true);
@@ -219,8 +219,11 @@ function AdminOrganisationsPage() {
                 <CardHeader className="py-0">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <CardTitle className="font-heading text-base md:text-lg text-foreground transition-colors group-hover:text-primary">
-                        {org.name}
+                      <CardTitle className="font-heading text-base md:text-lg text-foreground transition-colors group-hover:text-primary flex items-center gap-2">
+                        <span>{org.name}</span>
+                        {org.status !== "pending" && (
+                          <Badge className={`${statusBadge[org.status]} font-body capitalize`}>{org.status}</Badge>
+                        )}
                       </CardTitle>
                       <CardDescription className="font-body flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
@@ -229,11 +232,40 @@ function AdminOrganisationsPage() {
                         </span>
                       </CardDescription>
                     </div>
-                    {org.status !== "pending" && (
-                      <Badge className={`${statusBadge[org.status]} font-body capitalize`}>
-                        {org.status}
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {org.status === "active" && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmOrg(org);
+                            setConfirmAction("suspend");
+                            setConfirmOpen(true);
+                          }}
+                          disabled={busyId === org.id}
+                        >
+                          {busyId === org.id ? "Suspending..." : "Suspend"}
+                        </Button>
+                      )}
+                      {org.status === "suspended" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmOrg(org);
+                            setConfirmAction("reactivate");
+                            setConfirmOpen(true);
+                          }}
+                          disabled={busyId === org.id}
+                        >
+                          {busyId === org.id ? "Reactivating..." : "Reactivate"}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-1 pb-2">
@@ -253,38 +285,7 @@ function AdminOrganisationsPage() {
                         </a>
                       )}
                     </div>
-                    {org.status === "active" && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setConfirmOrg(org);
-                          setConfirmAction("suspend");
-                          setConfirmOpen(true);
-                        }}
-                        disabled={busyId === org.id}
-                      >
-                        {busyId === org.id ? "Suspending..." : "Suspend"}
-                      </Button>
-                    )}
-                    {org.status === "suspended" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setConfirmOrg(org);
-                          setConfirmAction("reactivate");
-                          setConfirmOpen(true);
-                        }}
-                        disabled={busyId === org.id}
-                      >
-                        {busyId === org.id ? "Reactivating..." : "Reactivate"}
-                      </Button>
-                    )}
+                    {/* actions moved to header */}
                   </div>
                 </CardContent>
               </Card>
@@ -366,37 +367,35 @@ function AdminOrganisationsPage() {
                     )}
                   </div>
                 </div>
-                {selected.status === "active" && (
-                  <div className="pt-2 flex items-center justify-end">
-                    {selected.status === "active" ? (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => {
-                          setConfirmOrg(selected);
-                          setConfirmAction("suspend");
-                          setConfirmOpen(true);
-                        }}
-                        disabled={busyId === selected.id}
-                      >
-                        {busyId === selected.id ? "Suspending..." : "Suspend"}
-                      </Button>
-                    ) : selected.status === "suspended" ? (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() => {
-                          setConfirmOrg(selected);
-                          setConfirmAction("reactivate");
-                          setConfirmOpen(true);
-                        }}
-                        disabled={busyId === selected.id}
-                      >
-                        {busyId === selected.id ? "Reactivating..." : "Reactivate"}
-                      </Button>
-                    ) : null}
-                  </div>
-                )}
+                <div className="pt-2 flex items-center justify-end">
+                  {selected.status === "active" ? (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        setConfirmOrg(selected);
+                        setConfirmAction("suspend");
+                        setConfirmOpen(true);
+                      }}
+                      disabled={busyId === selected.id}
+                    >
+                      {busyId === selected.id ? "Suspending..." : "Suspend"}
+                    </Button>
+                  ) : selected.status === "suspended" ? (
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={() => {
+                        setConfirmOrg(selected);
+                        setConfirmAction("reactivate");
+                        setConfirmOpen(true);
+                      }}
+                      disabled={busyId === selected.id}
+                    >
+                      {busyId === selected.id ? "Reactivating..." : "Reactivate"}
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             </>
           )}

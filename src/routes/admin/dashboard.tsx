@@ -8,23 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#client/components/ui/dialog";
 import { Input } from "#client/components/ui/input";
 import { Label } from "#client/components/ui/label";
-import {
-  ShieldCheck,
-  Users,
-  ClipboardList,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Calendar,
-  Search,
-  Building2,
-  AlertTriangle,
-  Mail,
-  Phone,
-  UserCheck,
-  Clock4,
-  Plus,
-} from "lucide-react";
+import { ClipboardList, CheckCircle2, XCircle, Calendar, Search, Building2, Mail, Phone, UserCheck, Clock4, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { fetchAdminDashboard } from "#client/api/admin/dashboard.ts";
 import { createOrganiser } from "#client/api/admin/create.ts";
@@ -283,7 +267,7 @@ function AdminDashboard() {
   }
 
   try {
-    const result = await createOrganiser(organiserForm);
+    await createOrganiser(organiserForm);
 
     toast.success("Organiser created successfully", {
       description: `${organiserForm.organiserName} from ${organiserForm.organisationName} has been added.`,
@@ -373,7 +357,7 @@ function AdminDashboard() {
             </CardHeader>
              <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
-                {stats?.approved} approved · {stats?.pending} pending
+                {stats?.pending ?? 0} pending
               </div>
             </CardContent>
           </Card>
@@ -442,7 +426,7 @@ function AdminDashboard() {
                 <TabsList className="flex w-full flex-wrap justify-start gap-2">
                   <TabsTrigger value="all" className="font-body">All</TabsTrigger>
               <TabsTrigger value="pending" className="font-body">
-                Pending {stats?.pending > 0 && `(${stats?.pending})`}
+                Pending {(stats?.pending ?? 0) > 0 && `(${stats?.pending ?? 0})`}
               </TabsTrigger>
                   <TabsTrigger value="approved" className="font-body">Approved</TabsTrigger>
                   <TabsTrigger value="rejected" className="font-body">Rejected</TabsTrigger>
