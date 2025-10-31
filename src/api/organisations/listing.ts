@@ -47,15 +47,6 @@ export async function createOrganisationProject(data: FormInput) {
   return res.json();
 }
 
-// export async function fetchListingById({ queryKey }: any) {
-//   const [_key, projectId] = queryKey;
-//   const res = await fetch(`/organisations/listing/${projectId}`, {
-//     credentials: "include",
-//   });
-
-//   if (!res.ok) throw new Error("Failed to fetch project listing");
-//   return res.json();
-// }
 export async function fetchListingById({ queryKey }: any) {
   const [_key, projectId] = queryKey;
 

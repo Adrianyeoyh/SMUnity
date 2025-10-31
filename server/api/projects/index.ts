@@ -3,7 +3,7 @@ import { createApp } from "#server/factory.ts";
 import * as schema from "#server/drizzle/schema";
 import { studentMiddleware } from "#server/middlewares/auth.ts";
 import z from "zod";
-import { eq, count } from "drizzle-orm";
+import { eq, count, and } from "drizzle-orm";
 
 
 const projects = createApp().use(studentMiddleware);
@@ -35,10 +35,12 @@ projects.post("/apply", async (c) => {
 
     const { projectId, ...data } = parsed.data;
 
+    // ✅ Step 1: Fetch project details including application deadline
     const [project] = await db
       .select({
         id: schema.projects.id,
         slotsTotal: schema.projects.slotsTotal,
+        applyBy: schema.projects.applyBy,
       })
       .from(schema.projects)
       .where(eq(schema.projects.id, projectId))
@@ -49,11 +51,27 @@ projects.post("/apply", async (c) => {
       return c.json({ error: "Project not found." }, 404);
     }
 
-    const [{ count: currentCount }] =
-      await db
-        .select({ count: count() })
-        .from(schema.projMemberships)
-        .where(eq(schema.projMemberships.projId, projectId));
+    // ✅ Step 2: Check if deadline has passed
+    if (project.applyBy) {
+      const now = new Date();
+      const deadline = new Date(project.applyBy);
+
+      if (now > deadline) {
+        console.warn(
+          `⚠️ [Apply] User ${user.id} tried to apply after deadline (${deadline.toISOString()})`
+        );
+        return c.json(
+          { error: "The application deadline for this project has passed." },
+          400
+        );
+      }
+    }
+
+    // ✅ Step 3: Check capacity
+    const [{ count: currentCount }] = await db
+      .select({ count: count() })
+      .from(schema.projMemberships)
+      .where(eq(schema.projMemberships.projId, projectId));
 
     if (currentCount >= project.slotsTotal) {
       console.warn(`⚠️ [Apply] Project ${projectId} is full.`);
@@ -63,14 +81,20 @@ projects.post("/apply", async (c) => {
     const existing = await db
       .select()
       .from(schema.applications)
-      .where(eq(schema.applications.projectId, projectId))
+      .where(
+        and(
+          eq(schema.applications.projectId, projectId),
+          eq(schema.applications.userId, user.id)
+        )
+      )
       .limit(1);
 
     if (existing.length > 0) {
-      console.warn(`⚠️ [Apply] Duplicate application by user ${user.id}.`);
+      console.warn(`⚠️ [Apply] User ${user.id} already applied for project ${projectId}.`);
       return c.json({ error: "You have already applied to this project." }, 400);
     }
 
+    // ✅ Step 5: Insert new application
     await db.insert(schema.applications).values({
       projectId,
       userId: user.id,
@@ -92,73 +116,7 @@ projects.post("/apply", async (c) => {
 });
 
 
-// projects.post("/apply", async (c) => {
-//   const user = c.get("user");
-//   if (!user?.id) {
-//     return c.json({ error: "Not authenticated." }, 401);
-//   }
 
-//   const body = await c.req.json();
-//   const parsed = ApplicationSchema.safeParse(body);
-//   if (!parsed.success) {
-//     return c.json({ error: "Invalid form data", details: parsed.error.flatten() }, 400);
-//   }
-
-//   const { projectId, ...data } = parsed.data;
-
-//   // ✅ Step 1: check if project exists
-//   const [project] = await db
-//     .select({
-//       id: schema.projects.id,
-//       slotsTotal: schema.projects.slotsTotal,
-//     })
-//     .from(schema.projects)
-//     .where(eq(schema.projects.id, projectId))
-//     .limit(1);
-
-//   if (!project) {
-//     return c.json({ error: "Project not found." }, 404);
-//   }
-
-//   // ✅ Step 2: check if project is already full
-//   const [{ count: currentCount }] =
-//     await db
-//       .select({ count: count() })
-//       .from(schema.projMemberships)
-//       .where(eq(schema.projMemberships.projId, projectId));
-
-//   if (currentCount >= project.slotsTotal) {
-//     return c.json({ error: "This project has reached its full capacity." }, 400);
-//   }
-
-//   // ✅ Step 3: check if user already applied
-//   const existing = await db
-//     .select()
-//     .from(schema.applications)
-//     .where(
-//       eq(schema.applications.projectId, projectId)
-//     )
-//     .limit(1);
-
-//   if (existing.length > 0) {
-//     return c.json({ error: "You have already applied to this project." }, 400);
-//   }
-
-//   // ✅ Step 4: insert new application
-//   await db.insert(schema.applications).values({
-//     projectId,
-//     userId: user.id,
-//     status: "pending",
-//     motivation: data.motivation,
-//     experience: data.experience,
-//     skills: data.skills ?? null,
-//     comments: data.comments ?? null,
-//     acknowledgeSchedule: data.acknowledgeSchedule,
-//     agree: data.agree,
-//   });
-
-//   return c.json({ success: true, message: "Application submitted successfully!" }, 200);
-// });
 
 
 export default projects;

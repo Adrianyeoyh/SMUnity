@@ -23,6 +23,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/r
 import { useQuery } from "@tanstack/react-query";
 import { fetchListingById } from "#client/api/organisations/listing.ts";
 import { format } from "date-fns";
+import { decideApplication } from "#client/api/organisations/application.ts";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "#client/components/ui/dialog";
 
 export const Route = createFileRoute("/organisations/$projectId")({
   component: ListingApplicationsPage,
@@ -56,16 +66,34 @@ const STATUS_META: Record<ApplicationStatus, { tone: string; label: string }> = 
 };
 
 function ListingApplicationsPage() {
-    const { projectId } = Route.useParams();
+  const { projectId } = Route.useParams();
   const navigate = useNavigate({ from: "/organisations/$projectId" });
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["listing", projectId],
-    queryFn: fetchListingById,
-  });
+  const { data, isLoading, isError, refetch } = useQuery({
+  queryKey: ["listing", projectId],
+  queryFn: fetchListingById,
+});
+
 
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<any | null>(null);
+  const [decisionType, setDecisionType] = useState<"accept" | "reject" | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  async function handleDecision(applicationId: number, action: "accept" | "reject") {
+    try {
+      const res = await decideApplication(applicationId, action);
+      toast.success(res.message || `Application ${action}ed.`);
+      setConfirmOpen(false);
+      // Refresh application data
+      await refetch();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update application");
+    }
+  }
+
+  
 
   // ✅ Always define hooks before conditionally rendering
   const project = data?.project;
@@ -285,16 +313,48 @@ function ListingApplicationsPage() {
                                   {app.motivation ?? "—"}
                                 </p>
                               </TableCell>
-                              <TableCell className="text-right">
-                                <Button variant="ghost" size="sm" asChild>
+                              <TableCell className="text-right flex gap-2 justify-end">
+                                {/* View Profile */}
+                                <Button variant="outline" size="sm" asChild>
                                   <Link
                                     to="/applicants/$applicantId"
                                     params={{ applicantId: app.userId }}
                                   >
-                                    View Profile
+                                    View
                                   </Link>
                                 </Button>
+
+                                {/* Only show Accept/Reject if pending */}
+                                {app.status === "pending" && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="success"
+                                      className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                      onClick={() => {
+                                        setSelectedApp(app);
+                                        setDecisionType("accept");
+                                        setConfirmOpen(true);
+                                      }}
+                                    >
+                                      Accept
+                                    </Button>
+
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => {
+                                        setSelectedApp(app);
+                                        setDecisionType("reject");
+                                        setConfirmOpen(true);
+                                      }}
+                                    >
+                                      Reject
+                                    </Button>
+                                  </>
+                                )}
                               </TableCell>
+
                             </TableRow>
                           );
                         })}
@@ -307,6 +367,35 @@ function ListingApplicationsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              {decisionType === "accept" ? "Confirm Acceptance" : "Confirm Rejection"}
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to {decisionType} this application?
+              <br />
+              <span className="font-medium">
+                Applicant: {selectedApp?.applicant?.name ?? "Unknown"}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant={decisionType === "accept" ? "success" : "destructive"}
+              onClick={() => handleDecision(selectedApp.id, decisionType!)}
+            >
+              {decisionType === "accept" ? "Accept" : "Reject"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

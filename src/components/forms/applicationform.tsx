@@ -22,6 +22,7 @@ import {
 import { Separator } from "#client/components/ui/separator"
 import { createApplication } from "#client/api/projects/index.ts"
 import { toast } from "sonner"
+import { useNavigate } from "@tanstack/react-router"
 
 const days = [
   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
@@ -76,6 +77,7 @@ export type ApplicationFormProps = {
 }
 
 export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps) {
+  const navigate = useNavigate();
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -86,7 +88,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
       acknowledgeSchedule: false,
       comments: "",
     },
-  })
+  });
 
   const [submitting, setSubmitting] = React.useState(false)
   const [serverError, setServerError] = React.useState<string | null>(null)
@@ -111,6 +113,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
         submittedAt: new Date().toISOString(),
       });
       form.reset();
+      navigate({ to: `/csp/${projectId}` }); // <--- this line
     } catch (err: any) {
         console.error("❌ Application submission failed:", err);
 

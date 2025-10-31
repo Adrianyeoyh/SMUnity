@@ -18,6 +18,7 @@ import organisationsRoutes from "./organisations";
 import { organisationRequestsRoutes } from "./organisations/requests";
 import discover from "./public/discover";
 import projects from "./projects"
+import application from "./organisations/application";
 
 
 export const apiRouter = new Hono();
@@ -28,6 +29,7 @@ apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 apiRouter.route("/organisations", organisationsRoutes);
 apiRouter.route("/discover", discover);
 apiRouter.route("/projects", projects);
+apiRouter.route("/applications", application)
 
   
 

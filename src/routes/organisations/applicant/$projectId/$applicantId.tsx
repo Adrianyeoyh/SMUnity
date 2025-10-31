@@ -21,6 +21,10 @@ type ApplicantProfile = {
   summary: string;
   skills: string[];
   interests: string[];
+  // backend-provided textual fields (optional)
+  experience?: string; // e.g. "none" | "some" | "extensive"
+  skillsText?: string; // optional short string (different from skills[])
+  comments?: string; // optional additional remarks
   serviceHours: number;
   completedProjects: number;
   recentApplications: Array<{
@@ -198,7 +202,7 @@ const statusBadgeTone: Record<string, string> = {
   completed: "bg-slate-100 text-slate-700",
 };
 
-export const Route = createFileRoute("/applicants/$applicantId")({
+export const Route = createFileRoute("/organisations/applicant/$projectId/$applicantId")({
   component: ApplicantProfileRoute,
 });
 
@@ -250,139 +254,97 @@ function ApplicantProfileRoute() {
         </div>
 
         <Card>
-          <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col items-center gap-4 text-center md:flex-row md:text-left">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={applicant.image} alt={applicant.name} />
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="font-heading text-2xl font-semibold text-foreground">{applicant.name}</h1>
-                <p className="text-sm text-muted-foreground font-body">{applicant.summary}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-body">
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <GraduationCap className="h-3.5 w-3.5" />
-                    Year {applicant.yearOfStudy} · {applicant.major}
-                  </Badge>
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {applicant.location}
-                  </Badge>
-                </div>
-              </div>
+  <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:justify-between">
+    {/* Left: Avatar + Info + Skills/Interests (stacked under avatar) */}
+    <div className="flex-1 min-w-0">
+      <div className="flex items-start gap-4">
+        <Avatar className="h-20 w-20 flex-shrink-0">
+          <AvatarImage src={applicant.image} alt={applicant.name} />
+          <AvatarFallback>{initials}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <h1 className="font-heading text-2xl font-semibold text-foreground truncate">{applicant.name}</h1>
+          <p className="text-sm text-muted-foreground font-body mt-1 truncate">{applicant.summary}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-body">
+            <Badge variant="outline" className="flex items-center gap-1">
+              <GraduationCap className="h-3.5 w-3.5" />
+              Year {applicant.yearOfStudy} · {applicant.major}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Skills and Interests below avatar */}
+      <div className="mt-4 flex flex-col gap-4">
+        <div>
+          <h2 className="font-heading text-sm font-semibold text-foreground uppercase tracking-wide">
+            Skills
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(applicant.skills ?? []).map((skill) => (
+              <Badge key={skill} variant="outline" className="rounded-full px-3 py-1 text-xs font-medium">
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-foreground">
+            Interest areas
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(applicant.interests ?? []).map((interest) => (
+              <Badge key={interest} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                {interest}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Right: Contact buttons - align to the top and right on md screens */}
+    <div className="flex flex-col gap-2 text-sm font-body self-start md:items-end">
+      <Button variant="secondary" asChild>
+        <a href={`mailto:${applicant.email}`} className="inline-flex items-center gap-2">
+          <Mail className="h-4 w-4" />
+          Email {applicant.name.split(" ")[0]}
+        </a>
+      </Button>
+      <Button variant="outline" asChild>
+        <a href={`tel:${applicant.phone.replace(/\s+/g, "")}`} className="inline-flex items-center gap-2">
+          <Phone className="h-4 w-4" />
+          Call {applicant.phone}
+        </a>
+      </Button>
+    </div>
+  </CardContent>
+</Card>
+
+
+        
+        
+        {/* Backend-provided additional fields */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-heading text-lg">Profile details</CardTitle>
+            <CardDescription className="font-body">
+              Additional fields pulled from the backend.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm text-foreground font-body">
+            <div>
+              <p className="text-muted-foreground">Experience</p>
+              <p className="font-medium">{(applicant as any).experience ?? (applicant.experience ?? '—')}</p>
             </div>
-            <div className="flex flex-col gap-2 text-sm font-body">
-              <Button variant="secondary" asChild>
-                <a href={`mailto:${applicant.email}`} className="inline-flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Email {applicant.name.split(" ")[0]}
-                </a>
-              </Button>
-              <Button variant="outline" asChild>
-                <a href={`tel:${applicant.phone.replace(/\s+/g, "")}`} className="inline-flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  Call {applicant.phone}
-                </a>
-              </Button>
+
+            <div>
+              <p className="text-muted-foreground">Comments</p>
+              <p className="font-medium whitespace-pre-wrap">{(applicant as any).comments ?? applicant.comments ?? '—'}</p>
             </div>
           </CardContent>
         </Card>
-
-        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-heading text-lg">Volunteer snapshot</CardTitle>
-              <CardDescription className="font-body">
-                Track this applicant&apos;s experience and interest fit.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg bg-background/70 p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground font-body">
-                    <Clock className="h-4 w-4" />
-                    Service hours
-                  </div>
-                  <p className="mt-1 text-2xl font-semibold text-foreground">{applicant.serviceHours}h</p>
-                </div>
-                <div className="rounded-lg bg-background/70 p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground font-body">
-                    <Star className="h-4 w-4" />
-                    Completed projects
-                  </div>
-                  <p className="mt-1 text-2xl font-semibold text-foreground">{applicant.completedProjects}</p>
-                </div>
-                <div className="rounded-lg bg-background/70 p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground font-body">
-                    <Award className="h-4 w-4" />
-                    Year of study
-                  </div>
-                  <p className="mt-1 text-2xl font-semibold text-foreground">Year {applicant.yearOfStudy}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h2 className="font-heading text-sm font-semibold text-foreground uppercase tracking-wide">Skills</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {applicant.skills.map((skill) => (
-                    <Badge key={skill} variant="outline" className="rounded-full px-3 py-1 text-xs font-medium">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-foreground">
-                  Interest areas
-                </h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {applicant.interests.map((interest) => (
-                    <Badge key={interest} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="items-start text-left">
-              <CardTitle className="font-heading text-lg">Contact details</CardTitle>
-              <CardDescription className="font-body">
-                Reach out directly or share with your organising team.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-foreground font-body">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-muted-foreground">Email</p>
-                  <p className="font-medium">{applicant.email}</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <a href={`mailto:${applicant.email}`}>Copy</a>
-                </Button>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-muted-foreground">Contact number</p>
-                  <p className="font-medium">{applicant.phone}</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <a href={`tel:${applicant.phone.replace(/\s+/g, "")}`}>Call</a>
-                </Button>
-              </div>
-              <Separator />
-              <div>
-                <p className="text-muted-foreground">Location</p>
-                <p className="font-medium">{applicant.location}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         <Card>
           <CardHeader>
@@ -439,5 +401,5 @@ function ApplicantProfileRoute() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

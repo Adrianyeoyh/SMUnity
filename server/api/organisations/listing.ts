@@ -1,6 +1,6 @@
 // server/api/organisations/listing.ts
 import { db } from "#server/drizzle/db";
-import * as schema from "#server/drizzle/schema/domain";
+import * as schema from "#server/drizzle/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { createApp } from "#server/factory.ts";
@@ -96,10 +96,68 @@ listing.post("/new", async (c) => {
 
 listing.delete("/delete")
 
+// listing.get("/:projectId", async (c) => {
+//   const projectId = c.req.param("projectId");
+
+//   // Get project + organisation + org.user.name
+//   const project = await db.query.projects.findFirst({
+//     where: eq(schema.projects.id, projectId),
+//     with: {
+//       org: {
+//         columns: {
+//           userId: true,
+//           slug: true,
+//           website: true,
+//           phone: true,
+//           description: true,
+//         },
+//         with: {
+//           user: {
+//             columns: {
+//               name: true,
+//             },
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   if (!project) return c.json({ error: "Project not found" }, 404);
+
+//   // Get volunteer count
+//   const members = await db
+//     .select()
+//     .from(schema.projMemberships)
+//     .where(eq(schema.projMemberships.projId, projectId));
+//   const volunteerCount = members.length;
+
+//   // Get applications
+//   const applications = await db
+//     .select({
+//       id: schema.applications.id,
+//       userId: schema.applications.userId,
+//       status: schema.applications.status,
+//       motivation: schema.applications.motivation,
+//       submittedAt: schema.applications.submittedAt,
+//     })
+//     .from(schema.applications)
+//     .where(eq(schema.applications.projectId, projectId));
+
+//   // ✅ Include org name from user table
+//   return ok(c, {
+//     project: {
+//       ...project,
+//       volunteerCount,
+//       orgName: project.org?.user?.name ?? null,
+//     },
+//     applications,
+//   });
+// });
+
 listing.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");
 
-  // Get project + organisation + org.user.name
+  // --- Fetch project + org info ---
   const project = await db.query.projects.findFirst({
     where: eq(schema.projects.id, projectId),
     with: {
@@ -112,11 +170,7 @@ listing.get("/:projectId", async (c) => {
           description: true,
         },
         with: {
-          user: {
-            columns: {
-              name: true,
-            },
-          },
+          user: { columns: { name: true } },
         },
       },
     },
@@ -124,14 +178,15 @@ listing.get("/:projectId", async (c) => {
 
   if (!project) return c.json({ error: "Project not found" }, 404);
 
-  // Get volunteer count
+  // --- Count current members ---
   const members = await db
     .select()
     .from(schema.projMemberships)
     .where(eq(schema.projMemberships.projId, projectId));
+
   const volunteerCount = members.length;
 
-  // Get applications
+  // --- Fetch applications + join with user ---
   const applications = await db
     .select({
       id: schema.applications.id,
@@ -139,18 +194,31 @@ listing.get("/:projectId", async (c) => {
       status: schema.applications.status,
       motivation: schema.applications.motivation,
       submittedAt: schema.applications.submittedAt,
+      applicantName: schema.user.name,
+      applicantEmail: schema.user.email,
     })
     .from(schema.applications)
+    .leftJoin(schema.user, eq(schema.user.id, schema.applications.userId))
     .where(eq(schema.applications.projectId, projectId));
 
-  // ✅ Include org name from user table
-  return ok(c, {
+  // --- Respond to frontend ---
+  return c.json({
     project: {
       ...project,
       volunteerCount,
       orgName: project.org?.user?.name ?? null,
     },
-    applications,
+    applications: applications.map((a) => ({
+      id: a.id,
+      userId: a.userId,
+      status: a.status,
+      motivation: a.motivation,
+      submittedAt: a.submittedAt,
+      applicant: {
+        name: a.applicantName,
+        email: a.applicantEmail,
+      },
+    })),
   });
 });
 

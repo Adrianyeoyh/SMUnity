@@ -72,23 +72,6 @@ export const projMemberships = pgTable("project_memberships", {
   byUser: index("proj_memberships_user_idx").on(t.userId),
 }));
 
-// ---------- TAXONOMIES ----------
-// export const categories = pgTable("categories", {
-//   id: serial("id").primaryKey(),
-//   name: varchar("name", { length: 100 }).notNull(),
-//   slug: varchar("slug", { length: 120 }).notNull(),
-// }, (t) => ({
-//   catSlugUnique: uniqueIndex("category_slug_unique").on(t.slug),
-// }));
-
-// export const tags = pgTable("tags", {
-//   id: serial("id").primaryKey(),
-//   name: varchar("name", { length: 60 }).notNull(),
-//   slug: varchar("slug", { length: 120 }).notNull(),
-// }, (t) => ({
-//   tagSlugUnique: uniqueIndex("tag_slug_unique").on(t.slug),
-// }));
-
 // ---------- PROJECTS ----------
 const tsvector = customType<{ data: string }>({
   dataType() {
@@ -133,21 +116,6 @@ export const projects = pgTable("projects", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
-
-// export const projectSessions = pgTable("project_sessions", {
-//   id: serial("id").primaryKey(),
-//   projectId: uuid("project_id").notNull().references(() => projects.id),
-//   startsAt: timestamp("starts_at").notNull(),
-//   endsAt: timestamp("ends_at").notNull(),
-//   capacity: integer("capacity"),
-//   locationNote: varchar("location_note", { length: 255 }),
-// }, (t) => ({
-//   byProject: index("sessions_project_idx").on(t.projectId),
-//   byTime: index("sessions_time_idx").on(t.startsAt),
-// }));
-
-// ---------- APPLICATIONS ----------
 
 export const applications = pgTable("applications", {
   id: serial("id").primaryKey(),
