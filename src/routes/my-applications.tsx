@@ -13,6 +13,8 @@ import {
   Eye,
   FileText
 } from "lucide-react";
+import { addToGoogleCalendar } from "#client/utils/googleCalendar";
+import { useState } from "react";
 
 export const Route = createFileRoute("/my-applications")({
   component: MyApplications,
@@ -20,6 +22,8 @@ export const Route = createFileRoute("/my-applications")({
 
 function MyApplications() {
   // Mock data for demonstration
+  const [isAddingToCalendar, setIsAddingToCalendar] = useState<string | null>(null);
+  
   const applications = [
     {
       id: "1",
@@ -70,6 +74,30 @@ function MyApplications() {
       motivation: "I have leadership experience and want to mentor young people. This virtual format works well with my schedule."
     }
   ];
+  const handleAddToCalendar = (application: typeof applications[0]) => {
+    if (!window.confirm(`Add "${application.cspTitle}" to your Google Calendar?`)) {
+      return;
+    }
+
+    setIsAddingToCalendar(application.id);
+
+    // Create event from application data
+    const result = addToGoogleCalendar({
+      title: application.cspTitle,
+      date: application.startDate,
+      time: "9:00 AM - 5:00 PM", // You can adjust this or get from application data
+      location: application.location,
+      description: `Community Service Project at ${application.organisation}\n\nService Hours: ${application.serviceHours}h\n\nYour Motivation: ${application.motivation}`,
+    });
+
+    setIsAddingToCalendar(null);
+
+    if (result.success) {
+      // Google Calendar opens in new tab - no need for alert
+    } else {
+      alert('❌ Failed to add to calendar. Please try again.');
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -207,9 +235,14 @@ function MyApplications() {
                       </Button>
                     )}
                     {application.status === "approved" && (
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleAddToCalendar(application)}
+                        disabled={isAddingToCalendar === application.id}
+                      >
                         <Calendar className="mr-2 h-4 w-4" />
-                        View Schedule
+                        {isAddingToCalendar === application.id ? 'Adding...' : 'Add to Google Calendar'}
                       </Button>
                     )}
                   </div>
@@ -302,9 +335,14 @@ function MyApplications() {
                         <Eye className="mr-2 h-4 w-4" />
                         View Details
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleAddToCalendar(application)}
+                        disabled={isAddingToCalendar === application.id}
+                      >
                         <Calendar className="mr-2 h-4 w-4" />
-                        View Schedule
+                        {isAddingToCalendar === application.id ? 'Adding...' : 'Add to Google Calendar'}
                       </Button>
                     </div>
                   </CardContent>

@@ -27,7 +27,7 @@ export const addToGoogleCalendar = (event: {
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: event.title,
-      dates:` ${startStr}/${endStr}`,
+      dates:`${startStr}/${endStr}`,
       details: event.description || '',
       location: event.location,
       ctz: 'Asia/Singapore',
