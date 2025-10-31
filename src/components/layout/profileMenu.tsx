@@ -6,8 +6,10 @@ import { User } from "lucide-react";
 import { useAuth } from "#client/hooks/use-auth";
 
 function ProfileMenu() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const isOrganisation = user?.role === "organisation" || user?.accountType === "organisation";
 
   return (
     <div className="relative">
@@ -28,25 +30,27 @@ function ProfileMenu() {
           sideOffset={8}
         >
           <Link
-            to="/profile"
+            to={isOrganisation ? "/organisations/profile" : "/profile"}
             onClick={() => setOpen(false)}
-            className="block px-2 py-1 rounded hover:bg-gray-100"
+            className="block px-2 py-1 rounded hover:bg-gray-100 text-sm"
           >
             Profile
           </Link>
-          <Link
-            to="/favourites"
-            onClick={() => setOpen(false)}
-            className="block px-2 py-1 rounded hover:bg-gray-100"
-          >
-            Favourites
-          </Link>
+          {!isOrganisation && (
+            <Link
+              to="/favourites"
+              onClick={() => setOpen(false)}
+              className="block px-2 py-1 rounded hover:bg-gray-100 text-sm"
+            >
+              Favourites
+            </Link>
+          )}
           <button
             onClick={() => {
               logout();
               setOpen(false);
             }}
-            className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
+            className="w-full text-left px-2 py-1 rounded hover:bg-gray-100 text-sm"
           >
             Logout
           </button>

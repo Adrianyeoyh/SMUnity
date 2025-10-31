@@ -63,7 +63,7 @@ function Profile() {
   const requiredServiceHours = FALLBACK_PROFILE.requiredServiceHours;
   const progressPercentage = requiredServiceHours ? Math.min((totalServiceHours / requiredServiceHours) * 100, 100) : 0;
   const hoursRemaining = Math.max(requiredServiceHours - totalServiceHours, 0);
-  const joinDate = profileData?.joinDate ?? FALLBACK_PROFILE.joinDate;
+  const joinDate = FALLBACK_PROFILE.joinDate;
   const formattedJoinDate = joinDate ? new Date(joinDate).toLocaleDateString("en-GB") : "Not available";
 
   const completedCSPs = [
@@ -124,14 +124,14 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
         {isError && (
           <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             We&apos;re showing placeholder data because we couldn&apos;t load your latest profile details.
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[400px_1fr]">
           <aside className="space-y-6">
             <Card className="shadow-sm">
               <CardContent className="space-y-6">
@@ -151,7 +151,7 @@ function Profile() {
                   </div>
                   <Button variant="outline" className="w-full" asChild>
                     <Link to="/profileedit" search={{ section: "about" }}>
-                      Edit
+                      Edit Profile
                     </Link>
                   </Button>
                 </div>
@@ -196,8 +196,10 @@ function Profile() {
           <section className="space-y-6">
             <Card className="shadow-sm">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-xl font-semibold">Service Overview</CardTitle>
-                <CardDescription>Track your progress towards {requiredServiceHours} required hours.</CardDescription>
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-semibold">Service Overview</CardTitle>
+                  <CardDescription>Track your progress towards {requiredServiceHours} required hours</CardDescription>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
@@ -227,17 +229,19 @@ function Profile() {
             </Card>
 
             <Card className="shadow-sm">
-              <CardHeader className="flex items-start justify-between space-y-0">
-                <div>
-                  <CardTitle className="text-xl font-semibold">Skills & Interests</CardTitle>
-                  <CardDescription>Organisations use these to tailor opportunities for you.</CardDescription>
+              <CardHeader className="space-y-1">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-xl font-semibold">Skills & Interests</CardTitle>
+                    <CardDescription>Organisations use these to tailor opportunities for you</CardDescription>
+                  </div>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/profileedit" search={{ section: "skills" }}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Link>
+                  </Button>
                 </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/profileedit" search={{ section: "skills" }}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                  </Link>
-                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -276,14 +280,16 @@ function Profile() {
             </Card>
 
             <Card className="shadow-sm">
-              <CardHeader className="flex items-start justify-between space-y-0">
-                <div>
-                  <CardTitle className="text-xl font-semibold">Completed CSPs</CardTitle>
-                  <CardDescription>Your recent service contributions.</CardDescription>
+              <CardHeader className="space-y-1">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-xl font-semibold">Completed CSPs</CardTitle>
+                    <CardDescription>Your recent service contributions</CardDescription>
+                  </div>
+                  <Button variant="ghost" size="sm">
+                    View all
+                  </Button>
                 </div>
-                <Button variant="ghost" size="sm">
-                  View all
-                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 {completedCSPs.map((csp) => (

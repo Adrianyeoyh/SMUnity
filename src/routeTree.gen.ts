@@ -20,7 +20,9 @@ import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganisationsProfileRouteImport } from './routes/organisations/profile'
 import { Route as OrganisationsNewRouteImport } from './routes/organisations/new'
+import { Route as OrganisationsEditprofileRouteImport } from './routes/organisations/editprofile'
 import { Route as OrganisationsDashboardTESTRouteImport } from './routes/organisations/dashboardTEST'
 import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
 import { Route as OrganisationsProjectIdTESTRouteImport } from './routes/organisations/$projectIdTEST'
@@ -96,11 +98,22 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganisationsProfileRoute = OrganisationsProfileRouteImport.update({
+  id: '/organisations/profile',
+  path: '/organisations/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganisationsNewRoute = OrganisationsNewRouteImport.update({
   id: '/organisations/new',
   path: '/organisations/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganisationsEditprofileRoute =
+  OrganisationsEditprofileRouteImport.update({
+    id: '/organisations/editprofile',
+    path: '/organisations/editprofile',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OrganisationsDashboardTESTRoute =
   OrganisationsDashboardTESTRouteImport.update({
     id: '/organisations/dashboardTEST',
@@ -229,7 +242,9 @@ export interface FileRoutesByFullPath {
   '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
+  '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
 }
@@ -262,7 +277,9 @@ export interface FileRoutesByTo {
   '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
+  '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
 }
@@ -296,7 +313,9 @@ export interface FileRoutesById {
   '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
+  '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
 }
@@ -331,7 +350,9 @@ export interface FileRouteTypes {
     | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
     | '/organisations/dashboardTEST'
+    | '/organisations/editprofile'
     | '/organisations/new'
+    | '/organisations/profile'
     | '/csp/$cspId/apply'
     | '/organisations/preview/$projectPreview'
   fileRoutesByTo: FileRoutesByTo
@@ -364,7 +385,9 @@ export interface FileRouteTypes {
     | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
     | '/organisations/dashboardTEST'
+    | '/organisations/editprofile'
     | '/organisations/new'
+    | '/organisations/profile'
     | '/csp/$cspId/apply'
     | '/organisations/preview/$projectPreview'
   id:
@@ -397,7 +420,9 @@ export interface FileRouteTypes {
     | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
     | '/organisations/dashboardTEST'
+    | '/organisations/editprofile'
     | '/organisations/new'
+    | '/organisations/profile'
     | '/csp/$cspId/apply'
     | '/organisations/preview/$projectPreview'
   fileRoutesById: FileRoutesById
@@ -431,7 +456,9 @@ export interface RootRouteChildren {
   OrganisationsProjectIdTESTRoute: typeof OrganisationsProjectIdTESTRoute
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
   OrganisationsDashboardTESTRoute: typeof OrganisationsDashboardTESTRoute
+  OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
   OrganisationsNewRoute: typeof OrganisationsNewRoute
+  OrganisationsProfileRoute: typeof OrganisationsProfileRoute
   CspCspIdApplyRoute: typeof CspCspIdApplyRoute
   OrganisationsPreviewProjectPreviewRoute: typeof OrganisationsPreviewProjectPreviewRoute
 }
@@ -515,11 +542,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organisations/profile': {
+      id: '/organisations/profile'
+      path: '/organisations/profile'
+      fullPath: '/organisations/profile'
+      preLoaderRoute: typeof OrganisationsProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organisations/new': {
       id: '/organisations/new'
       path: '/organisations/new'
       fullPath: '/organisations/new'
       preLoaderRoute: typeof OrganisationsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organisations/editprofile': {
+      id: '/organisations/editprofile'
+      path: '/organisations/editprofile'
+      fullPath: '/organisations/editprofile'
+      preLoaderRoute: typeof OrganisationsEditprofileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organisations/dashboardTEST': {
@@ -687,7 +728,9 @@ const rootRouteChildren: RootRouteChildren = {
   OrganisationsProjectIdTESTRoute: OrganisationsProjectIdTESTRoute,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
   OrganisationsDashboardTESTRoute: OrganisationsDashboardTESTRoute,
+  OrganisationsEditprofileRoute: OrganisationsEditprofileRoute,
   OrganisationsNewRoute: OrganisationsNewRoute,
+  OrganisationsProfileRoute: OrganisationsProfileRoute,
   CspCspIdApplyRoute: CspCspIdApplyRoute,
   OrganisationsPreviewProjectPreviewRoute:
     OrganisationsPreviewProjectPreviewRoute,
