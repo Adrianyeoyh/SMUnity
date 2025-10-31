@@ -31,7 +31,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4 text-center md:text-left">
+          <div className="hidden md:block space-y-4 text-center md:text-left">
             <h3 className="font-heading font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -74,7 +74,7 @@ export function Footer() {
           </div>
 
           {/* For Organisations */}
-          <div className="space-y-4 text-center md:text-left">
+          <div className="hidden md:block space-y-4 text-center md:text-left">
             <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>

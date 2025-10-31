@@ -27,7 +27,6 @@ import { Route as OrganisationsProjectIdTESTRouteImport } from './routes/organis
 import { Route as OrganisationsProjectIdRouteImport } from './routes/organisations/$projectId'
 import { Route as CspCspTestRouteImport } from './routes/csp/cspTest'
 import { Route as CspProjectIDRouteImport } from './routes/csp/$projectID'
-import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRequestRouteImport } from './routes/auth/request'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
@@ -134,11 +133,6 @@ const CspProjectIDRoute = CspProjectIDRouteImport.update({
   path: '/csp/$projectID',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/auth/signup',
-  path: '/auth/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/auth/reset-password',
   path: '/auth/reset-password',
@@ -229,7 +223,6 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/auth/signup': typeof AuthSignupRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/csp/cspTest': typeof CspCspTestRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
@@ -263,7 +256,6 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/auth/signup': typeof AuthSignupRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/csp/cspTest': typeof CspCspTestRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
@@ -298,7 +290,6 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/request': typeof AuthRequestRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/auth/signup': typeof AuthSignupRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/csp/cspTest': typeof CspCspTestRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
@@ -334,7 +325,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/request'
     | '/auth/reset-password'
-    | '/auth/signup'
     | '/csp/$projectID'
     | '/csp/cspTest'
     | '/organisations/$projectId'
@@ -368,7 +358,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/request'
     | '/auth/reset-password'
-    | '/auth/signup'
     | '/csp/$projectID'
     | '/csp/cspTest'
     | '/organisations/$projectId'
@@ -402,7 +391,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/request'
     | '/auth/reset-password'
-    | '/auth/signup'
     | '/csp/$projectID'
     | '/csp/cspTest'
     | '/organisations/$projectId'
@@ -437,7 +425,6 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRequestRoute: typeof AuthRequestRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
-  AuthSignupRoute: typeof AuthSignupRoute
   CspProjectIDRoute: typeof CspProjectIDRoute
   CspCspTestRoute: typeof CspCspTestRoute
   OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
@@ -577,13 +564,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CspProjectIDRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/signup': {
-      id: '/auth/signup'
-      path: '/auth/signup'
-      fullPath: '/auth/signup'
-      preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/reset-password': {
       id: '/auth/reset-password'
       path: '/auth/reset-password'
@@ -701,7 +681,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRequestRoute: AuthRequestRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
-  AuthSignupRoute: AuthSignupRoute,
   CspProjectIDRoute: CspProjectIDRoute,
   CspCspTestRoute: CspCspTestRoute,
   OrganisationsProjectIdRoute: OrganisationsProjectIdRoute,

@@ -489,7 +489,7 @@ function Index() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-6">
               Find Your Perfect{" "}
@@ -512,7 +512,7 @@ function Index() {
                 <Input
                   type="search"
                   placeholder="Search for CSPs, organisations, or skills..."
-                  className="pl-12 pr-4 py-4 text-lg h-14 rounded-xl border-2 focus:border-transparent focus:outline-none focus:ring-0 placeholder:opacity-100 focus:placeholder:opacity-0 transition-all"
+                  className="pl-12 pr-20 sm:pr-24 md:pr-28 py-4 text-base sm:text-lg h-14 rounded-xl border-2 focus:border-transparent focus:outline-none focus:ring-0 placeholder:opacity-100 focus:placeholder:opacity-0 transition-all placeholder:text-sm sm:placeholder:text-base"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -524,13 +524,14 @@ function Index() {
                   onBlur={(e) => e.target.placeholder = "Search for CSPs, organisations, or skills..."}
                 />
                 <Button 
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-4 sm:px-6 text-sm sm:text-base"
                   onClick={() => {
                     // Navigate to Discover page with search query
                     navigate({ to: "/discover", search: { q: searchQuery } });
                   }}
                 >
-                  Search
+                  <span className="hidden sm:inline">Search</span>
+                  <Search className="h-4 w-4 sm:hidden" />
                 </Button>
               </div>
             </div>
@@ -555,14 +556,14 @@ function Index() {
       </section>
 
       {/* About SMUnity Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 max-w-6xl">
+      <section className="pt-16 pb-20 md:pb-24 bg-background">
+        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
           <div className="space-y-6">
-            <h2 className="font-heading text-4xl font-bold text-foreground text-left">
+            <h2 className="font-heading text-4xl font-bold text-foreground text-center md:text-left">
               Connecting <span className="text-gradient-smunity">SMU</span> with the{" "}
               <span className="text-gradient-smunity">Community</span>
             </h2>
-            <p className="text-lg text-muted-foreground font-body leading-relaxed text-left">
+            <p className="text-lg text-muted-foreground font-body leading-relaxed text-center md:text-left">
               Finding a volunteer cause should not be complicated. SMUnity aims to brings all your community service needs into <strong className="text-foreground">one centralised, seamless platform.</strong> Discover verified local and overseas projects, submit applications instantly, and track your service hours for CSU requirements all within SMUnity! 
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 max-w-4xl mx-auto">
@@ -599,8 +600,8 @@ function Index() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
+      <section className="py-10 md:py-12 bg-muted/30">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-12">
             <h2 className="font-heading text-3xl font-bold text-foreground mb-4">
               Browse by Category
@@ -640,7 +641,7 @@ function Index() {
 
       {/* Featured CSPs Section */}
       <section id="featured-csps" className="py-12 bg-gradient-to-br from-secondary/10 via-background to-primary/5">
-        <div className="container mx-auto px-4 max-w-6xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="font-heading text-3xl font-bold text-foreground mb-2">
@@ -965,7 +966,7 @@ function Index() {
 
       {/* CTA Section */}
       <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 md:px-6 text-center">
           <h2 className="font-heading text-3xl font-bold mb-4">
             Ready to Make a Difference?
           </h2>
