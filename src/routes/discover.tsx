@@ -1017,11 +1017,6 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
               <div className="flex h-full items-center justify-center text-destructive">
                 Unable to load Google Maps. Please try again later.
               </div>
-            ) : nonRemoteCSPs.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                <MapIcon className="h-12 w-12" />
-                <p>No location-based CSPs available at the moment.</p>
-              </div>
             ) : (
               <GoogleMap
                 mapContainerStyle={{
