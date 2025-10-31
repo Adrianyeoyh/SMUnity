@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#client/components/ui/dialog";
 import { Input } from "#client/components/ui/input";
 import { Label } from "#client/components/ui/label";
+import { Textarea } from "#client/components/ui/textarea";
 import { ClipboardList, CheckCircle2, XCircle, Calendar, Search, Building2, Mail, Phone, UserCheck, Clock4, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { fetchAdminDashboard } from "#client/api/admin/dashboard.ts";
@@ -69,6 +70,10 @@ function AdminDashboard() {
     password: "",
   });
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedRejectOrganiser, setSelectedRejectOrganiser] = useState<OrganiserRecord | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectAttempted, setRejectAttempted] = useState(false);
 
   const [stats, setStats] = useState<{
   activeOrganisations: number;
@@ -196,7 +201,7 @@ function AdminDashboard() {
   }, [currentPage]);
 
 
-  const handleStatusChange = async (id: string, status: OrganiserStatus) => {
+  const handleStatusChange = async (id: string, status: OrganiserStatus, reason?: string) => {
     try {
       if (status === "approved") await approveRequest(id);
       else await rejectRequest(id);
@@ -214,11 +219,33 @@ function AdminDashboard() {
 
       const notify = status === "rejected" ? toast.error : toast.success;
       notify(`Organiser ${status}`, {
-        description: "Decision has been recorded successfully.",
+        description: reason ? `Reason: ${reason}` : "Decision has been recorded successfully.",
       });
     } catch (error) {
       toast.error("Action failed", { description: (error as Error).message });
     }
+  };
+
+  const handleRejectClick = (organiser: OrganiserRecord) => {
+    setSelectedRejectOrganiser(organiser);
+    setRejectionReason("");
+    setRejectAttempted(false);
+    setShowRejectModal(true);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!selectedRejectOrganiser) return;
+    
+    if (!rejectionReason.trim()) {
+      setRejectAttempted(true);
+      return;
+    }
+    
+    await handleStatusChange(selectedRejectOrganiser.id, "rejected", rejectionReason);
+    setShowRejectModal(false);
+    setSelectedRejectOrganiser(null);
+    setRejectionReason("");
+    setRejectAttempted(false);
   };
 
 
@@ -484,7 +511,7 @@ function AdminDashboard() {
                             <Button
                               size="sm"
                             className="bg-red-600 hover:bg-red-700 text-white"
-                            onClick={() => handleStatusChange(organiser.id, "rejected")}
+                            onClick={() => handleRejectClick(organiser)}
                             >
                               <XCircle className="mr-2 h-4 w-4" />
                               Reject
@@ -705,6 +732,113 @@ function AdminDashboard() {
               className="flex-1 h-10"
             >
               Create Organiser
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Organisation Modal */}
+      <Dialog 
+        open={showRejectModal} 
+        onOpenChange={(open) => {
+          setShowRejectModal(open);
+          if (!open) {
+            setSelectedRejectOrganiser(null);
+            setRejectionReason("");
+            setRejectAttempted(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-2xl">Reject Organisation Request</DialogTitle>
+            <DialogDescription className="font-body">
+              Please provide a reason for rejecting this organisation request. This information will be recorded.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedRejectOrganiser && (
+            <div className="space-y-4 py-4">
+              {/* Organisation Details */}
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Organisation Details</Label>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Organisation Name:</span>
+                    <span className="font-medium">{selectedRejectOrganiser.organisationName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Submitted by:</span>
+                    <span className="font-medium">{selectedRejectOrganiser.organiserName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Email:</span>
+                    <a href={`mailto:${selectedRejectOrganiser.email}`} className="font-medium hover:text-primary">
+                      {selectedRejectOrganiser.email}
+                    </a>
+                  </div>
+                  {selectedRejectOrganiser.phone && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Phone:</span>
+                      <a href={`tel:${selectedRejectOrganiser.phone}`} className="font-medium hover:text-primary">
+                        {selectedRejectOrganiser.phone}
+                      </a>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Submitted on:</span>
+                    <span className="font-medium">{selectedRejectOrganiser.submittedOn}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rejection Reason */}
+              <div className="space-y-2">
+                <Label htmlFor="rejectionReason" className="text-base font-medium">
+                  Reason for Rejection *
+                </Label>
+                <Textarea
+                  id="rejectionReason"
+                  placeholder="Enter the reason for rejecting this organisation request..."
+                  className={`min-h-[120px] text-base ${rejectAttempted && !rejectionReason.trim() ? 'border-red-500' : ''}`}
+                  value={rejectionReason}
+                  onChange={(e) => {
+                    setRejectionReason(e.target.value);
+                    if (rejectAttempted && e.target.value.trim()) {
+                      setRejectAttempted(false);
+                    }
+                  }}
+                  required
+                />
+                {rejectAttempted && !rejectionReason.trim() && (
+                  <p className="text-sm text-red-500">
+                    Please provide a reason for rejection.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowRejectModal(false);
+                setSelectedRejectOrganiser(null);
+                setRejectionReason("");
+                setRejectAttempted(false);
+              }}
+              className="flex-1 h-10"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirmReject}
+              className="flex-1 h-10 bg-red-600 hover:bg-red-700 text-white"
+            >
+              Confirm Rejection
             </Button>
           </DialogFooter>
         </DialogContent>
