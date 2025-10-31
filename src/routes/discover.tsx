@@ -29,7 +29,10 @@ type GoogleMapInstance = google.maps.Map;
 import { useQuery } from "@tanstack/react-query";
 import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
 
+
 import { toast } from "sonner";
+import { DISTRICT_REGION_MAP, CATEGORY_OPTIONS } from "../helper";
+
 
 export const Route = createFileRoute("/discover")({
   component: DiscoverCSPs,
@@ -222,13 +225,13 @@ function DiscoverCSPs() {
   };
 
   const locations = [
-    "all",
-    "North",
-    "South", 
-    "East",
-    "West",
-    "Central",
-    "Remote"
+  "all",
+  "North",
+  "North-East",
+  "East",
+  "West",
+  "Central",
+  "Remote"
   ];
 
   // Mock data for demonstration
@@ -272,9 +275,14 @@ if (isError)
       (csp.tags && csp.tags.some(tag => tag.toLowerCase().includes(query)));
     
     // Location filter - only apply if type is "local" or "all" (or if location is "Remote")
-    const matchesLocation = locationFilter === "all" || locationFilter === "" || 
-      (cspType === "overseas" && (csp.location === "Remote" || csp.isRemote)) ||
-      (cspType === "local" && csp.location.toLowerCase().includes(locationFilter.toLowerCase()));
+    console.log(csp.location)
+
+    const region = DISTRICT_REGION_MAP[csp.location ?? ""] || "Unknown";
+    const matchesLocation =
+      locationFilter === "all" ||
+      locationFilter === "" ||
+      (csp.isRemote && locationFilter === "Remote") ||
+      region === locationFilter;
     
     // Date filters
     const cspStartDate = new Date(csp.startDate);

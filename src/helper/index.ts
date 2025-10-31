@@ -30,17 +30,16 @@ export type FormInput = {
   project_tags: [];
 };
 
+
 export const CATEGORY_OPTIONS = [
-  "Teaching",
-  "Mentoring",
-  "Fundraising",
-  "Event Planning",
-  "Healthcare Support",
-  "Environmental Action",
-  "Logistics",
-  "Community Outreach",
-  "Administrative Support",
-  "Creative Media",
+   "Community",
+    "Mentoring",
+    "Environment",
+    "Elderly",
+    "Arts & Culture",
+    "Animal Welfare",
+    "Sports & Leisure",
+    "Coding"
 ];
 
 export const DISTRICTS = [
@@ -52,6 +51,59 @@ export const DISTRICTS = [
   "Sembawang","Sengkang","Serangoon","Siglap","Tampines","Tiong Bahru","Toa Payoh",
   "Woodlands","Yishun",
 ];
+
+export const DISTRICT_REGION_MAP: Record<string, string> = {
+  // North
+  "Woodlands": "North",
+  "Sembawang": "North",
+  "Yishun": "North",
+  "Mandai": "North",
+  "Admiralty": "North",
+
+  // North-East
+  "Ang Mo Kio": "North-East",
+  "Hougang": "North-East",
+  "Sengkang": "North-East",
+  "Serangoon": "North-East",
+  "Punggol": "North-East",
+  "Kovan": "North-East",
+
+  // East
+  "Bedok": "East",
+  "Tampines": "East",
+  "Pasir Ris": "East",
+  "Siglap": "East",
+  "Eunos": "East",
+  "Marine Parade": "East",
+
+  // West
+  "Jurong East": "West",
+  "Jurong West": "West",
+  "Clementi": "West",
+  "Boon Lay": "West",
+  "Bukit Batok": "West",
+  "Choa Chu Kang": "West",
+
+  // Central
+  "Orchard": "Central",
+  "Novena": "Central",
+  "Toa Payoh": "Central",
+  "City Hall": "Central",
+  "Bugis": "Central",
+  "Queenstown": "Central",
+  "Bukit Timah": "Central",
+  "Balestier": "Central",
+  "Holland": "Central",
+  "Alexandra": "Central",
+  "Tiong Bahru": "Central",
+  "MacPherson": "Central",
+  "Farrer Park": "Central",
+  "Katong": "Central",
+  "Amber": "Central",
+  "Harbourfront": "Central",
+  "Pasir Panjang": "Central",
+};
+
 
 export const SKILL_CHOICES = [
   "Communication", "Patience", "Teaching", "Empathy", "Creativity", "Program Design",
