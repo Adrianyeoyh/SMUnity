@@ -7,6 +7,7 @@ import { createApp } from "#server/factory.ts";
 import { organisationMiddleware } from "#server/middlewares/auth.ts";
 import listing from "./listing";
 import dashboard from "./dashboard";
+import application from "./application";
 
 
 const organisationsRoutes = createApp()
@@ -14,6 +15,7 @@ const organisationsRoutes = createApp()
 
 organisationsRoutes.route("/dashboard", dashboard);
 organisationsRoutes.route("/listing", listing);
+organisationsRoutes.route("/application", application)
 // organisationsRoutes.route("/queue", queue)
 
 export default organisationsRoutes
