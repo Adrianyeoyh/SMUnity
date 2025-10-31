@@ -148,13 +148,31 @@ export const projects = pgTable("projects", {
 // }));
 
 // ---------- APPLICATIONS ----------
+
 export const applications = pgTable("applications", {
   id: serial("id").primaryKey(),
-  projectId: uuid("project_id").notNull().references(() => projects.id),
-  userId: text("user_id").references(() => user.id).notNull(),
-  status: applicationStatusEnum("status").notNull().default("pending"),
-  // sessionId: integer("session_id").references(() => projectSessions.id),
-  motivation: text("motivation"),
+
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id),
+
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+
+  status: applicationStatusEnum("status")
+    .notNull()
+    .default("pending"),
+
+  motivation: text("motivation").notNull(),
+
+  // ✅ new fields
+  experience: text("experience").notNull(), // e.g. "none" | "some" | "extensive"
+  skills: text("skills"), // optional short string
+  comments: text("comments"), // optional additional remarks
+  acknowledgeSchedule: boolean("acknowledge_schedule").notNull().default(false),
+  agree: boolean("agree").notNull().default(false),
+
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
   decidedAt: timestamp("decided_at"),
 }, (t) => ({
@@ -162,6 +180,7 @@ export const applications = pgTable("applications", {
   byProject: index("apps_project_idx").on(t.projectId),
   byUser: index("apps_user_idx").on(t.userId),
 }));
+
 
 export const applicationReviews = pgTable("application_reviews", {
   id: serial("id").primaryKey(),
