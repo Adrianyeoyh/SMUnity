@@ -9,6 +9,7 @@ import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Separator } from "#client/components/ui/separator";
 import { Calendar, Globe, Mail, Phone, Search } from "lucide-react";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "#client/components/ui/dialog";
 import {
   AlertDialog,
@@ -110,6 +111,11 @@ function AdminOrganisationsPage() {
       await suspendOrganisation(org.id);
       setRecords((prev) => prev.map((r) => (r.id === org.id ? { ...r, status: "suspended" } : r)));
       setSelected((prev) => (prev && prev.id === org.id ? { ...prev, status: "suspended" } : prev));
+      toast.success("Organisation suspended", {
+        description: `${org.name} has been suspended and can no longer create or manage projects.`,
+      });
+    } catch (error) {
+      toast.error("Failed to suspend organisation");
     } finally {
       setBusyId(null);
     }
@@ -122,6 +128,11 @@ function AdminOrganisationsPage() {
       await reactivateOrganisation(org.id);
       setRecords((prev) => prev.map((r) => (r.id === org.id ? { ...r, status: "active" } : r)));
       setSelected((prev) => (prev && prev.id === org.id ? { ...prev, status: "active" } : prev));
+      toast.success("Organisation reactivated", {
+        description: `${org.name} can now create and manage projects again.`,
+      });
+    } catch (error) {
+      toast.error("Failed to reactivate organisation");
     } finally {
       setBusyId(null);
     }
@@ -406,7 +417,7 @@ function AdminOrganisationsPage() {
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-heading">{confirmAction === "suspend" ? "Suspend organisation?" : "Reactivate organisation?"}</AlertDialogTitle>
+            <AlertDialogTitle className="font-heading">{confirmAction === "suspend" ? "Suspend Organisation?" : "Reactivate Organisation?"}</AlertDialogTitle>
             <AlertDialogDescription className="font-body">
               {confirmAction === "suspend"
                 ? `This will prevent ${confirmOrg?.name ?? "this organisation"} from creating or managing projects until reactivated.`
@@ -424,6 +435,7 @@ function AdminOrganisationsPage() {
                 setConfirmOrg(null);
               }}
               disabled={!!busyId}
+              className={confirmAction === "suspend" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
             >
               {busyId ? (confirmAction === "suspend" ? "Suspending..." : "Reactivating...") : (confirmAction === "suspend" ? "Confirm Suspend" : "Confirm Reactivate")}
             </AlertDialogAction>

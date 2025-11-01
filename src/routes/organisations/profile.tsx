@@ -184,7 +184,7 @@ function OrganisationProfile() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete account?</AlertDialogTitle>
+                    <AlertDialogTitle>Delete Account?</AlertDialogTitle>
                     <AlertDialogDescription>
                       This will permanently delete your organisation account
                       and remove all associated data including listings and applications. <br/> <br/>This action cannot be undone. 

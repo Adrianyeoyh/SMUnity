@@ -1,12 +1,11 @@
-import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
-import { Separator } from "#client/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "#client/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
-import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Contact, Search } from "lucide-react";
+import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrgDashboard, fetchOrgListings } from "#client/api/organisations/dashboard.ts";
@@ -15,8 +14,6 @@ import { Input } from "#client/components/ui/input";
 export const Route = createFileRoute("/organisations/dashboard")({
   component: OrgDashboard,
 });
-
-type ApplicationStatus = "pending" | "shortlisted" | "confirmed" | "rejected";
 
 function OrgDashboard() {
   const navigate = useNavigate();
@@ -42,7 +39,7 @@ function OrgDashboard() {
     const counts = { open: 0, shortlisting: 0, ongoing: 0, archived: 0 };
     const baseListings = listingsData?.listings ?? [];
 
-    baseListings.forEach((listing) => {
+    baseListings.forEach((listing: { status: string; [key: string]: any }) => {
       if (counts.hasOwnProperty(listing.status)) {
         counts[listing.status as keyof typeof counts]++;
       }
@@ -195,7 +192,7 @@ function OrgDashboard() {
                   Organisation Dashboard
                 </h1>
                 <p className="text-muted-foreground font-body text-lg">
-                  Create listings, keep track of applications, and manage your volunteer pipeline.
+                  Create listings, keep track of applications, and manage your volunteer pipeline
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -299,7 +296,7 @@ function OrgDashboard() {
             <div>
               <h2 className="font-heading text-2xl">Your Listings</h2>
               <p className="font-body mt-2 text-muted-foreground">
-                Progress for every CSP you currently oversee.
+                Progress for every project you currently oversee
               </p>
             </div>
 
