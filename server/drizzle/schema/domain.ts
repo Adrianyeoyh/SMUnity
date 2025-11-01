@@ -38,7 +38,6 @@ export const profiles = pgTable("profiles", {
   // ---- Additional metadata ----
   skills: text("skills").array(),
   interests: text("interests").array(),
-  csuCompletedAt: timestamp("csu_completed_at"),
 
 }, (t) => ({
   studentIdUnique: uniqueIndex("profiles_student_id_unique").on(t.studentId),
@@ -65,7 +64,6 @@ export const organisations = pgTable("organisations", {
 export const projMemberships = pgTable("project_memberships", {
   projId: uuid("project_id").notNull().references(() => projects.id),
   userId: text("user_id").notNull().references(() => profiles.userId),
-  invitedAt: timestamp("invited_at").defaultNow().notNull(),
   acceptedAt: timestamp("accepted_at"),
 }, (t) => ({
   pk: primaryKey({ columns: [t.projId, t.userId] }),

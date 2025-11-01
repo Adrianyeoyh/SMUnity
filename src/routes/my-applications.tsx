@@ -1,20 +1,31 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import {
+  fetchMyApplications,
+  confirmApplication,
+  withdrawApplication,
+} from "#client/api/student";
+
+import { addToGoogleCalendar } from "#client/utils/GoogleCalendar";
+
 import { Button } from "#client/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
+import { Card, CardContent } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#client/components/ui/tabs";
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
+import {
+  Calendar,
+  Clock,
+  MapPin,
   CheckCircle,
   XCircle,
-  Clock as ClockIcon,
   Eye,
-  FileText
+  FileText,
+  AlertTriangle,
+  CalendarPlus,
 } from "lucide-react";
-import { addToGoogleCalendar } from "#client/utils/googleCalendar";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,150 +34,109 @@ import {
   DialogHeader,
   DialogTitle,
 } from "#client/components/ui/dialog";
-import { Label } from "#client/components/ui/label";
+import { Separator } from "#client/components/ui/separator";
+import { Input } from "#client/components/ui/input";
 import { Textarea } from "#client/components/ui/textarea";
+import { Checkbox } from "#client/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "#client/components/ui/radio-group";
 
 export const Route = createFileRoute("/my-applications")({
   component: MyApplications,
 });
 
 function MyApplications() {
-  const [isAddingToCalendar, setIsAddingToCalendar] = useState<string | null>(null);
-  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
-  const [withdrawalReason, setWithdrawalReason] = useState("");
-  const [showError, setShowError] = useState(false);
-  
-  const applications = [
-    {
-      id: "1",
-      cspTitle: "Teaching English to Underprivileged Children",
-      organisation: "Hope Foundation",
-      status: "approved",
-      appliedDate: "2024-01-15",
-      startDate: "2024-02-15",
-      endDate: "2024-05-15",
-      serviceHours: 40,
-      location: "Tampines",
-      motivation: "I have experience working with children and am passionate about education. I believe every child deserves access to quality education regardless of their background."
+  const queryClient = useQueryClient();
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<"withdraw" | "confirm" | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedApplicationData, setSelectedApplicationData] = useState<any | null>(null);
+
+  // 🔹 Fetch user’s applications
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["student-applications"],
+    queryFn: fetchMyApplications,
+  });
+
+  const applications = data?.applications ?? [];
+
+  // 🔹 Mutations
+  const confirmMutation = useMutation({
+    mutationFn: (id: number) => confirmApplication(id),
+    onSuccess: () => {
+      toast.success("✅ Application confirmed!");
+      queryClient.invalidateQueries(["student-applications"]);
     },
-    {
-      id: "2",
-      cspTitle: "Environmental Cleanup at East Coast Park",
-      organisation: "Green Singapore",
-      status: "pending",
-      appliedDate: "2024-01-20",
-      startDate: "2024-02-20",
-      endDate: "2024-02-20",
-      serviceHours: 8,
-      location: "East Coast Park",
-      motivation: "I'm very interested in environmental conservation and have participated in similar activities before. I want to contribute to keeping Singapore clean."
+    onError: (err: any) => toast.error(err.message || "Failed to confirm application"),
+  });
+
+  const withdrawMutation = useMutation({
+    mutationFn: (id: number) => withdrawApplication(id),
+    onSuccess: () => {
+      toast.success("🛑 Application withdrawn.");
+      queryClient.invalidateQueries(["student-applications"]);
     },
-    {
-      id: "3",
-      cspTitle: "Senior Care Support",
-      organisation: "Golden Years",
-      status: "rejected",
-      appliedDate: "2024-01-10",
-      startDate: "2024-02-01",
-      endDate: "2024-04-01",
-      serviceHours: 30,
-      location: "Toa Payoh",
-      motivation: "I want to help the elderly community and gain experience in healthcare. I have good communication skills and patience."
-    },
-    {
-      id: "4",
-      cspTitle: "Virtual Mentoring Program",
-      organisation: "Youth Connect",
-      status: "pending",
-      appliedDate: "2024-01-25",
-      startDate: "2024-03-01",
-      endDate: "2024-08-31",
-      serviceHours: 60,
-      location: "Remote",
-      motivation: "I have leadership experience and want to mentor young people. This virtual format works well with my schedule."
-    }
-  ];
+    onError: (err: any) => toast.error(err.message || "Failed to withdraw application"),
+  });
 
-  const handleAddToCalendar = (application: typeof applications[0]) => {
-    if (!window.confirm(`Add "${application.cspTitle}" to your Google Calendar?`)) {
-      return;
-    }
+  // 🔹 Action handlers
+  const openConfirmDialog = (app: any, action: "withdraw" | "confirm") => {
+    setSelectedApplication(app);
+    setSelectedAction(action);
+    setConfirmDialogOpen(true);
+  };
 
-    setIsAddingToCalendar(application.id);
-
-    const result = addToGoogleCalendar({
-      title: application.cspTitle,
-      date: application.startDate,
-      time: "9:00 AM - 5:00 PM",
-      location: application.location,
-      description: `Community Service Project at ${application.organisation}\n\nService Hours: ${application.serviceHours}h\n\nYour Motivation: ${application.motivation}`,
-    });
-
-    setIsAddingToCalendar(null);
-
-    if (result.success) {
-      // Google Calendar opens in new tab
+  const handleConfirmAction = () => {
+    if (!selectedApplication || !selectedAction) return;
+    if (selectedAction === "confirm") {
+      confirmMutation.mutate(selectedApplication.id);
     } else {
-      alert('❌ Failed to add to calendar. Please try again.');
+      withdrawMutation.mutate(selectedApplication.id);
     }
+    setConfirmDialogOpen(false);
+    setSelectedApplication(null);
+    setSelectedAction(null);
   };
 
-  const handleWithdrawClick = (applicationId: string) => {
-    setSelectedApplicationId(applicationId);
-    setWithdrawalReason("");
-    setShowError(false);
-    setWithdrawDialogOpen(true);
+  const handleViewApplication = (app: any) => {
+    setSelectedApplicationData(app);
+    setViewDialogOpen(true);
   };
 
-  const handleWithdrawSubmit = () => {
-    if (!withdrawalReason.trim()) {
-      setShowError(true);
-      return;
-    }
-
-    // Process withdrawal here
-    console.log("Withdrawing application:", selectedApplicationId);
-    console.log("Reason:", withdrawalReason);
-    
-    // Close dialog and reset
-    setWithdrawDialogOpen(false);
-    setWithdrawalReason("");
-    setShowError(false);
-    setSelectedApplicationId(null);
-    
-    // Show success message
-    alert("Application withdrawn successfully!");
+  const handleAddToCalendar = (app: any) => {
+    const result = addToGoogleCalendar({
+      title: app.projectTitle,
+      date: app.startDate,
+      time: `${app.timeStart || "09:00"} - ${app.timeEnd || "17:00"}`,
+      location: app.district || "Singapore",
+      description: `Community Service Project: ${app.projectTitle}\n\nOrganisation: ${app.organisation}\nService Hours: ${app.serviceHours ?? "N/A"}h`,
+    });
+    if (result.success) toast.success("📅 Event added to Google Calendar!");
+    else toast.error("Failed to add to Google Calendar.");
   };
 
-  const handleDialogClose = () => {
-    setWithdrawDialogOpen(false);
-    setWithdrawalReason("");
-    setShowError(false);
-    setSelectedApplicationId(null);
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "pending":
-        return <ClockIcon className="h-4 w-4 text-yellow-500" />;
-      case "rejected":
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return null;
-    }
-  };
+  // 🔹 Tab groupings
+  const groupedTabs = [
+    { label: "All", value: "all", data: applications },
+    { label: "Pending", value: "pending", data: applications.filter((a: any) => a.status === "pending") },
+    { label: "Accepted", value: "accepted", data: applications.filter((a: any) => a.status === "accepted") },
+    { label: "Confirmed", value: "confirmed", data: applications.filter((a: any) => a.status === "confirmed") },
+    { label: "Rejected", value: "rejected", data: applications.filter((a: any) => a.status === "rejected") },
+    { label: "Withdrawn", value: "withdrawn", data: applications.filter((a: any) => a.status === "withdrawn") },
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved":
+      case "accepted":
         return "bg-green-100 text-green-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "rejected":
         return "bg-red-100 text-red-800";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "withdrawn":
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -174,358 +144,234 @@ function MyApplications() {
 
   const getStatusMessage = (status: string) => {
     switch (status) {
-      case "approved":
-        return "Congratulations! Your application has been approved. You can now start your community service project.";
+      case "accepted":
+        return "Click confirm to accept your allocation.";
       case "pending":
-        return "Your application is being reviewed. We'll notify you once a decision has been made.";
+        return "Your application is under review.";
       case "rejected":
-        return "Unfortunately, your application was not successful this time. You can apply for other CSPs.";
+        return "Unfortunately, your application was not accepted.";
+      case "confirmed":
+        return "You have confirmed your participation.";
+      case "withdrawn":
+        return "You have withdrawn from this CSP.";
       default:
         return "";
     }
   };
 
-  const pendingApplications = applications.filter(app => app.status === "pending");
-  const approvedApplications = applications.filter(app => app.status === "approved");
-  const rejectedApplications = applications.filter(app => app.status === "rejected");
+  if (isLoading) return <p className="text-center py-10 text-muted-foreground">Loading applications...</p>;
+  if (error) return <p className="text-center py-10 text-destructive">Failed to load applications.</p>;
 
   return (
-    
     <div className="min-h-screen bg-background">
-      {/* Withdrawal Dialog */}
-      <Dialog open={withdrawDialogOpen} onOpenChange={handleDialogClose}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* ✅ View Application Modal */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] overflow-y-auto max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle className="font-heading">Withdraw Application</DialogTitle>
-            <DialogDescription className="font-body">
-              Please provide a reason for withdrawing your application. This helps us improve our services.
+            <DialogTitle className="font-heading text-xl">
+              Application for {selectedApplicationData?.projectTitle}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedApplicationData ? (
+            <div className="space-y-6 font-body text-sm mt-4">
+              <div>
+                <h3 className="font-heading text-lg mb-2">Motivation</h3>
+                <Textarea value={selectedApplicationData.motivation} readOnly className="min-h-[100px]" />
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="font-heading text-lg mb-2">Experience</h3>
+                <RadioGroup value={selectedApplicationData.experience} disabled>
+                  <div className="flex gap-2">
+                    {["none", "some", "extensive"].map((exp) => (
+                      <div key={exp} className="flex items-center space-x-2 border rounded-md p-2">
+                        <RadioGroupItem value={exp} />
+                        <span className="capitalize font-body">{exp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div>
+                <h3 className="font-heading text-lg mb-2">Skills</h3>
+                <Input value={selectedApplicationData.skills || "—"} readOnly />
+              </div>
+
+              <div>
+                <h3 className="font-heading text-lg mb-2">Additional Comments</h3>
+                <Textarea value={selectedApplicationData.comments || "—"} readOnly className="min-h-[80px]" />
+              </div>
+
+              <Separator />
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={selectedApplicationData.agree} disabled />
+                  <span className="text-sm text-muted-foreground">Agreed to Code of Conduct</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={selectedApplicationData.acknowledgeSchedule} disabled />
+                  <span className="text-sm text-muted-foreground">Acknowledged Project Schedule</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-4">Loading...</p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ✅ Confirm / Withdraw Dialog */}
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-heading capitalize">
+              {selectedAction === "withdraw" ? "Withdraw Application" : "Confirm Allocation"}
+            </DialogTitle>
+            <DialogDescription className="font-body text-muted-foreground">
+              {selectedAction === "withdraw"
+                ? "Once withdrawn, you cannot apply again for this CSP. Are you sure you want to proceed?"
+                : "Confirming means you agree to participate in this CSP and begin your service."}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="withdrawal-reason" className="font-body font-medium">
-                Reason for Withdrawal <span className="text-red-500">*</span>
-              </Label>
-              <Textarea
-                id="withdrawal-reason"
-                placeholder="Please explain why you're withdrawing your application..."
-                value={withdrawalReason}
-                onChange={(e) => {
-                  setWithdrawalReason(e.target.value);
-                  if (showError && e.target.value.trim()) {
-                    setShowError(false);
-                  }
-                }}
-                className={`min-h-[120px] font-body ${
-                  showError ? 'border-red-500 focus-visible:ring-red-500' : ''
-                }`}
-              />
-              {showError && (
-                <p className="text-sm text-red-500 font-body">Required field</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter className="gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleDialogClose}
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
               Cancel
             </Button>
             <Button
-              type="button"
-              variant="destructive"
-              onClick={handleWithdrawSubmit}
+              variant={selectedAction === "withdraw" ? "destructive" : "default"}
+              onClick={handleConfirmAction}
+              disabled={confirmMutation.isLoading || withdrawMutation.isLoading}
             >
-              Withdraw
+              {selectedAction === "withdraw" ? "Withdraw" : "Confirm"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Header */}
+      {/* ✅ Header */}
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            My Applications
-          </h1>
-          <p className="text-muted-foreground font-body text-lg">
-            Track the status of your CSP applications
-          </p>
+          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-4">My Applications</h1>
+          <p className="text-muted-foreground font-body text-lg">Track and manage your CSP applications</p>
         </div>
       </div>
 
+      {/* ✅ Tabs */}
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">All ({applications.length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({pendingApplications.length})</TabsTrigger>
-            <TabsTrigger value="approved">Approved ({approvedApplications.length})</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected ({rejectedApplications.length})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            {groupedTabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label} ({tab.data.length})
+              </TabsTrigger>
+            ))}
           </TabsList>
 
-          {/* All Applications */}
-          <TabsContent value="all" className="space-y-4">
-            {applications.map((application) => (
-              <Card key={application.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="space-y-1">
-                      <h3 className="font-heading text-xl font-semibold">
-                        {application.cspTitle}
-                      </h3>
-                      <p className="text-muted-foreground font-body">
-                        {application.organisation}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(application.status)}
-                      <Badge className={getStatusColor(application.status)}>
-                        {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                      </Badge>
-                    </div>
-                  </div>
+          {groupedTabs.map((tab) => (
+            <TabsContent key={tab.value} value={tab.value} className="space-y-4">
+              {tab.data.length > 0 ? (
+                tab.data.map((app: any) => (
+                  <Card key={app.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <Link to="/csp/$projectId" params={{ projectId: app.projectId }}>
+                            <h3 className="font-heading text-xl font-semibold text-primary hover:underline cursor-pointer">
+                              {app.projectTitle}
+                            </h3>
+                          </Link>
+                          <p className="text-muted-foreground font-body">{app.organisation}</p>
+                        </div>
+                        <Badge className={getStatusColor(app.status)}>
+                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                        </Badge>
+                      </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4" />
-                      <span className="font-body">
-                        Applied: {new Date(application.appliedDate).toLocaleDateString("en-GB")}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
-                      <span className="font-body">
-                        Start: {new Date(application.startDate).toLocaleDateString("en-GB")}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
-                      <span className="font-body">
-                        End: {new Date(application.endDate).toLocaleDateString("en-GB")}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
-                      <span className="font-body">{application.serviceHours} hours</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-4 w-4" />
-                      <span className="font-body">{application.location}</span>
-                    </div>
-                  </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" /> Applied:{" "}
+                          {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" /> Start:{" "}
+                          {new Date(app.startDate).toLocaleDateString("en-GB")}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" /> End:{" "}
+                          {new Date(app.endDate).toLocaleDateString("en-GB")}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" /> {app.district || "N/A"}
+                        </div>
+                      </div>
 
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground font-body">
-                      <strong>Your Motivation:</strong> {application.motivation}
-                    </p>
-                  </div>
+                      <div className="mb-3 text-sm text-muted-foreground font-body">
+                        <strong>Your Motivation:</strong> {app.motivation}
+                      </div>
 
-                  <div className="mb-4 p-3 rounded-lg bg-muted/50">
-                    <p className="text-sm font-body">
-                      <strong>Status:</strong> {getStatusMessage(application.status)}
-                    </p>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button size="sm">
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Details
-                    </Button>
-                    {application.status === "pending" && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleWithdrawClick(application.id)}
-                      >
-                        <FileText className="mr-2 h-4 w-4" />
-                        Withdraw
-                      </Button>
-                    )}
-                    {application.status === "approved" && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleAddToCalendar(application)}
-                        disabled={isAddingToCalendar === application.id}
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {isAddingToCalendar === application.id ? 'Adding...' : 'Add to Google Calendar'}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-
-          {/* Pending Applications */}
-          <TabsContent value="pending" className="space-y-4">
-            {pendingApplications.length > 0 ? (
-              pendingApplications.map((application) => (
-                <Card key={application.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="space-y-1">
-                        <h3 className="font-heading text-xl font-semibold">
-                          {application.cspTitle}
-                        </h3>
-                        <p className="text-muted-foreground font-body">
-                          {application.organisation}
+                      <div className="mb-4 p-3 rounded-lg bg-muted/40">
+                        <p className="text-sm font-body">
+                          <AlertTriangle className="inline h-4 w-4 mr-1 text-muted-foreground" />
+                          {getStatusMessage(app.status)}
                         </p>
                       </div>
-                      <Badge className={getStatusColor(application.status)}>
-                        {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                      </Badge>
-                    </div>
 
-                    <div className="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                      <p className="text-sm font-body text-yellow-800">
-                        <strong>Status:</strong> {getStatusMessage(application.status)}
-                      </p>
-                    </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" onClick={() => handleViewApplication(app)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Application
+                        </Button>
 
-                    <div className="flex space-x-2">
-                      <Button size="sm">
-                        <Eye className="mr-2 h-4 w-4" />
-                        View Details
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleWithdrawClick(application.id)}
-                      >
-                        <FileText className="mr-2 h-4 w-4" />
-                        Withdraw
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <ClockIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-heading text-lg font-semibold mb-2">No Pending Applications</h3>
-                <p className="text-muted-foreground font-body mb-4">
-                  You don't have any pending applications at the moment.
-                </p>
-                <Button>
-                  Browse CSPs
-                </Button>
-              </div>
-            )}
-          </TabsContent>
+                        {app.status === "accepted" && (
+                          <>
+                            <Button size="sm" onClick={() => openConfirmDialog(app, "confirm")}>
+                              <CheckCircle className="mr-2 h-4 w-4" /> Confirm
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openConfirmDialog(app, "withdraw")}
+                            >
+                              <FileText className="mr-2 h-4 w-4" /> Withdraw
+                            </Button>
+                          </>
+                        )}
 
-          {/* Approved Applications */}
-          <TabsContent value="approved" className="space-y-4">
-            {approvedApplications.length > 0 ? (
-              approvedApplications.map((application) => (
-                <Card key={application.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="space-y-1">
-                        <h3 className="font-heading text-xl font-semibold">
-                          {application.cspTitle}
-                        </h3>
-                        <p className="text-muted-foreground font-body">
-                          {application.organisation}
-                        </p>
+                        {app.status === "pending" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openConfirmDialog(app, "withdraw")}
+                          >
+                            <FileText className="mr-2 h-4 w-4" /> Withdraw
+                          </Button>
+                        )}
+
+                        {(app.status === "confirmed" || app.status === "accepted") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleAddToCalendar(app)}
+                          >
+                            <CalendarPlus className="mr-2 h-4 w-4" /> Add to Google Calendar
+                          </Button>
+                        )}
                       </div>
-                      <Badge className={getStatusColor(application.status)}>
-                        {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                      </Badge>
-                    </div>
-
-                    <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200">
-                      <p className="text-sm font-body text-green-800">
-                        <strong>Status:</strong> {getStatusMessage(application.status)}
-                      </p>
-                    </div>
-
-                    <div className="flex space-x-2">
-                      <Button size="sm">
-                        <Eye className="mr-2 h-4 w-4" />
-                        View Details
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleAddToCalendar(application)}
-                        disabled={isAddingToCalendar === application.id}
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {isAddingToCalendar === application.id ? 'Adding...' : 'Add to Google Calendar'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-heading text-lg font-semibold mb-2">No Approved Applications</h3>
-                <p className="text-muted-foreground font-body mb-4">
-                  You don't have any approved applications yet.
-                </p>
-                <Button>
-                  Browse CSPs
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Rejected Applications */}
-          <TabsContent value="rejected" className="space-y-4">
-            {rejectedApplications.length > 0 ? (
-              rejectedApplications.map((application) => (
-                <Card key={application.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="space-y-1">
-                        <h3 className="font-heading text-xl font-semibold">
-                          {application.cspTitle}
-                        </h3>
-                        <p className="text-muted-foreground font-body">
-                          {application.organisation}
-                        </p>
-                      </div>
-                      <Badge className={getStatusColor(application.status)}>
-                        {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                      </Badge>
-                    </div>
-
-                    <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
-                      <p className="text-sm font-body text-red-800">
-                        <strong>Status:</strong> {getStatusMessage(application.status)}
-                      </p>
-                    </div>
-
-                    <div className="flex space-x-2">
-                      <Button size="sm">
-                        <Eye className="mr-2 h-4 w-4" />
-                        View Details
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        Apply Again
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <XCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-heading text-lg font-semibold mb-2">No Rejected Applications</h3>
-                <p className="text-muted-foreground font-body mb-4">
-                  Great! You don't have any rejected applications.
-                </p>
-                <Button>
-                  Browse CSPs
-                </Button>
-              </div>
-            )}
-          </TabsContent>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground font-body">No {tab.label.toLowerCase()} applications.</p>
+                </div>
+              )}
+            </TabsContent>
+          ))}
         </Tabs>
       </div>
     </div>
