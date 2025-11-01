@@ -81,7 +81,7 @@ function AdminDashboard() {
   activeOrganisations: number;
   totalCSPListings: number;
   activeUsers: number;
-  serviceHours: number;
+  // serviceHours: number;
   pending: number;
 } | null>(null);
 
@@ -93,7 +93,7 @@ function AdminDashboard() {
           activeOrganisations: data.totals.organisations,
           totalCSPListings: data.totals.projects,
           activeUsers: data.totals.users,
-          serviceHours: data.totals.serviceHours,
+          // serviceHours: data.totals.serviceHours,
           pending: data.pendingOrgRequests,
         });
       } catch (err) {
@@ -111,7 +111,7 @@ function AdminDashboard() {
       activeOrganisations: data.totals.organisations,
       totalCSPListings: data.totals.projects,
       activeUsers: data.totals.users,
-      serviceHours: data.totals.serviceHours,
+      // serviceHours: data.totals.serviceHours,
       pending: data.pendingOrgRequests,
     });
   } catch (err) {
@@ -449,7 +449,7 @@ function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -466,7 +466,7 @@ function AdminDashboard() {
                 Total hours contributed
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Organisation Approval Queue */}

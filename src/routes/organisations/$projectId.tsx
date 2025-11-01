@@ -44,7 +44,7 @@ type ApplicationStatus =
   | "rejected"
   | "confirmed"
   | "withdrawn"
-  | "cancelled";
+  // | "cancelled";
 
 const STATUS_TABS: Array<{ value: ApplicationStatus | "all"; label: string }> = [
   { value: "all", label: "All" },
@@ -53,7 +53,7 @@ const STATUS_TABS: Array<{ value: ApplicationStatus | "all"; label: string }> = 
   { value: "rejected", label: "Rejected" },
   { value: "confirmed", label: "Confirmed" },
   { value: "withdrawn", label: "Withdrawn" },
-  { value: "cancelled", label: "Cancelled" },
+  // { value: "cancelled", label: "Cancelled" },
 ];
 
 const STATUS_META: Record<ApplicationStatus, { tone: string; label: string }> = {
@@ -62,7 +62,7 @@ const STATUS_META: Record<ApplicationStatus, { tone: string; label: string }> = 
   rejected: { tone: "bg-rose-100 text-rose-800", label: "Rejected" },
   confirmed: { tone: "bg-purple-100 text-purple-800", label: "Confirmed" },
   withdrawn: { tone: "bg-gray-100 text-gray-700", label: "Withdrawn" },
-  cancelled: { tone: "bg-gray-100 text-gray-700", label: "Cancelled" },
+  // cancelled: { tone: "bg-gray-100 text-gray-700", label: "Cancelled" },
 };
 
 function ListingApplicationsPage() {
