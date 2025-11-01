@@ -324,8 +324,8 @@ function ListingApplicationsPage() {
                                 {/* View Profile */}
                                 <Button variant="outline" size="sm" asChild>
                                   <Link
-                                    to="/applicants/$applicantId"
-                                    params={{ applicantId: app.userId }}
+                                    to="/organisations/applicant/$projectId/$applicantId"
+                                    params={{ applicantId: app.userId, projectId: project.id }}
                                   >
                                     View
                                   </Link>

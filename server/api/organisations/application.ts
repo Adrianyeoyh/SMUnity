@@ -3,7 +3,8 @@ import { createApp } from "#server/factory.ts";
 import { organisationMiddleware } from "#server/middlewares/auth.ts";
 import * as schema from "#server/drizzle/schema";
 import z from "zod";
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
+import { ok } from "#server/helper/index.ts";
 
 const application = createApp().use(organisationMiddleware);
 
@@ -79,9 +80,44 @@ application.patch("/decision", async (c) => {
       newStatus,
     });
   } catch (err) {
-    console.error("💥 [Application Decision] Unexpected error:", err);
+    console.error(" [Application Decision] Unexpected error:", err);
     return c.json({ error: "Internal server error" }, 500);
   }
+});
+
+application.get("/viewApplicant/:projectId/:applicantId", async (c) => {
+  const { projectId, applicantId } = c.req.param();
+
+  // ✅ Get user basic info
+  const [user] = await db.select().from(schema.user).where(eq(schema.user.id, applicantId)).limit(1);
+  const [profile] = await db.select().from(schema.profiles).where(eq(schema.profiles.userId, applicantId)).limit(1);
+
+  // ✅ Get this project’s application
+  const [application] = await db
+    .select()
+    .from(schema.applications)
+    .where(and(eq(schema.applications.userId, applicantId), eq(schema.applications.projectId, projectId)))
+    .limit(1);
+
+  if (!application) {
+    return c.json({ error: "Application not found" }, 404);
+  }
+
+  // ✅ Get all application history by same applicant
+  const history = await db
+  .select({
+    id: schema.applications.id,
+    projectId: schema.applications.projectId, // 👈 add this line
+    projectTitle: schema.projects.title,
+    status: schema.applications.status,
+    submittedAt: schema.applications.submittedAt,
+  })
+  .from(schema.applications)
+  .leftJoin(schema.projects, eq(schema.projects.id, schema.applications.projectId))
+  .where(eq(schema.applications.userId, applicantId))
+  .orderBy(desc(schema.applications.submittedAt));
+
+  return ok(c, { user, profile, application, history });
 });
 
 export default application;
