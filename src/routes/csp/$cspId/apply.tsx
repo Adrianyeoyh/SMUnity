@@ -1,8 +1,9 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCspById } from "#client/api/public/discover.ts"; // ✅ existing API
 import { ApplicationForm } from "#client/components/forms/applicationform";
 import { Card, CardHeader, CardTitle, CardContent } from "#client/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/csp/$cspId/apply")({
   component: ApplyForCSPPage,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/csp/$cspId/apply")({
 
 function ApplyForCSPPage() {
   const { cspId } = useParams({ from: "/csp/$cspId/apply" });
+  const navigate = useNavigate();
 
   const { data: project, isLoading, isError } = useQuery({
     queryKey: ["csp-detail", cspId],
@@ -25,7 +27,18 @@ function ApplyForCSPPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl">
+    <div className="container mx-auto py-8 max-w-3xl">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+        <button
+          onClick={() => navigate({ to: -1 })}
+          className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </button>
+        <span>/</span>
+        <span className="text-foreground">Apply for {project.title}</span>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-heading">

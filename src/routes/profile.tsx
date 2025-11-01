@@ -249,7 +249,7 @@ function Profile() {
                   {displaySkills.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {displaySkills.map((skill) => (
-                        <Badge key={skill} variant="secondary" className="text-xs">
+                        <Badge key={skill} variant="secondary" className="text-xs bg-green-100 text-green-800 hover:bg-green-200">
                           {skill}
                         </Badge>
                       ))}
@@ -265,7 +265,7 @@ function Profile() {
                   {displayInterests.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {displayInterests.map((interest) => (
-                        <Badge key={interest} variant="outline" className="text-xs">
+                        <Badge key={interest} variant="outline" className="text-xs bg-blue-100 text-blue-800 hover:bg-blue-200">
                           {interest}
                         </Badge>
                       ))}

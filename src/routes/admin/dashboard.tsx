@@ -706,7 +706,7 @@ function AdminDashboard() {
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base font-medium">
-                Email *
+                Email
               </Label>
               <Input
                 id="email"
@@ -723,7 +723,7 @@ function AdminDashboard() {
                 </div>
             <div className="space-y-2">
               <Label htmlFor="organiserName" className="text-base font-medium">
-                Organiser Name *
+                Organiser Name
               </Label>
               <Input
                 id="organiserName"
@@ -739,7 +739,7 @@ function AdminDashboard() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="organisationName" className="text-base font-medium">
-                Organisation *
+                Organisation
               </Label>
               <Input
                 id="organisationName"
@@ -755,7 +755,7 @@ function AdminDashboard() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-base font-medium">
-                Password *
+                Password
               </Label>
               <Input
                 id="password"

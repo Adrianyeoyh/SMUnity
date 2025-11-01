@@ -1,12 +1,11 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,11 +22,11 @@ import {
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#client/components/ui/command";
 import { useMe, useProfileSettings, useSaveProfileSettings, useUpdateProfile } from "#client/api/hooks";
 import type { ProfileFormData } from "#client/api/types";
-import { cn } from "#client/lib/utils";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, X, ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/profileedit")({
   validateSearch: z.object({
@@ -91,6 +90,276 @@ const createProfileSchema = (requireAbout: boolean, requireSkills: boolean, requ
 
 type ProfileFormValues = z.infer<ReturnType<typeof createProfileSchema>>;
 
+// Skills Selector Component
+function SkillsSelector({ value, onChange, options }: { value: string[]; onChange: (skills: string[]) => void; options: string[] }) {
+  const selectedSkills = value || [];
+  const availableSkills = options.filter(skill => !selectedSkills.includes(skill));
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const filteredSkills = availableSkills.filter(skill =>
+    skill.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const isCustomSkill = searchQuery.trim() && 
+    !availableSkills.includes(searchQuery.trim()) && 
+    !selectedSkills.includes(searchQuery.trim());
+
+  const handleAddSkill = (skill: string) => {
+    if (skill.trim() && !selectedSkills.includes(skill.trim())) {
+      onChange([...selectedSkills, skill.trim()]);
+      setSearchQuery("");
+      setOpen(false);
+    }
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    onChange(selectedSkills.filter((s: string) => s !== skill));
+  };
+
+  // Handle escape key and click outside
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div className="space-y-3">
+      {/* Add Skill button or searchable dropdown */}
+      {!open ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Add Skill
+        </Button>
+      ) : (
+        <div ref={containerRef} className="relative w-full">
+          <Command className="rounded-lg border border-input bg-background shadow-md">
+            <CommandInput
+              placeholder="Search skills or type to add custom..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+            <CommandList className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md">
+              {filteredSkills.length > 0 && (
+                <CommandGroup heading="Available Skills">
+                  {filteredSkills.map((skill) => (
+                    <CommandItem
+                      key={skill}
+                      onSelect={() => handleAddSkill(skill)}
+                    >
+                      {skill}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {isCustomSkill && (
+                <CommandGroup heading="Custom Skill">
+                  <CommandItem
+                    onSelect={() => handleAddSkill(searchQuery.trim())}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add &quot;{searchQuery.trim()}&quot;
+                  </CommandItem>
+                </CommandGroup>
+              )}
+              <CommandEmpty>
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  {searchQuery.trim() ? "No matching skills found." : "Start typing to search or add a custom skill."}
+                </div>
+              </CommandEmpty>
+            </CommandList>
+          </Command>
+        </div>
+      )}
+      
+      {/* Selected skills as badges */}
+      {selectedSkills.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selectedSkills.map((skill: string) => (
+            <Badge
+              key={skill}
+              variant="default"
+              className="flex items-center gap-2 px-3 h-8 text-sm bg-emerald-500"
+            >
+              <span>{skill}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveSkill(skill)}
+                className="hover:bg-emerald-600 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Interests Selector Component
+function InterestsSelector({ value, onChange, options }: { value: string[]; onChange: (interests: string[]) => void; options: string[] }) {
+  const selectedInterests = value || [];
+  const availableInterests = options.filter(interest => !selectedInterests.includes(interest));
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const filteredInterests = availableInterests.filter(interest =>
+    interest.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const isCustomInterest = searchQuery.trim() && 
+    !availableInterests.includes(searchQuery.trim()) && 
+    !selectedInterests.includes(searchQuery.trim());
+
+  const handleAddInterest = (interest: string) => {
+    if (interest.trim() && !selectedInterests.includes(interest.trim())) {
+      onChange([...selectedInterests, interest.trim()]);
+      setSearchQuery("");
+      setOpen(false);
+    }
+  };
+
+  const handleRemoveInterest = (interest: string) => {
+    onChange(selectedInterests.filter((s: string) => s !== interest));
+  };
+
+  // Handle escape key and click outside
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div className="space-y-3">
+      {/* Add Interest button or searchable dropdown */}
+      {!open ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Add Interest
+        </Button>
+      ) : (
+        <div ref={containerRef} className="relative w-full">
+          <Command className="rounded-lg border border-input bg-background shadow-md">
+            <CommandInput
+              placeholder="Search interests or type to add custom..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+            <CommandList className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md">
+              {filteredInterests.length > 0 && (
+                <CommandGroup heading="Available Interests">
+                  {filteredInterests.map((interest) => (
+                    <CommandItem
+                      key={interest}
+                      onSelect={() => handleAddInterest(interest)}
+                    >
+                      {interest}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {isCustomInterest && (
+                <CommandGroup heading="Custom Interest">
+                  <CommandItem
+                    onSelect={() => handleAddInterest(searchQuery.trim())}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add &quot;{searchQuery.trim()}&quot;
+                  </CommandItem>
+                </CommandGroup>
+              )}
+              <CommandEmpty>
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  {searchQuery.trim() ? "No matching interests found." : "Start typing to search or add a custom interest."}
+                </div>
+              </CommandEmpty>
+            </CommandList>
+          </Command>
+        </div>
+      )}
+      
+      {/* Selected interests as badges */}
+      {selectedInterests.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selectedInterests.map((interest: string) => (
+            <Badge
+              key={interest}
+              variant="default"
+              className="flex items-center gap-2 px-3 h-8 text-sm bg-sky-500"
+            >
+              <span>{interest}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveInterest(interest)}
+                className="hover:bg-sky-600 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProfileEditRoute() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/profileedit" });
@@ -114,8 +383,8 @@ function ProfileEditRoute() {
       : activeSection === "about"
         ? "Update your particulars."
         : activeSection === "avatar"
-          ? "Upload or link a new profile picture."
-          : "Make changes to your profile details.";
+          ? "Upload or link a new profile picture"
+          : "Make changes to your profile details";
   const validationSchema = useMemo(
     () => createProfileSchema(showAbout, showSkills, showAvatar),
     [showAbout, showSkills, showAvatar],
@@ -150,17 +419,8 @@ function ProfileEditRoute() {
     });
   }, [data, meData, form]);
 
-  const selectedSkills = form.watch("skills");
-  const selectedInterests = form.watch("interests");
   const avatarUrlValue = form.watch("avatarUrl");
 
-  const toggleChip = (field: "skills" | "interests", value: string) => {
-    const current = field === "skills" ? selectedSkills : selectedInterests;
-    const next = current.includes(value)
-      ? current.filter((item) => item !== value)
-      : [...current, value];
-    form.setValue(field, next, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
-  };
 
   const onSubmit = async (values: ProfileFormValues) => {
     const trimmedStudentId = values.studentId ? values.studentId.trim() : undefined;
@@ -237,17 +497,13 @@ function ProfileEditRoute() {
                 <Form {...form}>
                   <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
                     {showAvatar && (
-                      <section className="space-y-4">
+                      <section className="space-y-6">
                         <FormField
                           control={form.control}
                           name="avatarUrl"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Profile picture</FormLabel>
-                              <FormDescription>
-                                Paste an image URL to use as your profile picture. Leave empty to use the default avatar.
-                                The override is saved to this browser only.
-                              </FormDescription>
+                              <FormLabel>Profile Picture URL</FormLabel>
                               <FormControl>
                                 <Input type="url" placeholder="https://example.com/avatar.jpg" {...field} />
                               </FormControl>
@@ -255,33 +511,41 @@ function ProfileEditRoute() {
                             </FormItem>
                           )}
                         />
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="h-20 w-20 overflow-hidden rounded-full border bg-muted">
-                              {avatarUrlValue ? (
-                                <img
-                                  src={avatarUrlValue}
-                                  alt="Profile preview"
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                                  No preview
-                                </div>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              Recommended: square image at least 200×200px.
-                            </p>
+                        
+                        {/* Preview */}
+                        <div className="space-y-2">
+                          <FormLabel>Preview</FormLabel>
+                          <div className="border rounded-lg p-4 bg-muted/20 min-h-[200px] flex items-center justify-center">
+                            {avatarUrlValue ? (
+                              <img 
+                                src={avatarUrlValue} 
+                                alt="Profile preview" 
+                                className="max-w-full max-h-[300px] object-contain rounded"
+                              />
+                            ) : (
+                              <div className="text-center text-muted-foreground">
+                                <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                <p className="text-sm">No image uploaded</p>
+                              </div>
+                            )}
                           </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            disabled={!avatarUrlValue}
-                            onClick={() => form.setValue("avatarUrl", "", { shouldDirty: true, shouldTouch: true })}
-                          >
-                            Remove photo
-                          </Button>
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-muted-foreground">
+                              Recommended: Square image at least 200×200px
+                            </p>
+                            {avatarUrlValue && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  form.setValue("avatarUrl", "", { shouldDirty: true, shouldTouch: true });
+                                }}
+                              >
+                                Remove Photo
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </section>
                     )}
@@ -356,33 +620,14 @@ function ProfileEditRoute() {
                         <FormField
                           control={form.control}
                           name="skills"
-                          render={() => (
+                          render={({ field }) => (
                             <FormItem>
                               <FormLabel>Skills</FormLabel>
-                              <div className="flex flex-wrap gap-2">
-                                {skillOptions.map((skill) => {
-                                  const active = selectedSkills.includes(skill);
-                                  return (
-                                    <Badge
-                                      key={skill}
-                                      asChild
-                                      className={cn(
-                                        "cursor-pointer rounded-full border px-4 py-2",
-                                        active
-                                          ? "bg-emerald-500 text-white border-transparent"
-                                          : "bg-background text-emerald-700 border-emerald-300 hover:bg-emerald-50",
-                                      )}
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() => toggleChip("skills", skill)}
-                                      >
-                                        {skill}
-                                      </button>
-                                    </Badge>
-                                  );
-                                })}
-                              </div>
+                              <SkillsSelector
+                                value={field.value || []}
+                                onChange={(skills) => field.onChange(skills)}
+                                options={skillOptions}
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -393,33 +638,14 @@ function ProfileEditRoute() {
                         <FormField
                           control={form.control}
                           name="interests"
-                          render={() => (
+                          render={({ field }) => (
                             <FormItem>
                               <FormLabel>Interests</FormLabel>
-                              <div className="flex flex-wrap gap-2">
-                                {interestOptions.map((interest) => {
-                                  const active = selectedInterests.includes(interest);
-                                  return (
-                                    <Badge
-                                      key={interest}
-                                      asChild
-                                      className={cn(
-                                        "cursor-pointer rounded-full border px-4 py-2",
-                                        active
-                                          ? "bg-sky-500 text-white border-transparent"
-                                          : "bg-background text-sky-700 border-sky-300 hover:bg-sky-50",
-                                      )}
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() => toggleChip("interests", interest)}
-                                      >
-                                        {interest}
-                                      </button>
-                                    </Badge>
-                                  );
-                                })}
-                              </div>
+                              <InterestsSelector
+                                value={field.value || []}
+                                onChange={(interests) => field.onChange(interests)}
+                                options={interestOptions}
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -435,7 +661,7 @@ function ProfileEditRoute() {
                         <Button variant="ghost" asChild disabled={isSubmitting}>
                           <Link to="/profile">Cancel</Link>
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
+                        <Button type="submit" disabled={isSubmitting} className="text-white">
                           {isSubmitting && (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           )}
