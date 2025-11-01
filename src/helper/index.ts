@@ -11,6 +11,7 @@ export type FormInput = {
   skill_tags: string[];
 
   district: string;
+  country: string;
   google_maps: string;
   remote: boolean;
 
@@ -106,9 +107,29 @@ export const DISTRICT_REGION_MAP: Record<string, string> = {
 
 
 export const SKILL_CHOICES = [
-  "Communication", "Patience", "Teaching", "Empathy", "Creativity", "Program Design",
+  "Communication", "Teaching", "Empathy", "Creativity", "Coding",
+  "Leadership", "Problem Solving", "Public Speaking", "Event Planning", "Social Media",
+  "Graphic Design", "Photography", "Videography", "Writing", "Editing",
+  "Marketing", "Fundraising", "Volunteer Management", "Project Management", "Research",
+  "Data Analysis", "Web Development", "Mobile App Development", "Database Management", "Networking",
+  "Counseling", "Mentoring", "Teamwork", "Organization", "Time Management",
 ];
 
 export const TAG_CHOICES = [
   "Children", "Kids", "Less Privileged", "Art", "School", "Education",
+  "Elderly", "Youth", "Teenagers", "Adults", "Families", "Community",
+  "Environment", "Sustainability", "Conservation", "Wildlife", "Nature", "Outdoor",
+  "Health", "Wellness", "Fitness", "Mental Health", "Disability Support", "Special Needs",
+  "Arts & Culture", "Music", "Dance", "Theater", "Literature", "Heritage",
+  "Technology", "Digital Literacy", "STEM", "Innovation", "Entrepreneurship", "Startups",
+  "Food", "Cooking", "Nutrition", "Food Security", "Hunger Relief", "Community Gardens",
+];
+
+export const COUNTRIES = [
+  "Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam", "Philippines",
+  "Myanmar", "Cambodia", "Laos", "Brunei", "China", "India", "Bangladesh",
+  "Japan", "South Korea", "Taiwan", "Hong Kong", "Australia", "New Zealand",
+  "United Kingdom", "United States", "Canada", "Germany", "France", "Italy",
+  "Spain", "Netherlands", "Belgium", "Switzerland", "Austria", "Sweden",
+  "Norway", "Denmark", "Finland", "Poland", "Portugal", "Greece", "Other",
 ];
