@@ -14,7 +14,6 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavouritesRouteImport } from './routes/favourites'
-import { Route as DiscoverTestRouteImport } from './routes/discoverTest'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DataTableDemoRouteImport } from './routes/data-table-demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -23,11 +22,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganisationsProfileRouteImport } from './routes/organisations/profile'
 import { Route as OrganisationsNewRouteImport } from './routes/organisations/new'
 import { Route as OrganisationsEditprofileRouteImport } from './routes/organisations/editprofile'
-import { Route as OrganisationsDashboardTESTRouteImport } from './routes/organisations/dashboardTEST'
 import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
-import { Route as OrganisationsProjectIdTESTRouteImport } from './routes/organisations/$projectIdTEST'
 import { Route as OrganisationsProjectIdRouteImport } from './routes/organisations/$projectId'
-import { Route as CspCspTestRouteImport } from './routes/csp/cspTest'
 import { Route as CspProjectIDRouteImport } from './routes/csp/$projectID'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRequestRouteImport } from './routes/auth/request'
@@ -67,11 +63,6 @@ const MapRoute = MapRouteImport.update({
 const FavouritesRoute = FavouritesRouteImport.update({
   id: '/favourites',
   path: '/favourites',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DiscoverTestRoute = DiscoverTestRouteImport.update({
-  id: '/discoverTest',
-  path: '/discoverTest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -115,31 +106,14 @@ const OrganisationsEditprofileRoute =
     path: '/organisations/editprofile',
     getParentRoute: () => rootRouteImport,
   } as any)
-const OrganisationsDashboardTESTRoute =
-  OrganisationsDashboardTESTRouteImport.update({
-    id: '/organisations/dashboardTEST',
-    path: '/organisations/dashboardTEST',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const OrganisationsDashboardRoute = OrganisationsDashboardRouteImport.update({
   id: '/organisations/dashboard',
   path: '/organisations/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganisationsProjectIdTESTRoute =
-  OrganisationsProjectIdTESTRouteImport.update({
-    id: '/organisations/$projectIdTEST',
-    path: '/organisations/$projectIdTEST',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const OrganisationsProjectIdRoute = OrganisationsProjectIdRouteImport.update({
   id: '/organisations/$projectId',
   path: '/organisations/$projectId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CspCspTestRoute = CspCspTestRouteImport.update({
-  id: '/csp/cspTest',
-  path: '/csp/cspTest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CspProjectIDRoute = CspProjectIDRouteImport.update({
@@ -226,7 +200,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/discoverTest': typeof DiscoverTestRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -243,11 +216,8 @@ export interface FileRoutesByFullPath {
   '/auth/request': typeof AuthRequestRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
-  '/csp/cspTest': typeof CspCspTestRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
-  '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
-  '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
@@ -262,7 +232,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/discoverTest': typeof DiscoverTestRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -279,11 +248,8 @@ export interface FileRoutesByTo {
   '/auth/request': typeof AuthRequestRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
-  '/csp/cspTest': typeof CspCspTestRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
-  '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
-  '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
@@ -299,7 +265,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/data-table-demo': typeof DataTableDemoRoute
   '/discover': typeof DiscoverRoute
-  '/discoverTest': typeof DiscoverTestRoute
   '/favourites': typeof FavouritesRoute
   '/map': typeof MapRoute
   '/my-applications': typeof MyApplicationsRoute
@@ -316,11 +281,8 @@ export interface FileRoutesById {
   '/auth/request': typeof AuthRequestRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
-  '/csp/cspTest': typeof CspCspTestRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
-  '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
-  '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
@@ -337,7 +299,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/discoverTest'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -354,11 +315,8 @@ export interface FileRouteTypes {
     | '/auth/request'
     | '/auth/reset-password'
     | '/csp/$projectID'
-    | '/csp/cspTest'
     | '/organisations/$projectId'
-    | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
-    | '/organisations/dashboardTEST'
     | '/organisations/editprofile'
     | '/organisations/new'
     | '/organisations/profile'
@@ -373,7 +331,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/discoverTest'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -390,11 +347,8 @@ export interface FileRouteTypes {
     | '/auth/request'
     | '/auth/reset-password'
     | '/csp/$projectID'
-    | '/csp/cspTest'
     | '/organisations/$projectId'
-    | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
-    | '/organisations/dashboardTEST'
     | '/organisations/editprofile'
     | '/organisations/new'
     | '/organisations/profile'
@@ -409,7 +363,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/data-table-demo'
     | '/discover'
-    | '/discoverTest'
     | '/favourites'
     | '/map'
     | '/my-applications'
@@ -426,11 +379,8 @@ export interface FileRouteTypes {
     | '/auth/request'
     | '/auth/reset-password'
     | '/csp/$projectID'
-    | '/csp/cspTest'
     | '/organisations/$projectId'
-    | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
-    | '/organisations/dashboardTEST'
     | '/organisations/editprofile'
     | '/organisations/new'
     | '/organisations/profile'
@@ -446,7 +396,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DataTableDemoRoute: typeof DataTableDemoRoute
   DiscoverRoute: typeof DiscoverRoute
-  DiscoverTestRoute: typeof DiscoverTestRoute
   FavouritesRoute: typeof FavouritesRoute
   MapRoute: typeof MapRoute
   MyApplicationsRoute: typeof MyApplicationsRoute
@@ -463,11 +412,8 @@ export interface RootRouteChildren {
   AuthRequestRoute: typeof AuthRequestRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   CspProjectIDRoute: typeof CspProjectIDRoute
-  CspCspTestRoute: typeof CspCspTestRoute
   OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
-  OrganisationsProjectIdTESTRoute: typeof OrganisationsProjectIdTESTRoute
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
-  OrganisationsDashboardTESTRoute: typeof OrganisationsDashboardTESTRoute
   OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
   OrganisationsNewRoute: typeof OrganisationsNewRoute
   OrganisationsProfileRoute: typeof OrganisationsProfileRoute
@@ -512,13 +458,6 @@ declare module '@tanstack/react-router' {
       path: '/favourites'
       fullPath: '/favourites'
       preLoaderRoute: typeof FavouritesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/discoverTest': {
-      id: '/discoverTest'
-      path: '/discoverTest'
-      fullPath: '/discoverTest'
-      preLoaderRoute: typeof DiscoverTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -577,13 +516,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganisationsEditprofileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organisations/dashboardTEST': {
-      id: '/organisations/dashboardTEST'
-      path: '/organisations/dashboardTEST'
-      fullPath: '/organisations/dashboardTEST'
-      preLoaderRoute: typeof OrganisationsDashboardTESTRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/organisations/dashboard': {
       id: '/organisations/dashboard'
       path: '/organisations/dashboard'
@@ -591,25 +523,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganisationsDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organisations/$projectIdTEST': {
-      id: '/organisations/$projectIdTEST'
-      path: '/organisations/$projectIdTEST'
-      fullPath: '/organisations/$projectIdTEST'
-      preLoaderRoute: typeof OrganisationsProjectIdTESTRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/organisations/$projectId': {
       id: '/organisations/$projectId'
       path: '/organisations/$projectId'
       fullPath: '/organisations/$projectId'
       preLoaderRoute: typeof OrganisationsProjectIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/csp/cspTest': {
-      id: '/csp/cspTest'
-      path: '/csp/cspTest'
-      fullPath: '/csp/cspTest'
-      preLoaderRoute: typeof CspCspTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/csp/$projectID': {
@@ -726,7 +644,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DataTableDemoRoute: DataTableDemoRoute,
   DiscoverRoute: DiscoverRoute,
-  DiscoverTestRoute: DiscoverTestRoute,
   FavouritesRoute: FavouritesRoute,
   MapRoute: MapRoute,
   MyApplicationsRoute: MyApplicationsRoute,
@@ -743,11 +660,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRequestRoute: AuthRequestRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   CspProjectIDRoute: CspProjectIDRoute,
-  CspCspTestRoute: CspCspTestRoute,
   OrganisationsProjectIdRoute: OrganisationsProjectIdRoute,
-  OrganisationsProjectIdTESTRoute: OrganisationsProjectIdTESTRoute,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
-  OrganisationsDashboardTESTRoute: OrganisationsDashboardTESTRoute,
   OrganisationsEditprofileRoute: OrganisationsEditprofileRoute,
   OrganisationsNewRoute: OrganisationsNewRoute,
   OrganisationsProfileRoute: OrganisationsProfileRoute,

@@ -12,6 +12,8 @@ export function useAuth() {
       if (session?.data?.user) {
         setIsLoggedIn(true);
         setUser(session.data.user);
+        console.log("Session data:", session);
+
       } else {
         setIsLoggedIn(false);
         setUser(null);
@@ -50,6 +52,7 @@ export function useAuth() {
       console.error("Logout failed:", error);
     }
   };
+  
 
   return {
     isLoggedIn,

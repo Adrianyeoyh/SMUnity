@@ -75,16 +75,7 @@ const formatDateRange = (startDate: string, endDate?: string) => {
   }
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };
-//   const formatDuration = (repeatInterval?: number | null, repeatUnit?: string | null) => {
-//   console.log(repeatInterval, repeatUnit)
-//   if (!repeatInterval || !repeatUnit) return "N/A";
-//   const unitLabel =
-//     repeatUnit === "day" ? "day(s)" :
-//     repeatUnit === "week" ? "week" :
-//     repeatUnit === "month" ? "month" :
-//     repeatUnit;
-//   return `${repeatInterval} time(s) a ${unitLabel}`;
-// };
+
 
 const formatTimeCommitment = (
   daysOfWeek?: string[] | null,
@@ -109,7 +100,7 @@ const formatTimeCommitment = (
 
 
 function CspDetail() {
-const { isLoggedIn } = useAuth();
+const { isLoggedIn, user } = useAuth();
 const [showLoginModal, setShowLoginModal] = useState(false);
   const [isfavourite, setIsfavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
@@ -161,7 +152,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
     queryFn: () => fetchCspById(projectID),
   });
 
-  console.log(csp);
+  console.log(isLoggedIn,user?.accountType);
 
   if (isLoading)
     return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
@@ -175,7 +166,6 @@ const [showLoginModal, setShowLoginModal] = useState(false);
   const isApplicationOpen = csp.status === "open" || csp.status === "closing-soon";
   const spotsLeft = csp.maxVolunteers - csp.currentVolunteers;
   const fillRate = Math.round((csp.currentVolunteers / csp.maxVolunteers) * 100);
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -229,14 +219,16 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                 </div>
                 
                 <div className="flex gap-2 flex-shrink-0">
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={handlefavourite}
-                    className={isfavourite ? "text-red-500 border-red-500" : ""}
-                  >
-                    <Heart className={`h-4 w-4 ${isfavourite ? "fill-current" : ""}`} />
-                  </Button>
+                  {isLoggedIn && user?.accountType === "student" && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handlefavourite}
+                      className={isfavourite ? "text-red-500 border-red-500" : ""}
+                    >
+                      <Heart className={`h-4 w-4 ${isfavourite ? "fill-current" : ""}`} />
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     size="icon"
@@ -460,18 +452,33 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                     {/* Apply Button */}
                     <div ref={sidebarButtonRef}>
                       <Button
-                        className="w-full"
                         size="lg"
+                        className="shadow-2xl hover:shadow-xl transition-shadow"
+                        disabled={
+                          (!isLoggedIn && !user) || (isLoggedIn && user?.accountType !== "student")
+                        }
                         onClick={() => {
+                          console.log("Floating button clicked");
+                          console.log(isLoggedIn, user?.accountType);
                           if (!isLoggedIn) {
                             setShowLoginModal(true);
-                          } else {
-                            window.location.href = `/csp/${csp.id}/apply`;
+                            return;
                           }
+
+                          if (user?.accountType !== "student") {
+                            toast.error("Only student accounts can apply for CSPs.");
+                            return;
+                          }
+
+                          window.location.href = `/csp/${csp.id}/apply`;
                         }}
                       >
-                        <Send className="mr-2 h-4 w-4" />
-                        Apply for this CSP
+                        <Send className="mr-2 h-5 w-5" />
+                        {!isLoggedIn
+                          ? "Log in to Apply"
+                          : user?.accountType !== "student"
+                          ? "Only Students Can Apply"
+                          : "Apply Now"}
                       </Button>
 
 
@@ -568,21 +575,37 @@ const [showLoginModal, setShowLoginModal] = useState(false);
               </div>
             </div>
 
-            {/* Apply Now Button */}
+            {/* Apply Now Button
             <Button
               size="lg"
               className="shadow-2xl hover:shadow-xl transition-shadow"
+              disabled={
+                (!isLoggedIn && !user) || (isLoggedIn && user?.accountType !== "student")
+              }
               onClick={() => {
+                console.log("Floating button clicked");
+                console.log(isLoggedIn, user?.accountType);
                 if (!isLoggedIn) {
                   setShowLoginModal(true);
-                } else {
-                  window.location.href = `/csp/${csp.id}/apply`;
+                  return;
                 }
+
+                if (user?.accountType !== "student") {
+                  toast.error("Only student accounts can apply for CSPs.");
+                  return;
+                }
+
+                window.location.href = `/csp/${csp.id}/apply`;
               }}
             >
               <Send className="mr-2 h-5 w-5" />
-              Apply Now
-            </Button>
+              {!isLoggedIn
+                ? "Log in to Apply"
+                : user?.accountType !== "student"
+                ? "Only Students Can Apply"
+                : "Apply Now"}
+            </Button> */}
+
           </div>
         )}
 
