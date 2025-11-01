@@ -76,6 +76,18 @@ export const auth = betterAuth({
       });
     },
   },
+  getSessionUser: async (userId: string) => {
+    const [user] = await db.select().from(schema.user).where(eq(schema.user.id, userId));
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      accountType: user.accountType,
+    };
+  },
 
   plugins: [openAPI({ path: "/docs" })],
 

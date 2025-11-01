@@ -194,7 +194,7 @@ function Profile() {
           </aside>
 
           <section className="space-y-6">
-            <Card className="shadow-sm">
+            {/* <Card className="shadow-sm">
               <CardHeader className="space-y-1">
                 <div className="space-y-1">
                   <CardTitle className="text-xl font-semibold">Service Overview</CardTitle>
@@ -226,7 +226,7 @@ function Profile() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card className="shadow-sm">
               <CardHeader className="space-y-1">

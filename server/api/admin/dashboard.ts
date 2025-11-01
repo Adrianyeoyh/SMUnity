@@ -16,7 +16,7 @@ export type AdminDashboardResponse = {
     students: number;
     organisations: number;
     projects: number;
-    serviceHours: number;
+    // serviceHours: number;
   };
   pendingOrgRequests: number;
 };
@@ -39,9 +39,9 @@ adminDashboardRoutes.get("/", async (c) => {
     .from(schema.organisationRequests)
     .where(sql`status = 'pending'`);
 
-  const totalServiceHours = await db
-    .select({ sum: sql<number>`COALESCE(SUM(hours), 0)::int` })
-    .from(schema.timesheets);
+  // const totalServiceHours = await db
+  //   .select({ sum: sql<number>`COALESCE(SUM(hours), 0)::int` })
+  //   .from(schema.timesheets);
 
   return ok<AdminDashboardResponse>(c, {
     totals: {
@@ -49,7 +49,7 @@ adminDashboardRoutes.get("/", async (c) => {
       students: studentsCount[0]?.c ?? 0,
       organisations: orgsCount[0]?.c ?? 0,
       projects: projectsCount[0]?.c ?? 0,
-      serviceHours: totalServiceHours[0]?.sum ?? 0,
+      // serviceHours: totalServiceHours[0]?.sum ?? 0,
     },
     pendingOrgRequests: pendingReq[0]?.c ?? 0,
   });

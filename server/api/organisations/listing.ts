@@ -96,64 +96,6 @@ listing.post("/new", async (c) => {
 
 listing.delete("/delete")
 
-// listing.get("/:projectId", async (c) => {
-//   const projectId = c.req.param("projectId");
-
-//   // Get project + organisation + org.user.name
-//   const project = await db.query.projects.findFirst({
-//     where: eq(schema.projects.id, projectId),
-//     with: {
-//       org: {
-//         columns: {
-//           userId: true,
-//           slug: true,
-//           website: true,
-//           phone: true,
-//           description: true,
-//         },
-//         with: {
-//           user: {
-//             columns: {
-//               name: true,
-//             },
-//           },
-//         },
-//       },
-//     },
-//   });
-
-//   if (!project) return c.json({ error: "Project not found" }, 404);
-
-//   // Get volunteer count
-//   const members = await db
-//     .select()
-//     .from(schema.projMemberships)
-//     .where(eq(schema.projMemberships.projId, projectId));
-//   const volunteerCount = members.length;
-
-//   // Get applications
-//   const applications = await db
-//     .select({
-//       id: schema.applications.id,
-//       userId: schema.applications.userId,
-//       status: schema.applications.status,
-//       motivation: schema.applications.motivation,
-//       submittedAt: schema.applications.submittedAt,
-//     })
-//     .from(schema.applications)
-//     .where(eq(schema.applications.projectId, projectId));
-
-//   // ✅ Include org name from user table
-//   return ok(c, {
-//     project: {
-//       ...project,
-//       volunteerCount,
-//       orgName: project.org?.user?.name ?? null,
-//     },
-//     applications,
-//   });
-// });
-
 listing.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");
 
