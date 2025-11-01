@@ -4,6 +4,16 @@ import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "#client/components/ui/alert-dialog";
+import {
   MapPin,
   Calendar,
   Clock,
@@ -47,6 +57,7 @@ export const Route = createFileRoute("/organisations/preview-new")({
 function PreviewPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormInput | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     // Get form data from localStorage
@@ -64,6 +75,7 @@ function PreviewPage() {
     onSuccess: () => {
       toast.success("Project created successfully!");
       localStorage.removeItem("newListingFormData");
+      localStorage.removeItem("newListingFormDraft");
       navigate({ to: "/organisations/dashboard" });
     },
     onError: (err: any) => {
@@ -126,12 +138,12 @@ function PreviewPage() {
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="font-heading text-lg">Project Overview</CardTitle>
+                <CardTitle className="font-heading text-lg">Review Listing</CardTitle>
                 <CardDescription className="font-body text-sm">
                   Review your listing before submitting
                 </CardDescription>
               </div>
-              {formData.google_maps && (
+              {formData.google_maps && formData.project_type === "local" && (
                 <a
                   href={formData.google_maps}
                   target="_blank"
@@ -156,11 +168,11 @@ function PreviewPage() {
             {/* Left - Image (1/3 width) */}
             <div>
               {formData.image_url && (
-                <div className="rounded-lg overflow-hidden border">
+                <div className="rounded-lg overflow-hidden border h-full flex items-center justify-center">
                   <img
                     src={formData.image_url}
                     alt={formData.title}
-                    className="w-full h-auto object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               )}
@@ -209,29 +221,27 @@ function PreviewPage() {
                 label="Mode"
                 value={formData.remote ? "Remote" : "In-person"}
               />
-            </div>
-          </CardContent>
-
-          {/* Schedule - Full width at 1024px */}
-          <CardContent className="mb-4">
-            <div className="rounded-lg border bg-muted/40 p-3">
-              <p className="font-medium text-foreground">Schedule</p>
-              <div className="mt-1 space-y-1">
-                {formData.repeat_interval !== 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    Every {formData.repeat_interval} week{formData.repeat_interval && formData.repeat_interval > 1 ? "s" : ""}
-                  </p>
-                )}
-                {formData.days_of_week && formData.days_of_week.length > 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    {formData.days_of_week.join(", ")}
-                  </p>
-                )}
-                {formData.time_start && formData.time_end && (
-                  <p className="text-sm text-muted-foreground">
-                    {formData.time_start} – {formData.time_end}
-                  </p>
-                )}
+              
+              {/* Fourth Row - Schedule takes full width on small screens */}
+              <div className="sm:col-span-2 rounded-lg border bg-muted/40 p-3">
+                <p className="font-medium text-foreground">Schedule</p>
+                <div className="mt-1 space-y-1">
+                  {formData.repeat_interval !== 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Every {formData.repeat_interval} week{formData.repeat_interval && formData.repeat_interval > 1 ? "s" : ""}
+                    </p>
+                  )}
+                  {formData.days_of_week && formData.days_of_week.length > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      {formData.days_of_week.join(", ")}
+                    </p>
+                  )}
+                  {formData.time_start && formData.time_end && (
+                    <p className="text-sm text-muted-foreground">
+                      {formData.time_start} – {formData.time_end}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -282,9 +292,25 @@ function PreviewPage() {
           <Button type="button" variant="ghost" onClick={handleBack}>
             Back to Edit
           </Button>
-          <Button onClick={handleSubmit} disabled={m.isPending}>
-            {m.isPending ? "Creating..." : "Confirm & Create Listing"}
-          </Button>
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <Button onClick={() => setOpen(true)} disabled={m.isPending}>
+              {m.isPending ? "Creating..." : "Confirm"}
+            </Button>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Listing Creation?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Once you create this listing, you will no longer be able to modify it. 
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleSubmit}>
+                  Confirm & Create
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
