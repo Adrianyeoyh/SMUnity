@@ -4,8 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#clie
 import { Badge } from "#client/components/ui/badge";
 import { Separator } from "#client/components/ui/separator";
 // import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "#client/components/ui/dialog";
-import { Label } from "#client/components/ui/label";
-import { Textarea } from "#client/components/ui/textarea";
+
 import { Progress } from "#client/components/ui/progress";
 import { 
   MapPin, 
@@ -415,23 +414,23 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                     <Separator />
 
                     {/* Key Dates */}
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
+                    <div className="space-y-3 text-sm min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2">
                         <span className="text-muted-foreground font-body">Application Deadline:</span>
-                        <span className="font-medium font-body text-right">
+                        <span className="font-medium font-body sm:text-right">
                           {formatDateRange(csp.applicationDeadline, csp.applicationDeadline)}
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2">
                         <span className="text-muted-foreground font-body">Project Period:</span>
-                        <span className="font-medium font-body text-right">
+                        <span className="font-medium font-body sm:text-right">
                           {formatDateRange(csp.startDate, csp.endDate)}
                         </span>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 text-sm font-body">
-                <span className="text-muted-foreground min-w-[120px] sm:text-right">Time Commitment:</span>
-                <span className="font-medium text-foreground break-words sm:whitespace-nowrap">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline sm:gap-2 text-sm font-body">
+                <span className="text-muted-foreground sm:min-w-[120px]">Time Commitment:</span>
+                <span className="font-medium text-foreground break-words min-w-0 sm:text-right">
                   {formatTimeCommitment(csp.daysOfWeek, csp.timeStart, csp.timeEnd)}
                 </span>
               </div>

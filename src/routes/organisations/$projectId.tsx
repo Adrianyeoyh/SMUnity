@@ -142,13 +142,16 @@ function ListingApplicationsPage() {
       {/* Top Navigation */}
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-6 space-y-3">
-          <Button variant="ghost" className="w-fit px-0" onClick={() => navigate({ to: "/organisations/dashboard" })}>
+          <button
+            onClick={() => navigate({ to: "/organisations/dashboard" })}
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Button>
+            <span className="font-body">Back to Dashboard</span>
+          </button>
           <div>
             <h1 className="font-heading text-3xl font-bold text-foreground">{project.title}</h1>
-            <p className="text-muted-foreground font-body text-sm">
+            <p className="text-muted-foreground font-body text-sm mt-2">
               Organised by {project.orgName ?? "Unknown Organisation"} ({project.type})
             </p>
           </div>
