@@ -140,20 +140,20 @@ function Dashboard() {
         </Card>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardDescription className="font-body">Total Hours Completed</CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardDescription className="font-body mb-4 font-semibold">Total Hours Completed</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{user.totalHours}h</CardTitle>
                 </div>
-                <div className="bg-blue-100 rounded-full p-3">
+                <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
                   <Clock className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
                 {user.requiredHours - user.totalHours}h remaining for CSU
               </div>
@@ -161,18 +161,18 @@ function Dashboard() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardDescription className="font-body">Active Projects</CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Active Projects</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{ongoingProjects.length}</CardTitle>
                 </div>
-                <div className="bg-green-100 rounded-full p-3">
+                <div className="hidden sm:block bg-green-100 rounded-full p-3 ml-4">
                   <CircleCheck className="h-6 w-6 text-green-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
                 Currently participating
               </div>
@@ -180,18 +180,18 @@ function Dashboard() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardDescription className="font-body">Pending Applications</CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardDescription className="font-body mb-4 font-semibold">Pending Applications</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{user.activeApplications}</CardTitle>
                 </div>
-                <div className="bg-orange-100 rounded-full p-3">
+                <div className="hidden sm:block bg-orange-100 rounded-full p-3 ml-4">
                   <AlertCircle className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
                 Awaiting response
               </div>
@@ -199,18 +199,18 @@ function Dashboard() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardDescription className="font-body">Completed Projects</CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardDescription className="font-body mb-4 font-semibold">Completed Projects</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{user.completedProjects}</CardTitle>
                 </div>
-                <div className="bg-purple-100 rounded-full p-3">
+                <div className="hidden sm:block bg-purple-100 rounded-full p-3 ml-4">
                   <Award className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
                 Total contributions
               </div>

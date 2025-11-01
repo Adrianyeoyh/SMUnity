@@ -210,34 +210,34 @@ function OrgDashboard() {
         <div className="space-y-8">
 
         {/* Top metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Active Listings</CardDescription>
+                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Active Listings</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{summary.listings}</CardTitle>
                 </div>
-                <div className="bg-blue-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
                   <ClipboardList className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
             </CardHeader>
              <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
-                Currently published opportunities
+                Opened opportunities
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Total Applications</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{summary.totalApplications}</CardTitle>
                 </div>
-                <div className="bg-green-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-green-100 rounded-full p-3 ml-4">
                   <Users className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -251,12 +251,12 @@ function OrgDashboard() {
 
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Pending Reviews</CardDescription>
+                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Pending Reviews</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{summary.pending}</CardTitle>
                 </div>
-                <div className="bg-orange-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-orange-100 rounded-full p-3 ml-4">
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -270,12 +270,12 @@ function OrgDashboard() {
 
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Confirmed Volunteers</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{summary.confirmed}</CardTitle>
                 </div>
-                <div className="bg-purple-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-purple-100 rounded-full p-3 ml-4">
                   <CheckCircle2 className="h-6 w-6 text-purple-600" />
                 </div>
               </div>

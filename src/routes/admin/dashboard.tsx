@@ -350,15 +350,15 @@ function AdminDashboard() {
         <div className="space-y-8">
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Active Organisations</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{stats?.activeOrganisations ?? 0}</CardTitle>
                 </div>
-                <div className="bg-blue-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
                   <Building2 className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
@@ -372,12 +372,12 @@ function AdminDashboard() {
 
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardDescription className="font-body mb-4 font-semibold">Total CSP Listings</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{stats?.totalCSPListings ?? 0}</CardTitle>
                 </div>
-                <div className="bg-green-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-green-100 rounded-full p-3 ml-4">
                   <ClipboardList className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -391,12 +391,12 @@ function AdminDashboard() {
 
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Active Users</CardDescription>
+                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Active Users</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{stats?.activeUsers ?? 0}</CardTitle>
                 </div>
-                <div className="bg-orange-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-orange-100 rounded-full p-3 ml-4">
                   <UserCheck className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -410,12 +410,12 @@ function AdminDashboard() {
 
           <Card>
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Service Hours</CardDescription>
+                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Service Hours</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{stats?.serviceHours ?? 0}</CardTitle>
                 </div>
-                <div className="bg-purple-100 rounded-full p-3 ml-4">
+                <div className="hidden sm:block bg-purple-100 rounded-full p-3 ml-4">
                   <Clock4 className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
