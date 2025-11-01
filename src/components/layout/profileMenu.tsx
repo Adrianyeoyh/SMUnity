@@ -10,6 +10,7 @@ function ProfileMenu() {
   const [open, setOpen] = useState(false);
 
   const isOrganisation = user?.role === "organisation" || user?.accountType === "organisation";
+  const isAdmin = user?.accountType === "admin";
 
   return (
     <div className="relative">
@@ -29,14 +30,16 @@ function ProfileMenu() {
           className="w-36 p-2 space-y-1 bg-white shadow-lg rounded-md"
           sideOffset={8}
         >
-          <Link
-            to={isOrganisation ? "/organisations/profile" : "/profile"}
-            onClick={() => setOpen(false)}
-            className="block px-2 py-1 rounded hover:bg-gray-100 text-sm"
-          >
-            Profile
-          </Link>
-          {!isOrganisation && (
+          {!isAdmin && (
+            <Link
+              to={isOrganisation ? "/organisations/profile" : "/profile"}
+              onClick={() => setOpen(false)}
+              className="block px-2 py-1 rounded hover:bg-gray-100 text-sm"
+            >
+              Profile
+            </Link>
+          )}
+          {!isOrganisation && !isAdmin && (
             <Link
               to="/favourites"
               onClick={() => setOpen(false)}
