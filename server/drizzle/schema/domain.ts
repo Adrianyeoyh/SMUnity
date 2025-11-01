@@ -148,28 +148,15 @@ export const applications = pgTable("applications", {
 }));
 
 
-export const applicationReviews = pgTable("application_reviews", {
-  id: serial("id").primaryKey(),
-  applicationId: integer("application_id").notNull().references(() => applications.id),
-  action: verificationActionEnum("action").notNull(),
-  note: text("note"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// export const applicationReviews = pgTable("application_reviews", {
+//   id: serial("id").primaryKey(),
+//   applicationId: integer("application_id").notNull().references(() => applications.id),
+//   action: verificationActionEnum("action").notNull(),
+//   note: text("note"),
+//   createdAt: timestamp("created_at").defaultNow().notNull(),
+// });
 
-// ---------- TIMESHEETS ----------
-export const timesheets = pgTable("timesheets", {
-  id: serial("id").primaryKey(),
-  projectId: uuid("project_id").notNull().references(()=>projects.id),
-  userId: text("user_id").references(() => profiles.userId).notNull(),
-  // sessionId: integer("session_id").references(() => projectSessions.id),
-  date: timestamp("date").notNull(),
-  hours: integer("hours").notNull(),
-  description: varchar("description", { length: 300 }),
-  verified: boolean("verified").notNull().default(false),
-  verifiedBy: text("verified_by").references(() => user.id),
-  verifiedAt: timestamp("verified_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+
 
 // ---------- SAVED PROJECTS ----------
 export const savedProjects = pgTable("saved_projects", {
