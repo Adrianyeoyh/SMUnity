@@ -215,7 +215,7 @@ function OrgDashboard() {
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Active Listings</CardDescription>
+                  <CardDescription className="font-body mb-4 font-semibold mt-2 mb-7 sm:mt-0 sm:mb-4 lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Active Listings</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{summary.listings}</CardTitle>
                 </div>
                 <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
@@ -253,7 +253,7 @@ function OrgDashboard() {
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Pending Reviews</CardDescription>
+                  <CardDescription className="font-body mb-4 font-semibold mt-2 mb-7 sm:mt-0 sm:mb-4 lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Pending Reviews</CardDescription>
                   <CardTitle className="font-heading text-3xl text-primary">{summary.pending}</CardTitle>
                 </div>
                 <div className="hidden sm:block bg-orange-100 rounded-full p-3 ml-4">
