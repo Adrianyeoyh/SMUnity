@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
@@ -54,6 +54,8 @@ function OrgDashboard() {
   const [listingSort, setListingSort] = useState<
     "date_asc" | "date_desc" | "applications_desc" | "applications_asc"
   >("date_asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // --- Status Tabs ---
   const statusTabs = useMemo(
@@ -151,7 +153,14 @@ function OrgDashboard() {
   const displayListings = useMemo(() => {
     const baseListings = listingsData?.listings ?? [];
     const filtered = baseListings.filter(
-      (listing: { status: string; startDate: string; volunteerCount: number; [key: string]: any }) => listing.status === listingStatusFilter
+      (listing: { status: string; startDate: string; volunteerCount: number; title: string; [key: string]: any }) => {
+        const matchesStatus = listing.status === listingStatusFilter;
+        const matchesSearch = searchTerm === "" || 
+          listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          listing.organization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          listing.district?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesStatus && matchesSearch;
+      }
     );
 
     const sorted = [...filtered].sort((a, b) => {
@@ -171,7 +180,18 @@ function OrgDashboard() {
     });
 
     return sorted;
-  }, [listingSort, listingStatusFilter, listingsData]);
+  }, [listingSort, listingStatusFilter, searchTerm, listingsData]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(displayListings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentListings = displayListings.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [listingStatusFilter, listingSort, searchTerm]);
 
   // --- Loading / Error States ---
   if (isLoading || listingsLoading)
@@ -302,22 +322,20 @@ function OrgDashboard() {
 
             
             {/* <div className="flex flex-wrap items-center gap-3 justify-between relative w-full md:w-auto"> */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              <div className="flex md:flex-wrap lg:flex-row items-center gap-3 justify-between">
-                <div className="relative w-full md:w-auto">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search organisers..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-full md:w-80"
-                  />
-                </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="relative w-full md:max-w-[360px] lg:max-w-[420px]">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search listings..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full"
+                />
               </div>
 
               
-              <span className="flex flex-row justify-end items-center gap-3 text-sm font-medium text-muted-foreground font-body">
-                Sort by:
+              <span className="flex flex-row justify-end items-center gap-2 text-sm font-medium text-foreground font-body whitespace-nowrap">
+                Sort By
                 <Select
                   value={listingSort}
                   onValueChange={(value) =>
@@ -326,12 +344,12 @@ function OrgDashboard() {
                     )
                   }
                 >
-                  <SelectTrigger className="w-full md:w-[220px]">
+                  <SelectTrigger className="w-full md:w-[220px] font-normal">
                     <SelectValue placeholder="Choose sort order" />
                   </SelectTrigger>
                   <SelectContent>
                     {sortOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="font-body">
+                      <SelectItem key={option.value} value={option.value} className="font-body font-normal">
                         {option.label}
                       </SelectItem>
                     ))}
@@ -349,7 +367,7 @@ function OrgDashboard() {
             }
             className="w-full mt-6"
           >
-            <TabsList className="grid w-full grid-cols-2 md:inline-flex md:w-auto">
+            <TabsList className="h-auto grid w-full grid-cols-2 md:h-9 md:inline-flex md:w-auto">
               {statusTabs.map((tab) => (
                 <TabsTrigger key={tab.value} value={tab.value} className="font-body">
                   {tab.label}
@@ -369,7 +387,7 @@ function OrgDashboard() {
               }
               className="w-full md:w-auto"
             >
-              <TabsList className="grid w-full grid-cols-2 md:inline-flex md:w-auto">
+              <TabsList className="h-auto grid w-full grid-cols-2 md:h-9 md:inline-flex md:w-auto">
                 {statusTabs.map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value} className="font-body">
                     {tab.label}
@@ -414,7 +432,8 @@ function OrgDashboard() {
             </div>
           </div>
         ) : (
-          displayListings.map((listing) => {
+          <>
+          {currentListings.map((listing) => {
             const fillPercentage = Math.round(
               (Math.min(listing.volunteerCount, listing.slotsTotal) / listing.slotsTotal) * 100
             );
@@ -525,7 +544,54 @@ function OrgDashboard() {
                 </div>
               </div>
                 );
-            })
+            })}
+
+            {displayListings.length > 0 && (
+              <div className="mt-8 pb-12">
+                <div className="flex flex-col items-center gap-4">
+                  <p className="text-sm text-muted-foreground font-body">
+                    Showing {startIndex + 1}-{Math.min(endIndex, displayListings.length)} of {displayListings.length} results
+                  </p>
+                  
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <Button
+                            key={page}
+                            variant={page === currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Listings */}

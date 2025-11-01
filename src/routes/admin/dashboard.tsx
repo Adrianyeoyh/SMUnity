@@ -5,6 +5,7 @@ import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#client/components/ui/dialog";
 import { Input } from "#client/components/ui/input";
 import { Label } from "#client/components/ui/label";
@@ -53,6 +54,7 @@ function AdminDashboard() {
   const [organiserQueue, setOrganiserQueue] = useState<OrganiserRecord[]>([]);
   const [tabValue, setTabValue] = useState<"all" | OrganiserStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"submitted_asc" | "submitted_desc" | "reviewed_asc" | "reviewed_desc" | "default">("default");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [showOrganiserModal, setShowOrganiserModal] = useState(false);
@@ -147,6 +149,15 @@ function AdminDashboard() {
     loadQueue();
   }, []);
 
+  // Calculate counts for each status
+  const statusCounts = useMemo(() => {
+    return {
+      all: organiserQueue.length,
+      pending: organiserQueue.filter((o) => o.status === "pending").length,
+      approved: organiserQueue.filter((o) => o.status === "approved").length,
+      rejected: organiserQueue.filter((o) => o.status === "rejected").length,
+    };
+  }, [organiserQueue]);
 
   const filteredQueue = useMemo(() => {
     let filtered = organiserQueue;
@@ -165,22 +176,52 @@ function AdminDashboard() {
       );
     }
     
-    // Sort by status (pending first, then approved, then rejected) and by earliest submitted date within each status
-    filtered.sort((a, b) => {
-      // First sort by status priority: pending (0), approved (1), rejected (2)
-      const statusOrder = { pending: 0, approved: 1, rejected: 2 };
-      const statusComparison = statusOrder[a.status] - statusOrder[b.status];
-      
-      if (statusComparison !== 0) {
-        return statusComparison;
-      }
-      
-      // If same status, sort by earliest submitted date (oldest first)
-      return new Date(a.submittedOn).getTime() - new Date(b.submittedOn).getTime();
-    });
+    // Sort based on selected sort option
+    if (sortBy === "default") {
+      // Default sort: by status (pending first, then approved, then rejected)
+      // Then by earliest submitted date for pending, or latest reviewed date for approved/rejected
+      filtered.sort((a, b) => {
+        // First sort by status priority: pending (0), approved (1), rejected (2)
+        const statusOrder = { pending: 0, approved: 1, rejected: 2 };
+        const statusComparison = statusOrder[a.status] - statusOrder[b.status];
+        
+        if (statusComparison !== 0) {
+          return statusComparison;
+        }
+        
+        // If same status, sort differently based on status
+        if (a.status === "pending") {
+          // For pending: earliest submitted date to latest submitted date (oldest first)
+          return new Date(a.submittedOn).getTime() - new Date(b.submittedOn).getTime();
+        } else {
+          // For approved/rejected: latest reviewed date to earliest reviewed date (newest first)
+          const aReviewed = a.reviewedOn ? new Date(a.reviewedOn).getTime() : 0;
+          const bReviewed = b.reviewedOn ? new Date(b.reviewedOn).getTime() : 0;
+          return bReviewed - aReviewed;
+        }
+      });
+    } else {
+      // Custom sort based on user selection
+      filtered.sort((a, b) => {
+        if (sortBy === "submitted_asc") {
+          return new Date(a.submittedOn).getTime() - new Date(b.submittedOn).getTime();
+        } else if (sortBy === "submitted_desc") {
+          return new Date(b.submittedOn).getTime() - new Date(a.submittedOn).getTime();
+        } else if (sortBy === "reviewed_asc") {
+          const aReviewed = a.reviewedOn ? new Date(a.reviewedOn).getTime() : 0;
+          const bReviewed = b.reviewedOn ? new Date(b.reviewedOn).getTime() : 0;
+          return aReviewed - bReviewed;
+        } else if (sortBy === "reviewed_desc") {
+          const aReviewed = a.reviewedOn ? new Date(a.reviewedOn).getTime() : 0;
+          const bReviewed = b.reviewedOn ? new Date(b.reviewedOn).getTime() : 0;
+          return bReviewed - aReviewed;
+        }
+        return 0;
+      });
+    }
     
     return filtered;
-  }, [organiserQueue, tabValue, searchTerm]);
+  }, [organiserQueue, tabValue, searchTerm, sortBy]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredQueue.length / itemsPerPage);
@@ -191,7 +232,7 @@ function AdminDashboard() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [tabValue, searchTerm]);
+  }, [tabValue, searchTerm, sortBy]);
 
   // Reset scroll position when page changes
   useEffect(() => {
@@ -428,35 +469,52 @@ function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Organiser Approval Queue */}
+        {/* Organisation Approval Queue */}
         <div className="space-y-6" data-section="organiser-queue">
           <div className="pb-4">
-            <div className="flex flex-wrap items-center gap-3 md:justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div>
-                <h2 className="font-heading text-2xl">Organiser Approval Queue</h2>
+                <h2 className="font-heading text-2xl">Organisation Approval Queue</h2>
                 <p className="font-body mt-2 text-muted-foreground">
                   Review pending requests and confirm organiser readiness before listings go live
                 </p>
               </div>
-              <div className="relative w-full md:w-auto">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search organisers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full md:w-80"
-                />
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="relative w-full md:max-w-[360px] lg:max-w-[420px]">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search organisers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 w-full"
+                  />
+                </div>
+                <span className="flex flex-row justify-end items-center gap-2 text-sm font-medium text-foreground font-body whitespace-nowrap">
+                  Sort By
+                  <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+                    <SelectTrigger className="w-full md:w-[220px] font-normal">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default" className="font-body font-normal">Default (Status)</SelectItem>
+                      <SelectItem value="submitted_asc" className="font-body font-normal">Submitted · Oldest</SelectItem>
+                      <SelectItem value="submitted_desc" className="font-body font-normal">Submitted · Newest</SelectItem>
+                      <SelectItem value="reviewed_asc" className="font-body font-normal">Reviewed · Oldest</SelectItem>
+                      <SelectItem value="reviewed_desc" className="font-body font-normal">Reviewed · Newest</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </span>
               </div>
             </div>
           
               <Tabs value={tabValue} onValueChange={(value) => setTabValue(value as typeof tabValue)} className="w-full mt-6">
-                <TabsList className="flex w-full flex-wrap justify-start gap-2">
-                  <TabsTrigger value="all" className="font-body">All</TabsTrigger>
+                <TabsList className="h-auto grid w-full grid-cols-2 md:h-9 md:inline-flex md:w-auto">
+                  <TabsTrigger value="all" className="font-body">All ({statusCounts.all})</TabsTrigger>
               <TabsTrigger value="pending" className="font-body">
-                Pending {(stats?.pending ?? 0) > 0 && `(${stats?.pending ?? 0})`}
+                Pending ({statusCounts.pending})
               </TabsTrigger>
-                  <TabsTrigger value="approved" className="font-body">Approved</TabsTrigger>
-                  <TabsTrigger value="rejected" className="font-body">Rejected</TabsTrigger>
+                  <TabsTrigger value="approved" className="font-body">Approved ({statusCounts.approved})</TabsTrigger>
+                  <TabsTrigger value="rejected" className="font-body">Rejected ({statusCounts.rejected})</TabsTrigger>
                 </TabsList>
               </Tabs>
           </div>
