@@ -37,11 +37,12 @@ export const Route = createFileRoute("/profileedit")({
 });
 
 const facultyOptions = [
+  "College of Integrative Studies (CIS)",
   "School of Accountancy (SOA)",
   "Lee Kong Chian School of Business (LKCSB)",
   "School of Computing and Information Systems (SCIS)",
   "School of Economics (SOE)",
-  "School of Law (SOL)",
+  "Yong Pung How School of Law (SOL)",
   "School of Social Sciences (SOSS)",
 ];
 
@@ -84,10 +85,8 @@ const createProfileSchema = (requireAbout: boolean, requireSkills: boolean, requ
     studentId: requireAbout ? z.string().trim().min(1, "Student ID is required") : z.string().trim().optional(),
     phone: requireAbout ? z.string().trim().min(8, "Phone number must be at least 8 digits") : z.string().trim(),
     faculty: requireAbout ? z.string().trim().min(1, "Faculty is required") : z.string().trim(),
-    skills: (requireSkills ? z.array(z.string()).min(1, "Select at least one skill") : z.array(z.string())).default([]),
-    interests: (requireSkills ? z.array(z.string()).min(1, "Select at least one interest") : z.array(z.string())).default(
-      [],
-    ),
+    skills: requireSkills ? z.array(z.string()).min(1, "Select at least one skill") : z.array(z.string()),
+    interests: requireSkills ? z.array(z.string()).min(1, "Select at least one interest") : z.array(z.string()),
   });
 
 type ProfileFormValues = z.infer<ReturnType<typeof createProfileSchema>>;
@@ -218,7 +217,7 @@ function ProfileEditRoute() {
         </nav>
 
         <Card className="shadow-sm border border-border/60">
-          <CardContent className="pt-6">
+          <CardContent className="pt-1">
             {isLoading ? (
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -332,12 +331,12 @@ function ProfileEditRoute() {
                                 value={field.value}
                                 onValueChange={(value) => field.onChange(value)}
                               >
-                                <SelectTrigger aria-label="Select faculty">
-                                  <SelectValue placeholder="Select your faculty" />
+                                <SelectTrigger aria-label="Select faculty" className="w-full sm:w-1/2 md:w-1/3 overflow-hidden truncate">
+                                  <SelectValue placeholder="Select your faculty" className="truncate" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="max-h-[300px] max-w-[var(--radix-select-trigger-width)]" position="popper">
                                   {facultyOptions.map((option) => (
-                                    <SelectItem key={option} value={option}>
+                                    <SelectItem key={option} value={option} className="whitespace-normal">
                                       {option}
                                     </SelectItem>
                                   ))}
@@ -429,10 +428,10 @@ function ProfileEditRoute() {
                     </>
                   )}
 
-                    <div className="h-16" aria-hidden="true" />
+                    <div className="h-5" aria-hidden="true" />
 
                     <div className="sticky bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 py-4">
-                      <div className="container mx-auto px-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                      <div className="container mx-auto px-4 flex flex-col gap-3 sm:flex-row sm:justify-end sm:items-center">
                         <Button variant="ghost" asChild disabled={isSubmitting}>
                           <Link to="/profile">Cancel</Link>
                         </Button>

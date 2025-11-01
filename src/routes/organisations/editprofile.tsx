@@ -84,7 +84,7 @@ function OrganisationProfileEdit() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 lg:px-8 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         <nav aria-label="Breadcrumb">
           <ol className="text-sm text-muted-foreground flex items-center gap-2">
             <li className="flex items-center gap-2">
@@ -100,7 +100,7 @@ function OrganisationProfileEdit() {
         </nav>
 
         <Card className="shadow-sm border border-border/60">
-          <CardContent className="pt-6">
+          <CardContent className="pt-1">
             <div className="space-y-6">
               <div className="space-y-1">
                 <h1 className="text-xl font-semibold text-foreground">Edit Profile & Description</h1>
@@ -192,11 +192,11 @@ function OrganisationProfileEdit() {
                     )}
                   />
 
-                  <div className="h-16" aria-hidden="true" />
+                  <div className="h-1" aria-hidden="true" />
 
                   <div className="sticky bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 py-4">
                     <div className="container mx-auto px-4 lg:px-8">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end sm:items-center">
                         <Button variant="ghost" asChild disabled={isSubmitting}>
                           <Link to="/organisations/profile">Cancel</Link>
                         </Button>
