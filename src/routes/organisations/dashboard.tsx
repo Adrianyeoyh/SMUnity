@@ -520,7 +520,7 @@ function OrgDashboard() {
                     <div className="flex w-full flex-wrap gap-2 md:justify-end">
                       <Button variant="outline" size="sm" asChild>
                         <Link to="/organisations/$projectId" params={{ projectId: listing.id }}>
-                          View listing
+                          View Listing
                         </Link>
                       </Button>
                       <Button
