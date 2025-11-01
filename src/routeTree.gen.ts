@@ -21,12 +21,12 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganisationsProfileRouteImport } from './routes/organisations/profile'
+import { Route as OrganisationsPreviewNewRouteImport } from './routes/organisations/preview-new'
 import { Route as OrganisationsNewRouteImport } from './routes/organisations/new'
 import { Route as OrganisationsEditprofileRouteImport } from './routes/organisations/editprofile'
 import { Route as OrganisationsDashboardTESTRouteImport } from './routes/organisations/dashboardTEST'
 import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
 import { Route as OrganisationsProjectIdTESTRouteImport } from './routes/organisations/$projectIdTEST'
-import { Route as OrganisationsProjectIdRouteImport } from './routes/organisations/$projectId'
 import { Route as CspCspTestRouteImport } from './routes/csp/cspTest'
 import { Route as CspProjectIDRouteImport } from './routes/csp/$projectID'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
@@ -104,6 +104,11 @@ const OrganisationsProfileRoute = OrganisationsProfileRouteImport.update({
   path: '/organisations/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganisationsPreviewNewRoute = OrganisationsPreviewNewRouteImport.update({
+  id: '/organisations/preview-new',
+  path: '/organisations/preview-new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganisationsNewRoute = OrganisationsNewRouteImport.update({
   id: '/organisations/new',
   path: '/organisations/new',
@@ -132,11 +137,6 @@ const OrganisationsProjectIdTESTRoute =
     path: '/organisations/$projectIdTEST',
     getParentRoute: () => rootRouteImport,
   } as any)
-const OrganisationsProjectIdRoute = OrganisationsProjectIdRouteImport.update({
-  id: '/organisations/$projectId',
-  path: '/organisations/$projectId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CspCspTestRoute = CspCspTestRouteImport.update({
   id: '/csp/cspTest',
   path: '/csp/cspTest',
@@ -244,12 +244,12 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/csp/cspTest': typeof CspCspTestRoute
-  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
   '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/listing/new': typeof OrganisationsListingNewRoute
@@ -280,12 +280,12 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/csp/cspTest': typeof CspCspTestRoute
-  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
   '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/listing/new': typeof OrganisationsListingNewRoute
@@ -317,12 +317,12 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/csp/cspTest': typeof CspCspTestRoute
-  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
   '/organisations/$projectIdTEST': typeof OrganisationsProjectIdTESTRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/dashboardTEST': typeof OrganisationsDashboardTESTRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
   '/organisations/listing/new': typeof OrganisationsListingNewRoute
@@ -355,12 +355,12 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/csp/cspTest'
-    | '/organisations/$projectId'
     | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
     | '/organisations/dashboardTEST'
     | '/organisations/editprofile'
     | '/organisations/new'
+    | '/organisations/preview-new'
     | '/organisations/profile'
     | '/csp/$cspId/apply'
     | '/organisations/listing/new'
@@ -391,12 +391,12 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/csp/cspTest'
-    | '/organisations/$projectId'
     | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
     | '/organisations/dashboardTEST'
     | '/organisations/editprofile'
     | '/organisations/new'
+    | '/organisations/preview-new'
     | '/organisations/profile'
     | '/csp/$cspId/apply'
     | '/organisations/listing/new'
@@ -427,12 +427,12 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/csp/cspTest'
-    | '/organisations/$projectId'
     | '/organisations/$projectIdTEST'
     | '/organisations/dashboard'
     | '/organisations/dashboardTEST'
     | '/organisations/editprofile'
     | '/organisations/new'
+    | '/organisations/preview-new'
     | '/organisations/profile'
     | '/csp/$cspId/apply'
     | '/organisations/listing/new'
@@ -464,12 +464,12 @@ export interface RootRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   CspProjectIDRoute: typeof CspProjectIDRoute
   CspCspTestRoute: typeof CspCspTestRoute
-  OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
   OrganisationsProjectIdTESTRoute: typeof OrganisationsProjectIdTESTRoute
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
   OrganisationsDashboardTESTRoute: typeof OrganisationsDashboardTESTRoute
   OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
   OrganisationsNewRoute: typeof OrganisationsNewRoute
+  OrganisationsPreviewNewRoute: typeof OrganisationsPreviewNewRoute
   OrganisationsProfileRoute: typeof OrganisationsProfileRoute
   CspCspIdApplyRoute: typeof CspCspIdApplyRoute
   OrganisationsListingNewRoute: typeof OrganisationsListingNewRoute
@@ -563,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganisationsProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organisations/preview-new': {
+      id: '/organisations/preview-new'
+      path: '/organisations/preview-new'
+      fullPath: '/organisations/preview-new'
+      preLoaderRoute: typeof OrganisationsPreviewNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organisations/new': {
       id: '/organisations/new'
       path: '/organisations/new'
@@ -596,13 +603,6 @@ declare module '@tanstack/react-router' {
       path: '/organisations/$projectIdTEST'
       fullPath: '/organisations/$projectIdTEST'
       preLoaderRoute: typeof OrganisationsProjectIdTESTRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/organisations/$projectId': {
-      id: '/organisations/$projectId'
-      path: '/organisations/$projectId'
-      fullPath: '/organisations/$projectId'
-      preLoaderRoute: typeof OrganisationsProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/csp/cspTest': {
@@ -744,12 +744,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   CspProjectIDRoute: CspProjectIDRoute,
   CspCspTestRoute: CspCspTestRoute,
-  OrganisationsProjectIdRoute: OrganisationsProjectIdRoute,
   OrganisationsProjectIdTESTRoute: OrganisationsProjectIdTESTRoute,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
   OrganisationsDashboardTESTRoute: OrganisationsDashboardTESTRoute,
   OrganisationsEditprofileRoute: OrganisationsEditprofileRoute,
   OrganisationsNewRoute: OrganisationsNewRoute,
+  OrganisationsPreviewNewRoute: OrganisationsPreviewNewRoute,
   OrganisationsProfileRoute: OrganisationsProfileRoute,
   CspCspIdApplyRoute: CspCspIdApplyRoute,
   OrganisationsListingNewRoute: OrganisationsListingNewRoute,

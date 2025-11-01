@@ -249,8 +249,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  I have read and acknowledge the project schedule
-                </FormLabel>
+                  I have read and acknowledge the project schedule                </FormLabel>
                 <FormDescription>
                   This includes the start/end dates, meeting days, and session times.
                 </FormDescription>
@@ -285,13 +284,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
         <div className="flex items-center gap-2">
           <Button
             type="submit"
-            disabled={
-              submitting ||
-              !form.watch("agree") ||
-              !form.watch("acknowledgeSchedule") ||
-              !form.watch("motivation") ||
-              form.watch("motivation").trim().length < 20
-            }
+            disabled={submitting}
           >
             {submitting ? "Submitting..." : "Submit application"}
           </Button>

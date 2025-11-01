@@ -1,21 +1,289 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Plus, X, ImageIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Input } from "#client/components/ui/input";
 import { Textarea } from "#client/components/ui/textarea";
 import { Button } from "#client/components/ui/button";
 import { Label } from "#client/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#client/components/ui/command";
 import { Badge } from "#client/components/ui/badge";
-import { format } from "date-fns";
-import { FormInput, CATEGORY_OPTIONS, DISTRICTS, SKILL_CHOICES, TAG_CHOICES } from "#client/helper/index.ts";
-import { createOrganisationProject } from "#client/api/organisations/listing";
-import { toast } from "sonner";
+import { FormInput, CATEGORY_OPTIONS, DISTRICTS, COUNTRIES, SKILL_CHOICES, TAG_CHOICES } from "#client/helper/index.ts";
 
 // ---------- Constants ----------
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Skills Selector Component
+function SkillsSelector({ value, onChange }: { value: string[]; onChange: (skills: string[]) => void }) {
+  const selectedSkills = value || [];
+  const availableSkills = SKILL_CHOICES.filter(skill => !selectedSkills.includes(skill));
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const filteredSkills = availableSkills.filter(skill =>
+    skill.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const isCustomSkill = searchQuery.trim() && 
+    !availableSkills.includes(searchQuery.trim()) && 
+    !selectedSkills.includes(searchQuery.trim());
+
+  const handleAddSkill = (skill: string) => {
+    if (skill.trim() && !selectedSkills.includes(skill.trim())) {
+      onChange([...selectedSkills, skill.trim()]);
+      setSearchQuery("");
+      setOpen(false);
+    }
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    onChange(selectedSkills.filter((s: string) => s !== skill));
+  };
+
+  // Handle escape key and click outside
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div className="space-y-3">
+      {/* Add Skill button or searchable dropdown */}
+      {!open ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Add Skill
+        </Button>
+      ) : (
+        <div ref={containerRef} className="relative w-full">
+          <Command className="rounded-lg border border-input bg-background shadow-md">
+            <CommandInput
+              placeholder="Search skills or type to add custom..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+            <CommandList className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md">
+              {filteredSkills.length > 0 && (
+                <CommandGroup heading="Available Skills">
+                  {filteredSkills.map((skill) => (
+                    <CommandItem
+                      key={skill}
+                      onSelect={() => handleAddSkill(skill)}
+                    >
+                      {skill}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {isCustomSkill && (
+                <CommandGroup heading="Custom Skill">
+                  <CommandItem
+                    onSelect={() => handleAddSkill(searchQuery.trim())}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add &quot;{searchQuery.trim()}&quot;
+                  </CommandItem>
+                </CommandGroup>
+              )}
+              <CommandEmpty>
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  {searchQuery.trim() ? "No matching skills found." : "Start typing to search or add a custom skill."}
+                </div>
+              </CommandEmpty>
+            </CommandList>
+          </Command>
+        </div>
+      )}
+      
+      {/* Selected skills as badges */}
+      {selectedSkills.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selectedSkills.map((skill: string) => (
+            <Badge
+              key={skill}
+              variant="default"
+              className="flex items-center gap-2 px-3 h-8 text-sm"
+            >
+              <span>{skill}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveSkill(skill)}
+                className="hover:bg-primary/80 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Tags Selector Component
+function TagsSelector({ value, onChange }: { value: string[]; onChange: (tags: string[]) => void }) {
+  const selectedTags = value || [];
+  const availableTags = TAG_CHOICES.filter(tag => !selectedTags.includes(tag));
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const filteredTags = availableTags.filter(tag =>
+    tag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const isCustomTag = searchQuery.trim() && 
+    !availableTags.includes(searchQuery.trim()) && 
+    !selectedTags.includes(searchQuery.trim());
+
+  const handleAddTag = (tag: string) => {
+    if (tag.trim() && !selectedTags.includes(tag.trim())) {
+      onChange([...selectedTags, tag.trim()]);
+      setSearchQuery("");
+      setOpen(false);
+    }
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    onChange(selectedTags.filter((s: string) => s !== tag));
+  };
+
+  // Handle escape key and click outside
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div className="space-y-3">
+      {/* Add Tag button or searchable dropdown */}
+      {!open ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Add Tag
+        </Button>
+      ) : (
+        <div ref={containerRef} className="relative w-full">
+          <Command className="rounded-lg border border-input bg-background shadow-md">
+            <CommandInput
+              placeholder="Search tags or type to add custom..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+            <CommandList className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md">
+              {filteredTags.length > 0 && (
+                <CommandGroup heading="Available Tags">
+                  {filteredTags.map((tag) => (
+                    <CommandItem
+                      key={tag}
+                      onSelect={() => handleAddTag(tag)}
+                    >
+                      {tag}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {isCustomTag && (
+                <CommandGroup heading="Custom Tag">
+                  <CommandItem
+                    onSelect={() => handleAddTag(searchQuery.trim())}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add &quot;{searchQuery.trim()}&quot;
+                  </CommandItem>
+                </CommandGroup>
+              )}
+              <CommandEmpty>
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  {searchQuery.trim() ? "No matching tags found." : "Start typing to search or add a custom tag."}
+                </div>
+              </CommandEmpty>
+            </CommandList>
+          </Command>
+        </div>
+      )}
+      
+      {/* Selected tags as badges */}
+      {selectedTags.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selectedTags.map((tag: string) => (
+            <Badge
+              key={tag}
+              variant="default"
+              className="flex items-center gap-2 px-3 h-8 text-sm"
+            >
+              <span>{tag}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveTag(tag)}
+                className="hover:bg-primary/80 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/organisations/new")({
   component: NewProjectPage,
@@ -23,6 +291,26 @@ export const Route = createFileRoute("/organisations/new")({
 
 function NewProjectPage() {
   const nav = useNavigate();
+
+  // Load saved form data from localStorage
+  const loadSavedFormData = () => {
+    try {
+      const saved = localStorage.getItem("newListingFormDraft");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Convert date strings back to Date objects
+        if (parsed.start_date) parsed.start_date = new Date(parsed.start_date);
+        if (parsed.end_date) parsed.end_date = new Date(parsed.end_date);
+        if (parsed.application_deadline) parsed.application_deadline = new Date(parsed.application_deadline);
+        return parsed;
+      }
+    } catch (e) {
+      console.error("Failed to load saved form data:", e);
+    }
+    return null;
+  };
+
+  const savedData = loadSavedFormData();
 
   const {
     register,
@@ -34,9 +322,9 @@ function NewProjectPage() {
     clearErrors,
     getValues,
     trigger,
-    formState: { errors, isSubmitting, touchedFields, dirtyFields, isValid },
+    formState: { errors, touchedFields, dirtyFields },
   } = useForm<FormInput>({
-    defaultValues: {
+    defaultValues: savedData || {
       title: "",
       summary: "",
       category: CATEGORY_OPTIONS[0],
@@ -49,6 +337,7 @@ function NewProjectPage() {
       skill_tags: [],
 
       district: "",
+      country: "",
       google_maps: "",
       remote: false,
 
@@ -73,43 +362,16 @@ function NewProjectPage() {
     shouldFocusError: true,
   });
 
-  // ---------- API mutation ----------
-  const m = useMutation({
-    mutationFn: createOrganisationProject,
-    onSuccess: () => {
-      toast.success("Project created successfully!");
-      nav({ to: "/organisations/dashboard" });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to create project");
-    },
-  });
-
   // ---------- watchers ----------
-  const title = watch("title");
-  const summary = watch("summary");
   const category = watch("category");
   const projectType = watch("project_type");
-  const district = watch("district");
-  const googleMaps = watch("google_maps");
-  const imageUrl = watch("image_url");
-  const selectedSkills = watch("skill_tags");
   const start = watch("start_date");
   const end = watch("end_date");
-  const slots = watch("slots");
-  const description = watch("description");
-  const aboutDo = watch("about_do");
-  const requirements = watch("requirements");
-  const aboutProvide = watch("about_provide");
   const deadline = watch("application_deadline");
-  const hours = watch("commitable_hours");
   const repeatInterval = watch("repeat_interval");
-  const repeatUnit = watch("repeat_unit");
-  const daysOfWeek = watch("days_of_week");
   const timeStart = watch("time_start");
   const timeEnd = watch("time_end");
   const isRemote = watch("remote");
-  const projectTags = watch("project_tags");
 
   // ISO string for tomorrow to use as <input min>
 
@@ -173,10 +435,12 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   useEffect(() => {
     const weeks = diffWeeks(start, end);
     const per = perSessionHours(timeStart, timeEnd);
-    const expected = weeks * (repeatInterval || 0) * per;
+    // For one-time projects (repeatInterval === 0), calculate as single session hours
+    // For repeating projects, calculate as weeks * repeat_interval * per session
+    const expected = repeatInterval === 0 ? per : weeks * (repeatInterval || 0) * per;
 
     if (!userHoursTouchedRef.current) {
-      if (Number.isFinite(expected)) {
+      if (Number.isFinite(expected) && expected > 0) {
         setValue("commitable_hours", Math.round(expected));
       }
     }
@@ -186,9 +450,34 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   const expectedHours = useMemo(() => {
     const weeks = diffWeeks(start, end);
     const per = perSessionHours(timeStart, timeEnd);
-    const expected = weeks * (repeatInterval || 0) * per;
-    return Number.isFinite(expected) ? Math.round(expected) : 0;
+    // For one-time projects (repeatInterval === 0), calculate as single session hours
+    // For repeating projects, calculate as weeks * repeat_interval * per session
+    const expected = repeatInterval === 0 ? per : weeks * (repeatInterval || 0) * per;
+    return Number.isFinite(expected) && expected > 0 ? Math.round(expected) : 0;
   }, [start, end, timeStart, timeEnd, repeatInterval]);
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    const subscription = watch((value) => {
+      try {
+        // Convert Date objects to ISO strings for storage
+        const dataToSave: any = { ...value };
+        if (dataToSave.start_date instanceof Date) {
+          dataToSave.start_date = dataToSave.start_date.toISOString();
+        }
+        if (dataToSave.end_date instanceof Date) {
+          dataToSave.end_date = dataToSave.end_date.toISOString();
+        }
+        if (dataToSave.application_deadline instanceof Date) {
+          dataToSave.application_deadline = dataToSave.application_deadline.toISOString();
+        }
+        localStorage.setItem("newListingFormDraft", JSON.stringify(dataToSave));
+      } catch (e) {
+        console.error("Failed to save form data:", e);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   // ---------- Reactive validations ----------
   // Dates: validate reactively whenever *any* related date changes
@@ -263,25 +552,54 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   // ---------- submit with validations (kept as guardrails; most checks are reactive now) ----------
   const onSubmit: SubmitHandler<FormInput> = (data) => {
     data.repeat_unit = "week"; // lock unit
-    m.mutate(data);
+    // Store form data in localStorage and navigate to preview
+    const dataToSave: any = { ...data };
+    // Convert Date objects to strings for localStorage
+    if (dataToSave.start_date instanceof Date) {
+      dataToSave.start_date = dataToSave.start_date.toISOString();
+    }
+    if (dataToSave.end_date instanceof Date) {
+      dataToSave.end_date = dataToSave.end_date.toISOString();
+    }
+    if (dataToSave.application_deadline instanceof Date) {
+      dataToSave.application_deadline = dataToSave.application_deadline.toISOString();
+    }
+    localStorage.setItem("newListingFormData", JSON.stringify(dataToSave));
+    nav({ to: "/organisations/preview-new" });
   };
 
   // ---------- UI ----------
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-      <form className="lg:col-span-2 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <div className="container mx-auto py-8 px-4 sm:px-6 max-w-3xl">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+        <button
+          onClick={() => nav({ to: "/organisations/dashboard" })}
+          className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </button>
+        <span>/</span>
+        <span className="text-foreground">Create New Listing</span>
+      </div>
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
         {/* BASIC INFO */}
         <Card>
-          <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
+          <CardHeader>
+            <div className="space-y-3">
+              <h2 className="text-2xl font-heading">Create New Listing</h2>
+              <CardTitle>Basic Information</CardTitle>
+            </div>
+          </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register("title",  { required: "Title is required" })} />
+              <Input id="title" placeholder="Enter project title" {...register("title",  { required: "Title is required" })} />
               {errors.title && <p className="text-sm text-red-600">{errors.title.message as string}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="summary">Short summary</Label>
-              <Textarea id="summary" rows={3} {...register("summary",  { required: "Summary is required" })} />
+              <Label htmlFor="summary">Project Summary</Label>
+              <Textarea id="summary" rows={5} placeholder="Provide a brief summary of the project" {...register("summary",  { required: "Summary is required" })} />
               {errors.summary && <p className="text-sm text-red-600">{errors.summary.message as string}</p>}
             </div>
 
@@ -292,7 +610,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                   value={category}
                   onValueChange={(v) => setValue("category", v)}
                 >
-                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full"><SelectValue placeholder="Select category" /></SelectTrigger>
                   <SelectContent>
                     {CATEGORY_OPTIONS.map((opt) => (
                       <SelectItem key={opt} value={opt}>{opt}</SelectItem>
@@ -306,7 +624,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                   value={projectType}
                   onValueChange={(v) => setValue("project_type", v as "local" | "overseas")}
                 >
-                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="local">Local</SelectItem>
                     <SelectItem value="overseas">Overseas</SelectItem>
@@ -322,57 +640,41 @@ const diffWeeks = (s?: Date, e?: Date): number => {
           <CardHeader><CardTitle>About This Project</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="description">Detailed Project Description</Label>
-              <Textarea id="description" rows={6} {...register("description", { required: "Description is required" })} />
+              <Label htmlFor="description">Project Description</Label>
+              <Textarea id="description" rows={8} placeholder="Provide a detailed description of the project" {...register("description", { required: "Description is required" })} />
               {errors.description && <p className="text-sm text-red-600">{errors.description.message as string}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="about_do">What students will do</Label>
-              <Textarea id="about_do" rows={4} {...register("about_do", { required: "Please describe what volunteers will do" })} />
+              <Label htmlFor="about_do">What Students will Do</Label>
+              <Textarea id="about_do" rows={6} placeholder="Describe what volunteers will be doing during this project" {...register("about_do", { required: "Please describe what volunteers will do" })} />
               {errors.about_do && <p className="text-sm text-red-600">{errors.about_do.message as string}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="requirements">Student Requirements</Label>
-              <Textarea id="requirements" rows={4} {...register("requirements",  { required: "Please list requirements" })} />
+              <Textarea id="requirements" rows={6} placeholder="List any requirements or qualifications needed" {...register("requirements",  { required: "Please list requirements" })} />
               {errors.requirements && <p className="text-sm text-red-600">{errors.requirements.message as string}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="about_provide">What you will equip students with</Label>
-              <Textarea id="about_provide" rows={4} {...register("about_provide", { required: "Please describe what is provided" })} />
+              <Label htmlFor="about_provide">What You will Equip Students with</Label>
+              <Textarea id="about_provide" rows={6} placeholder="Describe what resources or support will be provided to volunteers" {...register("about_provide", { required: "Please describe what will students acquire" })} />
               {errors.about_provide && <p className="text-sm text-red-600">{errors.about_provide.message as string}</p>}
             </div>
           </CardContent>
           <CardHeader><CardTitle>Skills Required</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">Choose the top skills required for the project</p>
             <Controller
               control={control}
               name="skill_tags"
               rules={{ validate: (v) => (v?.length || 0) > 0 || "Select at least one skill" }}
               render={({ field }) => (
-                <div className="flex flex-wrap gap-2">
-                  {SKILL_CHOICES.map((skill) => {
-                    const selected = field.value.includes(skill);
-                    return (
-                      <Button
-                        key={skill}
-                        type="button"
-                        variant={selected ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => {
-                          const next = selected
-                            ? field.value.filter((s: string) => s !== skill)
-                            : [...field.value, skill];
-                          field.onChange(next);
-                        }}
-                      >
-                        {skill}
-                      </Button>
-                    );
-                  })}
-                </div>
+                <SkillsSelector
+                  value={field.value || []}
+                  onChange={(skills) => field.onChange(skills)}
+                />
               )}
             />
             {errors.skill_tags && <p className="text-sm text-red-600">{String(errors.skill_tags.message)}</p>}
@@ -383,67 +685,108 @@ const diffWeeks = (s?: Date, e?: Date): number => {
         <Card>
           <CardHeader><CardTitle>Location</CardTitle></CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* DISTRICT SELECT */}
-              <div className="space-y-2">
-                <Label>District</Label>
-                <Controller
-                  control={control}
-                  name="district"
-                  rules={{ required: !watch("remote") || "District is required unless remote" }}
-                  render={({ field }) => (
-                    <Select
-                      value={isRemote ? "Remote" : field.value || ""}
-                      onValueChange={(v) => field.onChange(v)}
-                      disabled={isRemote}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a district" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {DISTRICTS.map((d) => (
-                          <SelectItem key={d} value={d}>{d}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.district && <p className="text-sm text-red-600">{errors.district.message as string}</p>}
-              </div>
-
-              {/* GOOGLE MAPS + REMOTE TOGGLE */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="google_maps">Google Maps URL</Label>
-                  <Input
-                    id="google_maps"
-                    type="url"
-                    placeholder="https://maps.google.com/..."
-                    {...register("google_maps", { required: !watch("remote") || "Map link is required unless remote" })}
-                    disabled={isRemote}
+            {projectType === "local" ? (
+              <div className="grid gap-4 sm:grid-cols-3">
+                {/* DISTRICT SELECT */}
+                <div className="space-y-2 sm:col-span-1">
+                  <Label>District</Label>
+                  <Controller
+                    control={control}
+                    name="district"
+                    rules={{ required: !watch("remote") || "District is required unless remote" }}
+                    render={({ field }) => (
+                      <Select
+                        value={isRemote ? "" : field.value || ""}
+                        onValueChange={(v) => field.onChange(v)}
+                        disabled={isRemote}
+                      >
+                        <SelectTrigger className="h-11 w-full">
+                          <SelectValue placeholder="Select a district" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DISTRICTS.map((d) => (
+                            <SelectItem key={d} value={d}>{d}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
+                  {errors.district && !isRemote && <p className="text-sm text-red-600">{errors.district.message as string}</p>}
+                </div>
+
+                {/* GOOGLE MAPS + REMOTE TOGGLE */}
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="google_maps">Google Maps URL</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-center">
+                    <Input
+                      id="google_maps"
+                      type="url"
+                      placeholder="https://maps.google.com/..."
+                      className="h-9"
+                      {...register("google_maps")}
+                      disabled={isRemote}
+                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="remote"
+                        type="checkbox"
+                        {...register("remote")}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setValue("remote", checked);
+                          if (checked) {
+                            setValue("district", "Remote");
+                            setValue("google_maps", "");
+                          } else {
+                            setValue("district", "");
+                          }
+                        }}
+                      />
+                      <Label htmlFor="remote" className="cursor-pointer mb-0">Remote?</Label>
+                    </div>
+                  </div>
                   {errors.google_maps && <p className="text-sm text-red-600">{errors.google_maps.message as string}</p>}
                 </div>
-                <div className="flex items-center gap-2 mt-6">
-                  <input
-                    id="remote"
-                    type="checkbox"
-                    {...register("remote")}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setValue("remote", checked);
-                      if (checked) {
-                        setValue("district", "Remote");
-                        setValue("google_maps", "");
-                      } else {
-                        setValue("district", "");
-                      }
-                    }}
-                  />
-                  <Label htmlFor="remote" className="cursor-pointer">Remote?</Label>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* COUNTRY SELECT FOR OVERSEAS */}
+                <div className="space-y-2">
+                  <Label>Country</Label>
+                  <div className="flex items-center gap-4">
+                    <Controller
+                      control={control}
+                      name="country"
+                      rules={{ required: !watch("remote") || "Country is required unless remote" }}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ""}
+                          onValueChange={(v) => field.onChange(v)}
+                        >
+                          <SelectTrigger className="h-11 w-1/2">
+                            <SelectValue placeholder="Select a country" />
+                          </SelectTrigger>
+                          <SelectContent className="max-w-[var(--radix-select-trigger-width)]" position="popper">
+                            {COUNTRIES.map((c) => (
+                              <SelectItem key={c} value={c} className="whitespace-normal">{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="remote_overseas"
+                        type="checkbox"
+                        {...register("remote")}
+                      />
+                      <Label htmlFor="remote_overseas" className="cursor-pointer mb-0">Remote?</Label>
+                    </div>
+                  </div>
+                  {errors.country && !isRemote && <p className="text-sm text-red-600">{errors.country.message as string}</p>}
                 </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -455,7 +798,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
             {/* Dates */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="start_date">Start date</Label>
+                <Label htmlFor="start_date">Start Date</Label>
                 <Controller
                   control={control}
                   name="start_date"
@@ -468,13 +811,14 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                       aria-invalid={!!errors.start_date}
+                      className="relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer pr-10 [&::-webkit-calendar-picker-indicator]:opacity-100"
                     />
                   )}
                 />
                 {errors.start_date && <p className="text-sm text-red-600">{errors.start_date.message as string}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="end_date">End date</Label>
+                <Label htmlFor="end_date">End Date</Label>
                 <Controller
                   control={control}
                   name="end_date"
@@ -487,13 +831,14 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                       aria-invalid={!!errors.end_date}
+                      className="relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer pr-10 [&::-webkit-calendar-picker-indicator]:opacity-100"
                     />
                   )}
                 />
                 {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message as string}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="application_deadline">Application deadline</Label>
+                <Label htmlFor="application_deadline">Application Deadline</Label>
                 <Controller
                   control={control}
                   name="application_deadline"
@@ -506,6 +851,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                       aria-invalid={!!errors.application_deadline}
+                      className="relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer pr-10 [&::-webkit-calendar-picker-indicator]:opacity-100"
                     />
                   )}
                 />
@@ -516,87 +862,114 @@ const diffWeeks = (s?: Date, e?: Date): number => {
             {/* Repeats: Every [interval] [unit => locked to week] */}
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <Label className="font-medium w-32">Repeats every</Label>
-              <div className="flex gap-2 flex-1 items-center">
+              <div className="flex gap-4 flex-1 items-center">
                 <Input
                   type="number"
                   min={1}
                   step={1}
                   className="w-20"
-                  {...register("repeat_interval", { required: "Repeat interval is required", valueAsNumber: true })}
+                  disabled={repeatInterval === 0}
+                  {...register("repeat_interval", { required: repeatInterval !== 0 ? "Repeat interval is required" : false, valueAsNumber: true })}
                   aria-invalid={!!errors.repeat_interval}
                 />
                 {errors.repeat_interval && <p className="text-sm text-red-600">{errors.repeat_interval.message as string}</p>}
-                <span className="text-sm text-muted-foreground">week(s)</span>
+                <span className="text-sm text-muted-foreground">/week(s)</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="one_time"
+                    type="checkbox"
+                    {...register("repeat_interval")}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setValue("repeat_interval", 0);
+                        setValue("days_of_week", []);
+                      } else {
+                        setValue("repeat_interval", 1);
+                      }
+                    }}
+                    checked={repeatInterval === 0}
+                  />
+                  <Label htmlFor="one_time" className="cursor-pointer mb-0">One-time</Label>
+                </div>
               </div>
             </div>
 
             {/* Days of the week selection (limited by repeat_interval) */}
-            <div className="space-y-2">
-              <Label>Days of the week</Label>
-              <Controller
-                control={control}
-                name="days_of_week"
-                rules={{
-                  validate: (v) =>
-                    ((v?.length || 0) === (repeatInterval || 0))
-                      ? true
-                      : `Select exactly ${repeatInterval || 0} day${(repeatInterval || 0) === 1 ? "" : "s"} per week`,
-                }}
-                render={({ field }) => {
-                  const value: string[] = field.value ?? [];
-                  return (
-                    <div className="flex flex-wrap gap-2">
-                      {DAYS.map((day) => {
-                        const selected = value.includes(day);
-                        const disable = !selected && value.length >= (repeatInterval || 0);
-                        return (
-                          <Button
-                            key={day}
-                            type="button"
-                            variant={selected ? "default" : "outline"}
-                            size="sm"
-                            disabled={disable}
-                            onClick={() => {
-                              const next = selected
-                                ? value.filter((d) => d !== day)
-                                : [...value, day];
-                              field.onChange(next);
-                            }}
-                            aria-pressed={selected}
-                          >
-                            {day}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                  );
-                }}
-              />
-              {errors.days_of_week && <p className="text-sm text-red-600">{String(errors.days_of_week.message)}</p>}
-            </div>
+            {(
+              <div className="space-y-2">
+                <Label>Day(s) of the Week</Label>
+                <Controller
+                  control={control}
+                  name="days_of_week"
+                  rules={{
+                    validate: (v) => {
+                      if (repeatInterval === 0) {
+                        return (v?.length || 0) === 1 || "Select exactly one day for a one-time project";
+                      }
+                      return ((v?.length || 0) === (repeatInterval || 0))
+                        ? true
+                        : `Select exactly ${repeatInterval || 0} day${(repeatInterval || 0) === 1 ? "" : "s"} per week`;
+                    },
+                  }}
+                  render={({ field }) => {
+                    const value: string[] = field.value ?? [];
+                    const maxDays = repeatInterval === 0 ? 1 : (repeatInterval || 0);
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        {DAYS.map((day) => {
+                          const selected = value.includes(day);
+                          const disable = !selected && value.length >= maxDays;
+                          return (
+                            <Button
+                              key={day}
+                              type="button"
+                              variant={selected ? "default" : "outline"}
+                              size="sm"
+                              disabled={disable}
+                              onClick={() => {
+                                const next = selected
+                                  ? value.filter((d) => d !== day)
+                                  : [...value, day];
+                                field.onChange(next);
+                              }}
+                              aria-pressed={selected}
+                            >
+                              {day}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    );
+                  }}
+                />
+                {errors.days_of_week && <p className="text-sm text-red-600">{String(errors.days_of_week.message)}</p>}
+              </div>
+            )}
 
             {/* Time window */}
-            <div className="grid sm:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="time_start">Start time</Label>
-                <Input id="time_start" type="time" step={300} {...register("time_start", { required: "Start time is required" })} aria-invalid={!!errors.time_start} />
+                <Label htmlFor="time_start">Start Time</Label>
+                <Input id="time_start" type="time" step={300} {...register("time_start", { required: "Start time is required" })} aria-invalid={!!errors.time_start} className="relative pr-10 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100" />
                 {errors.time_start && <p className="text-sm text-red-600">{errors.time_start.message as string}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="time_end">End time</Label>
-                <Input id="time_end" type="time" step={300} {...register("time_end", { required: "End time is required" })} aria-invalid={!!errors.time_end} />
+                <Label htmlFor="time_end">End Time</Label>
+                <Input id="time_end" type="time" step={300} {...register("time_end", { required: "End time is required" })} aria-invalid={!!errors.time_end} className="relative pr-10 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100" />
                 {errors.time_end && <p className="text-sm text-red-600">{errors.time_end.message as string}</p>}
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className={`grid gap-4 ${repeatInterval !== 0 ? 'sm:grid-cols-2' : ''}`}>
+              {repeatInterval !== 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="slots">Total Slots</Label>
+                  <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} aria-invalid={!!errors.slots} />
+                  {errors.slots && <p className="text-sm text-red-600">{errors.slots.message as string}</p>}
+                </div>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="slots">Total slots</Label>
-                <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} aria-invalid={!!errors.slots} />
-                {errors.slots && <p className="text-sm text-red-600">{errors.slots.message as string}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="commitable_hours">Total service hours</Label>
+                <Label htmlFor="commitable_hours">Total Service Hours</Label>
                 <Input
                   id="commitable_hours"
                   type="number"
@@ -612,9 +985,13 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       const ri = getValues("repeat_interval");
                       const weeks = diffWeeks(s, e);
                       const per = perSessionHours(ts, te);
-                      const expected = weeks * (ri || 0) * per;
-                      if (!(Number.isFinite(expected) && expected > 0)) return "Complete the schedule fields to compute service hours";
-                      if (Math.abs((v || 0) - expected) > 10) return `Service hours too far from expected (${Math.round(expected)}h ±10h allowed)`;
+                      // For one-time projects (ri === 0), calculate as single session hours
+                      // For repeating projects, calculate as weeks * repeat_interval * per session
+                      const expected = ri === 0 ? per : weeks * (ri || 0) * per;
+                      // Only validate against expected hours if we can calculate them
+                      if (Number.isFinite(expected) && expected > 0) {
+                        if (Math.abs((v || 0) - expected) > 10) return `Service hours too far from expected (${Math.round(expected)}h ±10h allowed)`;
+                      }
                       return true;
                     },
                   })}
@@ -632,15 +1009,37 @@ const diffWeeks = (s?: Date, e?: Date): number => {
           <CardHeader><CardTitle>Media</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="image_url">Feature image URL (legacy)</Label>
+              <Label htmlFor="image_url">Image URL</Label>
               <Input
                 id="image_url"
                 type="url"
                 placeholder="https://example.com/cover.jpg"
-                {...register("image_url", { required: "Feature image URL is required" })}
+                {...register("image_url", { required: "Feature image is required" })}
                 aria-invalid={!!errors.image_url}
               />
               {errors.image_url && <p className="text-sm text-red-600">{errors.image_url.message as string}</p>}
+            </div>
+            
+            {/* Preview */}
+            <div className="space-y-2">
+              <Label>Preview</Label>
+              <div className="border rounded-lg p-4 bg-muted/20 min-h-[200px] flex items-center justify-center">
+                {watch("image_url") ? (
+                  <img 
+                    src={watch("image_url")} 
+                    alt="Preview" 
+                    className="max-w-full max-h-[300px] object-contain rounded"
+                  />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No image uploaded</p>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Recommended: Copy image address with landscape orientation, 1920×1080px or higher
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -649,118 +1048,29 @@ const diffWeeks = (s?: Date, e?: Date): number => {
         <Card>
           <CardHeader><CardTitle>Project Tags</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Choose the tags that best describe this project.</p>
+            <p className="text-sm text-muted-foreground">Choose the tags that best describe this project</p>
             <Controller
               control={control}
               name="project_tags"
               rules={{ validate: (v) => (v?.length || 0) > 0 || "Select at least one project tag" }}
-              render={({ field }) => {
-                const value: string[] = field.value ?? [];
-                return (
-                  <div className="flex flex-wrap gap-2">
-                    {TAG_CHOICES.map((tag) => {
-                      const selected = value.includes(tag);
-                      return (
-                        <Button
-                          key={tag}
-                          type="button"
-                          variant={selected ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => {
-                            const next = selected ? value.filter((s) => s !== tag) : [...value, tag];
-                            field.onChange(next);
-                          }}
-                          onBlur={field.onBlur}
-                          aria-pressed={selected}
-                        >
-                          {tag}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                );
-              }}
+              render={({ field }) => (
+                <TagsSelector
+                  value={field.value || []}
+                  onChange={(tags) => field.onChange(tags)}
+                />
+              )}
             />
             {errors.project_tags && <p className="text-sm text-red-600">{errors.project_tags.message as string}</p>}
           </CardContent>
         </Card>
 
         <div className="flex items-center justify-end gap-3 mb-8">
-          <Button type="button" variant="ghost" onClick={() => history.back()}>Cancel</Button>
-          <Button type="submit" disabled={!isValid || isSubmitting || m.isPending}>
-            {m.isPending ? "Creating…" : "Create listing"}
+          <Button type="button" variant="ghost" onClick={() => nav({ to: "/organisations/dashboard" })}>Cancel</Button>
+          <Button type="submit">
+            Continue to Preview
           </Button>
         </div>
       </form>
-
-      {/* ---------- PREVIEW ---------- */}
-      <div className="lg:col-span-1">
-        <Card className="sticky top-6">
-          <CardHeader><CardTitle>Preview</CardTitle></CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div><span className="font-medium">Title: </span>{title || "—"}</div>
-            <div><span className="font-medium">Category: </span>{category}</div>
-            <div><span className="font-medium">Summary: </span><p className="mt-1 text-muted-foreground">{summary || "—"}</p></div>
-            <div><span className="font-medium">Project Type: </span>{projectType}</div>
-            <div><span className="font-medium">Detailed Description</span><p className="mt-1 text-muted-foreground">{description || "—"}</p></div>
-            <div><span className="font-medium">What you’ll do</span><p className="mt-1 text-muted-foreground">{aboutDo || "—"}</p></div>
-            <div><span className="font-medium">Requirements</span><p className="mt-1 text-muted-foreground">{requirements || "—"}</p></div>
-            <div><span className="font-medium">What we provide</span><p className="mt-1 text-muted-foreground">{aboutProvide || "—"}</p></div>
-
-            <div>
-              <span className="font-medium">Skills you’ll need: </span>
-              {selectedSkills?.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {selectedSkills.map((s: string) => (
-                    <Badge key={s} variant="secondary">{s}</Badge>
-                  ))}
-                </div>
-              ) : "—"}
-            </div>
-            <div><span className="font-medium">District: </span>{district || "—"}{isRemote ? " • Remote" : ""}</div>
-            {googleMaps ? (
-              <div className="truncate">
-                <span className="font-medium">Google Maps: </span>
-                <a className="text-blue-600 underline" href={googleMaps} target="_blank" rel="noreferrer">
-                  {googleMaps}
-                </a>
-              </div>
-            ) : null}
-            <div><span className="font-medium">Schedule: </span>
-              {`Every ${repeatInterval} ${repeatUnit}${repeatInterval && repeatInterval > 1 ? "s" : ""}`}
-              {daysOfWeek.length ? ` • ${daysOfWeek.join(", ")}` : ""}
-              {(timeStart || timeEnd) ? ` • ${timeStart || "?"}–${timeEnd || "?"}` : ""}
-            </div>
-            <div><span className="font-medium">Dates: </span>
-              {start ? format(start, "dd MMM yyyy") : "—"} to {end ? format(end, "dd MMM yyyy") : "—"}
-            </div>
-            <div><span className="font-medium">Application Deadline: </span>{deadline ? format(deadline, "dd MMM yyyy") : "—"}</div>
-            <div><span className="font-medium">Service Hours: </span>{hours || 0}h</div>
-            <div><span className="font-medium">Slots: </span>{slots}</div>
-
-            <div>
-              <span className="font-medium">Project tags: </span>
-              {projectTags.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {projectTags.map((t: string) => (
-                    <Badge key={t} variant="secondary">{t}</Badge>
-                  ))}
-                </div>
-              ) : "—"}
-            </div>
-
-            <div>
-              <span className="font-medium">Feature image: </span>
-              {imageUrl ? (
-                <div className="mt-2">
-                  <img src={imageUrl} alt="Project feature preview" className="w-full h-40 object-cover rounded-md border" />
-                </div>
-              ) : "—"}
-            </div>
-
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
