@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
@@ -37,6 +38,21 @@ function Dashboard() {
   // real user data
   const { data } = useMe();
   const userName = data?.name ?? user.name;
+
+  // CSU Module card visibility
+  const [showCSUCard, setShowCSUCard] = useState(true);
+
+  useEffect(() => {
+    const csuCardHidden = localStorage.getItem("csuCardHidden");
+    if (csuCardHidden === "true") {
+      setShowCSUCard(false);
+    }
+  }, []);
+
+  const handleCSUCardDismiss = () => {
+    setShowCSUCard(false);
+    localStorage.setItem("csuCardHidden", "true");
+  };
 
   // Mock ongoing projects
   const ongoingProjects = [
@@ -117,27 +133,35 @@ function Dashboard() {
       <div className="container mx-auto px-4 py-6">
 
         {/* CSU Module Reminder */}
-        <Card className="mb-8 bg-gradient-to-r from-pink-500/10 to-primary/5">
-          <CardContent className="pt-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-heading font-semibold text-lg text-foreground mb-2">
-                  Complete CSU Module First
-                </h3>
-                <p className="text-muted-foreground font-body">
-                  Before applying for CSPs, make sure you've completed the Community Service Understanding (CSU) module on eLearn.
-                </p>
+        {showCSUCard && (
+          <Card className="mb-8 bg-gradient-to-r from-pink-500/10 to-primary/5">
+            <CardContent className="pt-1">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="md:flex-1">
+                  <h3 className="font-heading font-semibold text-base md:text-lg text-foreground mb-1 md:mb-2">
+                    Complete CSU Module First
+                  </h3>
+                  <p className="text-muted-foreground font-body text-sm md:text-base mb-3 md:mb-0">
+                    Before applying for CSPs, make sure you've completed the Community Service Understanding (CSU) module on eLearn.
+                  </p>
+                  <button
+                    onClick={handleCSUCardDismiss}
+                    className="text-sm text-muted-foreground hover:text-foreground underline"
+                  >
+                    I've already completed it!
+                  </button>
+                </div>
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-white w-full md:w-auto"
+                  onClick={() => window.open('https://elearn.smu.edu.sg', '_blank')}
+                >
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  Go to eLearn
+                </Button>
               </div>
-              <Button 
-                className="bg-primary hover:bg-primary/90 text-white"
-                onClick={() => window.open('https://elearn.smu.edu.sg', '_blank')}
-              >
-                <ArrowRight className="mr-2 h-4 w-4" />
-                Go to eLearn
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
