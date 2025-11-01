@@ -130,7 +130,7 @@ function Dashboard() {
         )}
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1wait  lg:grid-cols-3 gap-6 mb-8">
           {/* <Card>
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">

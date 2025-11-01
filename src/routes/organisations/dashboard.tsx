@@ -33,6 +33,8 @@ function OrgDashboard() {
     queryKey: ["orgListings"],
     queryFn: fetchOrgListings,
   });
+  console.log("listingsData:", listingsData);
+
 
   // Count of listings for each status
   const listingCounts = useMemo(() => {
@@ -65,7 +67,7 @@ function OrgDashboard() {
       { value: "ongoing" as const, label: `Ongoing (${listingCounts.ongoing})` },
       { value: "archived" as const, label: `Archived (${listingCounts.archived})` },
     ],
-    []
+    [listingCounts]
   );
 
   //Search Box

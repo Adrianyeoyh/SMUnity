@@ -1071,6 +1071,75 @@ const diffWeeks = (s?: Date, e?: Date): number => {
           </Button>
         </div>
       </form>
+
+      {/* ---------- PREVIEW ---------- */}
+      <div className="lg:col-span-1">
+        <Card className="sticky top-6">
+          <CardHeader><CardTitle>Preview</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-sm break-words whitespace-pre-wrap">
+            <div><span className="font-medium">Title: </span>{title || "—"}</div>
+            <div><span className="font-medium">Category: </span>{category}</div>
+            <div><span className="font-medium">Summary: </span><p className="mt-1 text-muted-foreground">{summary || "—"}</p></div>
+            <div><span className="font-medium">Project Type: </span>{projectType}</div>
+            <div><span className="font-medium">Detailed Description</span><p className="mt-1 text-muted-foreground">{description || "—"}</p></div>
+            <div><span className="font-medium">What you’ll do</span><p className="mt-1 text-muted-foreground">{aboutDo || "—"}</p></div>
+            <div><span className="font-medium">Requirements</span><p className="mt-1 text-muted-foreground">{requirements || "—"}</p></div>
+            <div><span className="font-medium">What we provide</span><p className="mt-1 text-muted-foreground">{aboutProvide || "—"}</p></div>
+
+            <div>
+              <span className="font-medium">Skills you’ll need: </span>
+              {selectedSkills?.length ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {selectedSkills.map((s: string) => (
+                    <Badge key={s} variant="secondary">{s}</Badge>
+                  ))}
+                </div>
+              ) : "—"}
+            </div>
+            <div><span className="font-medium">District: </span>{district || "—"}{isRemote ? " • Remote" : ""}</div>
+            {googleMaps ? (
+              <div className="truncate">
+                <span className="font-medium">Google Maps: </span>
+                <a className="text-blue-600 underline" href={googleMaps} target="_blank" rel="noreferrer">
+                  {googleMaps}
+                </a>
+              </div>
+            ) : null}
+            <div><span className="font-medium">Schedule: </span>
+              {`Every ${repeatInterval} ${repeatUnit}${repeatInterval && repeatInterval > 1 ? "s" : ""}`}
+              {daysOfWeek.length ? ` • ${daysOfWeek.join(", ")}` : ""}
+              {(timeStart || timeEnd) ? ` • ${timeStart || "?"}–${timeEnd || "?"}` : ""}
+            </div>
+            <div><span className="font-medium">Dates: </span>
+              {start ? format(start, "dd MMM yyyy") : "—"} to {end ? format(end, "dd MMM yyyy") : "—"}
+            </div>
+            <div><span className="font-medium">Application Deadline: </span>{deadline ? format(deadline, "dd MMM yyyy") : "—"}</div>
+            <div><span className="font-medium">Service Hours: </span>{hours || 0}h</div>
+            <div><span className="font-medium">Slots: </span>{slots}</div>
+
+            <div>
+              <span className="font-medium">Project tags: </span>
+              {projectTags.length ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {projectTags.map((t: string) => (
+                    <Badge key={t} variant="secondary">{t}</Badge>
+                  ))}
+                </div>
+              ) : "—"}
+            </div>
+
+            <div>
+              <span className="font-medium">Feature image: </span>
+              {imageUrl ? (
+                <div className="mt-2">
+                  <img src={imageUrl} alt="Project feature preview" className="w-full h-40 object-cover rounded-md border" />
+                </div>
+              ) : "—"}
+            </div>
+
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

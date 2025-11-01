@@ -203,7 +203,7 @@ function ListingApplicationsPage() {
                       </Badge>
                     ))}
                 </div>
-                <p className="text-muted-foreground font-body leading-relaxed mb-4">{project.description}</p>
+                <p className="text-muted-foreground font-body leading-relaxed mb-4 break-all whitespace-pre-wrap">{project.description}</p>
               </CardContent>
 
               {/* Second Row */}
@@ -238,7 +238,7 @@ function ListingApplicationsPage() {
               </CardContent>
 
               {/* Bottom Row */}
-              <CardContent>
+              <CardContent className="break-words whitespace-pre-wrap">
                 <div className="space-y-3 mt-3">
                   <SectionCard title="What we provide" content={project.aboutProvide} />
                   <SectionCard title="What you’ll do" content={project.aboutDo} />

@@ -137,6 +137,16 @@ function AdminOrganisationsPage() {
       setBusyId(null);
     }
   };
+  
+  // status tabs count
+  const statusCounts = useMemo(() => {
+    return {
+      all: records.length,
+      active: records.filter((o) => o.status === "active").length,
+      suspended: records.filter((o) => o.status === "suspended").length,
+    };
+  }, [records]);
+
 
   const filtered = useMemo(() => {
     let list = records;
@@ -189,9 +199,9 @@ function AdminOrganisationsPage() {
           </div>
           <Tabs value={tab} onValueChange={(v) => setTab(v as StatusTab)} className="w-full md:w-auto">
             <TabsList className="flex w-full md:w-auto overflow-x-auto whitespace-nowrap gap-2 px-1">
-              <TabsTrigger value="all" className="font-body shrink-0">All</TabsTrigger>
-              <TabsTrigger value="active" className="font-body shrink-0">Active</TabsTrigger>
-              <TabsTrigger value="suspended" className="font-body shrink-0">Suspended</TabsTrigger>
+              <TabsTrigger value="all" className="font-body shrink-0">All ({statusCounts.all})</TabsTrigger>
+              <TabsTrigger value="active" className="font-body shrink-0">Active ({statusCounts.active})</TabsTrigger>
+              <TabsTrigger value="suspended" className="font-body shrink-0">Suspended ({statusCounts.suspended})</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
