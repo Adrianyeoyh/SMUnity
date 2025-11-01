@@ -310,7 +310,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                   About This Project
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 break-words whitespace-pre-wrap">
                 {/* General description */}
                 {csp.description && (
                   <div>
@@ -359,7 +359,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
               <CardHeader>
                 <CardTitle className="font-heading text-xl">Skills & Requirements</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 break-words whitespace-pre-wrap">
                 <div>
                   <h4 className="font-medium mb-3 font-body flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
