@@ -112,7 +112,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/discover" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -137,7 +137,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/admin/organisations" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -161,7 +161,7 @@ export function Header() {
               </Link>
               <Link 
                   to="/discover" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -186,7 +186,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/discover" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -197,7 +197,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/my-applications" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
