@@ -372,6 +372,7 @@ function NewProjectPage() {
   const timeStart = watch("time_start");
   const timeEnd = watch("time_end");
   const isRemote = watch("remote");
+  const days_of_week = watch("days_of_week"); // ✅ ADD THIS
 
   // ISO string for tomorrow to use as <input min>
 
@@ -417,11 +418,39 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   return Number.isFinite(weeks) ? Math.max(1, weeks) : 0;
 };
 
-  const tomorrowIso = useMemo(() => {
-    const t = todayStart();
-    t.setDate(t.getDate() + 1);
-    return t.toISOString().split("T")[0];
-  }, []);
+const tomorrowIso = useMemo(() => {
+  const t = todayStart();
+  t.setDate(t.getDate() + 1);
+  return t.toISOString().split("T")[0];
+}, []);
+
+const diffDaysInclusive = (s?: Date, e?: Date): number => {
+  if (!(s instanceof Date) || !(e instanceof Date)) return 0;
+  const ms = startOfDay(e).getTime() - startOfDay(s).getTime();
+  return Math.floor(ms / DAY_MS) + 1; // ✅ inclusive of both start & end
+};
+
+// ✅ Map JavaScript getDay() -> Monday-based names
+const weekdayName = (d: Date) => {
+  const i = d.getDay(); // 0 = Sunday, 6 = Saturday
+  return DAYS[i === 0 ? 6 : i - 1]; // Monday=0
+};
+
+// ✅ Count matching weekdays inside [start, end]
+const countMatchingDates = (s?: Date, e?: Date, selectedDays?: string[]) => {
+  if (!(s instanceof Date) || !(e instanceof Date) || !selectedDays?.length) return 0;
+  let count = 0;
+  const cur = startOfDay(s);
+  const endDay = startOfDay(e).getTime();
+  const probe = new Date(cur);
+  while (probe.getTime() <= endDay) {
+    if (selectedDays.includes(weekdayName(probe))) count++;
+    probe.setDate(probe.getDate() + 1);
+  }
+  return count;
+};
+
+
 
   // track whether user has manually adjusted commitable_hours (so we don't overwrite)
   const userHoursTouchedRef = useRef(false);
@@ -437,7 +466,23 @@ const diffWeeks = (s?: Date, e?: Date): number => {
     const per = perSessionHours(timeStart, timeEnd);
     // For one-time projects (repeatInterval === 0), calculate as single session hours
     // For repeating projects, calculate as weeks * repeat_interval * per session
-    const expected = repeatInterval === 0 ? per : weeks * (repeatInterval || 0) * per;
+    const duration = diffDaysInclusive(start, end);
+
+// find which days in the range match the selected ones
+    const matchingDaysCount = (() => {
+      if (!start || !end || !days_of_week?.length) return 0;
+      let count = 0;
+      const cur = new Date(start);
+      while (cur <= end) {
+        const dayName = cur.toLocaleDateString("en-SG", { weekday: "long" });
+        if (days_of_week.includes(dayName)) count++;
+        cur.setDate(cur.getDate() + 1);
+      }
+      return count;
+    })();
+
+const expected = matchingDaysCount * per;
+
 
     if (!userHoursTouchedRef.current) {
       if (Number.isFinite(expected) && expected > 0) {
@@ -448,13 +493,12 @@ const diffWeeks = (s?: Date, e?: Date): number => {
 
   // Derived expected hours (for UI hint)
   const expectedHours = useMemo(() => {
-    const weeks = diffWeeks(start, end);
-    const per = perSessionHours(timeStart, timeEnd);
-    // For one-time projects (repeatInterval === 0), calculate as single session hours
-    // For repeating projects, calculate as weeks * repeat_interval * per session
-    const expected = repeatInterval === 0 ? per : weeks * (repeatInterval || 0) * per;
-    return Number.isFinite(expected) && expected > 0 ? Math.round(expected) : 0;
-  }, [start, end, timeStart, timeEnd, repeatInterval]);
+  const per = perSessionHours(timeStart, timeEnd);
+  const matches = countMatchingDates(start, end, days_of_week);
+  const expected = matches * per;
+  return Number.isFinite(expected) && expected > 0 ? Math.round(expected) : 0;
+}, [start, end, timeStart, timeEnd, days_of_week]);
+
 
   // Save form data to localStorage whenever it changes
   useEffect(() => {
@@ -508,16 +552,15 @@ const diffWeeks = (s?: Date, e?: Date): number => {
     }
 
     // B) End date cannot be earlier than start date (symmetrical errors; runs when either changes)
-    if (s && e && repeatInterval !== 0) {
-      if (e.getTime() < s.getTime()) {
-        setError("start_date", { type: "validate", message: "Start date must be on or before end date" });
-        setError("end_date", { type: "validate", message: "End date cannot be earlier than start date" });
-      } else {
-        // Clear only if not violating rule A
-        if (!beforeTomorrow(s)) clearErrors("start_date");
-        if (!beforeTomorrow(e)) clearErrors("end_date");
-      }
-    }
+    // ✅ End date cannot be earlier than start date
+if (s && e) {
+  if (startOfDay(e).getTime() < startOfDay(s).getTime()) {
+    setError("end_date", { type: "validate", message: "End date cannot be earlier than start date" });
+  } else {
+    clearErrors("end_date");
+  }
+}
+
 
     // C) Application deadline must be at least 1 day before the start date
     if (dl && s) {
@@ -530,6 +573,15 @@ const diffWeeks = (s?: Date, e?: Date): number => {
         if (!(e && e.getTime() < s.getTime()) && !beforeTomorrow(s)) clearErrors("start_date");
       }
     }
+
+    const duration = diffDaysInclusive(s, e);
+    // E) Days of week <= duration
+    if (Array.isArray(watch("days_of_week")) && watch("days_of_week").length > duration) {
+      setError("days_of_week", {
+        type: "validate",
+        message: "Number of days selected exceeds project duration.",
+      });
+}
   }, [start, end, deadline, repeatInterval, setError, clearErrors]);
 
   // Rule 0: When one-time is selected, set end_date to start_date
@@ -552,9 +604,19 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   }, [timeStart, timeEnd, setError, clearErrors]);
 
   // Rule 5: Hours must be within ±10 of expected (and expected must be computable)
-  useEffect(() => {
-    trigger("commitable_hours");
-  }, [start, end, timeStart, timeEnd, repeatInterval, trigger]);
+  // ✅ Auto-calc commitable hours (duration-based)
+useEffect(() => {
+  const per = perSessionHours(timeStart, timeEnd);
+  const matches = countMatchingDates(start, end, days_of_week);
+  const expected = matches * per;
+
+  if (!userHoursTouchedRef.current) {
+    if (Number.isFinite(expected) && expected > 0) {
+      setValue("commitable_hours", Math.round(expected));
+    }
+  }
+}, [start, end, timeStart, timeEnd, days_of_week, setValue]);
+
 
   // Ensure days_of_week cannot exceed repeatInterval; (UI limits already)
 
@@ -570,6 +632,14 @@ const diffWeeks = (s?: Date, e?: Date): number => {
     }
   }
 }, [projectType, setValue, getValues]);
+
+useEffect(() => {
+  if (projectType === "overseas") {
+    setValue("remote", false, { shouldValidate: true });
+    setValue("district", "");
+    setValue("google_maps", "");
+  }
+}, [projectType, setValue]);
 
 
   // ---------- submit with validations (kept as guardrails; most checks are reactive now) ----------
@@ -780,20 +850,21 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                     />
                     <div className="flex items-center gap-2">
                       <input
-                        id="remote"
-                        type="checkbox"
-                        {...register("remote")}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setValue("remote", checked);
-                          if (checked) {
-                            setValue("district", "Remote");
-                            setValue("google_maps", "");
-                          } else {
-                            setValue("district", "");
-                          }
-                        }}
-                      />
+  id="remote"
+  type="checkbox"
+  {...register("remote")}
+  disabled={(projectType as string) === "overseas"} // ✅ disable for overseas
+  onChange={(e) => {
+    const checked = e.target.checked;
+    setValue("remote", checked);
+    if (checked) {
+      setValue("district", "Remote");
+      setValue("google_maps", "");
+    } else {
+      setValue("district", "");
+    }
+  }}
+/>
                       <Label htmlFor="remote" className="cursor-pointer mb-0">Remote?</Label>
                     </div>
                   </div>
@@ -835,8 +906,22 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                         id="remote_overseas"
                         type="checkbox"
                         {...register("remote")}
+                        disabled={(projectType as string) === "overseas"} // ✅ disable for overseas
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setValue("remote", checked);
+                          if (checked) {
+                            setValue("district", "Remote");
+                            setValue("google_maps", "");
+                          } else {
+                            setValue("district", "");
+                          }
+                        }}
                       />
-                      <Label htmlFor="remote_overseas" className="cursor-pointer mb-0">Remote?</Label>
+                      <Label htmlFor="remote_overseas" className="cursor-pointer mb-0 opacity-90">
+                        Remote?
+                      </Label>
+
                     </div>
                   </div>
                   {errors.country && !isRemote && <p className="text-sm text-red-600">{errors.country.message as string}</p>}
@@ -863,7 +948,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                     <Input
                       id="start_date"
                       type="date"
-                      min={tomorrowIso}
+                     min={tomorrowIso} // ✅ can't pick before start
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                       aria-invalid={!!errors.start_date}
@@ -883,7 +968,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                     <Input
                       id="end_date"
                       type="date"
-                      min={tomorrowIso}
+                     min={start ? start.toISOString().split("T")[0] : tomorrowIso}
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                       disabled={repeatInterval === 0}
@@ -968,13 +1053,28 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                     },
                   }}
                   render={({ field }) => {
-                    const value: string[] = field.value ?? [];
-                    const maxDays = repeatInterval === 0 ? 1 : (repeatInterval || 0);
+                    // ✅ Determine valid days based on date range
+                  const value = field.value || [];
+                  const duration = diffDaysInclusive(start, end);
+                  const validSet = new Set<string>();
+                  if (start && end) {
+                    const cur = new Date(start);
+                    cur.setHours(0, 0, 0, 0);
+                    const endDay = startOfDay(end);
+                    while (cur.getTime() <= endDay.getTime()) {
+                      validSet.add(weekdayName(cur));
+                      cur.setDate(cur.getDate() + 1);
+                    }
+                  }
+                  const maxDays = duration <= 0 ? 7 : duration <= 7 ? duration : 7;
+
                     return (
                       <div className="flex flex-wrap gap-2">
                         {DAYS.map((day) => {
                           const selected = value.includes(day);
-                          const disable = !selected && value.length >= maxDays;
+                          const outOfRange = duration <= 7 ? !validSet.has(day) : false;
+                          const limitReached = !selected && value.length >= maxDays;
+                          const disable = outOfRange || limitReached;
                           return (
                             <Button
                               key={day}
@@ -1039,12 +1139,10 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       const ts = getValues("time_start");
                       const te = getValues("time_end");
                       const ri = getValues("repeat_interval");
-                      const weeks = diffWeeks(s, e);
                       const per = perSessionHours(ts, te);
-                      // For one-time projects (ri === 0), calculate as single session hours
-                      // For repeating projects, calculate as weeks * repeat_interval * per session
-                      const expected = ri === 0 ? per : weeks * (ri || 0) * per;
-                      // Only validate against expected hours if we can calculate them
+                      const matches = countMatchingDates(s, e, getValues("days_of_week"));
+                      const expected = matches * per;
+
                       if (Number.isFinite(expected) && expected > 0) {
                         if (Math.abs((v || 0) - expected) > 10) return `Service hours too far from expected (${Math.round(expected)}h ±10h allowed)`;
                       }
