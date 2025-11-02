@@ -496,9 +496,11 @@ const diffWeeks = (s?: Date, e?: Date): number => {
       if (beforeTomorrow(s)) setError("start_date", { type: "validate", message: "Start date must be after today (≥ tomorrow)" });
       else clearErrors("start_date");
     }
-    if (e) {
+    if (e && repeatInterval !== 0) {
       if (beforeTomorrow(e)) setError("end_date", { type: "validate", message: "End date must be after today (≥ tomorrow)" });
       else clearErrors("end_date");
+    } else if (repeatInterval === 0) {
+      clearErrors("end_date");
     }
     if (dl) {
       if (beforeTomorrow(dl)) setError("application_deadline", { type: "validate", message: "Application deadline must be after today (≥ tomorrow)" });
@@ -506,7 +508,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
     }
 
     // B) End date cannot be earlier than start date (symmetrical errors; runs when either changes)
-    if (s && e) {
+    if (s && e && repeatInterval !== 0) {
       if (e.getTime() < s.getTime()) {
         setError("start_date", { type: "validate", message: "Start date must be on or before end date" });
         setError("end_date", { type: "validate", message: "End date cannot be earlier than start date" });
@@ -528,7 +530,14 @@ const diffWeeks = (s?: Date, e?: Date): number => {
         if (!(e && e.getTime() < s.getTime()) && !beforeTomorrow(s)) clearErrors("start_date");
       }
     }
-  }, [start, end, deadline, setError, clearErrors]);
+  }, [start, end, deadline, repeatInterval, setError, clearErrors]);
+
+  // Rule 0: When one-time is selected, set end_date to start_date
+  useEffect(() => {
+    if (repeatInterval === 0 && start) {
+      setValue("end_date", start, { shouldValidate: false });
+    }
+  }, [repeatInterval, start, setValue]);
 
   // Rule 2: End time must be >= start time and at least 1 hour ahead
   useEffect(() => {
@@ -568,6 +577,35 @@ const diffWeeks = (s?: Date, e?: Date): number => {
     nav({ to: "/organisations/preview-new" });
   };
 
+  const onError = () => {
+    // Wait for errors to be rendered in the DOM
+    setTimeout(() => {
+      // First, try to find any element with aria-invalid="true"
+      const invalidElement = document.querySelector('[aria-invalid="true"]');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({ behavior: "instant", block: "center" });
+        return;
+      }
+
+      // If no aria-invalid found, try to find the first error message
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField) {
+        // Try to find input by name or id
+        const inputElement = document.querySelector(`[name="${firstErrorField}"], #${firstErrorField}`);
+        if (inputElement) {
+          inputElement.scrollIntoView({ behavior: "instant", block: "center" });
+          return;
+        }
+
+        // Try to find error message element near the field
+        const errorMessage = document.querySelector(`.text-red-600`);
+        if (errorMessage) {
+          errorMessage.scrollIntoView({ behavior: "instant", block: "center" });
+        }
+      }
+    }, 100);
+  };
+
   // ---------- UI ----------
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 max-w-3xl">
@@ -582,7 +620,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
         <span>/</span>
         <span className="text-foreground">Create New Listing</span>
       </div>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit, onError)} noValidate>
         {/* BASIC INFO */}
         <Card>
           <CardHeader>
@@ -594,12 +632,12 @@ const diffWeeks = (s?: Date, e?: Date): number => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" placeholder="Enter project title" {...register("title",  { required: "Title is required" })} />
+              <Input id="title" placeholder="Enter project title" {...register("title",  { required: "Title is required" })} aria-invalid={!!errors.title} />
               {errors.title && <p className="text-sm text-red-600">{errors.title.message as string}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="summary">Project Summary</Label>
-              <Textarea id="summary" rows={5} placeholder="Provide a brief summary of the project" {...register("summary",  { required: "Summary is required" })} />
+              <Textarea id="summary" rows={5} placeholder="Provide a brief summary of the project" {...register("summary",  { required: "Summary is required" })} aria-invalid={!!errors.summary} />
               {errors.summary && <p className="text-sm text-red-600">{errors.summary.message as string}</p>}
             </div>
 
@@ -641,25 +679,25 @@ const diffWeeks = (s?: Date, e?: Date): number => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="description">Project Description</Label>
-              <Textarea id="description" rows={8} placeholder="Provide a detailed description of the project" {...register("description", { required: "Description is required" })} />
+              <Textarea id="description" rows={8} placeholder="Provide a detailed description of the project" {...register("description", { required: "Description is required" })} aria-invalid={!!errors.description} />
               {errors.description && <p className="text-sm text-red-600">{errors.description.message as string}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="about_do">What Students will Do</Label>
-              <Textarea id="about_do" rows={6} placeholder="Describe what volunteers will be doing during this project" {...register("about_do", { required: "Please describe what volunteers will do" })} />
+              <Textarea id="about_do" rows={6} placeholder="Describe what volunteers will be doing during this project" {...register("about_do", { required: "Please describe what volunteers will do" })} aria-invalid={!!errors.about_do} />
               {errors.about_do && <p className="text-sm text-red-600">{errors.about_do.message as string}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="requirements">Student Requirements</Label>
-              <Textarea id="requirements" rows={6} placeholder="List any requirements or qualifications needed" {...register("requirements",  { required: "Please list requirements" })} />
+              <Textarea id="requirements" rows={6} placeholder="List any requirements or qualifications needed" {...register("requirements",  { required: "Please list requirements" })} aria-invalid={!!errors.requirements} />
               {errors.requirements && <p className="text-sm text-red-600">{errors.requirements.message as string}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="about_provide">What You will Equip Students with</Label>
-              <Textarea id="about_provide" rows={6} placeholder="Describe what resources or support will be provided to volunteers" {...register("about_provide", { required: "Please describe what will students acquire" })} />
+              <Textarea id="about_provide" rows={6} placeholder="Describe what resources or support will be provided to volunteers" {...register("about_provide", { required: "Please describe what will students acquire" })} aria-invalid={!!errors.about_provide} />
               {errors.about_provide && <p className="text-sm text-red-600">{errors.about_provide.message as string}</p>}
             </div>
           </CardContent>
@@ -693,7 +731,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                   <Controller
                     control={control}
                     name="district"
-                    rules={{ required: !watch("remote") || "District is required unless remote" }}
+                    rules={{ required: !watch("remote") ? "District is required unless remote" : false }}
                     render={({ field }) => (
                       <Select
                         value={isRemote ? "" : field.value || ""}
@@ -757,7 +795,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                     <Controller
                       control={control}
                       name="country"
-                      rules={{ required: !watch("remote") || "Country is required unless remote" }}
+                      rules={{ required: !watch("remote") ? "Country is required" : false }}
                       render={({ field }) => (
                         <Select
                           value={field.value || ""}
@@ -822,7 +860,7 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                 <Controller
                   control={control}
                   name="end_date"
-                  rules={{ required: "End date is required" }}
+                  rules={{ required: repeatInterval !== 0 ? "End date is required" : false }}
                   render={({ field }) => (
                     <Input
                       id="end_date"
@@ -830,12 +868,13 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       min={tomorrowIso}
                       value={field.value ? field.value.toISOString().split("T")[0] : ""}
                       onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                      disabled={repeatInterval === 0}
                       aria-invalid={!!errors.end_date}
                       className="relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer pr-10 [&::-webkit-calendar-picker-indicator]:opacity-100"
                     />
                   )}
                 />
-                {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message as string}</p>}
+                {errors.end_date && repeatInterval !== 0 && <p className="text-sm text-red-600">{errors.end_date.message as string}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="application_deadline">Application Deadline</Label>
@@ -878,7 +917,6 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                   <input
                     id="one_time"
                     type="checkbox"
-                    {...register("repeat_interval")}
                     onChange={(e) => {
                       if (e.target.checked) {
                         setValue("repeat_interval", 0);
@@ -1071,75 +1109,6 @@ const diffWeeks = (s?: Date, e?: Date): number => {
           </Button>
         </div>
       </form>
-
-      {/* ---------- PREVIEW ---------- */}
-      <div className="lg:col-span-1">
-        <Card className="sticky top-6">
-          <CardHeader><CardTitle>Preview</CardTitle></CardHeader>
-          <CardContent className="space-y-2 text-sm break-words whitespace-pre-wrap">
-            <div><span className="font-medium">Title: </span>{title || "—"}</div>
-            <div><span className="font-medium">Category: </span>{category}</div>
-            <div><span className="font-medium">Summary: </span><p className="mt-1 text-muted-foreground">{summary || "—"}</p></div>
-            <div><span className="font-medium">Project Type: </span>{projectType}</div>
-            <div><span className="font-medium">Detailed Description</span><p className="mt-1 text-muted-foreground">{description || "—"}</p></div>
-            <div><span className="font-medium">What you’ll do</span><p className="mt-1 text-muted-foreground">{aboutDo || "—"}</p></div>
-            <div><span className="font-medium">Requirements</span><p className="mt-1 text-muted-foreground">{requirements || "—"}</p></div>
-            <div><span className="font-medium">What we provide</span><p className="mt-1 text-muted-foreground">{aboutProvide || "—"}</p></div>
-
-            <div>
-              <span className="font-medium">Skills you’ll need: </span>
-              {selectedSkills?.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {selectedSkills.map((s: string) => (
-                    <Badge key={s} variant="secondary">{s}</Badge>
-                  ))}
-                </div>
-              ) : "—"}
-            </div>
-            <div><span className="font-medium">District: </span>{district || "—"}{isRemote ? " • Remote" : ""}</div>
-            {googleMaps ? (
-              <div className="truncate">
-                <span className="font-medium">Google Maps: </span>
-                <a className="text-blue-600 underline" href={googleMaps} target="_blank" rel="noreferrer">
-                  {googleMaps}
-                </a>
-              </div>
-            ) : null}
-            <div><span className="font-medium">Schedule: </span>
-              {`Every ${repeatInterval} ${repeatUnit}${repeatInterval && repeatInterval > 1 ? "s" : ""}`}
-              {daysOfWeek.length ? ` • ${daysOfWeek.join(", ")}` : ""}
-              {(timeStart || timeEnd) ? ` • ${timeStart || "?"}–${timeEnd || "?"}` : ""}
-            </div>
-            <div><span className="font-medium">Dates: </span>
-              {start ? format(start, "dd MMM yyyy") : "—"} to {end ? format(end, "dd MMM yyyy") : "—"}
-            </div>
-            <div><span className="font-medium">Application Deadline: </span>{deadline ? format(deadline, "dd MMM yyyy") : "—"}</div>
-            <div><span className="font-medium">Service Hours: </span>{hours || 0}h</div>
-            <div><span className="font-medium">Slots: </span>{slots}</div>
-
-            <div>
-              <span className="font-medium">Project tags: </span>
-              {projectTags.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {projectTags.map((t: string) => (
-                    <Badge key={t} variant="secondary">{t}</Badge>
-                  ))}
-                </div>
-              ) : "—"}
-            </div>
-
-            <div>
-              <span className="font-medium">Feature image: </span>
-              {imageUrl ? (
-                <div className="mt-2">
-                  <img src={imageUrl} alt="Project feature preview" className="w-full h-40 object-cover rounded-md border" />
-                </div>
-              ) : "—"}
-            </div>
-
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

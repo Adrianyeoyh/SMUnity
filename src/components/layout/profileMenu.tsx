@@ -31,22 +31,22 @@ function ProfileMenu() {
           sideOffset={8}
         >
           {!isAdmin && (
-            <Link
+          <Link
               to={isOrganisation ? "/organisations/profile" : "/profile"}
-              onClick={() => setOpen(false)}
+            onClick={() => setOpen(false)}
               className="block px-2 py-1 rounded hover:bg-gray-100 text-sm"
-            >
-              Profile
-            </Link>
+          >
+            Profile
+          </Link>
           )}
           {!isOrganisation && !isAdmin && (
-            <Link
-              to="/favourites"
-              onClick={() => setOpen(false)}
+          <Link
+            to="/favourites"
+            onClick={() => setOpen(false)}
               className="block px-2 py-1 rounded hover:bg-gray-100 text-sm"
-            >
-              Favourites
-            </Link>
+          >
+            Favourites
+          </Link>
           )}
           <button
             onClick={() => {

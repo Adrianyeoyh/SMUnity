@@ -66,10 +66,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
           overflow: visible !important;
         }
       `}</style>
-      <Sonner
-        theme={theme as ToasterProps["theme"]}
-        className="toaster group"
-        position="top-right"
+    <Sonner
+      theme={theme as ToasterProps["theme"]}
+      className="toaster group"
+      position="top-right"
         closeButton
         preventDuplicates
         toastOptions={{
@@ -78,15 +78,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
             error: "bg-red-50 border-red-200 text-red-800",
           },
         }}
-        style={
-          {
-            "--normal-bg": "var(--popover)",
-            "--normal-text": "var(--popover-foreground)",
-            "--normal-border": "var(--border)",
-          } as React.CSSProperties
-        }
-        {...props}
-      />
+      style={
+        {
+          "--normal-bg": "var(--popover)",
+          "--normal-text": "var(--popover-foreground)",
+          "--normal-border": "var(--border)",
+        } as React.CSSProperties
+      }
+      {...props}
+    />
     </>
   );
 };

@@ -65,6 +65,16 @@ const STATUS_META: Record<ApplicationStatus, { tone: string; label: string }> = 
   // cancelled: { tone: "bg-gray-100 text-gray-700", label: "Cancelled" },
 };
 
+// Helper to format time to HH:MM (remove seconds)
+const formatTime = (time?: string | null) => {
+  if (!time) return "";
+  // If time is in HH:MM:SS format, remove seconds
+  if (time.includes(":") && time.split(":").length === 3) {
+    return time.substring(0, 5);
+  }
+  return time;
+};
+
 function ListingApplicationsPage() {
   const { projectId } = Route.useParams();
   const navigate = useNavigate({ from: "/organisations/$projectId" });
@@ -166,7 +176,7 @@ function ListingApplicationsPage() {
               <div>
                 <CardTitle className="font-heading text-lg">Project Overview</CardTitle>
                 <CardDescription className="font-body text-sm">
-                  Overview and key information for this listing.
+                  Overview and key information for this listing
                 </CardDescription>
               </div>
               <div className="flex flex-row items-center gap-4">
@@ -194,55 +204,135 @@ function ListingApplicationsPage() {
             </CardHeader>
 
             <CollapsibleContent>
-              {/* Top Row */}
-              <CardContent className="grid gap-6 md:grid-cols-[2fr,1fr]">
-                <div className="flex flex-wrap gap-2">
-                    {(project.projectTags ?? []).map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="capitalize">
-                        {tag}
-                      </Badge>
-                    ))}
-                </div>
-                <p className="text-muted-foreground font-body leading-relaxed mb-4 break-all whitespace-pre-wrap">{project.description}</p>
+              {/* Project Description */}
+              <CardContent className="mb-4">
+                <p className="text-muted-foreground font-body leading-relaxed">{project.description}</p>
               </CardContent>
 
-              {/* Second Row */}
-              <CardContent className="grid md:gap-4 md:grid-cols-[2fr_1fr]">
-                {/* Left Column */}
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="District" value={project.district} />
-                  <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={`${format(new Date(project.startDate), "yyyy-MM-dd")} – ${format(new Date(project.endDate), "yyyy-MM-dd")}`} />
-                  <InfoRow icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Required Hours" value={`${project.requiredHours} hrs`} />
-                  <InfoRow icon={<Users className="h-4 w-4 text-muted-foreground" />} label="Volunteers" value={`${project.volunteerCount} / ${project.slotsTotal}`} />
+              {/* Image and Key Info Grid */}
+              <CardContent className="grid lg:grid-cols-3 gap-6 mb-4">
+                {/* Left - Image (1/3 width) */}
+                <div>
+                  {project.imageUrl && (
+                    <div className="rounded-lg overflow-hidden border h-full flex items-center justify-center">
+                      <img
+                        src={project.imageUrl}
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Right - Key Info (2/3 width) */}
+                <div className="lg:col-span-2 grid sm:grid-cols-2 gap-3">
+                  {/* First Row */}
+                  {project.type === "overseas" && project.isRemote ? (
+                    <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="Country" value={project.district} />
+                  ) : !project.isRemote ? (
+                    <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="District" value={project.district} />
+                  ) : null}
+                  <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={
+                    project.repeatInterval === 0
+                      ? format(new Date(project.startDate), "yyyy-MM-dd")
+                      : `${format(new Date(project.startDate), "yyyy-MM-dd")} – ${format(new Date(project.endDate), "yyyy-MM-dd")}`
+                  } />
+                  
+                  {/* Second Row */}
                   <InfoRow icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />} label="Apply By" value={format(new Date(project.applyBy), "yyyy-MM-dd")} />
+                  {project.repeatInterval !== 0 && (
+                    <InfoRow icon={<Users className="h-4 w-4 text-muted-foreground" />} label="Slots" value={`${project.slotsTotal}`} />
+                  )}
+                  
+                  {/* Third Row */}
+                  <InfoRow icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Total Service Hours" value={`${project.requiredHours} hrs`} />
                   <InfoRow icon={<Globe className="h-4 w-4 text-muted-foreground" />} label="Mode" value={project.isRemote ? "Remote" : "In-person"} />
+                  
+                  {/* Fourth Row - Schedule takes full width on small screens */}
+                  <div className="sm:col-span-2 rounded-lg border bg-muted/40 p-3">
+                    <p className="font-medium text-foreground">Schedule</p>
+                    <div className="mt-1 space-y-1">
+                      {project.repeatInterval !== 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          Every {project.repeatInterval} week{project.repeatInterval && project.repeatInterval > 1 ? "s" : ""}
+                        </p>
+                      )}
+                      {project.daysOfWeek && project.daysOfWeek.length > 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          {project.daysOfWeek.join(", ")}
+                        </p>
+                      )}
+                      {project.timeStart && project.timeEnd && (
+                        <p className="text-sm text-muted-foreground">
+                          {formatTime(project.timeStart)} – {formatTime(project.timeEnd)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+
+              {/* What You'll Do, Requirements, What You'll Equip Students with */}
+              <CardContent>
+                <div className="space-y-3 mb-4">
+                  <SectionCard title="What Students will Do" content={project.aboutDo || "—"} />
+                  <SectionCard title="Student Requirements" content={project.requirements || "—"} />
+                  <SectionCard title="What You will Equip Students with" content={project.aboutProvide || "—"} />
+                </div>
+              </CardContent>
+
+              {/* Skills and Tags Row */}
+              <CardContent className="grid md:grid-cols-2 gap-6 mb-4">
+                {/* Left - Skills */}
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">Skills Required</p>
+                  {project.skillTags && project.skillTags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {project.skillTags.map((skill: string) => (
+                        <Badge key={skill} variant="default" className="capitalize">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">—</p>
+                  )}
                 </div>
 
-                {/* Right Column */}
-                <div className="grid grid-cols-1 mt-3 md:mt-0">
+                {/* Right - Tags */}
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">Project Tags</p>
+                  {project.projectTags && project.projectTags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {project.projectTags.map((tag: string) => (
+                        <Badge key={tag} variant="secondary" className="capitalize">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">—</p>
+                  )}
+                </div>
+              </CardContent>
+
+              {/* Organiser Details */}
+              <CardContent>
+                <div className="bg-muted/40 rounded-lg p-4">
                   <SectionCard title="Organiser Details">
-                    <p className="flex items-center gap-2 text-muted-foreground">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Building2 className="h-4 w-4" /> {project.orgName}
                     </p>
-                    <p className="flex items-center gap-2 text-muted-foreground">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />{" "}
                       <a href={project.org.website} target="_blank" className="underline">
                         {project.org.website}
                       </a>
                     </p>
-                    <p className="flex items-center gap-2 text-muted-foreground">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Phone className="h-4 w-4" /> {project.org.phone}
                     </p>
                   </SectionCard>
-                </div>
-              </CardContent>
-
-              {/* Bottom Row */}
-              <CardContent className="break-words whitespace-pre-wrap">
-                <div className="space-y-3 mt-3">
-                  <SectionCard title="What we provide" content={project.aboutProvide} />
-                  <SectionCard title="What you’ll do" content={project.aboutDo} />
-                  <SectionCard title="Requirements" content={project.requirements} />
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -279,7 +369,7 @@ function ListingApplicationsPage() {
                 {visibleApplications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/40 py-12 text-center text-muted-foreground">
                     <Users className="h-10 w-10" />
-                    <p>No applicants for this filter yet.</p>
+                    <p>No applicants for this filter yet</p>
                   </div>
                 ) : (
                   <div className="rounded-xl border">

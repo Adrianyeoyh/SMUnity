@@ -22,7 +22,8 @@ import {
   Globe,
   Building2,
   Mail,
-  Phone
+  Phone,
+  Map
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -192,10 +193,15 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                 <Badge className={`text-xs ${statusBadge.className}`}>
                   {statusBadge.label}
                 </Badge>
-                {csp.type === "overseas" && (
+                {csp.type === "overseas" ? (
                   <Badge variant="outline" className="text-xs">
                     <Globe className="mr-1 h-3 w-3" />
                     Overseas
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs">
+                    <Map className="mr-1 h-3 w-3" />
+                    Local
                   </Badge>
                 )}
               </div>
@@ -249,7 +255,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                   <Clock className="h-5 w-5 text-primary" />
                   <span className="text-xs text-muted-foreground font-body">Duration</span>
                   <span className="text-sm font-medium font-body">
-                    {csp.repeatInterval} time(s) a week
+                    {csp.repeatInterval && csp.repeatInterval > 0 ? `${csp.repeatInterval} time(s) a week` : csp.repeatInterval === 0 ? "One-time" : "—"}
                   </span>
                 </div>
 
@@ -452,7 +458,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                     <div ref={sidebarButtonRef}>
                       <Button
                         size="lg"
-                        className="shadow-2xl hover:shadow-xl transition-shadow"
+                        className="w-full shadow-2xl hover:shadow-xl transition-shadow"
                         disabled={
                           (!isLoggedIn && !user) || (isLoggedIn && user?.accountType !== "student")
                         }

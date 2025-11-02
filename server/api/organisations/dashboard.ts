@@ -77,6 +77,9 @@ dashboard.get("/listings", async (c) => {
       slotsTotal: schema.projects.slotsTotal,
       projectTags: schema.projects.projectTags,
       skillTags: schema.projects.skillTags,
+      isRemote: schema.projects.isRemote,
+      repeatInterval: schema.projects.repeatInterval,
+      type: schema.projects.type,
       volunteerCount: sql<number>`COUNT(${schema.projMemberships.userId})`.as("volunteerCount"),
 
       // derive the status dynamically using SQL CASE
@@ -104,6 +107,9 @@ dashboard.get("/listings", async (c) => {
       schema.projects.slotsTotal,
       schema.projects.projectTags,
       schema.projects.skillTags,
+      schema.projects.isRemote,
+      schema.projects.repeatInterval,
+      schema.projects.type,
     )
     .orderBy(sql`${schema.projects.createdAt} DESC`);
   console.log("Listings fetched:", listings);

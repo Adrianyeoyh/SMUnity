@@ -23,7 +23,8 @@ import {
   Globe,
   Building2,
   Mail,
-  Phone
+  Phone,
+  Map
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -212,10 +213,15 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                 <Badge className={`text-xs ${statusBadge.className}`}>
                   {statusBadge.label}
                 </Badge>
-                {csp.type === "overseas" && (
+                {csp.type === "overseas" ? (
                   <Badge variant="outline" className="text-xs">
                     <Globe className="mr-1 h-3 w-3" />
                     Overseas
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs">
+                    <Map className="mr-1 h-3 w-3" />
+                    Local
                   </Badge>
                 )}
               </div>
@@ -267,7 +273,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                   <Clock className="h-5 w-5 text-primary" />
                   <span className="text-xs text-muted-foreground font-body">Duration</span>
                   <span className="text-sm font-medium font-body">
-                    {csp.repeatInterval ? `${csp.repeatInterval} time(s) a week` : "—"}
+                    {csp.repeatInterval && csp.repeatInterval > 0 ? `${csp.repeatInterval} time(s) a week` : csp.repeatInterval === 0 ? "One-time" : "—"}
                   </span>
                 </div>
                 <div className="flex flex-col items-center text-center space-y-1">
@@ -441,7 +447,10 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                       <div className="flex justify-between">
                         <span className="text-muted-foreground font-body">Project Period:</span>
                         <span className="font-medium font-body text-right">
-                          {formatDateRange(csp.startDate, csp.endDate)}
+                          {csp.repeatInterval === 0
+                            ? formatDateRange(csp.startDate, csp.startDate)
+                            : formatDateRange(csp.startDate, csp.endDate)
+                          }
                         </span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline sm:gap-2 text-sm font-body">

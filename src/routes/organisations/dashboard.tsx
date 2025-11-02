@@ -5,7 +5,7 @@ import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
-import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Edit, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Search } from "lucide-react";
+import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrgDashboard, fetchOrgListings } from "#client/api/organisations/dashboard.ts";
@@ -462,12 +462,21 @@ function OrgDashboard() {
                     <div className="space-y-2 text-sm text-muted-foreground font-body">
                       <div className="flex flex-wrap items-center gap-3">
                         <span className="inline-flex items-center gap-1.5">
-                          <MapPin className="h-4 w-4 text-muted-foreground" /> {listing.district}
+                          <MapPin className="h-4 w-4 text-muted-foreground" /> {
+                            listing.type === "overseas" && listing.isRemote 
+                              ? listing.district 
+                              : listing.isRemote 
+                                ? "Remote" 
+                                : listing.district
+                          }
                         </span>
                         <span className="hidden h-4 w-px bg-border md:block" />
                         <span className="inline-flex items-center gap-1.5">
                           <Calendar className="h-4 w-4 text-muted-foreground" />{" "}
-                          {listing.startDate?.slice(0, 10)} – {listing.endDate?.slice(0, 10)}
+                          {listing.repeatInterval === 0
+                            ? listing.startDate?.slice(0, 10)
+                            : `${listing.startDate?.slice(0, 10)} – ${listing.endDate?.slice(0, 10)}`
+                          }
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -524,14 +533,6 @@ function OrgDashboard() {
                         <Link to="/organisations/$projectId" params={{ projectId: listing.id }}>
                           View Listing
                         </Link>
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleUpdateListing(listing.title)}
-                        aria-label={`Update ${listing.title}`}
-                      >
-                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="destructive"
@@ -643,12 +644,21 @@ function OrgDashboard() {
                         <div className="space-y-2 text-sm text-muted-foreground font-body">
                           <div className="flex flex-wrap items-center gap-3">
                             <span className="inline-flex items-center gap-1.5">
-                              <MapPin className="h-4 w-4 text-muted-foreground" /> {listing.district}
+                              <MapPin className="h-4 w-4 text-muted-foreground" /> {
+                                listing.type === "overseas" && listing.isRemote 
+                                  ? listing.district 
+                                  : listing.isRemote 
+                                    ? "Remote" 
+                                    : listing.district
+                              }
                             </span>
                             <span className="hidden h-4 w-px bg-border md:block" />
                             <span className="inline-flex items-center gap-1.5">
                               <Calendar className="h-4 w-4 text-muted-foreground" />{" "}
-                              {listing.startDate?.slice(0, 10)} – {listing.endDate?.slice(0, 10)}
+                              {listing.repeatInterval === 0
+                                ? listing.startDate?.slice(0, 10)
+                                : `${listing.startDate?.slice(0, 10)} – ${listing.endDate?.slice(0, 10)}`
+                              }
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5">
@@ -705,14 +715,6 @@ function OrgDashboard() {
                             <Link to="/organisations/$projectId" params={{ projectId: listing.id }}>
                               View listing
                             </Link>
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleUpdateListing(listing.title)}
-                            aria-label={`Update ${listing.title}`}
-                          >
-                            <Edit className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="destructive"

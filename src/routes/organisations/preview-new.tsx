@@ -181,18 +181,22 @@ function PreviewPage() {
             {/* Right - Key Info (2/3 width) */}
             <div className="lg:col-span-2 grid sm:grid-cols-2 gap-3">
               {/* First Row */}
-              <InfoRow
-                icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
-                label={formData.project_type === "overseas" ? "Country" : "District"}
-                value={formData.project_type === "overseas" ? (formData.country || "—") : (formData.district || "—")}
-              />
+              {(!formData.remote || formData.project_type === "overseas") && (
+                <InfoRow
+                  icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
+                  label={formData.project_type === "overseas" ? "Country" : "District"}
+                  value={formData.project_type === "overseas" ? (formData.country || "—") : (formData.district || "—")}
+                />
+              )}
               <InfoRow
                 icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
                 label="Period"
                 value={
-                  startDate && endDate
-                    ? `${format(startDate, "yyyy-MM-dd")} – ${format(endDate, "yyyy-MM-dd")}`
-                    : "—"
+                  formData.repeat_interval === 0
+                    ? (startDate ? format(startDate, "yyyy-MM-dd") : "—")
+                    : (startDate && endDate
+                        ? `${format(startDate, "yyyy-MM-dd")} – ${format(endDate, "yyyy-MM-dd")}`
+                        : "—")
                 }
               />
               
