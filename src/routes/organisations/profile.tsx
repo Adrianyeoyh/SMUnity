@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useOrganisation } from "#client/api/hooks";
 import { useState } from "react";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
@@ -32,12 +33,17 @@ const PROFILE_DATA = {
 function OrganisationProfile() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const displayEmail = PROFILE_DATA.email;
-  const displayOrganisationName = PROFILE_DATA.organisationName;
-  const displayDescription = PROFILE_DATA.description;
-  const displayWebsite = PROFILE_DATA.website;
-  const displayPhone = PROFILE_DATA.phone;
-  const displayContactPerson = PROFILE_DATA.contactPerson;
+
+  const { data, isLoading, isError } = useOrganisation();
+  // console.log(data);
+
+  const displayOrganisationName = data?.organisationName ?? PROFILE_DATA.organisationName;
+  const displayContactPerson = data?.contactPerson ?? PROFILE_DATA.contactPerson;
+  const displayEmail = data?.email ?? PROFILE_DATA.email;
+  const displayPhone = data?.phone ?? "";
+  const displayWebsite = data?.website ?? "";
+  const displayDescription = data?.description ?? PROFILE_DATA.description;
+  
 
   const aboutItems = [
     {
@@ -83,6 +89,14 @@ function OrganisationProfile() {
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 lg:px-8 py-8">
+
+        {/* pop up showing error */}
+        {isError && (
+          <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            We&apos;re showing placeholder information because we couldn&apos;t load your latest organisation profile.
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[400px_1fr]">
           <aside className="space-y-6">
             <Card className="shadow-sm">

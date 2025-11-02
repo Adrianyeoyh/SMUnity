@@ -109,3 +109,22 @@ export interface CompletedCspRow {
   serviceHours: number;
   rating?: number;
 }
+
+export interface OrganisationProfileData {
+  id: number;
+  organisationName: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  website: string | null;
+  description: string;
+  slug: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OrganisationFormData = Pick<
+  OrganisationProfileData,
+  "organisationName" | "contactPerson" | "phone" | "website" | "description"
+>;
