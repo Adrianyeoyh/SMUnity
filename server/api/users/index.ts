@@ -19,11 +19,11 @@ async function buildMePayload(userId: string) {
     .where(eq(schema.applications.userId, userId));
   const [{ count: applications }] = apps.length ? apps : [{ count: 0 }];
 
-  const hours = await db
-    .select({ count: sql<number>`coalesce(sum(${schema.timesheets.hours}),0)::int` })
-    .from(schema.timesheets)
-    .where(and(eq(schema.timesheets.userId, userId), eq(schema.timesheets.verified, true)));
-  const [{ count: verifiedHours }] = hours.length ? hours : [{ count: 0 }];
+  // const hours = await db
+  //   .select({ count: sql<number>`coalesce(sum(${schema.timesheets.hours}),0)::int` })
+  //   .from(schema.timesheets)
+  //   .where(and(eq(schema.timesheets.userId, userId), eq(schema.timesheets.verified, true)));
+  // const [{ count: verifiedHours }] = hours.length ? hours : [{ count: 0 }];
 
   return {
     id: user.id,
@@ -44,7 +44,7 @@ async function buildMePayload(userId: string) {
       : null,
     dashboard: {
       applications,
-      verifiedHours,
+      // verifiedHours,
     },
   };
 }

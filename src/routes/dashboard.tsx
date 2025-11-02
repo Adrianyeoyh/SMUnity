@@ -34,8 +34,10 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const { data: userData } = useMe();
   const userName = userData?.name ?? "Student";
+  // console.log("user data: ", userData);
 
   const [showCSUCard, setShowCSUCard] = useState(true);
+  
 
   useEffect(() => {
     const csuCardHidden = localStorage.getItem("csuCardHidden");
