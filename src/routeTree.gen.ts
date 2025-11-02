@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as Organisations_rootRouteImport } from './routes/organisations/__root'
+import { Route as Admin_rootRouteImport } from './routes/admin/__root'
 import { Route as ProfileeditRouteImport } from './routes/profileedit'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyApplicationsRouteImport } from './routes/my-applications'
@@ -39,6 +41,14 @@ import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 import { Route as OrganisationsApplicantProjectIdApplicantIdRouteImport } from './routes/organisations/applicant/$projectId/$applicantId'
 
+const Organisations_rootRoute = Organisations_rootRouteImport.update({
+  id: '/organisations/__root',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Admin_rootRoute = Admin_rootRouteImport.update({
+  id: '/admin/__root',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileeditRoute = ProfileeditRouteImport.update({
   id: '/profileedit',
   path: '/profileedit',
@@ -198,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/profileedit': typeof ProfileeditRoute
+  '/admin': typeof Admin_rootRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -210,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
+  '/organisations': typeof Organisations_rootRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
@@ -229,6 +241,7 @@ export interface FileRoutesByTo {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/profileedit': typeof ProfileeditRoute
+  '/admin': typeof Admin_rootRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -241,6 +254,7 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
+  '/organisations': typeof Organisations_rootRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
@@ -261,6 +275,7 @@ export interface FileRoutesById {
   '/my-applications': typeof MyApplicationsRoute
   '/profile': typeof ProfileRoute
   '/profileedit': typeof ProfileeditRoute
+  '/admin/__root': typeof Admin_rootRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard2': typeof AdminDashboard2Route
@@ -273,6 +288,7 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
+  '/organisations/__root': typeof Organisations_rootRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
@@ -294,6 +310,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/profileedit'
+    | '/admin'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -306,6 +323,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/organisations/$projectId'
+    | '/organisations'
     | '/organisations/dashboard'
     | '/organisations/editprofile'
     | '/organisations/new'
@@ -325,6 +343,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/profileedit'
+    | '/admin'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -337,6 +356,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/organisations/$projectId'
+    | '/organisations'
     | '/organisations/dashboard'
     | '/organisations/editprofile'
     | '/organisations/new'
@@ -356,6 +376,7 @@ export interface FileRouteTypes {
     | '/my-applications'
     | '/profile'
     | '/profileedit'
+    | '/admin/__root'
     | '/admin/cspId'
     | '/admin/dashboard'
     | '/admin/dashboard2'
@@ -368,6 +389,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/organisations/$projectId'
+    | '/organisations/__root'
     | '/organisations/dashboard'
     | '/organisations/editprofile'
     | '/organisations/new'
@@ -388,6 +410,7 @@ export interface RootRouteChildren {
   MyApplicationsRoute: typeof MyApplicationsRoute
   ProfileRoute: typeof ProfileRoute
   ProfileeditRoute: typeof ProfileeditRoute
+  Admin_rootRoute: typeof Admin_rootRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboard2Route: typeof AdminDashboard2Route
@@ -400,6 +423,7 @@ export interface RootRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   CspProjectIDRoute: typeof CspProjectIDRoute
   OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
+  Organisations_rootRoute: typeof Organisations_rootRoute
   OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
   OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
   OrganisationsNewRoute: typeof OrganisationsNewRoute
@@ -411,6 +435,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/organisations/__root': {
+      id: '/organisations/__root'
+      path: '/organisations'
+      fullPath: '/organisations'
+      preLoaderRoute: typeof Organisations_rootRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/__root': {
+      id: '/admin/__root'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof Admin_rootRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profileedit': {
       id: '/profileedit'
       path: '/profileedit'
@@ -628,6 +666,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyApplicationsRoute: MyApplicationsRoute,
   ProfileRoute: ProfileRoute,
   ProfileeditRoute: ProfileeditRoute,
+  Admin_rootRoute: Admin_rootRoute,
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboard2Route: AdminDashboard2Route,
@@ -640,6 +679,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   CspProjectIDRoute: CspProjectIDRoute,
   OrganisationsProjectIdRoute: OrganisationsProjectIdRoute,
+  Organisations_rootRoute: Organisations_rootRoute,
   OrganisationsDashboardRoute: OrganisationsDashboardRoute,
   OrganisationsEditprofileRoute: OrganisationsEditprofileRoute,
   OrganisationsNewRoute: OrganisationsNewRoute,
