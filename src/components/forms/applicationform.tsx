@@ -24,10 +24,6 @@ import { createApplication } from "#client/api/projects/index.ts"
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router"
 
-const days = [
-  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
-] as const
-
 const FormSchema = z.object({
   // 1️⃣ Motivation
   motivation: z
@@ -225,7 +221,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>I agree to the community code of conduct</FormLabel>
+                <FormLabel>I agree to the community's code of conduct</FormLabel>
                 <FormDescription>
                   Be respectful, reliable, and follow project guidelines.
                 </FormDescription>
@@ -294,7 +290,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
             type="submit"
             disabled={submitting}
           >
-            {submitting ? "Submitting..." : "Submit application"}
+            {submitting ? "Submitting..." : "Submit Application"}
           </Button>
         </div>
       </form>

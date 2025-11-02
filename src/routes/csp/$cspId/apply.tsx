@@ -30,7 +30,7 @@ function ApplyForCSPPage() {
     <div className="container mx-auto py-8 max-w-3xl">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
         <button
-          onClick={() => navigate({ to: -1 })}
+          onClick={() => window.history.back()}
           className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
