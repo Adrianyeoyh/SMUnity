@@ -112,7 +112,7 @@ export const SKILL_CHOICES = [
   "Graphic Design", "Photography", "Videography", "Writing", "Editing",
   "Marketing", "Fundraising", "Volunteer Management", "Project Management", "Research",
   "Data Analysis", "Web Development", "Mobile App Development", "Database Management", "Networking",
-  "Counseling", "Mentoring", "Teamwork", "Organization", "Time Management",
+  "Counseling", "Mentoring", "Teamwork", "Organisation", "Time Management",
 ];
 
 export const TAG_CHOICES = [

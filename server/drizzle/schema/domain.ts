@@ -148,16 +148,6 @@ export const applications = pgTable("applications", {
 }));
 
 
-// export const applicationReviews = pgTable("application_reviews", {
-//   id: serial("id").primaryKey(),
-//   applicationId: integer("application_id").notNull().references(() => applications.id),
-//   action: verificationActionEnum("action").notNull(),
-//   note: text("note"),
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-// });
-
-
-
 // ---------- SAVED PROJECTS ----------
 export const savedProjects = pgTable("saved_projects", {
   projectId: uuid("project_id").notNull().references(()=>projects.id),

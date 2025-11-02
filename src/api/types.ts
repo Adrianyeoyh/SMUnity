@@ -101,3 +101,11 @@ export type UpcomingRow = {
   time: string; // ISO endsAt
   location: string | null;
 };
+export interface CompletedCspRow {
+  id: string;
+  title: string;
+  organisation: string;
+  completedDate: string;
+  serviceHours: number;
+  rating?: number;
+}

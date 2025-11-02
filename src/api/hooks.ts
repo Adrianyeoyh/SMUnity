@@ -15,6 +15,11 @@ import type {
 
 // -------- users --------
 export function useMe() {
+  console.log(useQuery({
+    queryKey: ["me"],
+    queryFn: () => apiGet<MeRes>("/api/users/me"),
+  }).data)
+  console.log("hit")
   return useQuery({
     queryKey: ["me"],
     queryFn: () => apiGet<MeRes>("/api/users/me"),
@@ -142,5 +147,15 @@ export function useUpcomingSessions() {
   return useQuery({
     queryKey: ["upcomingSessions"],
     queryFn: () => apiGet<UpcomingRow[]>(`/api/projects/sessions/upcoming`),
+  });
+}
+
+import { fetchCompletedProjectsProfile } from "./student";
+import type { CompletedCspRow } from "./types";
+
+export function useCompletedCSPs() {
+  return useQuery<CompletedCspRow[]>({
+    queryKey: ["completedCSPs"],
+    queryFn: fetchCompletedProjectsProfile,
   });
 }

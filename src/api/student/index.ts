@@ -134,3 +134,15 @@ export async function fetchSavedProjects() {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+export async function fetchCompletedProjectsProfile() {
+  const res = await fetch("/api/student/profile/completed", {
+    credentials: "include", // keep auth cookies/session
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch completed projects");
+  }
+
+  return res.json();
+}
