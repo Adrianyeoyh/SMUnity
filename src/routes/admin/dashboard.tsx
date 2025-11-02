@@ -26,6 +26,7 @@ type OrganiserRecord = {
   email: string;
   phone: string;
   submittedOn: string;
+  submittedAt: string; // Full timestamp for sorting
   status: OrganiserStatus;
   reviewedOn?: string;
   reviewedBy?: string;
@@ -134,6 +135,7 @@ function AdminDashboard() {
         submittedOn: req.createdAt
           ? new Date(req.createdAt).toISOString().split("T")[0]
           : "",
+        submittedAt: req.createdAt || "", // Full timestamp for sorting
         status: req.status,
         reviewedOn: req.decidedAt
           ? new Date(req.decidedAt).toISOString().split("T")[0]
@@ -179,7 +181,7 @@ function AdminDashboard() {
     // Sort based on selected sort option
     if (sortBy === "default") {
       // Default sort: by status (pending first, then approved, then rejected)
-      // Then by earliest submitted date for pending, or latest reviewed date for approved/rejected
+      // Then by earliest submission date and time within each status
       filtered.sort((a, b) => {
         // First sort by status priority: pending (0), approved (1), rejected (2)
         const statusOrder = { pending: 0, approved: 1, rejected: 2 };
@@ -189,24 +191,22 @@ function AdminDashboard() {
           return statusComparison;
         }
         
-        // If same status, sort differently based on status
-        if (a.status === "pending") {
-          // For pending: earliest submitted date to latest submitted date (oldest first)
-          return new Date(a.submittedOn).getTime() - new Date(b.submittedOn).getTime();
-        } else {
-          // For approved/rejected: latest reviewed date to earliest reviewed date (newest first)
-          const aReviewed = a.reviewedOn ? new Date(a.reviewedOn).getTime() : 0;
-          const bReviewed = b.reviewedOn ? new Date(b.reviewedOn).getTime() : 0;
-          return bReviewed - aReviewed;
-        }
+        // If same status, sort by earliest submission date and time
+        const aSubmitted = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+        const bSubmitted = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+        return aSubmitted - bSubmitted; // Earliest first
       });
     } else {
       // Custom sort based on user selection
       filtered.sort((a, b) => {
         if (sortBy === "submitted_asc") {
-          return new Date(a.submittedOn).getTime() - new Date(b.submittedOn).getTime();
+          const aSubmitted = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+          const bSubmitted = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+          return aSubmitted - bSubmitted;
         } else if (sortBy === "submitted_desc") {
-          return new Date(b.submittedOn).getTime() - new Date(a.submittedOn).getTime();
+          const aSubmitted = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+          const bSubmitted = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+          return bSubmitted - aSubmitted;
         } else if (sortBy === "reviewed_asc") {
           const aReviewed = a.reviewedOn ? new Date(a.reviewedOn).getTime() : 0;
           const bReviewed = b.reviewedOn ? new Date(b.reviewedOn).getTime() : 0;

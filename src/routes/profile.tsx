@@ -4,7 +4,6 @@ import { useMe } from "#client/api/hooks";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
-import { Progress } from "#client/components/ui/progress";
 import { Award, Calendar, Clock, Edit, GraduationCap, IdCard, Mail, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -59,10 +58,6 @@ function Profile() {
 
   const avatarImage = customAvatar ?? data?.image ?? FALLBACK_PROFILE.image;
 
-  const totalServiceHours = data?.dashboard?.verifiedHours ?? FALLBACK_PROFILE.totalServiceHours;
-  const requiredServiceHours = FALLBACK_PROFILE.requiredServiceHours;
-  const progressPercentage = requiredServiceHours ? Math.min((totalServiceHours / requiredServiceHours) * 100, 100) : 0;
-  const hoursRemaining = Math.max(requiredServiceHours - totalServiceHours, 0);
   const joinDate = FALLBACK_PROFILE.joinDate;
   const formattedJoinDate = joinDate ? new Date(joinDate).toLocaleDateString("en-GB") : "Not available";
 
