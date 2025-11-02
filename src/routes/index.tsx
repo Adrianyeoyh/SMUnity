@@ -12,6 +12,7 @@ import {
   Heart,
   Star,
   ArrowRight,
+  ArrowUpRight,
   BookOpen,
   Target,
   TreePine,
@@ -19,9 +20,12 @@ import {
   Trophy,
   Code,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  HeartHandshake
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -69,9 +73,122 @@ const formatDateRange = (startDate: string, endDate?: string) => {
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };
 
+// Animated Section Wrapper
+const AnimatedSection = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Moving Background Component for Hero
+const MovingBackground = () => {
+  // Pre-calculate particle positions and timing to avoid glitches
+  const particles = Array.from({ length: 12 }, (_, i) => {
+    const baseDelay = i * 0.5;
+    const baseDuration = 4 + (i % 3) * 0.5;
+    const startX = (i * 73.7) % 100; // Use modulo for consistent distribution
+    const startY = (i * 61.3) % 100;
+    const offsetX = Math.sin(i * 0.7) * 40;
+    
+    return {
+      id: i,
+      startX,
+      startY,
+      offsetX,
+      duration: baseDuration,
+      delay: baseDelay,
+    };
+  });
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
+      {/* Animated gradient orbs - using smooth continuous motion */}
+      <motion.div
+        className="absolute w-96 h-96 bg-primary/20 rounded-full blur-3xl"
+        animate={{
+          x: [0, 100, 0],
+          y: [0, 50, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          repeatType: "loop",
+          ease: [0.4, 0, 0.6, 1], // Custom cubic bezier for smoother motion
+        }}
+        style={{ top: "10%", left: "10%" }}
+      />
+      <motion.div
+        className="absolute w-96 h-96 bg-[#10b981]/20 rounded-full blur-3xl"
+        animate={{
+          x: [0, -80, 0],
+          y: [0, 80, 0],
+          scale: [1, 1.3, 1],
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          repeatType: "loop",
+          ease: [0.4, 0, 0.6, 1],
+        }}
+        style={{ top: "60%", right: "10%" }}
+      />
+      <motion.div
+        className="absolute w-80 h-80 bg-secondary/20 rounded-full blur-3xl"
+        animate={{
+          x: [0, 60, 0],
+          y: [0, -60, 0],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          repeatType: "loop",
+          ease: [0.4, 0, 0.6, 1],
+        }}
+        style={{ bottom: "20%", left: "50%" }}
+      />
+      {/* Floating particles with fixed positions and timing */}
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute w-2 h-2 bg-primary/30 rounded-full"
+          initial={{ opacity: 0.2 }}
+          animate={{
+            y: [0, -120, 0],
+            x: [0, particle.offsetX, 0],
+            opacity: [0.2, 0.6, 0.2],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            repeatType: "loop",
+            delay: particle.delay,
+            ease: [0.4, 0, 0.6, 1],
+          }}
+          style={{
+            left: `${particle.startX}%`,
+            top: `${particle.startY}%`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 function Index() {
   const navigate = useNavigate();
-  const [typedText, setTypedText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("local");
@@ -83,50 +200,14 @@ function Index() {
   const [countCountries, setCountCountries] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
-  
-  const fullText = "SMUnity";
-  const typingSpeed = 1000 / fullText.length;
-  const deletingSpeed = 50; 
-  const pauseAfterTyping = 3000;
-  const pauseBeforeRestart = 1000;
-
-  useEffect(() => {
-    let currentIndex = 0;
-    let isDeleting = false;
-    let typingInterval: NodeJS.Timeout;
-
-    const type = () => {
-      if (!isDeleting && currentIndex <= fullText.length) {
-        // Typing forward
-        setTypedText(fullText.slice(0, currentIndex));
-        currentIndex++;
-      } else if (!isDeleting && currentIndex > fullText.length) {
-        // Pause before deleting
-        isDeleting = true;
-        clearInterval(typingInterval);
-        setTimeout(() => {
-          typingInterval = setInterval(type, deletingSpeed);
-        }, pauseAfterTyping);
-        return;
-      } else if (isDeleting && currentIndex > 0) {
-        // Deleting backward
-        currentIndex--;
-        setTypedText(fullText.slice(0, currentIndex));
-      } else if (isDeleting && currentIndex === 0) {
-        // Restart typing
-        isDeleting = false;
-        clearInterval(typingInterval);
-        setTimeout(() => {
-          typingInterval = setInterval(type, typingSpeed);
-        }, pauseBeforeRestart);
-        return;
-      }
-    };
-
-    typingInterval = setInterval(type, typingSpeed);
-
-    return () => clearInterval(typingInterval);
-  }, []);
+  const smunityRef = useRef<HTMLSpanElement>(null);
+  const smuRef = useRef<HTMLSpanElement>(null);
+  const communityRef = useRef<HTMLSpanElement>(null);
+  const aboutSectionRef = useRef<HTMLElement>(null);
+  const categoryCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const categoriesSectionRef = useRef<HTMLElement>(null);
+  const featuredCSPsSectionRef = useRef<HTMLElement>(null);
+  const ctaSectionRef = useRef<HTMLElement>(null);
 
   // Stats counting animation on scroll
   useEffect(() => {
@@ -176,50 +257,653 @@ function Index() {
     };
   }, [hasAnimated]);
 
+  // GSAP Animations for Categories Section - Flip cards on hover
+  useEffect(() => {
+    const cards = categoryCardsRef.current.filter(Boolean) as HTMLDivElement[];
+    if (cards.length === 0 || !categoriesSectionRef.current) return;
+
+    const handlers: Array<{ card: HTMLDivElement; enter: () => void; leave: () => void }> = [];
+    let hasAnimated = false;
+
+    // Set initial hidden state for all cards
+    cards.forEach((card) => {
+      gsap.set(card, {
+        opacity: 0,
+        y: 60,
+        scale: 0.8,
+        rotationX: -20,
+      });
+    });
+
+    // Store animation timelines for reversal
+    const cardAnimations: gsap.core.Tween[] = [];
+
+    // Intersection Observer to trigger animations when section is in view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (!hasAnimated) {
+              hasAnimated = true;
+
+              cards.forEach((card, idx) => {
+              const cardInner = card.querySelector('[data-card-inner]') as HTMLElement;
+              const cardFront = card.querySelector('[data-card-front]') as HTMLElement;
+              const cardBack = card.querySelector('[data-card-back]') as HTMLElement;
+              
+              if (!cardInner || !cardFront || !cardBack) return;
+
+              // Set initial 3D styles
+              gsap.set(card, {
+                perspective: 1000,
+                transformStyle: "preserve-3d",
+              });
+
+              gsap.set(cardInner, {
+                transformStyle: "preserve-3d",
+                rotationY: 0,
+              });
+
+              gsap.set(cardFront, {
+                backfaceVisibility: "hidden",
+                rotationY: 0,
+              });
+
+              gsap.set(cardBack, {
+                backfaceVisibility: "hidden",
+                rotationY: 180,
+              });
+
+                // Entrance animation with stagger
+                const anim = gsap.to(card, {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  rotationX: 0,
+                  duration: 0.8,
+                  ease: "back.out(1.7)",
+                  delay: idx * 0.1,
+                });
+                cardAnimations.push(anim);
+              });
+            }
+          } else if (!entry.isIntersecting && hasAnimated) {
+            // Reverse animations when scrolling back up
+            cardAnimations.forEach((anim, idx) => {
+              gsap.to(anim.targets(), {
+                opacity: 0,
+                y: 60,
+                scale: 0.8,
+                rotationX: -20,
+                duration: 0.6,
+                ease: "power2.in",
+                delay: idx * 0.05,
+                onComplete: () => {
+                  // Reset hasAnimated after all animations complete to allow re-triggering
+                  if (idx === cardAnimations.length - 1) {
+                    hasAnimated = false;
+                    // Reset initial hidden state so cards can animate in again
+                    cards.forEach((card) => {
+                      gsap.set(card, {
+                        opacity: 0,
+                        y: 60,
+                        scale: 0.8,
+                        rotationX: -20,
+                      });
+                    });
+                    cardAnimations.length = 0;
+                  }
+                }
+              });
+            });
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -100px 0px" }
+    );
+
+    observer.observe(categoriesSectionRef.current);
+
+    cards.forEach((card) => {
+      const cardInner = card.querySelector('[data-card-inner]') as HTMLElement;
+      const cardFront = card.querySelector('[data-card-front]') as HTMLElement;
+      const cardBack = card.querySelector('[data-card-back]') as HTMLElement;
+      
+      if (!cardInner || !cardFront || !cardBack) return;
+
+      // Initialize 3D styles (even if not visible yet)
+      gsap.set(card, {
+        perspective: 1000,
+        transformStyle: "preserve-3d",
+      });
+
+      gsap.set(cardInner, {
+        transformStyle: "preserve-3d",
+        rotationY: 0,
+      });
+
+      gsap.set(cardFront, {
+        backfaceVisibility: "hidden",
+        rotationY: 0,
+      });
+
+      gsap.set(cardBack, {
+        backfaceVisibility: "hidden",
+        rotationY: 180,
+      });
+
+      // Hover enter handler - flip to back
+      const handleEnter = () => {
+        gsap.to(cardInner, {
+          rotationY: 180,
+          duration: 0.35,
+          ease: "power2.inOut",
+        });
+
+        // Scale up slightly
+        gsap.to(card, {
+          scale: 1.05,
+          y: -8,
+          duration: 0.3,
+          ease: "power2.out",
+        });
+
+        // Animate icon and text entrance
+        gsap.fromTo(
+          cardBack,
+          {
+            opacity: 0,
+            scale: 0.8,
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.3,
+            ease: "back.out(1.7)",
+            delay: 0.1,
+          }
+        );
+      };
+
+      // Hover leave handler - flip to front
+      const handleLeave = () => {
+        gsap.to(cardInner, {
+          rotationY: 0,
+          duration: 0.35,
+          ease: "power2.inOut",
+        });
+
+        // Reset scale
+        gsap.to(card, {
+          scale: 1,
+          y: 0,
+          duration: 0.3,
+          ease: "power2.in",
+        });
+      };
+
+      card.addEventListener("mouseenter", handleEnter);
+      card.addEventListener("mouseleave", handleLeave);
+
+      handlers.push({ card, enter: handleEnter, leave: handleLeave });
+    });
+
+    return () => {
+      handlers.forEach(({ card, enter, leave }) => {
+        card.removeEventListener("mouseenter", enter);
+        card.removeEventListener("mouseleave", leave);
+      });
+      if (categoriesSectionRef.current) {
+        observer.unobserve(categoriesSectionRef.current);
+      }
+    };
+  }, []);
+
+  // GSAP Animations for Featured CSPs Section
+  useEffect(() => {
+    if (!featuredCSPsSectionRef.current) return;
+
+    let hasAnimated = false;
+    const section = featuredCSPsSectionRef.current;
+
+    // Get all carousel cards and mobile grid cards
+    const carouselContainer = section.querySelector('[class*="hidden"][class*="lg:block"]');
+    const mobileGrid = section.querySelector('.grid.grid-cols-1');
+    
+    // Set initial hidden state for desktop carousel
+    if (carouselContainer) {
+      // Find the container with absolute positioned cards - use more flexible selector
+      const cardsContainer = carouselContainer.querySelector('[class*="relative"][class*="h-"]') || 
+                             carouselContainer.querySelector('[class*="relative"][class*="flex"]');
+      if (cardsContainer) {
+        const cards = cardsContainer.querySelectorAll('[class*="absolute"]');
+        cards.forEach((card) => {
+          gsap.set(card, {
+            opacity: 0,
+            y: 50,
+            scale: 0.9,
+          });
+        });
+      }
+    }
+
+    // Set initial hidden state for mobile grid
+    if (mobileGrid) {
+      const gridCards = Array.from(mobileGrid.children);
+      gridCards.forEach((card) => {
+        const motionDiv = card.querySelector('div') || card;
+        gsap.set(motionDiv, {
+          opacity: 0,
+          y: 30,
+          scale: 0.95,
+        });
+      });
+    }
+
+    // Store animation references for reversal
+    const carouselAnimations: gsap.core.Tween[] = [];
+    const mobileAnimations: gsap.core.Tween[] = [];
+
+    // Intersection Observer to trigger animations when section is in view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (!hasAnimated) {
+              hasAnimated = true;
+
+              // Animate desktop carousel cards
+              if (carouselContainer) {
+                const cardsContainer = carouselContainer.querySelector('[class*="relative"][class*="h-"]') || 
+                                       carouselContainer.querySelector('[class*="relative"][class*="flex"]');
+                if (cardsContainer) {
+                  const cards = cardsContainer.querySelectorAll('[class*="absolute"]');
+                  cards.forEach((card, idx) => {
+                    const anim = gsap.to(card, {
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      duration: 0.6,
+                      delay: idx * 0.15,
+                      ease: "power2.out",
+                    });
+                    carouselAnimations.push(anim);
+                  });
+                }
+              }
+
+              // Animate mobile grid cards
+              if (mobileGrid) {
+                const gridCards = Array.from(mobileGrid.children);
+                gridCards.forEach((card, idx) => {
+                  const motionDiv = card.querySelector('div') || card;
+                  const anim = gsap.to(motionDiv, {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.5,
+                    delay: idx * 0.1,
+                    ease: "power2.out",
+                  });
+                  mobileAnimations.push(anim);
+                });
+              }
+            }
+          } else if (!entry.isIntersecting && hasAnimated) {
+            // Reverse animations when scrolling back up
+            const totalAnimations = carouselAnimations.length + mobileAnimations.length;
+            let completedReversals = 0;
+            
+            const resetState = () => {
+              hasAnimated = false;
+              // Reset initial hidden state so cards can animate in again
+              if (carouselContainer) {
+                const cardsContainer = carouselContainer.querySelector('[class*="relative"][class*="h-"]') || 
+                                       carouselContainer.querySelector('[class*="relative"][class*="flex"]');
+                if (cardsContainer) {
+                  const cards = cardsContainer.querySelectorAll('[class*="absolute"]');
+                  cards.forEach((card) => {
+                    gsap.set(card, {
+                      opacity: 0,
+                      y: 50,
+                      scale: 0.9,
+                    });
+                  });
+                }
+              }
+              if (mobileGrid) {
+                const gridCards = Array.from(mobileGrid.children);
+                gridCards.forEach((card) => {
+                  const motionDiv = card.querySelector('div') || card;
+                  gsap.set(motionDiv, {
+                    opacity: 0,
+                    y: 30,
+                    scale: 0.95,
+                  });
+                });
+              }
+              carouselAnimations.length = 0;
+              mobileAnimations.length = 0;
+            };
+            
+            carouselAnimations.forEach((anim, idx) => {
+              gsap.to(anim.targets(), {
+                opacity: 0,
+                y: 50,
+                scale: 0.9,
+                duration: 0.5,
+                ease: "power2.in",
+                delay: idx * 0.1,
+                onComplete: () => {
+                  completedReversals++;
+                  if (completedReversals === totalAnimations) {
+                    resetState();
+                  }
+                }
+              });
+            });
+            mobileAnimations.forEach((anim, idx) => {
+              gsap.to(anim.targets(), {
+                opacity: 0,
+                y: 30,
+                scale: 0.95,
+                duration: 0.4,
+                ease: "power2.in",
+                delay: idx * 0.05,
+                onComplete: () => {
+                  completedReversals++;
+                  if (completedReversals === totalAnimations) {
+                    resetState();
+                  }
+                }
+              });
+            });
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -100px 0px" }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.unobserve(section);
+    };
+  }, []);
+
+  // GSAP Animations for CTA Section
+  useEffect(() => {
+    if (!ctaSectionRef.current) return;
+
+    const section = ctaSectionRef.current;
+    const paragraph = section.querySelector('p');
+    const buttons = section.querySelectorAll('a');
+    let hasAnimated = false;
+    const ctaAnimations: gsap.core.Tween[] = [];
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (!hasAnimated) {
+              hasAnimated = true;
+              
+              // Animate heading with card boxes
+              const headingContainer = section.querySelector('div.flex.flex-col.items-center');
+              if (headingContainer) {
+                const readyBox = headingContainer.querySelector('[data-cta-text="ready"]') as HTMLElement;
+                const makeBox = headingContainer.querySelector('[data-cta-text="make"]') as HTMLElement;
+                
+                if (readyBox && makeBox) {
+                  // Set initial states
+                  gsap.set(readyBox, {
+                    y: -100,
+                    opacity: 0,
+                    scale: 0.8,
+                  });
+                  
+                  gsap.set(makeBox, {
+                    y: -150,
+                    opacity: 0,
+                    scale: 0.8,
+                    rotation: -5,
+                  });
+                  
+                  // Animate "Ready to" box - slide down from top
+                  const readyAnim = gsap.to(readyBox, {
+                    y: 0,
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: "back.out(1.7)",
+                  });
+                  ctaAnimations.push(readyAnim);
+                  
+                  // Animate "Make a Difference?" box - drop down with rotation
+                  const makeAnim = gsap.to(makeBox, {
+                    y: 0,
+                    opacity: 1,
+                    scale: 1,
+                    rotation: 0,
+                    duration: 0.9,
+                    ease: "back.out(1.7)",
+                    delay: 0.4,
+                  });
+                  ctaAnimations.push(makeAnim);
+                }
+              }
+
+              // Animate paragraph
+              if (paragraph) {
+                const paraAnim = gsap.fromTo(
+                  paragraph,
+                  {
+                    opacity: 0,
+                    y: 20,
+                  },
+                  {
+                    opacity: 0.9,
+                    y: 0,
+                    duration: 0.8,
+                    delay: 0.2,
+                    ease: "power2.out",
+                  }
+                );
+                ctaAnimations.push(paraAnim);
+              }
+
+              // Animate buttons with stagger
+              if (buttons.length > 0) {
+                const buttonAnim = gsap.fromTo(
+                  Array.from(buttons),
+                  {
+                    opacity: 0,
+                    y: 20,
+                    scale: 0.9,
+                  },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.6,
+                    delay: 0.4,
+                    stagger: 0.15,
+                    ease: "back.out(1.7)",
+                  }
+                );
+                ctaAnimations.push(buttonAnim);
+              }
+            }
+          } else if (!entry.isIntersecting && hasAnimated) {
+            // Reverse animations when scrolling back up
+            const headingContainer = section.querySelector('div.flex.flex-col.items-center');
+            if (headingContainer) {
+              const readyBox = headingContainer.querySelector('[data-cta-text="ready"]') as HTMLElement;
+              const makeBox = headingContainer.querySelector('[data-cta-text="make"]') as HTMLElement;
+              
+              if (readyBox && makeBox) {
+                gsap.to(readyBox, {
+                  y: -100,
+                  opacity: 0,
+                  scale: 0.8,
+                  duration: 0.6,
+                  ease: "power2.in",
+                });
+                
+                gsap.to(makeBox, {
+                  y: -150,
+                  opacity: 0,
+                  scale: 0.8,
+                  rotation: -5,
+                  duration: 0.7,
+                  ease: "power2.in",
+                  delay: 0.2,
+                });
+              }
+            }
+            
+            if (paragraph) {
+              gsap.to(paragraph, {
+                opacity: 0,
+                y: 20,
+                duration: 0.5,
+                ease: "power2.in",
+              });
+            }
+            
+            Array.from(buttons).forEach((btn) => {
+              gsap.to(btn, {
+                opacity: 0,
+                y: 20,
+                scale: 0.9,
+                duration: 0.4,
+                ease: "power2.in",
+              });
+            });
+            
+            // Reset initial states after reversal completes
+            const reversalDelay = Math.max(
+              buttons.length * 0.05,
+              0.7 // Make sure longest animation (makeBox) completes
+            );
+            
+            setTimeout(() => {
+              hasAnimated = false;
+              const headingContainer = section.querySelector('div.flex.flex-col.items-center');
+              if (headingContainer) {
+                const readyBox = headingContainer.querySelector('[data-cta-text="ready"]') as HTMLElement;
+                const makeBox = headingContainer.querySelector('[data-cta-text="make"]') as HTMLElement;
+                
+                if (readyBox && makeBox) {
+                  gsap.set(readyBox, {
+                    y: -100,
+                    opacity: 0,
+                    scale: 0.8,
+                  });
+                  
+                  gsap.set(makeBox, {
+                    y: -150,
+                    opacity: 0,
+                    scale: 0.8,
+                    rotation: -5,
+                  });
+                }
+              }
+              
+              if (paragraph) {
+                gsap.set(paragraph, {
+                  opacity: 0,
+                  y: 20,
+                });
+              }
+              
+              Array.from(buttons).forEach((btn) => {
+                gsap.set(btn, {
+                  opacity: 0,
+                  y: 20,
+                  scale: 0.9,
+                });
+              });
+              
+              ctaAnimations.length = 0;
+            }, reversalDelay * 1000);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.unobserve(section);
+    };
+  }, []);
+
   // Mock data for demonstration
   const featuredCSPs = [
     {
       id: "1",
-      title: "Project Candela",
-      organisation: "SMU Rotaract",
-      location: "Kranji",
-      category: "Community",
-      type: "local",
-      startDate: "2025-03-15",
-      endDate: "2025-06-15",
-      duration: "2h, Every Tuesday",
-      serviceHours: 40,
-      maxVolunteers: 15,
-      currentVolunteers: 8,
-      isRemote: false,
-      status: "open",
-      applicationDeadline: "2025-02-28",
-      description: "Join us to challenge and debunk negative stereotypes surrounding foreign workers while raising awareness among Singaporeans about the experiences and contributions of migrant workers.",
-      skills: ["Communication", "Patience", "Teaching", "Empathy"],
-      tags: ["Migrant", "Migrant Workers", "Community"]
-    },
-    {
-      id: "2", 
-      title: "Environmental Cleanup at East Coast Park",
+      title: "Beach Cleanup Drive",
       organisation: "Green Singapore",
       location: "East Coast Park",
       category: "Environment",
       type: "local",
-      startDate: "2025-02-20",
-      endDate: "2025-02-20",
+      startDate: "2025-03-15",
+      endDate: "2025-03-15",
       duration: "4h, One-time",
       serviceHours: 8,
       maxVolunteers: 50,
-      currentVolunteers: 48,
+      currentVolunteers: 32,
       isRemote: false,
-      status: "closing-soon",
-      applicationDeadline: "2025-02-15",
-      description: "Join us for a beach cleanup initiative to keep Singapore's coastline clean and beautiful.",
-      skills: ["Teamwork", "Physical Activity", "Outdoor"],
-      tags: ["Environment", "Beach", "Cleanup"]
+      status: "open",
+      applicationDeadline: "2025-03-10",
+      description: "Join us for a beach cleanup initiative to keep Singapore's coastline clean and beautiful. Help remove litter and debris while raising awareness about marine conservation.",
+      skills: ["Teamwork", "Physical Activity", "Outdoor", "Environmental Awareness"],
+      tags: ["Environment", "Beach", "Cleanup", "Conservation"]
+    },
+    {
+      id: "2", 
+      title: "Mangrove Restoration",
+      organisation: "Nature Society Singapore",
+      location: "Sungei Buloh",
+      category: "Environment",
+      type: "local",
+      startDate: "2025-03-20",
+      endDate: "2025-06-20",
+      duration: "3h, Monthly",
+      serviceHours: 30,
+      maxVolunteers: 30,
+      currentVolunteers: 18,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-03-15",
+      description: "Help restore and protect Singapore's mangrove ecosystems. Participate in planting mangroves, monitoring growth, and learning about coastal biodiversity.",
+      skills: ["Physical Activity", "Environmental Awareness", "Teamwork", "Outdoor"],
+      tags: ["Environment", "Mangrove", "Conservation", "Biodiversity"]
     },
     {
       id: "3",
+      title: "Recycling Education Booth",
+      organisation: "Zero Waste SG",
+      location: "Various Locations",
+      category: "Environment",
+      type: "local",
+      startDate: "2025-03-01",
+      endDate: "2025-08-31",
+      duration: "2h, Weekly",
+      serviceHours: 40,
+      maxVolunteers: 20,
+      currentVolunteers: 12,
+      isRemote: false,
+      status: "open",
+      applicationDeadline: "2025-02-25",
+      description: "Educate the public about recycling practices and waste reduction. Set up booths at community events and help people understand proper waste sorting.",
+      skills: ["Communication", "Teaching", "Environmental Awareness", "Public Speaking"],
+      tags: ["Environment", "Recycling", "Education", "Sustainability"]
+    },
+    {
+      id: "4",
       title: "Virtual Mentoring Program",
       organisation: "Youth Connect",
       location: "Remote",
@@ -230,73 +914,53 @@ function Index() {
       duration: "1h, Weekly",
       serviceHours: 60,
       maxVolunteers: 25,
-      currentVolunteers: 25,
+      currentVolunteers: 20,
       isRemote: true,
-      status: "full",
-      applicationDeadline: "2025-02-10",
-      description: "Provide virtual mentorship to at-risk youth through online sessions and activities.",
-      skills: ["Mentoring", "Communication", "Leadership", "Active Listening"],
-      tags: ["Mentoring", "Youth", "Virtual"]
-    },
-    {
-      id: "4",
-      title: "Elderly Home Visitation Program",
-      organisation: "Silver Care Association",
-      location: "Bishan",
-      category: "Elderly",
-      type: "local",
-      startDate: "2025-02-01",
-      endDate: "2025-06-30",
-      duration: "2h, Biweekly",
-      serviceHours: 30,
-      maxVolunteers: 20,
-      currentVolunteers: 5,
-      isRemote: false,
       status: "open",
-      applicationDeadline: "2025-01-25",
-      description: "Visit and spend quality time with elderly residents. Bring joy and companionship to seniors in our community.",
-      skills: ["Empathy", "Communication", "Patience", "Care"],
-      tags: ["Healthcare", "Elderly", "Companionship"]
+      applicationDeadline: "2025-02-25",
+      description: "Provide virtual mentorship to at-risk youth through online sessions and activities. Help guide young people in their academic and personal development.",
+      skills: ["Mentoring", "Communication", "Leadership", "Active Listening"],
+      tags: ["Mentoring", "Youth", "Virtual", "Education"]
     },
     {
       id: "5",
-      title: "Community Arts Workshop",
-      organisation: "Creative Hearts SG",
-      location: "Toa Payoh",
-      category: "Arts & Culture",
+      title: "Career Readiness Workshops",
+      organisation: "SkillsFuture SG",
+      location: "Various Locations",
+      category: "Mentoring",
       type: "local",
-      startDate: "2025-03-05",
-      endDate: "2025-04-15",
-      duration: "3h, Every Saturday",
-      serviceHours: 20,
-      maxVolunteers: 12,
-      currentVolunteers: 7,
+      startDate: "2025-03-10",
+      endDate: "2025-07-10",
+      duration: "3h, Biweekly",
+      serviceHours: 35,
+      maxVolunteers: 15,
+      currentVolunteers: 8,
       isRemote: false,
       status: "open",
-      applicationDeadline: "2025-02-20",
-      description: "Conduct art workshops for children and families in the community. Share your creativity and inspire others.",
-      skills: ["Arts", "Teaching", "Creativity", "Patience"],
-      tags: ["Arts", "Culture", "Workshop"]
+      applicationDeadline: "2025-03-05",
+      description: "Conduct workshops to help job seekers develop essential career skills including resume writing, interview techniques, and professional networking.",
+      skills: ["Teaching", "Communication", "Career Counseling", "Public Speaking"],
+      tags: ["Mentoring", "Career", "Workshop", "Education"]
     },
     {
       id: "6",
-      title: "Food Distribution Drive",
-      organisation: "Food4All Singapore",
-      location: "Jurong",
-      category: "Community",
+      title: "Animal Shelter Volunteering",
+      organisation: "SPCA Singapore",
+      location: "Sungei Tengah",
+      category: "Animal Welfare",
       type: "local",
-      startDate: "2025-02-25",
-      endDate: "2025-02-25",
-      duration: "3h, One-time",
-      serviceHours: 6,
-      maxVolunteers: 30,
-      currentVolunteers: 18,
+      startDate: "2025-03-01",
+      endDate: "2025-06-30",
+      duration: "2h, Weekly",
+      serviceHours: 45,
+      maxVolunteers: 40,
+      currentVolunteers: 28,
       isRemote: false,
       status: "open",
-      applicationDeadline: "2025-02-20",
-      description: "Help distribute food packages to families in need. Make a direct impact in fighting food insecurity.",
-      skills: ["Teamwork", "organisation", "Physical Activity", "Service"],
-      tags: ["Community", "Food", "One-time"]
+      applicationDeadline: "2025-02-25",
+      description: "Help care for abandoned and rescued animals. Assist with feeding, cleaning, walking dogs, socializing cats, and supporting adoption events.",
+      skills: ["Animal Care", "Compassion", "Physical Activity", "Teamwork"],
+      tags: ["Animal Welfare", "Shelter", "Pets", "Compassion"]
     },
     // Overseas Projects
     {
@@ -402,14 +1066,54 @@ function Index() {
   ];
 
   const categories = [
-    { value: "Community", label: "Community" },
-    { value: "Mentoring", label: "Mentoring" },
-    { value: "Environment", label: "Environment" },
-    { value: "Elderly", label: "Elderly" },
-    { value: "Arts & Culture", label: "Arts & Culture" },
-    { value: "Animal Welfare", label: "Animal Welfare" },
-    { value: "Sports & Leisure", label: "Sports & Leisure" },
-    { value: "Coding", label: "Coding" }
+    { 
+      value: "Community", 
+      label: "Community",
+      icon: Users,
+      image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Mentoring", 
+      label: "Mentoring",
+      icon: BookOpen,
+      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Environment", 
+      label: "Environment",
+      icon: TreePine,
+      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Elderly", 
+      label: "Elderly",
+      icon: Heart,
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Arts & Culture", 
+      label: "Arts & Culture",
+      icon: Star,
+      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Animal Welfare", 
+      label: "Animal Welfare",
+      icon: PawPrint,
+      image: "https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Sports & Leisure", 
+      label: "Sports & Leisure",
+      icon: Trophy,
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
+    },
+    { 
+      value: "Coding", 
+      label: "Coding",
+      icon: Code,
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=300&fit=crop"
+    }
   ];
 
   // Filter CSPs based on search, category, and type
@@ -432,13 +1136,13 @@ function Index() {
     return matchesCategory && matchesType && matchesSearch;
   });
 
-  // Carousel auto-rotation - move to next item every 30 seconds
+  // Carousel auto-rotation - move to next item every 7 seconds
   useEffect(() => {
     if (filteredFeaturedCSPs.length === 0) return;
     
     const carouselInterval = setInterval(() => {
       setCarouselIndex((prev) => (prev + 1) % filteredFeaturedCSPs.length);
-    }, 30000); // 30 seconds
+    }, 7000); // 7 seconds
 
     return () => clearInterval(carouselInterval);
   }, [filteredFeaturedCSPs.length]);
@@ -488,25 +1192,107 @@ function Index() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 py-20">
-        <div className="container mx-auto px-4 md:px-6">
+      <section className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 h-[93vh] flex items-center justify-center overflow-hidden py-0">
+        <MovingBackground />
+        <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 relative z-10 w-full py-0 pt-0">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-6">
+            <motion.h1 
+              className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              onAnimationComplete={() => {
+                // Start GSAP animations after framer-motion completes
+                if (smunityRef.current) {
+                  // Gradient reveal animation (left to right) using clip-path
+                  gsap.fromTo(
+                    smunityRef.current,
+                    {
+                      clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)",
+                    },
+                    {
+                      clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+                      duration: 1.2,
+                      ease: "power2.out",
+                    }
+                  );
+
+                  // Wiggle animation - starts after gradient reveal
+                  gsap.delayedCall(1.5, () => {
+                    const wiggleTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3 });
+                    wiggleTimeline.to(smunityRef.current, {
+                      rotation: 2,
+                      duration: 0.1,
+                      ease: "power2.inOut",
+                    });
+                    wiggleTimeline.to(smunityRef.current, {
+                      rotation: -2,
+                      duration: 0.1,
+                      ease: "power2.inOut",
+                    });
+                    wiggleTimeline.to(smunityRef.current, {
+                      rotation: 1,
+                      duration: 0.1,
+                      ease: "power2.inOut",
+                    });
+                    wiggleTimeline.to(smunityRef.current, {
+                      rotation: 0,
+                      duration: 0.1,
+                      ease: "power2.inOut",
+                    });
+                  });
+                }
+              }}
+            >
               Find Your Perfect{" "}
-              <span style={{ color: 'oklch(0.45 0.15 200)' }}>Community Service</span>
+              <motion.span 
+                style={{ color: 'oklch(0.45 0.15 200)' }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                Community Service
+              </motion.span>
               {" "}Project with{" "}
-              <span className="text-gradient-smunity">
-                {typedText}
-                <span className="animate-pulse">|</span>
+              <span 
+                className="inline-flex items-center relative group cursor-pointer"
+                onClick={() => navigate({ to: "/discover" })}
+              >
+                <span
+                  ref={smunityRef}
+                  className="text-gradient-smunity inline-block transition-transform hover:scale-105" 
+                  style={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" }}
+                >
+                  SMUnity
+                </span>
+                <span className="ml-1 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:scale-110 pointer-events-none z-10">
+                  <span className="relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full p-[2px]" style={{ 
+                    background: "linear-gradient(135deg, #2563eb 0%, #10b981 100%)"
+                  }}>
+                    <span className="w-full h-full flex items-center justify-center rounded-full bg-transparent">
+                      <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+                    </span>
+                  </span>
+                </span>
               </span>
-            </h1>
-            <p className="text-xl text-muted-foreground font-body mb-12 max-w-2xl mx-auto">
+            </motion.h1>
+            <motion.p 
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground font-body mb-8 max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
               Connect with meaningful volunteer opportunities that align with your interests, 
-              schedule, and SMU graduation requirements.
-            </p>
+              schedule, and SMU graduation requirements
+            </motion.p>
             
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-12">
+            <motion.div 
+              className="max-w-3xl mx-auto mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -534,130 +1320,280 @@ function Index() {
                   <Search className="h-4 w-4 sm:hidden" />
                 </Button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Quick Stats */}
-            <div ref={statsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <motion.div 
+              ref={statsRef} 
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary font-heading">{countCSPs}+</div>
-                <div className="text-muted-foreground font-body">Active CSPs</div>
+                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary font-heading">{countCSPs}+</div>
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-body">Active CSPs</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#10b981] font-heading">{countPartners}+</div>
-                <div className="text-muted-foreground font-body">Partner Organisations</div>
+                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#10b981] font-heading">{countPartners}+</div>
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-body">Partner Organisations</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary font-heading">{countCountries}</div>
-                <div className="text-muted-foreground font-body">Countries</div>
+                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary font-heading">{countCountries}</div>
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-body">Countries</div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* About SMUnity Section */}
-      <section className="pt-16 pb-20 md:pb-24 bg-background">
-        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-          <div className="space-y-6">
-            <h2 className="font-heading text-4xl font-bold text-foreground text-center md:text-left">
-              Connecting <span className="text-gradient-smunity">SMU</span> with the{" "}
-              <span className="text-gradient-smunity">Community</span>
-            </h2>
-            <p className="text-lg text-muted-foreground font-body leading-relaxed text-center md:text-left">
-              Finding a volunteer cause should not be complicated. SMUnity aims to brings all your community service needs into <strong className="text-foreground">one centralised, seamless platform.</strong> Discover verified local and overseas projects, submit applications instantly, and track your service hours for CSU requirements all within SMUnity! 
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 max-w-4xl mx-auto">
-              <div className="space-y-3 text-center">
-                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center">
-                  <Search className="h-6 w-6 text-white" />
+      <section ref={aboutSectionRef} id="about" className="pt-16 pb-20 md:pb-24 lg:pt-8 lg:pb-12 bg-background min-h-screen flex items-center">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 max-w-7xl w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
+            {/* Left side - Heading and Description */}
+            <div className="space-y-6">
+              <motion.h2 
+                className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6 }}
+                onAnimationComplete={() => {
+                  // Start GSAP animations after framer-motion completes
+                  if (smuRef.current && communityRef.current) {
+                    // Gradient reveal animation (left to right) using clip-path
+                    gsap.fromTo(
+                      [smuRef.current, communityRef.current],
+                      {
+                        clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)",
+                      },
+                      {
+                        clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+                        duration: 1.2,
+                        ease: "power2.out",
+                        stagger: 0.4,
+                      }
+                    );
+
+                    // Wiggle animation - starts after gradient reveal
+                    gsap.delayedCall(1.8, () => {
+                      const wiggleTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3 });
+                      wiggleTimeline.to([smuRef.current, communityRef.current], {
+                        rotation: 2,
+                        duration: 0.1,
+                        ease: "power2.inOut",
+                      });
+                      wiggleTimeline.to([smuRef.current, communityRef.current], {
+                        rotation: -2,
+                        duration: 0.1,
+                        ease: "power2.inOut",
+                      });
+                      wiggleTimeline.to([smuRef.current, communityRef.current], {
+                        rotation: 1,
+                        duration: 0.1,
+                        ease: "power2.inOut",
+                      });
+                      wiggleTimeline.to([smuRef.current, communityRef.current], {
+                        rotation: 0,
+                        duration: 0.1,
+                        ease: "power2.inOut",
+                      });
+                    });
+                  }
+                }}
+              >
+                Connecting <span ref={smuRef} className="text-gradient-smunity inline-block" style={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" }}>SMU</span> with the{" "}
+                <span ref={communityRef} className="text-gradient-smunity inline-block" style={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" }}>Community</span>
+              </motion.h2>
+              <motion.p 
+                className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground font-body leading-relaxed"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                Finding a volunteer cause should not be complicated. SMUnity aims to brings all your community service needs into <strong className="text-foreground">one centralised, seamless platform</strong>. Discover verified local and overseas projects, submit instant applications, and make an impact while completing CSU requirements all within SMUnity! 
+              </motion.p>
+            </div>
+
+            {/* Right side - Feature Cards (staggered on scroll) */}
+            <div className="space-y-16 md:space-y-24">
+              {/* Find Your Match */}
+              <motion.div 
+                className="space-y-4 text-center md:text-left"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-200px 0px -200px 0px", amount: 0.3 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <div className="flex items-center gap-4 justify-center md:justify-start">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center flex-shrink-0">
+                    <Search className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="font-heading font-semibold text-lg sm:text-xl md:text-2xl">Find Your Match</h3>
                 </div>
-                <h3 className="font-heading font-semibold text-lg">Find Your Match</h3>
-                <p className="text-sm text-muted-foreground font-body">
-                  Filter by category, location, and duration to find opportunities that fit you
+                <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body leading-relaxed">
+                  Filter by category, location, and duration to find opportunities that fit you. Browse through verified local and overseas projects, and search by skills or interests.
                 </p>
-              </div>
-              <div className="space-y-3 text-center">
-                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center">
-                  <Target className="h-6 w-6 text-white" />
+              </motion.div>
+
+              {/* Apply with Ease */}
+              <motion.div 
+                className="space-y-4 text-center md:text-left"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-200px 0px -200px 0px", amount: 0.3 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <div className="flex items-center gap-4 justify-center md:justify-start">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center flex-shrink-0">
+                    <Target className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="font-heading font-semibold text-lg sm:text-xl md:text-2xl">Apply with Ease</h3>
                 </div>
-                <h3 className="font-heading font-semibold text-lg">Apply with Ease</h3>
-                <p className="text-sm text-muted-foreground font-body">
-                  Submit applications instantly and track your status in real-time
+                <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body leading-relaxed">
+                  Submit applications instantly and track your status in real-time. Fill out your motivation, highlight your relevant skills, and receive instant confirmation when organisations respond.
                 </p>
-              </div>
-              <div className="space-y-3 text-center">
-                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-white" />
+              </motion.div>
+
+              {/* Make an Impact */}
+              <motion.div 
+                className="space-y-4 text-center md:text-left"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-200px 0px -200px 0px", amount: 0.3 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <div className="flex items-center gap-4 justify-center md:justify-start">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center flex-shrink-0">
+                    <HeartHandshake className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="font-heading font-semibold text-lg sm:text-xl md:text-2xl">Make an Impact</h3>
                 </div>
-                <h3 className="font-heading font-semibold text-lg">Track Your Hours</h3>
-                <p className="text-sm text-muted-foreground font-body">
-                  Automatically log service hours with built-in CSU verification
+                <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body leading-relaxed">
+                  Contribute meaningfully to your community and see the real-world difference you're making. Participate in impactful projects while ensuring you meet your CSU requirements.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Categories Section */}
-      <section className="py-10 md:py-12 bg-muted/30">
-        <div className="container mx-auto px-4 md:px-6">
+      <AnimatedSection>
+        <section ref={categoriesSectionRef} className="py-16 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4">
           <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground mb-4">
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
               Browse by Category
             </h2>
-            <p className="text-muted-foreground font-body">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body">
               Find projects that match your interests and passion
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((category) => (
-              <Button
-                key={category.value}
-                variant={selectedCategory === category.value ? "default" : "outline"}
-                className="h-20 flex flex-col items-center justify-center space-y-2 hover:bg-primary/5 hover:border-primary transition-colors"
-                onClick={() => {
-                  // Navigate to Discover page with category filter
-                  navigate({ to: "/discover", search: { category: category.value } });
-                }}
-              >
-                <div className="text-2xl">
-                  {category.value === "Community" && <Users className="h-6 w-6" />}
-                  {category.value === "Mentoring" && <BookOpen className="h-6 w-6" />}
-                  {category.value === "Environment" && <TreePine className="h-6 w-6" />}
-                  {category.value === "Elderly" && <Heart className="h-6 w-6" />}
-                  {category.value === "Arts & Culture" && <Star className="h-6 w-6" />}
-                  {category.value === "Animal Welfare" && <PawPrint className="h-6 w-6" />}
-                  {category.value === "Sports & Leisure" && <Trophy className="h-6 w-6" />}
-                  {category.value === "Coding" && <Code className="h-6 w-6" />}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
+            {categories.map((category, idx) => {
+              const IconComponent = category.icon;
+              return (
+                <div
+                  key={category.value}
+                  ref={(el) => {
+                    categoryCardsRef.current[idx] = el;
+                  }}
+                  className="relative cursor-pointer group px-1 lg:px-2 overflow-hidden rounded-lg"
+                  style={{ perspective: "1000px" }}
+                  onClick={() => {
+                    navigate({ to: "/discover", search: { category: category.value } });
+                  }}
+                >
+                  <div
+                    data-card-inner
+                    className="relative w-full h-full"
+                    style={{ 
+                      transformStyle: "preserve-3d",
+                      transition: "transform 0.35s"
+                    }}
+                  >
+                    {/* Front - Image */}
+                    <div
+                      data-card-front
+                      className="absolute inset-0 w-full h-full rounded-lg overflow-hidden"
+                      style={{
+                        backfaceVisibility: "hidden",
+                        WebkitBackfaceVisibility: "hidden",
+                      }}
+                    >
+                      <div 
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        style={{ backgroundImage: `url(${category.image})` }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    </div>
+
+                    {/* Back - Icon and Label */}
+                    <div
+                      data-card-back
+                      className="absolute inset-0 w-full h-full rounded-lg flex flex-col items-center justify-center bg-background p-3 border-2 border-primary/20"
+                      style={{
+                        backfaceVisibility: "hidden",
+                        WebkitBackfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)",
+                      }}
+                    >
+                      <IconComponent className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2" />
+                      <span className="text-foreground text-xs sm:text-sm md:text-base font-semibold text-center">
+                        {category.label}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Aspect ratio container */}
+                  <div className="aspect-[4/3]" />
                 </div>
-                <span className="text-sm font-medium">{category.label}</span>
-              </Button>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Featured CSPs Section */}
-      <section id="featured-csps" className="py-12 bg-gradient-to-br from-secondary/10 via-background to-primary/5">
-        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+      <AnimatedSection>
+        <section ref={featuredCSPsSectionRef} id="featured-csps" className="py-16 md:py-20 bg-gradient-to-br from-secondary/10 via-background to-primary/5">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 max-w-7xl">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="font-heading text-3xl font-bold text-foreground mb-2">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2">
                 {searchQuery || selectedCategory !== "all" ? "Search Results" : "Featured CSPs"}
               </h2>
-              <p className="text-muted-foreground font-body">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body">
                 {searchQuery || selectedCategory !== "all" 
                   ? `Found ${filteredFeaturedCSPs.length} CSP${filteredFeaturedCSPs.length !== 1 ? 's' : ''}`
                   : "Discover popular and trending community service projects"
                 }
               </p>
             </div>
-            <Link to="/discover">
-              <Button variant="outline" className="hidden md:flex">
+            <Link to="/discover" className="group inline-block">
+              <Button 
+                variant="outline" 
+                className="hidden md:flex transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg border-primary/20 group-hover:border-primary"
+                style={{
+                  '--hover-bg': 'hsl(var(--primary))',
+                  '--hover-text': 'hsl(var(--primary-foreground))',
+                } as React.CSSProperties}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
+                  e.currentTarget.style.color = 'hsl(var(--primary-foreground))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '';
+                  e.currentTarget.style.color = '';
+                }}
+              >
                 View All CSPs
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
           </div>
@@ -702,7 +1638,7 @@ function Index() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg hidden lg:flex"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 h-12 w-12 rounded-full shadow-lg hidden lg:flex"
                   onClick={handlePrevious}
                 >
                   <ChevronLeft className="h-6 w-6" />
@@ -710,7 +1646,7 @@ function Index() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg hidden lg:flex"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 h-12 w-12 rounded-full shadow-lg hidden lg:flex"
                   onClick={handleNext}
                 >
                   <ChevronRight className="h-6 w-6" />
@@ -720,13 +1656,23 @@ function Index() {
             
             {/* Mobile/Tablet Grid - Below 992px */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:hidden">
-              {filteredFeaturedCSPs.map((csp) => {
+              {filteredFeaturedCSPs.map((csp, idx) => {
+                // Hide projects beyond the 3rd on phone screens (< 768px)
+                const isHiddenOnMobile = idx >= 3;
                 const statusBadge = getStatusBadge(csp.status);
                 const duration = (csp as any).duration || `${csp.serviceHours}h`;
                 
                 return (
-                  <Card 
+                  <motion.div
                     key={csp.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    whileHover={{ y: -5 }}
+                    className={isHiddenOnMobile ? "hidden md:block" : ""}
+                  >
+                  <Card 
                     className="hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col h-full"
                   >
                   <CardHeader>
@@ -794,13 +1740,14 @@ function Index() {
                       </div>
                     </div>
 
-                    <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                    <Link to="/csp/$projectID" params={{ projectID: csp.id }}>
                       <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                       </Button>
                     </Link>
                   </CardContent>
                 </Card>
+                </motion.div>
               );
             })}
             </div>
@@ -823,14 +1770,27 @@ function Index() {
                     const relativePosition = position - 1;
                     
                     return (
-                      <Card 
+                      <motion.div
                         key={csp.id}
-                        className="absolute hover:shadow-lg cursor-pointer group flex flex-col w-[400px] h-[390px] transition-all duration-700 ease-in-out"
+                        className="absolute"
+                        initial={false}
+                        animate={{
+                          x: (relativePosition + slideOffset) * 440,
+                          scale: position === 1 ? 1 : 0.85,
+                          opacity: position === 1 ? 1 : 0.6,
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 15,
+                          duration: 0.7,
+                        }}
                         style={{
-                          transform: `translateX(${(relativePosition + slideOffset) * 440}px)`,
-                          opacity: 1,
                           zIndex: position === 1 ? 10 : 1
                         }}
+                      >
+                      <Card 
+                        className="hover:shadow-lg cursor-pointer group flex flex-col w-[400px] h-[390px]"
                       >
                       <CardHeader>
                         <div className="flex justify-between items-start mb-2 gap-2">
@@ -895,13 +1855,14 @@ function Index() {
                           </div>
                         </div>
 
-                        <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                        <Link to="/csp/$projectID" params={{ projectID: csp.id }}>
                           <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                             {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                           </Button>
                         </Link>
                       </CardContent>
                     </Card>
+                    </motion.div>
                   );
                 })}
                 </div>
@@ -954,37 +1915,120 @@ function Index() {
           )}
 
           <div className="text-center mt-8 md:hidden">
-            <Link to="/discover">
-              <Button variant="outline">
+            <Link to="/discover" className="group inline-block">
+              <Button 
+                variant="outline" 
+                className="transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg border-primary/20 group-hover:border-primary"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
+                  e.currentTarget.style.color = 'hsl(var(--primary-foreground))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '';
+                  e.currentTarget.style.color = '';
+                }}
+              >
                 View All CSPs
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* CTA Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <h2 className="font-heading text-3xl font-bold mb-4">
-            Ready to Make a Difference?
-          </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Join thousands of SMU students who are already making an impact in their communities. 
-            Start your community service journey today!
-          </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/discover">
-              <Button size="lg" variant="outline" className="text-black font-semibold">
-                Discover CSPs
-              </Button>
-            </Link>
-            <Link to="/auth/signup">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
-                Get Started
-              </Button>
-            </Link>
+      <section ref={ctaSectionRef} className="relative py-16 bg-primary text-primary-foreground overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full opacity-10"
+              style={{
+                width: `${100 + i * 50}px`,
+                height: `${100 + i * 50}px`,
+                background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
+                left: `${(i * 20) % 100}%`,
+                top: `${(i * 15 + 20) % 100}%`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                x: [0, 20, 0],
+                scale: [1, 1.2, 1],
+                opacity: [0.1, 0.2, 0.1],
+              }}
+              transition={{
+                duration: 4 + i * 0.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.3,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+            {/* Left Side - Boxes */}
+            <div className="flex flex-col items-center md:items-start justify-center relative md:ml-16" style={{ minHeight: '180px' }}>
+              {/* First Box - "Ready to" */}
+              <div 
+                className="px-8 py-4 sm:px-10 sm:py-5 md:px-12 md:py-6 rounded-xl bg-secondary text-secondary-foreground font-heading font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl relative z-10 shadow-lg"
+                data-cta-text="ready"
+              >
+                Ready to
+              </div>
+              
+              {/* Second Box - "Make a Difference?" - Overlaps below */}
+              <div 
+                className="px-8 py-4 sm:px-10 sm:py-5 md:px-12 md:py-6 rounded-xl bg-accent font-heading font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl relative -mt-4 sm:-ml-8 shadow-lg"
+                data-cta-text="make"
+              >
+                <span className="text-gradient-smunity">Make a Difference?</span>
+              </div>
+            </div>
+            
+            {/* Right Side - Description and Buttons */}
+            <div className="text-center md:text-left">
+              <p className="text-base sm:text-lg md:text-xl mb-8 max-w-2xl md:max-w-none text-white">
+                Join thousands of SMU students who are already making an impact in their communities. 
+                Start your community service journey today!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/discover" className="group">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="relative text-primary font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-white/20 border-2 border-white bg-white group-hover:bg-white/95 px-8 py-6 text-base sm:text-lg overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      Discover CSPs
+                      <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      initial={false}
+                    />
+                  </Button>
+                </Link>
+                <Link to="/discover" className="group">
+                  <Button 
+                    size="lg" 
+                    className="relative bg-secondary hover:bg-secondary/95 text-secondary-foreground font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-secondary/30 border-2 border-secondary/50 group-hover:border-secondary px-8 py-6 text-base sm:text-lg overflow-hidden group-hover:scale-105"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      Get Started
+                      <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      initial={false}
+                    />
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

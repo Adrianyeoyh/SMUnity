@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { 
@@ -11,11 +11,10 @@ import {
   Home,
   Search,
   FileText,
-  Heart,
   LayoutDashboard,
   Building2
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "#client/hooks/use-auth";
 import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/popover";
 // import ProfileDropdown from "#client/components/layout/profile-dropdown.tsx";
@@ -24,7 +23,21 @@ import ProfileMenu from "#client/components/layout/profileMenu.tsx";
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isJiggling, setIsJiggling] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { isLoggedIn, isLoading, logout, user } = useAuth();
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
+
+  // Track scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Fake notifications data
   const notifications = [
@@ -65,7 +78,11 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
+      isLandingPage && !isScrolled
+        ? "bg-transparent border-transparent" 
+        : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    }`}>
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between relative">
           {/* Logo */}
@@ -79,7 +96,7 @@ export function Header() {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
               <HeartHandshake className="h-6 w-6 text-white" />
             </div>
-            <span className="font-heading font-bold text-xl text-gradient-smunity">
+            <span className="font-heading font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-gradient-smunity">
               SMUnity
             </span>
           </Link>
@@ -90,7 +107,7 @@ export function Header() {
               <>
                 <Link 
                   to="/" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -100,19 +117,8 @@ export function Header() {
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
                 <Link 
-                  to="/about" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  <Heart className="h-4 w-4" />
-                  <span>About Us</span>
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
-                </Link>
-                <Link 
                   to="/discover" 
-                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -126,7 +132,7 @@ export function Header() {
               <>
                 <Link 
                   to="/admin/dashboard" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -137,7 +143,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/admin/organisations" 
-                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -151,7 +157,7 @@ export function Header() {
               <>
               <Link 
                   to="/organisations/dashboard" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -161,7 +167,7 @@ export function Header() {
               </Link>
               <Link 
                   to="/discover" 
-                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -175,7 +181,7 @@ export function Header() {
               <>
                 <Link 
                   to="/dashboard" 
-                  className="nav-link relative text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -186,7 +192,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/discover" 
-                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -197,7 +203,7 @@ export function Header() {
                 </Link>
                 <Link 
                   to="/my-applications" 
-                  className="nav-link relative text-xs md:text-sm font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
+                  className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -238,7 +244,7 @@ export function Header() {
                   </PopoverTrigger>
                   <PopoverContent className="w-80 p-0" align="end">
                       <div className="p-4 border-b">
-                        <h3 className="font-heading font-semibold">Notifications</h3>
+                        <h3 className="font-heading font-semibold text-sm sm:text-base md:text-lg">Notifications</h3>
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {notifications.map((notification) => (
@@ -249,7 +255,7 @@ export function Header() {
                             }`}
                           >
                             <div className="space-y-1">
-                              <h4 className="font-heading font-medium text-sm">
+                              <h4 className="font-heading font-medium text-xs sm:text-sm md:text-base">
                                 {notification.title}
                               </h4>
                               <p className="text-xs text-muted-foreground">
@@ -265,7 +271,7 @@ export function Header() {
                       {notifications.length === 0 && (
                         <div className="p-8 text-center text-muted-foreground">
                           <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm">No notifications yet</p>
+                          <p className="text-xs sm:text-sm md:text-base">No notifications yet</p>
                         </div>
                       )}
                     </PopoverContent>
@@ -364,7 +370,7 @@ export function Header() {
                 <>
                   <Link 
                     to="/" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -374,19 +380,8 @@ export function Header() {
                     <span>Home</span>
                   </Link>
                   <Link 
-                    to="/about" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  >
-                    <Heart className="h-4 w-4" />
-                    <span>About Us</span>
-                  </Link>
-                  <Link 
                     to="/discover" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -407,7 +402,7 @@ export function Header() {
                 <>
                   <Link 
                     to="/admin/dashboard" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -418,12 +413,12 @@ export function Header() {
                   </Link>
                   <Link 
                     to="/admin/organisations" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
-                    onClick={() => {
-                      setIsMenuOpen(false);
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                      onClick={() => {
+                        setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  >
+                      }}
+                    >
                     <Building2 className="h-4 w-4" />
                     <span>View Organisations</span>
                   </Link>
@@ -432,7 +427,7 @@ export function Header() {
                 <>
                 <Link 
                     to="/dashboard" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -443,7 +438,7 @@ export function Header() {
                   </Link>
                   <Link 
                     to="/discover" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -454,7 +449,7 @@ export function Header() {
                   </Link>
                   <Link 
                     to="/my-applications" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -465,7 +460,7 @@ export function Header() {
                   </Link>
                   <Link 
                     to="/profile" 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
+                    className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-2"
                     onClick={() => {
                       setIsMenuOpen(false);
                       window.scrollTo({ top: 0, behavior: "smooth" });
