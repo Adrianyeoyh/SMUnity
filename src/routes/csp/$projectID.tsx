@@ -100,12 +100,23 @@ const formatTimeCommitment = (
 
 
 function CspDetail() {
-const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user } = useAuth();
+  const isStudent = user?.accountType === "student";
 
-const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [isfavourite, setIsfavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
+
+  const { projectID } = Route.useParams();
+
+
+  const { data: csp, isLoading, isError } = useQuery({
+    queryKey: ["csp-detail", projectID],
+    queryFn: () => fetchCspById(projectID),
+  });
+
+  console.log(isLoggedIn,user?.accountType);
 
   const handleFavourite = async () => {
   try {
@@ -168,23 +179,8 @@ const [showLoginModal, setShowLoginModal] = useState(false);
     };
   }, []);
 
-  const { projectID } = Route.useParams();
+  
 
-
-  const { data: csp, isLoading, isError } = useQuery({
-    queryKey: ["csp-detail", projectID],
-    queryFn: () => fetchCspById(projectID),
-  });
-
-  console.log(isLoggedIn,user?.accountType);
-
-  if (isLoading)
-    return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
-
-  if (isError || !csp)
-    return <div className="p-12 text-center text-destructive">Failed to load project details.</div>;
-
-  const isStudent = user?.accountType === "student";
 
 const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
   queryKey: ["saved-projects"],
@@ -204,6 +200,12 @@ useEffect(() => {
   }
 }, [csp?.id, savedData]);
 
+
+if (isLoading)
+    return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
+
+  if (isError || !csp)
+    return <div className="p-12 text-center text-destructive">Failed to load project details.</div>;
 
   
 
