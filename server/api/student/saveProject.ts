@@ -1,0 +1,233 @@
+// server/api/projects/saved.ts
+// import { Hono } from "hono";
+import { db } from "#server/drizzle/db";
+import * as schema from "#server/drizzle/schema";
+import { eq, and } from "drizzle-orm";
+import { z } from "zod";
+import { ok, badReq, forbidden } from "#server/helper/index.ts";
+import { authMiddleware } from "#server/middlewares/auth.ts"; // adjust if you use different middleware
+import { createApp } from "#server/factory.ts";
+
+const savedProjectsRoute = createApp()
+
+savedProjectsRoute.post("/", async (c) => {
+    const user = c.get("user");
+    if (!user?.id) return forbidden(c, "Not authenticated");
+
+    // Validate request body
+    const body = await c.req.json();
+    const parsed = z
+      .object({
+        projectId: z.string().uuid("Invalid projectId"),
+      })
+      .safeParse(body);
+
+    if (!parsed.success) return badReq(c, "Invalid request body", parsed.error.flatten());
+
+    const { projectId } = parsed.data;
+
+    // Check if already saved
+    const existing = await db
+      .select()
+      .from(schema.savedProjects)
+      .where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, user.id)))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return badReq(c, "Project already saved");
+    }
+
+    // Insert new saved project
+    await db.insert(schema.savedProjects).values({
+      projectId,
+      userId: user.id,
+      savedAt: new Date(),
+    });
+
+    return ok(c, { message: "Project saved successfully" });
+  })
+
+  savedProjectsRoute.delete("/", async (c) => {
+    const user = c.get("user");
+    if (!user?.id) return forbidden(c, "Not authenticated");
+
+    const body = await c.req.json();
+    const parsed = z
+      .object({
+        projectId: z.string().uuid("Invalid projectId"),
+      })
+      .safeParse(body);
+
+    if (!parsed.success) return badReq(c, "Invalid request body", parsed.error.flatten());
+
+    const { projectId } = parsed.data;
+
+    // Remove saved project
+    await db
+      .delete(schema.savedProjects)
+      .where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, user.id)));
+
+    return ok(c, { message: "Project unsaved successfully" });
+  });
+  savedProjectsRoute.get("/list", async (c) => {
+  const userCtx = c.get("user");
+  if (!userCtx?.id) return forbidden(c, "Not authenticated");
+
+  const saved = await db
+    .select({
+      projectId: schema.savedProjects.projectId,
+      savedAt: schema.savedProjects.savedAt,
+
+      // ─ Project fields
+      id: schema.projects.id,
+      title: schema.projects.title,
+      description: schema.projects.description,
+      category: schema.projects.category,
+      location: schema.projects.district,
+      type: schema.projects.type,
+      startDate: schema.projects.startDate,
+      endDate: schema.projects.endDate,
+      serviceHours: schema.projects.requiredHours,
+      maxVolunteers: schema.projects.slotsTotal,
+      latitude: schema.projects.latitude,
+      longitude: schema.projects.longitude,
+      isRemote: schema.projects.isRemote,
+      applicationDeadline: schema.projects.applyBy,
+      skills: schema.projects.skillTags,
+      tags: schema.projects.projectTags,
+      timeStart: schema.projects.timeStart,
+      timeEnd: schema.projects.timeEnd,
+      daysOfWeek: schema.projects.daysOfWeek,
+
+      // ─ Org name (comes from user table)
+      organisationName: schema.user.name,
+    })
+    .from(schema.savedProjects)
+    .innerJoin(schema.projects, eq(schema.projects.id, schema.savedProjects.projectId))
+    .innerJoin(schema.organisations, eq(schema.projects.orgId, schema.organisations.userId))
+    .innerJoin(schema.user, eq(schema.organisations.userId, schema.user.id))
+    .where(eq(schema.savedProjects.userId, userCtx.id));
+
+  const now = new Date();
+
+  const formatted = saved.map((r) => {
+    let status: "open" | "closing-soon" | "closed" | "full" = "open";
+    if (r.applicationDeadline && r.applicationDeadline < now) status = "closed";
+
+    return {
+      id: r.projectId,
+      title: r.title,
+      organisation: r.organisationName ?? "—",
+      location: r.location ?? "—",
+      category: r.category ?? "Community",
+      type: r.type ?? "local",
+      startDate: r.startDate,
+      endDate: r.endDate,
+      serviceHours: r.serviceHours ?? 0,
+      maxVolunteers: r.maxVolunteers ?? 0,
+      currentVolunteers: 0,
+      latitude: r.latitude,
+      longitude: r.longitude,
+      isRemote: !!r.isRemote,
+      status,
+      applicationDeadline: r.applicationDeadline,
+      description: r.description ?? "",
+      skills: r.skills ?? [],
+      tags: r.tags ?? [],
+      timeStart: r.timeStart,
+      timeEnd: r.timeEnd,
+      daysOfWeek: r.daysOfWeek,
+      savedAt: r.savedAt,
+    };
+  });
+
+  console.log(saved);
+
+  return ok(c, { saved: formatted });
+});
+
+
+//   // ✅ Enhanced /list route — matches Discover card shape
+// savedProjectsRoute.get("/list", async (c) => {
+//   const user = c.get("user");
+//   if (!user?.id) return forbidden(c, "Not authenticated");
+
+//   // Fetch all saved projects for this student
+//   const saved = await db
+//     .select({
+//       projectId: schema.savedProjects.projectId,
+//       savedAt: schema.savedProjects.savedAt,
+
+//       // Core project fields used by Discover cards
+//       id: schema.projects.id,
+//       title: schema.projects.title,
+//       category: schema.projects.category,
+//       location: schema.projects.district,
+//       type: schema.projects.type,
+//       startDate: schema.projects.startDate,
+//       endDate: schema.projects.endDate,
+//       serviceHours: schema.projects.requiredHours,
+//       maxVolunteers: schema.projects.slotsTotal,
+//       latitude: schema.projects.latitude,
+//       longitude: schema.projects.longitude,
+//       isRemote: schema.projects.isRemote,
+//       applicationDeadline: schema.projects.applyBy,
+//       description: schema.projects.description,
+//       skills: schema.projects.skillTags,
+//       tags: schema.projects.projectTags,
+//       timeStart: schema.projects.timeStart,
+//       timeEnd: schema.projects.timeEnd,
+//       daysOfWeek: schema.projects.daysOfWeek,
+
+//       // Organisation info
+//       organisationUserId: schema.projects.orgId,
+//       organisationSlug: schema.organisations.slug,
+//       organisationPhone: schema.organisations.phone,
+//       organisationWebsite: schema.organisations.website,
+//       organisationUserName: schema.user.name,
+//     })
+//     .from(schema.savedProjects)
+//     .innerJoin(schema.projects, eq(schema.projects.id, schema.savedProjects.projectId))
+//     .leftJoin(schema.organisations, eq(schema.organisations.userId, schema.projects.orgId))
+//     .leftJoin(schema.user, eq(schema.projects.orgId, schema.user.id))
+//     .where(eq(schema.savedProjects.userId, user.id));
+
+//   // 🧠 Normalize structure — match Discover payload
+//   const now = new Date();
+//   const formatted = saved.map((r) => {
+//     let status: "open" | "closing-soon" | "closed" | "full" = "open";
+//     if (r.applicationDeadline && r.applicationDeadline < now) status = "closed";
+
+//     return {
+//       id: r.projectId,
+//       title: r.title,
+//       organisation: r.organisationUserName ?? "Unknown Organisation",
+//       location: r.location ?? "—",
+//       category: r.category ?? "Community",
+//       type: r.type ?? "local",
+//       startDate: r.startDate,
+//       endDate: r.endDate,
+//       duration: "",
+//       serviceHours: r.serviceHours ?? 0,
+//       maxVolunteers: r.maxVolunteers ?? 0,
+//       currentVolunteers: 0, // optional; compute if you want later
+//       latitude: r.latitude,
+//       longitude: r.longitude,
+//       isRemote: !!r.isRemote,
+//       status,
+//       applicationDeadline: r.applicationDeadline,
+//       description: r.description ?? "",
+//       skills: r.skills ?? [],
+//       tags: r.tags ?? [],
+//       timeStart: r.timeStart,
+//       timeEnd: r.timeEnd,
+//       daysOfWeek: r.daysOfWeek,
+//       savedAt: r.savedAt,
+//     };
+//   });
+
+//   return ok(c, { saved: formatted });
+// });
+
+
+  export default savedProjectsRoute;

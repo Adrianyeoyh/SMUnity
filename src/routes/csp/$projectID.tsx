@@ -3,7 +3,7 @@ import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Separator } from "#client/components/ui/separator";
-// import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "#client/components/ui/dialog";
+import { fetchSavedProjects, fetchSaveProject, fetchUnsaveProject } from "#client/api/student";
 
 import { Progress } from "#client/components/ui/progress";
 import { 
@@ -101,15 +101,39 @@ const formatTimeCommitment = (
 
 function CspDetail() {
 const { isLoggedIn, user } = useAuth();
+
 const [showLoginModal, setShowLoginModal] = useState(false);
   const [isfavourite, setIsfavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
 
-  const handlefavourite = () => {
-    setIsfavourite(!isfavourite);
-    toast.success(isfavourite ? "Removed from favourites" : "Added to favourites");
-  };
+  const handleFavourite = async () => {
+  try {
+    if (!isLoggedIn) {
+      toast.error("Please log in to save CSPs");
+      return;
+    }
+    if (!isStudent) {
+      toast.error("Only students can save CSPs");
+      return;
+    }
+
+    if (isFavourite) {
+      await fetchUnsaveProject(csp.id);
+      toast.success("Removed from favourites");
+    } else {
+      await fetchSaveProject(csp.id);
+      toast.success("Added to favourites");
+    }
+
+    setIsFavourite(!isFavourite);
+    refetchSaved();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update favourites");
+  }
+};
+
 
   const handleShare = async () => {
     try {
@@ -159,6 +183,27 @@ const [showLoginModal, setShowLoginModal] = useState(false);
 
   if (isError || !csp)
     return <div className="p-12 text-center text-destructive">Failed to load project details.</div>;
+
+  const isStudent = user?.accountType === "student";
+
+const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
+  queryKey: ["saved-projects"],
+  queryFn: fetchSavedProjects,
+  enabled: isLoggedIn && isStudent, // only for logged-in students
+});
+
+const savedIds = new Set(savedData?.saved?.map((s: any) => s.projectId));
+const [isFavourite, setIsFavourite] = useState(false);
+
+// Sync the initial heart state
+useEffect(() => {
+  if (csp?.id && savedIds.has(csp.id)) {
+    setIsFavourite(true);
+  } else {
+    setIsFavourite(false);
+  }
+}, [csp?.id, savedData]);
+
 
   
 
@@ -224,16 +269,23 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                 </div>
                 
                 <div className="flex gap-2 flex-shrink-0">
-                  {isLoggedIn && user?.accountType === "student" && (
+                  {isLoggedIn && isStudent && (
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
-                      onClick={handlefavourite}
-                      className={isfavourite ? "text-red-500 border-red-500" : ""}
+                      onClick={handleFavourite}
+                      className="h-8 w-8 flex-shrink-0"
                     >
-                      <Heart className={`h-4 w-4 ${isfavourite ? "fill-current" : ""}`} />
+                      <Heart
+                        className={`h-5 w-5 transition-all ${
+                          isFavourite
+                            ? "fill-red-500 text-red-500"
+                            : "text-muted-foreground hover:text-red-500"
+                        }`}
+                      />
                     </Button>
                   )}
+
                   <Button 
                     variant="outline" 
                     size="icon"
@@ -579,37 +631,6 @@ const [showLoginModal, setShowLoginModal] = useState(false);
                 </div>
               </div>
             </div>
-
-            {/* Apply Now Button
-            <Button
-              size="lg"
-              className="shadow-2xl hover:shadow-xl transition-shadow"
-              disabled={
-                (!isLoggedIn && !user) || (isLoggedIn && user?.accountType !== "student")
-              }
-              onClick={() => {
-                console.log("Floating button clicked");
-                console.log(isLoggedIn, user?.accountType);
-                if (!isLoggedIn) {
-                  setShowLoginModal(true);
-                  return;
-                }
-
-                if (user?.accountType !== "student") {
-                  toast.error("Only student accounts can apply for CSPs.");
-                  return;
-                }
-
-                window.location.href = `/csp/${csp.id}/apply`;
-              }}
-            >
-              <Send className="mr-2 h-5 w-5" />
-              {!isLoggedIn
-                ? "Log in to Apply"
-                : user?.accountType !== "student"
-                ? "Only Students Can Apply"
-                : "Apply Now"}
-            </Button> */}
 
           </div>
         )}

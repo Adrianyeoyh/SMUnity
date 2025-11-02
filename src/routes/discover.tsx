@@ -28,10 +28,11 @@ type LatLngLiteral = google.maps.LatLngLiteral;
 type GoogleMapInstance = google.maps.Map;
 import { useQuery } from "@tanstack/react-query";
 import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
-
-
 import { toast } from "sonner";
 import { DISTRICT_REGION_MAP, CATEGORY_OPTIONS } from "../helper";
+import { fetchSavedProjects, fetchSaveProject, fetchUnsaveProject } from "../api/student";
+// import { useMe } from "#client/api/hooks.ts";
+import { useAuth } from "#client/hooks/use-auth.ts";
 
 
 export const Route = createFileRoute("/discover")({
@@ -170,11 +171,53 @@ function formatScheduleFromFields(csp: CspLocation): string {
 }
 
 
+
 function DiscoverCSPs() {
   const { data: cspLocations = [], isLoading, isError } = useQuery({
   queryKey: ["discover-projects"],
   queryFn: fetchDiscoverProjects,
 });
+
+const { user, isLoggedIn } = useAuth();
+const isStudent = user?.accountType === "student";
+
+
+const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
+  queryKey: ["saved-projects"],
+  queryFn: fetchSavedProjects,
+  enabled: isLoggedIn && isStudent, // only fetch for logged-in students
+});
+
+
+const savedIds = useMemo(() => new Set(savedData?.saved?.map((s: any) => s.projectId)), [savedData]);
+
+const handleToggleSave = async (projectId: string) => {
+  try {
+    if (!isLoggedIn) {
+      toast.error("Please log in to save CSPs");
+      return;
+    }
+
+    if (!isStudent) {
+      toast.error("Only students can save CSPs");
+      return;
+    }
+
+    if (savedIds.has(projectId)) {
+      await fetchUnsaveProject(projectId);
+      toast.success("Removed from favourites");
+    } else {
+      await fetchSaveProject(projectId);
+      toast.success("Added to favourites");
+    }
+    refetchSaved(); // refresh favourites
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update favourites");
+  }
+};
+
+
   const navigate = useNavigate({ from: "/discover" });
   const searchParams = useSearch({ from: "/discover" });
   
@@ -652,9 +695,25 @@ if (isError)
                             {statusBadge.label}
                           </Badge>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-                          <Heart className="h-4 w-4" />
-                        </Button>
+                        {isLoggedIn && isStudent && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 flex-shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleSave(csp.id);
+                            }}
+                          >
+                            <Heart
+                              className={`h-4 w-4 transition-all ${
+                                savedIds.has(csp.id)
+                                  ? "fill-red-500 text-red-500"
+                                  : "text-muted-foreground hover:text-red-500"
+                              }`}
+                            />
+                          </Button>
+                        )}
                       </div>
                       <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
                         {csp.title}
@@ -756,9 +815,25 @@ if (isError)
                                 {csp.organisation}
                               </p>
                             </div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Heart className="h-4 w-4" />
-                            </Button>
+                            {isLoggedIn && isStudent && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSave(csp.id);
+                                }}
+                              >
+                                <Heart
+                                  className={`h-4 w-4 transition-all ${
+                                    savedIds.has(csp.id)
+                                      ? "fill-red-500 text-red-500"
+                                      : "text-muted-foreground hover:text-red-500"
+                                  }`}
+                                />
+                              </Button>
+                            )}
                           </div>
 
                           <p className="text-sm text-muted-foreground font-body line-clamp-2">
