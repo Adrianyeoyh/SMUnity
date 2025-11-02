@@ -117,13 +117,6 @@ function ListingApplicationsPage() {
     [applications, statusFilter]
   );
 
-  const fillPercentage = useMemo(() => {
-    if (!project) return 0;
-    return Math.round(
-      (Math.min(project.volunteerCount ?? 0, project.slotsTotal ?? 0) / (project.slotsTotal || 1)) *
-        100
-    );
-  }, [project]);
 
   // ✅ Render conditionally *after* all hooks
   if (isLoading)
@@ -429,7 +422,7 @@ function ListingApplicationsPage() {
                                   <>
                                     <Button
                                       size="sm"
-                                      variant="success"
+                                      variant="default"
                                       className="bg-emerald-600 text-white hover:bg-emerald-700"
                                       onClick={() => {
                                         setSelectedApp(app);
@@ -487,7 +480,8 @@ function ListingApplicationsPage() {
               Cancel
             </Button>
             <Button
-              variant={decisionType === "accept" ? "success" : "destructive"}
+              variant={decisionType === "accept" ? "default" : "destructive"}
+              className={decisionType === "accept" ? "bg-emerald-600 text-white hover:bg-emerald-700" : ""}
               onClick={() => handleDecision(selectedApp.id, decisionType!)}
             >
               {decisionType === "accept" ? "Accept" : "Reject"}

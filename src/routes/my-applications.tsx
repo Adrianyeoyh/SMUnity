@@ -20,7 +20,6 @@ import {
   Clock,
   MapPin,
   CheckCircle,
-  XCircle,
   Eye,
   FileText,
   AlertTriangle,
@@ -65,7 +64,7 @@ function MyApplications() {
     mutationFn: (id: number) => confirmApplication(id),
     onSuccess: () => {
       toast.success("✅ Application confirmed!");
-      queryClient.invalidateQueries(["student-applications"]);
+      queryClient.invalidateQueries({ queryKey: ["student-applications"] });
     },
     onError: (err: any) => toast.error(err.message || "Failed to confirm application"),
   });
@@ -74,7 +73,7 @@ function MyApplications() {
     mutationFn: (id: number) => withdrawApplication(id),
     onSuccess: () => {
       toast.success("🛑 Application withdrawn.");
-      queryClient.invalidateQueries(["student-applications"]);
+      queryClient.invalidateQueries({ queryKey: ["student-applications"] });
     },
     onError: (err: any) => toast.error(err.message || "Failed to withdraw application"),
   });
@@ -245,7 +244,7 @@ function MyApplications() {
             <Button
               variant={selectedAction === "withdraw" ? "destructive" : "default"}
               onClick={handleConfirmAction}
-              disabled={confirmMutation.isLoading || withdrawMutation.isLoading}
+              disabled={confirmMutation.isPending || withdrawMutation.isPending}
             >
               {selectedAction === "withdraw" ? "Withdraw" : "Confirm"}
             </Button>
@@ -280,7 +279,7 @@ function MyApplications() {
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <Link to="/csp/$projectId" params={{ projectId: app.projectId }}>
+                          <Link to="/csp/$projectID" params={{ projectID: app.projectId }}>
                             <h3 className="font-heading text-xl font-semibold text-primary hover:underline cursor-pointer">
                               {app.projectTitle}
                             </h3>
@@ -366,8 +365,22 @@ function MyApplications() {
                   </Card>
                 ))
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground font-body">No {tab.label.toLowerCase()} applications.</p>
+                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 py-12 text-center">
+                  <FileText className="h-10 w-10 text-muted-foreground" />
+                  <div>
+                    <h3 className="font-heading text-lg text-foreground">
+                      {tab.value === "all" 
+                        ? "No applications yet" 
+                        : `No ${tab.label.toLowerCase()} applications`}
+                    </h3>
+                    <p className="text-sm text-muted-foreground font-body">
+                      {tab.value === "all"
+                        ? "Start exploring CSPs and submit your first application to see it here"
+                        : tab.value === "pending"
+                        ? "Check other tabs or browse available CSPs"
+                        : `Check other tabs to see your application history`}
+                    </p>
+                  </div>
                 </div>
               )}
             </TabsContent>

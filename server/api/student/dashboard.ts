@@ -27,7 +27,6 @@ dashboard.get("/ongoing-projects", async (c) => {
       .where(
         and(
           eq(schema.projMemberships.userId, user.id),
-          eq(schema.projMemberships.completed, false),
           lt(schema.projects.startDate, sql`NOW()`),  // project started
           gt(schema.projects.endDate, sql`NOW()`)     // project not yet ended
         )

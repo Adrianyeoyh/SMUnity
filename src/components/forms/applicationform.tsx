@@ -141,13 +141,13 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
               <FormLabel>Why do you want to join?</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Share your motivation, what you hope to learn, and how you plan to contribute."
+                  placeholder="Share your motivation, what you hope to learn, and how you plan to contribute"
                   className="min-h-28"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Tip: specific reasons + impact you want to make help reviewers.
+                Tip: specific reasons + impact you want to make help reviewers
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -184,7 +184,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
                 </RadioGroup>
               </FormControl>
               <FormDescription>
-                This helps leaders plan onboarding and task complexity.
+                This helps leaders plan onboarding and task complexity
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -200,12 +200,12 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
               <FormLabel>Relevant skills or interests (optional)</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., design, social media, tutoring, fundraising"
+                  placeholder="e.g., Design, Social Media, Tutoring, Fundraising"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Short comma-separated list is fine.
+                Short comma-separated list is fine
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -265,10 +265,10 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           name="comments"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Additional Comments (optional)</FormLabel>
+              <FormLabel>Additional comments (optional)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Any other remarks or special requests you’d like to share with the organisers."
+                  placeholder="Any other remarks or special requests you’d like to share with the organisers"
                   className="min-h-20"
                   {...field}
                 />
@@ -281,15 +281,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
         {serverError && <p className="text-sm text-destructive">{serverError}</p>}
         {serverSuccess && <p className="text-sm text-emerald-600">{serverSuccess}</p>}
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="submit"
-            disabled={submitting}
-          >
-            {submitting ? "Submitting..." : "Submit application"}
-          </Button>
-
-
+        <div className="flex items-center justify-end gap-2">
           <Button
             type="button"
             variant="ghost"
@@ -297,6 +289,12 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
             disabled={submitting}
           >
             Reset
+          </Button>
+          <Button
+            type="submit"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit application"}
           </Button>
         </div>
       </form>
