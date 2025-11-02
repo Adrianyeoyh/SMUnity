@@ -10,6 +10,7 @@ function RootComponent() {
   const routerState = useRouterState();
   const navigate = useNavigate();
   const { isLoggedIn, user } = useAuth(); // ⬅️ ensure your hook exposes `user`
+  
 
   // Scroll reset on route change
   useEffect(() => {
@@ -20,15 +21,65 @@ function RootComponent() {
   useEffect(() => {
     if (!isLoggedIn || routerState.location.pathname !== "/") return;
 
-    if (user?.role === "admin") {
-      navigate({ to: "/admin/dashboard" });
-    } else if (user?.role === "organisation") {
-      navigate({ to: "/organisation/dashboard" });
+    // Redirect logged-in users from "/" to their role dashboard
+    if (user?.accountType === "admin") {
+      navigate({ to: "/admin/dashboard", replace: true });
+    } else if (user?.accountType === "organisation") {
+      navigate({ to: "/organisations/dashboard", replace: true });
     } else {
-      // default: student
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/dashboard", replace: true });
     }
-  }, [isLoggedIn, user?.role, routerState.location.pathname, navigate]);
+  }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
+
+
+  // role-based route protection for user pages
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const path = routerState.location.pathname;
+    const role = user?.accountType;
+
+    // --- Student routes (user-only)
+    const studentRoutes = [
+      "/dashboard",
+      "/favourites",
+      "/my-applications",
+      "/profile",
+      "/profileedit",
+    ];
+
+    // check if current path starts with any of those
+    const isStudentRoute = studentRoutes.some((route) =>
+      path.startsWith(route)
+    );
+
+    if (isStudentRoute) {
+      // ADMIN trying to access student pages
+      if (role === "admin") {
+        navigate({ to: "/admin/dashboard", replace: true });
+        return;
+      }
+
+      // ORGANISATION trying to access student pages
+      if (role === "organisation") {
+        // Handle /profile + /profileedit separately
+        if (path.startsWith("/profileedit")) {
+          navigate({ to: "/organisations/editprofile", replace: true });
+          return;
+        }
+        if (path.startsWith("/profile")) {
+          navigate({ to: "/organisations/profile", replace: true });
+          return;
+        }
+
+        // Everything else (dashboard, favourites, my-applications)
+        navigate({ to: "/organisations/dashboard", replace: true });
+        return;
+      }
+    }
+  }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
+
+
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -8,8 +8,9 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as Organisations_rootRouteImport } from './routes/organisations/__root'
 import { Route as Admin_rootRouteImport } from './routes/admin/__root'
 import { Route as ProfileeditRouteImport } from './routes/profileedit'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -25,6 +26,7 @@ import { Route as OrganisationsPreviewNewRouteImport } from './routes/organisati
 import { Route as OrganisationsNewRouteImport } from './routes/organisations/new'
 import { Route as OrganisationsEditprofileRouteImport } from './routes/organisations/editprofile'
 import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
+import { Route as Organisations_layoutRouteImport } from './routes/organisations/__layout'
 import { Route as OrganisationsProjectIdRouteImport } from './routes/organisations/$projectId'
 import { Route as CspProjectIDRouteImport } from './routes/csp/$projectID'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
@@ -40,12 +42,15 @@ import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 import { Route as OrganisationsApplicantProjectIdApplicantIdRouteImport } from './routes/organisations/applicant/$projectId/$applicantId'
 
-const Organisations_rootRoute = Organisations_rootRouteImport.update({
-  id: '/organisations/__root',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const OrganisationsRouteImport = createFileRoute('/organisations')()
+
 const Admin_rootRoute = Admin_rootRouteImport.update({
   id: '/admin/__root',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganisationsRoute = OrganisationsRouteImport.update({
+  id: '/organisations',
+  path: '/organisations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileeditRoute = ProfileeditRouteImport.update({
@@ -94,30 +99,34 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganisationsProfileRoute = OrganisationsProfileRouteImport.update({
-  id: '/organisations/profile',
-  path: '/organisations/profile',
-  getParentRoute: () => rootRouteImport,
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => OrganisationsRoute,
 } as any)
 const OrganisationsPreviewNewRoute = OrganisationsPreviewNewRouteImport.update({
-  id: '/organisations/preview-new',
-  path: '/organisations/preview-new',
-  getParentRoute: () => rootRouteImport,
+  id: '/preview-new',
+  path: '/preview-new',
+  getParentRoute: () => OrganisationsRoute,
 } as any)
 const OrganisationsNewRoute = OrganisationsNewRouteImport.update({
-  id: '/organisations/new',
-  path: '/organisations/new',
-  getParentRoute: () => rootRouteImport,
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => OrganisationsRoute,
 } as any)
 const OrganisationsEditprofileRoute =
   OrganisationsEditprofileRouteImport.update({
-    id: '/organisations/editprofile',
-    path: '/organisations/editprofile',
-    getParentRoute: () => rootRouteImport,
+    id: '/editprofile',
+    path: '/editprofile',
+    getParentRoute: () => OrganisationsRoute,
   } as any)
 const OrganisationsDashboardRoute = OrganisationsDashboardRouteImport.update({
-  id: '/organisations/dashboard',
-  path: '/organisations/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => OrganisationsRoute,
+} as any)
+const Organisations_layoutRoute = Organisations_layoutRouteImport.update({
+  id: '/__layout',
+  getParentRoute: () => OrganisationsRoute,
 } as any)
 const OrganisationsProjectIdRoute = OrganisationsProjectIdRouteImport.update({
   id: '/organisations/$projectId',
@@ -186,9 +195,9 @@ const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
 } as any)
 const OrganisationsApplicantProjectIdApplicantIdRoute =
   OrganisationsApplicantProjectIdApplicantIdRouteImport.update({
-    id: '/organisations/applicant/$projectId/$applicantId',
-    path: '/organisations/applicant/$projectId/$applicantId',
-    getParentRoute: () => rootRouteImport,
+    id: '/applicant/$projectId/$applicantId',
+    path: '/applicant/$projectId/$applicantId',
+    getParentRoute: () => OrganisationsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -214,7 +223,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
-  '/organisations': typeof Organisations_rootRoute
+  '/organisations': typeof Organisations_layoutRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
@@ -246,7 +255,7 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
-  '/organisations': typeof Organisations_rootRoute
+  '/organisations': typeof Organisations_layoutRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
@@ -279,7 +288,8 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/csp/$projectID': typeof CspProjectIDRoute
   '/organisations/$projectId': typeof OrganisationsProjectIdRoute
-  '/organisations/__root': typeof Organisations_rootRoute
+  '/organisations': typeof OrganisationsRouteWithChildren
+  '/organisations/__layout': typeof Organisations_layoutRoute
   '/organisations/dashboard': typeof OrganisationsDashboardRoute
   '/organisations/editprofile': typeof OrganisationsEditprofileRoute
   '/organisations/new': typeof OrganisationsNewRoute
@@ -377,7 +387,8 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/csp/$projectID'
     | '/organisations/$projectId'
-    | '/organisations/__root'
+    | '/organisations'
+    | '/organisations/__layout'
     | '/organisations/dashboard'
     | '/organisations/editprofile'
     | '/organisations/new'
@@ -410,30 +421,24 @@ export interface RootRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   CspProjectIDRoute: typeof CspProjectIDRoute
   OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
-  Organisations_rootRoute: typeof Organisations_rootRoute
-  OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
-  OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
-  OrganisationsNewRoute: typeof OrganisationsNewRoute
-  OrganisationsPreviewNewRoute: typeof OrganisationsPreviewNewRoute
-  OrganisationsProfileRoute: typeof OrganisationsProfileRoute
+  OrganisationsRoute: typeof OrganisationsRouteWithChildren
   CspCspIdApplyRoute: typeof CspCspIdApplyRoute
-  OrganisationsApplicantProjectIdApplicantIdRoute: typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/organisations/__root': {
-      id: '/organisations/__root'
-      path: '/organisations'
-      fullPath: '/organisations'
-      preLoaderRoute: typeof Organisations_rootRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/__root': {
       id: '/admin/__root'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof Admin_rootRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organisations': {
+      id: '/organisations'
+      path: '/organisations'
+      fullPath: '/organisations'
+      preLoaderRoute: typeof OrganisationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profileedit': {
@@ -501,38 +506,45 @@ declare module '@tanstack/react-router' {
     }
     '/organisations/profile': {
       id: '/organisations/profile'
-      path: '/organisations/profile'
+      path: '/profile'
       fullPath: '/organisations/profile'
       preLoaderRoute: typeof OrganisationsProfileRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof OrganisationsRoute
     }
     '/organisations/preview-new': {
       id: '/organisations/preview-new'
-      path: '/organisations/preview-new'
+      path: '/preview-new'
       fullPath: '/organisations/preview-new'
       preLoaderRoute: typeof OrganisationsPreviewNewRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof OrganisationsRoute
     }
     '/organisations/new': {
       id: '/organisations/new'
-      path: '/organisations/new'
+      path: '/new'
       fullPath: '/organisations/new'
       preLoaderRoute: typeof OrganisationsNewRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof OrganisationsRoute
     }
     '/organisations/editprofile': {
       id: '/organisations/editprofile'
-      path: '/organisations/editprofile'
+      path: '/editprofile'
       fullPath: '/organisations/editprofile'
       preLoaderRoute: typeof OrganisationsEditprofileRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof OrganisationsRoute
     }
     '/organisations/dashboard': {
       id: '/organisations/dashboard'
-      path: '/organisations/dashboard'
+      path: '/dashboard'
       fullPath: '/organisations/dashboard'
       preLoaderRoute: typeof OrganisationsDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/organisations/__layout': {
+      id: '/organisations/__layout'
+      path: '/organisations'
+      fullPath: '/organisations'
+      preLoaderRoute: typeof Organisations_layoutRouteImport
+      parentRoute: typeof OrganisationsRoute
     }
     '/organisations/$projectId': {
       id: '/organisations/$projectId'
@@ -627,13 +639,38 @@ declare module '@tanstack/react-router' {
     }
     '/organisations/applicant/$projectId/$applicantId': {
       id: '/organisations/applicant/$projectId/$applicantId'
-      path: '/organisations/applicant/$projectId/$applicantId'
+      path: '/applicant/$projectId/$applicantId'
       fullPath: '/organisations/applicant/$projectId/$applicantId'
       preLoaderRoute: typeof OrganisationsApplicantProjectIdApplicantIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof OrganisationsRoute
     }
   }
 }
+
+interface OrganisationsRouteChildren {
+  Organisations_layoutRoute: typeof Organisations_layoutRoute
+  OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
+  OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
+  OrganisationsNewRoute: typeof OrganisationsNewRoute
+  OrganisationsPreviewNewRoute: typeof OrganisationsPreviewNewRoute
+  OrganisationsProfileRoute: typeof OrganisationsProfileRoute
+  OrganisationsApplicantProjectIdApplicantIdRoute: typeof OrganisationsApplicantProjectIdApplicantIdRoute
+}
+
+const OrganisationsRouteChildren: OrganisationsRouteChildren = {
+  Organisations_layoutRoute: Organisations_layoutRoute,
+  OrganisationsDashboardRoute: OrganisationsDashboardRoute,
+  OrganisationsEditprofileRoute: OrganisationsEditprofileRoute,
+  OrganisationsNewRoute: OrganisationsNewRoute,
+  OrganisationsPreviewNewRoute: OrganisationsPreviewNewRoute,
+  OrganisationsProfileRoute: OrganisationsProfileRoute,
+  OrganisationsApplicantProjectIdApplicantIdRoute:
+    OrganisationsApplicantProjectIdApplicantIdRoute,
+}
+
+const OrganisationsRouteWithChildren = OrganisationsRoute._addFileChildren(
+  OrganisationsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -658,15 +695,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   CspProjectIDRoute: CspProjectIDRoute,
   OrganisationsProjectIdRoute: OrganisationsProjectIdRoute,
-  Organisations_rootRoute: Organisations_rootRoute,
-  OrganisationsDashboardRoute: OrganisationsDashboardRoute,
-  OrganisationsEditprofileRoute: OrganisationsEditprofileRoute,
-  OrganisationsNewRoute: OrganisationsNewRoute,
-  OrganisationsPreviewNewRoute: OrganisationsPreviewNewRoute,
-  OrganisationsProfileRoute: OrganisationsProfileRoute,
+  OrganisationsRoute: OrganisationsRouteWithChildren,
   CspCspIdApplyRoute: CspCspIdApplyRoute,
-  OrganisationsApplicantProjectIdApplicantIdRoute:
-    OrganisationsApplicantProjectIdApplicantIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
