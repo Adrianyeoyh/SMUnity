@@ -403,15 +403,6 @@ useEffect(() => {
                   </div>
                 )}
 
-                {/* Requirements */}
-                {csp.requirements && (
-                  <div>
-                    <h3 className="font-heading text-lg mb-2">Requirements</h3>
-                    <p className="text-sm font-body text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {csp.requirements}
-                    </p>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
