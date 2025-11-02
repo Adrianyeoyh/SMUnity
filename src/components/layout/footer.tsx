@@ -1,14 +1,36 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { HeartHandshake, Heart, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
-
+  const location = useLocation();
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
+
+  const handleAboutClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      // If already on landing page, scroll to section
+      const element = document.getElementById("about");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } else {
+      // If on different page, navigate to landing page first
+      navigate({ to: "/", hash: "#about" });
+      // Scroll after navigation
+      setTimeout(() => {
+        const element = document.getElementById("about");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  };
 
   return (
     <footer className="bg-muted/50 border-t">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-16">
           {/* Brand Section */}
           <div className="space-y-4 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start space-x-3">
@@ -31,7 +53,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="hidden md:block space-y-4 text-center md:text-left">
+          <div className="hidden md:block space-y-4 text-center md:text-left md:ml-8 lg:ml-12">
             <h3 className="font-heading font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -44,13 +66,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/about" 
+                <a 
+                  href="/#about" 
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  onClick={handleAboutClick}
                 >
-                  About Us
-                </Link>
+                  About
+                </a>
               </li>
               <li>
                 <Link 
@@ -74,7 +96,7 @@ export function Footer() {
           </div>
 
           {/* For Organisations */}
-          <div className="hidden md:block space-y-4 text-center md:text-left">
+          <div className="hidden md:block space-y-4 text-center md:text-left md:ml-8 lg:ml-12">
             <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>
@@ -108,7 +130,7 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4 text-center md:text-left">
+          <div className="space-y-4 text-center md:text-left md:ml-8 lg:ml-12">
             <h3 className="font-heading font-semibold text-foreground">Contact Us</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
