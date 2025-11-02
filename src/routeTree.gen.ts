@@ -35,8 +35,6 @@ import { Route as AdminOrganisationsRouteImport } from './routes/admin/organisat
 import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
-import { Route as OrganisationsPreviewProjectPreviewRouteImport } from './routes/organisations/preview/$projectPreview'
-import { Route as OrganisationsListingNewRouteImport } from './routes/organisations/listing/new'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
 import { Route as OrganisationsApplicantProjectIdApplicantIdRouteImport } from './routes/organisations/applicant/$projectId/$applicantId'
 
@@ -171,17 +169,6 @@ const AdminCspIdRoute = AdminCspIdRouteImport.update({
   path: '/admin/cspId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganisationsPreviewProjectPreviewRoute =
-  OrganisationsPreviewProjectPreviewRouteImport.update({
-    id: '/organisations/preview/$projectPreview',
-    path: '/organisations/preview/$projectPreview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const OrganisationsListingNewRoute = OrganisationsListingNewRouteImport.update({
-  id: '/organisations/listing/new',
-  path: '/organisations/listing/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
   id: '/csp/$cspId/apply',
   path: '/csp/$cspId/apply',
@@ -222,8 +209,6 @@ export interface FileRoutesByFullPath {
   '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/organisations/listing/new': typeof OrganisationsListingNewRoute
-  '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
   '/organisations/applicant/$projectId/$applicantId': typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 export interface FileRoutesByTo {
@@ -254,8 +239,6 @@ export interface FileRoutesByTo {
   '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/organisations/listing/new': typeof OrganisationsListingNewRoute
-  '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
   '/organisations/applicant/$projectId/$applicantId': typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 export interface FileRoutesById {
@@ -287,8 +270,6 @@ export interface FileRoutesById {
   '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
   '/organisations/profile': typeof OrganisationsProfileRoute
   '/csp/$cspId/apply': typeof CspCspIdApplyRoute
-  '/organisations/listing/new': typeof OrganisationsListingNewRoute
-  '/organisations/preview/$projectPreview': typeof OrganisationsPreviewProjectPreviewRoute
   '/organisations/applicant/$projectId/$applicantId': typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 export interface FileRouteTypes {
@@ -321,8 +302,6 @@ export interface FileRouteTypes {
     | '/organisations/preview-new'
     | '/organisations/profile'
     | '/csp/$cspId/apply'
-    | '/organisations/listing/new'
-    | '/organisations/preview/$projectPreview'
     | '/organisations/applicant/$projectId/$applicantId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -353,8 +332,6 @@ export interface FileRouteTypes {
     | '/organisations/preview-new'
     | '/organisations/profile'
     | '/csp/$cspId/apply'
-    | '/organisations/listing/new'
-    | '/organisations/preview/$projectPreview'
     | '/organisations/applicant/$projectId/$applicantId'
   id:
     | '__root__'
@@ -385,8 +362,6 @@ export interface FileRouteTypes {
     | '/organisations/preview-new'
     | '/organisations/profile'
     | '/csp/$cspId/apply'
-    | '/organisations/listing/new'
-    | '/organisations/preview/$projectPreview'
     | '/organisations/applicant/$projectId/$applicantId'
   fileRoutesById: FileRoutesById
 }
@@ -418,8 +393,6 @@ export interface RootRouteChildren {
   OrganisationsPreviewNewRoute: typeof OrganisationsPreviewNewRoute
   OrganisationsProfileRoute: typeof OrganisationsProfileRoute
   CspCspIdApplyRoute: typeof CspCspIdApplyRoute
-  OrganisationsListingNewRoute: typeof OrganisationsListingNewRoute
-  OrganisationsPreviewProjectPreviewRoute: typeof OrganisationsPreviewProjectPreviewRoute
   OrganisationsApplicantProjectIdApplicantIdRoute: typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 
@@ -607,20 +580,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCspIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organisations/preview/$projectPreview': {
-      id: '/organisations/preview/$projectPreview'
-      path: '/organisations/preview/$projectPreview'
-      fullPath: '/organisations/preview/$projectPreview'
-      preLoaderRoute: typeof OrganisationsPreviewProjectPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/organisations/listing/new': {
-      id: '/organisations/listing/new'
-      path: '/organisations/listing/new'
-      fullPath: '/organisations/listing/new'
-      preLoaderRoute: typeof OrganisationsListingNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/csp/$cspId/apply': {
       id: '/csp/$cspId/apply'
       path: '/csp/$cspId/apply'
@@ -666,9 +625,6 @@ const rootRouteChildren: RootRouteChildren = {
   OrganisationsPreviewNewRoute: OrganisationsPreviewNewRoute,
   OrganisationsProfileRoute: OrganisationsProfileRoute,
   CspCspIdApplyRoute: CspCspIdApplyRoute,
-  OrganisationsListingNewRoute: OrganisationsListingNewRoute,
-  OrganisationsPreviewProjectPreviewRoute:
-    OrganisationsPreviewProjectPreviewRoute,
   OrganisationsApplicantProjectIdApplicantIdRoute:
     OrganisationsApplicantProjectIdApplicantIdRoute,
 }

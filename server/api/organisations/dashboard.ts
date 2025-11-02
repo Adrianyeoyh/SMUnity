@@ -70,6 +70,7 @@ dashboard.get("/listings", async (c) => {
       title: schema.projects.title,
       summary: schema.projects.summary,
       district: schema.projects.district,
+      country: schema.projects.country,
       googleMaps: schema.projects.googleMaps,
       startDate: schema.projects.startDate,
       endDate: schema.projects.endDate,

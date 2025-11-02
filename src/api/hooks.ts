@@ -1,6 +1,9 @@
 // #client/api/hooks.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "./client";
+import type { OrganisationProfileData, OrganisationFormData } from "./types";
+
+
 import type {
   MeRes,
   UpdateProfilePayload,
@@ -15,6 +18,11 @@ import type {
 
 // -------- users --------
 export function useMe() {
+  console.log(useQuery({
+    queryKey: ["me"],
+    queryFn: () => apiGet<MeRes>("/api/users/me"),
+  }).data)
+  console.log("hit")
   return useQuery({
     queryKey: ["me"],
     queryFn: () => apiGet<MeRes>("/api/users/me"),
@@ -144,3 +152,37 @@ export function useUpcomingSessions() {
     queryFn: () => apiGet<UpcomingRow[]>(`/api/projects/sessions/upcoming`),
   });
 }
+
+import { fetchCompletedProjectsProfile } from "./student";
+import type { CompletedCspRow } from "./types";
+
+export function useCompletedCSPs() {
+  return useQuery<CompletedCspRow[]>({
+    queryKey: ["completedCSPs"],
+    queryFn: fetchCompletedProjectsProfile,
+  });
+}
+
+// -------- organisations --------
+
+// Fetch organisation data (profile)
+export function useOrganisation() {
+  return useQuery({
+    queryKey: ["organisation"],
+    queryFn: () => apiGet<OrganisationProfileData>("/api/organisations/profile"),
+  });
+}
+
+// Update organisation profile (e.g. name, contact, description)
+export function useUpdateOrganisation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: OrganisationFormData) =>
+      apiPatch<OrganisationProfileData>("/api/organisations/profile", payload),
+    onSuccess: (data) => {
+      // Update cache so Profile page instantly reflects changes
+      qc.setQueryData(["organisation"], data);
+      qc.invalidateQueries({ queryKey: ["organisationSettings"] });
+    },
+  });
+} 

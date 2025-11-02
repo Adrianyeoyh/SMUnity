@@ -5,43 +5,32 @@ import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Award, Calendar, Clock, Edit, GraduationCap, IdCard, Mail, Phone } from "lucide-react";
+import { useCompletedCSPs } from "#client/api/hooks";
+
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const FALLBACK_PROFILE = {
-  name: "John Doe",
-  email: "john.doe@smu.edu.sg",
-  studentId: "12345678",
-  phone: "+65 9123 4567",
-  school: "Lee Kong Chian School of Business",
-  entryYear: 2022,
-  skills: ["Leadership", "Communication", "Project Management", "Teaching"],
-  interests: ["Education", "Environment", "Community Service"],
-  totalServiceHours: 120,
-  requiredServiceHours: 200,
-  image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
-  joinDate: "2022-08-15",
-};
 
 function Profile() {
   const { data, isError } = useMe();
+  const { data: completedCSPs = [], isLoading: loadingCompleted } = useCompletedCSPs();
   const profileData = data?.profile ?? null;
 
   const currentYear = new Date().getFullYear();
-  const entryYear = profileData?.entryYear ?? FALLBACK_PROFILE.entryYear;
+  const entryYear = profileData?.entryYear ?? null;
   const yearOfStudy = entryYear ? Math.max(1, currentYear - entryYear + 1) : 1;
 
-  const displayName = data?.name ?? FALLBACK_PROFILE.name;
-  const displayEmail = data?.email ?? FALLBACK_PROFILE.email;
-  const displayStudentId = profileData?.studentId ?? (data ? "Not provided" : FALLBACK_PROFILE.studentId);
-  const displayPhone = profileData?.phone ?? (data ? "" : FALLBACK_PROFILE.phone);
-  const displaySchool = profileData?.school ?? (data ? "" : FALLBACK_PROFILE.school);
+  const displayName = data?.name ?? null;
+  const displayEmail = data?.email ?? null;
+  const displayStudentId = profileData?.studentId ?? (data ? "Not provided" : null);
+  const displayPhone = profileData?.phone ?? (data ? "" : null);
+  const displaySchool = profileData?.school ?? (data ? "" : null);
   const displaySkills =
-    profileData?.skills && profileData.skills.length ? profileData.skills : data ? [] : FALLBACK_PROFILE.skills;
+    profileData?.skills && profileData.skills.length ? profileData.skills : data ? [] : null;
   const displayInterests =
-    profileData?.interests && profileData.interests.length ? profileData.interests : data ? [] : FALLBACK_PROFILE.interests;
+    profileData?.interests && profileData.interests.length ? profileData.interests : data ? [] : null;
   const [customAvatar, setCustomAvatar] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,29 +45,11 @@ function Profile() {
     };
   }, []);
 
-  const avatarImage = customAvatar ?? data?.image ?? FALLBACK_PROFILE.image;
+  const avatarImage = customAvatar ?? data?.image ?? null;
 
-  const joinDate = FALLBACK_PROFILE.joinDate;
+  const joinDate = null;
   const formattedJoinDate = joinDate ? new Date(joinDate).toLocaleDateString("en-GB") : "Not available";
 
-  const completedCSPs = [
-    {
-      id: "1",
-      title: "Community Garden Project",
-      organisation: "Green Thumbs",
-      completedDate: "2023-12-15",
-      serviceHours: 20,
-      rating: 5,
-    },
-    {
-      id: "2",
-      title: "Food Bank Volunteer",
-      organisation: "Food for All",
-      completedDate: "2023-11-30",
-      serviceHours: 15,
-      rating: 4,
-    },
-  ];
 
   const aboutItems = [
     {
@@ -241,7 +212,7 @@ function Profile() {
               <CardContent className="space-y-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Skills</p>
-                  {displaySkills.length ? (
+                  {displaySkills?.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {displaySkills.map((skill) => (
                         <Badge key={skill} variant="secondary" className="text-xs bg-green-100 text-green-800 hover:bg-green-200">
@@ -254,13 +225,18 @@ function Profile() {
                       Add skills to highlight what you bring to each CSP.
                     </p>
                   )}
+
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Interests</p>
-                  {displayInterests.length ? (
+                  {displayInterests?.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {displayInterests.map((interest) => (
-                        <Badge key={interest} variant="outline" className="text-xs bg-blue-100 text-blue-800 hover:bg-blue-200">
+                        <Badge
+                          key={interest}
+                          variant="outline"
+                          className="text-xs bg-blue-100 text-blue-800 hover:bg-blue-200"
+                        >
                           {interest}
                         </Badge>
                       ))}
@@ -271,55 +247,61 @@ function Profile() {
                     </p>
                   )}
                 </div>
+
               </CardContent>
             </Card>
 
             <Card className="shadow-sm">
-              <CardHeader className="space-y-1">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-xl font-semibold">Completed CSPs</CardTitle>
-                    <CardDescription>Your recent service contributions</CardDescription>
+          <CardHeader className="space-y-1">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <CardTitle className="text-xl font-semibold">Completed CSPs</CardTitle>
+                <CardDescription>Your recent service contributions</CardDescription>
+              </div>
+              <Button variant="ghost" size="sm">
+                View all
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {loadingCompleted && (
+              <div className="text-center text-muted-foreground py-6">
+                Loading completed projects…
+              </div>
+            )}
+
+            {!loadingCompleted && completedCSPs.length > 0 && completedCSPs.map((csp) => (
+              <Card
+                key={csp.id}
+                className="border border-border/60 shadow-none transition hover:border-border"
+              >
+                <CardContent className="pt-4">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline gap-2">
+                    <div>
+                      <h4 className="font-heading text-base font-semibold text-foreground">{csp.title}</h4>
+                      <p className="text-sm text-muted-foreground font-body">{csp.organisation}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Award className="h-4 w-4 text-yellow-500" />
+                      <span className="font-medium">{csp.serviceHours}h</span>
+                    </div>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    View all
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {completedCSPs.map((csp) => (
-                  <Card key={csp.id} className="border border-border/60 shadow-none transition hover:border-border">
-                    <CardContent className="pt-4">
-                      <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
-                        <div>
-                          <h4 className="font-heading text-base font-semibold text-foreground">{csp.title}</h4>
-                          <p className="text-sm text-muted-foreground font-body">{csp.organisation}</p>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Award className="h-4 w-4 text-yellow-500" />
-                          <span className="font-medium">{csp.rating}/5</span>
-                        </div>
-                      </div>
-                      <div className="mt-4 grid grid-cols-1 gap-4 text-sm text-muted-foreground md:grid-cols-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Completed on {new Date(csp.completedDate).toLocaleDateString("en-GB")}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          <span>{csp.serviceHours} service hours</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-                {!completedCSPs.length && (
-                  <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-                    Completed CSPs will appear here once you finish a project.
+                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>Completed on {new Date(csp.completedDate).toLocaleDateString("en-GB")}</span>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
+
+            {!loadingCompleted && completedCSPs.length === 0 && (
+              <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
+                Completed CSPs will appear here once you finish a project.
+              </div>
+            )}
+          </CardContent>
+        </Card>
           </section>
         </div>
       </div>

@@ -100,3 +100,49 @@ export async function fetchMyApplications() {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+export async function fetchSaveProject(projectId: string) {
+  const res = await fetch("/api/student/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ projectId }),
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function fetchUnsaveProject(projectId: string) {
+  const res = await fetch("/api/student/save", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ projectId }),
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function fetchSavedProjects() {
+  const res = await fetch("/api/student/save/list", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function fetchCompletedProjectsProfile() {
+  const res = await fetch("/api/student/profile/completed", {
+    credentials: "include", // keep auth cookies/session
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch completed projects");
+  }
+
+  return res.json();
+}

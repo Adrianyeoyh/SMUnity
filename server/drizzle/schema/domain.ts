@@ -85,6 +85,7 @@ export const projects = pgTable("projects", {
   summary: varchar("summary", { length: 500 }),
   category: text("category"),
   type: varchar("type", { length: 20 }).default("local").notNull(), // <-- NEW (local/overseas)
+  country: varchar("country", { length: 100 }),  // only for overseas projects
 
   description: text("description").notNull(),
   aboutProvide: text("about_provide"),
@@ -146,16 +147,6 @@ export const applications = pgTable("applications", {
   byProject: index("apps_project_idx").on(t.projectId),
   byUser: index("apps_user_idx").on(t.userId),
 }));
-
-
-// export const applicationReviews = pgTable("application_reviews", {
-//   id: serial("id").primaryKey(),
-//   applicationId: integer("application_id").notNull().references(() => applications.id),
-//   action: verificationActionEnum("action").notNull(),
-//   note: text("note"),
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-// });
-
 
 
 // ---------- SAVED PROJECTS ----------

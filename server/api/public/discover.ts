@@ -20,6 +20,7 @@ discover.get("/", async (c) => {
         title: schema.projects.title,
         organisationUserId: schema.projects.orgId,
         location: schema.projects.district,
+        country: schema.projects.country,
         category: schema.projects.category,
         type: schema.projects.type,
         startDate: schema.projects.startDate,
@@ -68,6 +69,7 @@ discover.get("/", async (c) => {
         title: r.title,
         organisation: orgNameById.get(r.organisationUserId) ?? "",
         location: r.location ?? "—",
+        country: r.country ?? "—",
         category: r.category ?? "Community",
         type: r.type ?? "local",
         startDate: r.startDate,
@@ -127,12 +129,22 @@ discover.get("/:projectId", async (c) => {
       .where(eq(schema.projMemberships.projId, projectId));
     const currentVolunteers = members.length;
 
+    // 2️⃣ Count ALL applications (regardless of status)
+const applications = await db
+  .select()
+  .from(schema.applications)
+  .where(eq(schema.applications.projectId, projectId));
+
+const currentApplications = applications.length;
+
+
     // 3️⃣ Prepare clean payload
     const data = {
   id: project.id,
   title: project.title,
   organisation: project.org?.user?.name ?? "Unknown Organisation",
   location: project.district ?? "—",
+  country: project.country ?? "—",
   category: project.category ?? "Community",
   type: project.type ?? "local",
   startDate: project.startDate,
@@ -140,6 +152,7 @@ discover.get("/:projectId", async (c) => {
   serviceHours: project.requiredHours ?? 0,
   maxVolunteers: project.slotsTotal ?? 0,
   currentVolunteers,
+  currentApplications,
   isRemote: project.isRemote,
   status: "open",
 

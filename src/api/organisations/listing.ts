@@ -11,6 +11,7 @@ export async function createOrganisationProject(data: FormInput) {
     summary: data.summary,
     category: data.category,
     project_type: data.project_type,
+    country: data.country, 
     description: data.description,
     about_provide: data.about_provide,
     about_do: data.about_do,

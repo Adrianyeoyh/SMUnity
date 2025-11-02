@@ -28,10 +28,49 @@ type LatLngLiteral = google.maps.LatLngLiteral;
 type GoogleMapInstance = google.maps.Map;
 import { useQuery } from "@tanstack/react-query";
 import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
-
-
 import { toast } from "sonner";
 import { DISTRICT_REGION_MAP, CATEGORY_OPTIONS } from "../helper";
+import { fetchSavedProjects, fetchSaveProject, fetchUnsaveProject } from "../api/student";
+// import { useMe } from "#client/api/hooks.ts";
+import { useAuth } from "#client/hooks/use-auth.ts";
+
+// Helper function to extract coordinates from Google Maps URL
+async function extractCoordsFromGoogleMapsUrl(url: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    // For shortened goo.gl URLs, we need to follow the redirect
+    if (url.includes('goo.gl') || url.includes('maps.app.goo.gl')) {
+      // Use a CORS proxy or make backend request
+      // For now, return null - you'll need to add these manually or via backend
+      console.warn('Shortened URL detected, needs manual coordinate extraction:', url);
+      return null;
+    }
+    
+    // Parse regular Google Maps URLs
+    // Format: https://www.google.com/maps/place/.../@LAT,LNG,ZOOM
+    const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (match) {
+      return {
+        lat: parseFloat(match[1]),
+        lng: parseFloat(match[2])
+      };
+    }
+    
+    // Try query parameter format: ?q=LAT,LNG
+    const qMatch = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (qMatch) {
+      return {
+        lat: parseFloat(qMatch[1]),
+        lng: parseFloat(qMatch[2])
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Failed to extract coordinates from URL:', error);
+    return null;
+  }
+}
+
 
 
 export const Route = createFileRoute("/discover")({
@@ -170,11 +209,53 @@ function formatScheduleFromFields(csp: CspLocation): string {
 }
 
 
+
 function DiscoverCSPs() {
   const { data: cspLocations = [], isLoading, isError } = useQuery({
   queryKey: ["discover-projects"],
   queryFn: fetchDiscoverProjects,
 });
+
+const { user, isLoggedIn } = useAuth();
+const isStudent = user?.accountType === "student";
+
+
+const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
+  queryKey: ["saved-projects"],
+  queryFn: fetchSavedProjects,
+  enabled: isLoggedIn && isStudent, // only fetch for logged-in students
+});
+
+
+const savedIds = useMemo(() => new Set(savedData?.saved?.map((s: any) => s.projectId)), [savedData]);
+
+const handleToggleSave = async (projectId: string) => {
+  try {
+    if (!isLoggedIn) {
+      toast.error("Please log in to save CSPs");
+      return;
+    }
+
+    if (!isStudent) {
+      toast.error("Only students can save CSPs");
+      return;
+    }
+
+    if (savedIds.has(projectId)) {
+      await fetchUnsaveProject(projectId);
+      toast.success("Removed from favourites");
+    } else {
+      await fetchSaveProject(projectId);
+      toast.success("Added to favourites");
+    }
+    refetchSaved(); // refresh favourites
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update favourites");
+  }
+};
+
+
   const navigate = useNavigate({ from: "/discover" });
   const searchParams = useSearch({ from: "/discover" });
   
@@ -652,9 +733,25 @@ if (isError)
                             {statusBadge.label}
                           </Badge>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-                          <Heart className="h-4 w-4" />
-                        </Button>
+                        {isLoggedIn && isStudent && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 flex-shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleSave(csp.id);
+                            }}
+                          >
+                            <Heart
+                              className={`h-4 w-4 transition-all ${
+                                savedIds.has(csp.id)
+                                  ? "fill-red-500 text-red-500"
+                                  : "text-muted-foreground hover:text-red-500"
+                              }`}
+                            />
+                          </Button>
+                        )}
                       </div>
                       <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
                         {csp.title}
@@ -673,8 +770,15 @@ if (isError)
                       <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-1 flex-1 min-w-0">
                           <MapPin className="h-4 w-4 flex-shrink-0" />
-                          <span className="font-body truncate">{csp.location}</span>
+                          <span className="font-body truncate">
+                            {csp.isRemote
+                              ? "Remote"
+                              : csp.type === "overseas"
+                                ? csp.country || "—"
+                                : csp.location || "—"}
+                          </span>
                         </div>
+
                         <div className="flex items-center flex-1 min-w-0">
                           <Clock className="h-4 w-4 flex-shrink-0 mr-1.5" />
                           <span
@@ -756,9 +860,25 @@ if (isError)
                                 {csp.organisation}
                               </p>
                             </div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Heart className="h-4 w-4" />
-                            </Button>
+                            {isLoggedIn && isStudent && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSave(csp.id);
+                                }}
+                              >
+                                <Heart
+                                  className={`h-4 w-4 transition-all ${
+                                    savedIds.has(csp.id)
+                                      ? "fill-red-500 text-red-500"
+                                      : "text-muted-foreground hover:text-red-500"
+                                  }`}
+                                />
+                              </Button>
+                            )}
                           </div>
 
                           <p className="text-sm text-muted-foreground font-body line-clamp-2">
@@ -767,10 +887,17 @@ if (isError)
 
                           {/* Location + Duration Row */}
                           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="h-4 w-4" />
-                              <span className="font-body">{csp.location}</span>
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="font-body truncate">
+                                {csp.isRemote
+                                  ? "Remote"
+                                  : csp.type === "overseas"
+                                    ? csp.country || "—"
+                                    : csp.location || "—"}
+                              </span>
                             </div>
+
                             <div className="flex items-center space-x-1">
                               <Clock className="h-4 w-4" />
                               <span className="font-body">{duration}</span>
@@ -895,13 +1022,35 @@ type MapSectionProps = {
 
 function MapSection({ sortedCSPs }: MapSectionProps) {
   const nonRemoteCSPs = useMemo(
-    () =>
-      sortedCSPs.filter(
-        (csp) =>
-          !csp.isRemote &&
-          typeof csp.latitude === "number" &&
-          typeof csp.longitude === "number",
-      ),
+    () => {
+      const cspsWithCoords = sortedCSPs
+        .map((csp) => {
+          // If already has valid lat/lng, use it
+          if (
+            typeof csp.latitude === "number" &&
+            typeof csp.longitude === "number" &&
+            !isNaN(csp.latitude) &&
+            !isNaN(csp.longitude)
+          ) {
+            return csp;
+          }
+          
+          // If has Google Maps URL but no coordinates, skip for now
+          // (shortened URLs need backend processing)
+          if (csp.googleMaps && !csp.latitude && !csp.longitude) {
+            console.log(`CSP "${csp.title}" has Google Maps URL but no coordinates yet`);
+            return null;
+          }
+          
+          return null;
+        })
+        .filter((csp): csp is NonNullable<typeof csp> => 
+          csp !== null && !csp.isRemote
+        );
+      
+      console.log(`Found ${cspsWithCoords.length} CSPs with valid coordinates`);
+      return cspsWithCoords;
+    },
     [sortedCSPs],
   );
 
@@ -1006,12 +1155,12 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
           </Button>
         </div>
 
-        <Card className="h-[420px] border border-border/70 bg-muted/10 shadow-sm">
-          <CardContent className="relative h-full overflow-hidden rounded-xl p-0">
+        <div className="h-[500px] border border-border/70 bg-muted/10 shadow-sm rounded-xl overflow-hidden">
+          <div className="relative h-full">
             {!isLoaded ? (
               <div className="flex h-full items-center justify-center text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading map…
+                Loading map
               </div>
             ) : loadError ? (
               <div className="flex h-full items-center justify-center text-destructive">
@@ -1022,12 +1171,9 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
                 mapContainerStyle={{
                   width: "100%",
                   height: "100%",
-                  borderRadius: "1rem",
-                  border: "1px solid rgba(148, 163, 184, 0.35)",
-                  background: "#f3f4f6",
                 }}
                 center={mapCenter}
-                zoom={12}
+                zoom={12.45}
                 options={{
                   streetViewControl: false,
                   mapTypeControl: false,
@@ -1041,21 +1187,14 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
                 {nonRemoteCSPs.map((csp) => (
                   <Marker
                     key={csp.id}
-                    position={{
-                      lat: csp.latitude as number,
-                      lng: csp.longitude as number,
-                    }}
+                    position={{ lat: csp.latitude as number, lng: csp.longitude as number }}
                     onClick={() => setSelectedCspId(csp.id)}
                     title={csp.title}
                   />
                 ))}
-
                 {selectedCsp && selectedCsp.latitude && selectedCsp.longitude && (
                   <InfoWindow
-                    position={{
-                      lat: selectedCsp.latitude,
-                      lng: selectedCsp.longitude,
-                    }}
+                    position={{ lat: selectedCsp.latitude, lng: selectedCsp.longitude }}
                     onCloseClick={() => setSelectedCspId(null)}
                   >
                     <div className="space-y-2">
@@ -1072,12 +1211,7 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
                           <MapPin className="h-3 w-3" />
                           <span>{selectedCsp.location}</span>
                         </div>
-                        <div>
-                          Starts{" "}
-                          {new Date(selectedCsp.startDate).toLocaleDateString(
-                            "en-GB",
-                          )}
-                        </div>
+                        <div>Starts {new Date(selectedCsp.startDate).toLocaleDateString("en-GB")}</div>
                         <div>{selectedCsp.serviceHours} service hours</div>
                       </div>
                       <Button asChild size="sm" className="h-8 px-3">
@@ -1088,8 +1222,8 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
                 )}
               </GoogleMap>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

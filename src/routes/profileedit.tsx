@@ -27,6 +27,7 @@ import { useMe, useProfileSettings, useSaveProfileSettings, useUpdateProfile } f
 import type { ProfileFormData } from "#client/api/types";
 import { toast } from "sonner";
 import { Loader2, Plus, X, ImageIcon } from "lucide-react";
+import { SKILL_CHOICES, TAG_CHOICES } from "../helper";
 
 export const Route = createFileRoute("/profileedit")({
   validateSearch: z.object({
@@ -626,7 +627,7 @@ function ProfileEditRoute() {
                               <SkillsSelector
                                 value={field.value || []}
                                 onChange={(skills) => field.onChange(skills)}
-                                options={skillOptions}
+                                options={SKILL_CHOICES}
                               />
                               <FormMessage />
                             </FormItem>
@@ -644,7 +645,7 @@ function ProfileEditRoute() {
                               <InterestsSelector
                                 value={field.value || []}
                                 onChange={(interests) => field.onChange(interests)}
-                                options={interestOptions}
+                                options={TAG_CHOICES}
                               />
                               <FormMessage />
                             </FormItem>

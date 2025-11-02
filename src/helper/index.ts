@@ -112,7 +112,7 @@ export const SKILL_CHOICES = [
   "Graphic Design", "Photography", "Videography", "Writing", "Editing",
   "Marketing", "Fundraising", "Volunteer Management", "Project Management", "Research",
   "Data Analysis", "Web Development", "Mobile App Development", "Database Management", "Networking",
-  "Counseling", "Mentoring", "Teamwork", "Organization", "Time Management",
+  "Counseling", "Mentoring", "Teamwork", "Organisation", "Time Management",
 ];
 
 export const TAG_CHOICES = [
@@ -126,7 +126,7 @@ export const TAG_CHOICES = [
 ];
 
 export const COUNTRIES = [
-  "Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam", "Philippines",
+  "Malaysia", "Indonesia", "Thailand", "Vietnam", "Philippines",
   "Myanmar", "Cambodia", "Laos", "Brunei", "China", "India", "Bangladesh",
   "Japan", "South Korea", "Taiwan", "Hong Kong", "Australia", "New Zealand",
   "United Kingdom", "United States", "Canada", "Germany", "France", "Italy",
