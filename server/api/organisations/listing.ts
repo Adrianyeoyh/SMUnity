@@ -16,6 +16,7 @@ const ProjectCreateSchema = z.object({
   summary: z.string(),
   category: z.string(),
   project_type: z.enum(["local", "overseas"]),
+  country: z.string().optional().nullable(), // ✅ add
   description: z.string(),
   about_provide: z.string(),
   about_do: z.string(),
@@ -56,6 +57,7 @@ listing.post("/new", async (c) => {
     summary: parsed.summary,
     category: parsed.category,
     type: parsed.project_type,
+    country: parsed.country || (parsed.project_type === "overseas" ? "Singapore" : null),
     description: parsed.description,
     aboutProvide: parsed.about_provide,
     aboutDo: parsed.about_do,

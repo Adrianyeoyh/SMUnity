@@ -197,7 +197,13 @@ function FavouritesPage() {
                   <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1 flex-1 min-w-0">
                       <MapPin className="h-4 w-4 flex-shrink-0" />
-                      <span className="font-body truncate">{csp.location}</span>
+                      <span className="font-body truncate">
+                        {csp.isRemote
+                          ? "Remote"
+                          : csp.type === "overseas"
+                            ? csp.country || "—"
+                            : csp.district || "—"}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-1 flex-1 min-w-0">
                       <Clock className="h-4 w-4 flex-shrink-0 mr-1.5" />

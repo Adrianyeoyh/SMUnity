@@ -200,17 +200,24 @@ useEffect(() => {
   }
 }, [csp?.id, savedData]);
 
+// const now = new Date();
+// const deadline = csp.applicationDeadline ? new Date(csp.applicationDeadline) : null;
+// const isDeadlinePassed = deadline ? now > deadline : false;
 
-if (isLoading)
+
+  if (isLoading)
     return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
 
   if (isError || !csp)
     return <div className="p-12 text-center text-destructive">Failed to load project details.</div>;
 
-  
+  const now = new Date();
+  const deadline = csp.applicationDeadline ? new Date(csp.applicationDeadline) : null;
+  const isDeadlinePassed = deadline ? now > deadline : false;
 
   const statusBadge = getStatusBadge(csp.status);
-  const isApplicationOpen = csp.status === "open" || csp.status === "closing-soon";
+  const isApplicationOpen =
+  (csp.status === "open" || csp.status === "closing-soon") && !isDeadlinePassed;
   const spotsLeft = csp.maxVolunteers - csp.currentVolunteers;
   const fillRate = Math.round((csp.currentVolunteers / csp.maxVolunteers) * 100);
   return (
@@ -301,10 +308,22 @@ if (isLoading)
               {/* Key Info Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg border">
                 <div className="flex flex-col items-center text-center space-y-1">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <span className="text-xs text-muted-foreground font-body">Location</span>
-                  <span className="text-sm font-medium font-body">{csp.location}</span>
-                </div>
+  <MapPin className="h-5 w-5 text-primary" />
+  <span className="text-xs text-muted-foreground font-body">
+    {csp.isRemote
+      ? "Mode"
+      : csp.type === "overseas"
+        ? "Country"
+        : "District"}
+  </span>
+  <span className="text-sm font-medium font-body">
+    {csp.isRemote
+      ? "Remote"
+      : csp.type === "overseas"
+        ? csp.country || "—"
+        : csp.location || "—"}
+  </span>
+</div>
                 <div className="flex flex-col items-center text-center space-y-1">
                   <Clock className="h-5 w-5 text-primary" />
                   <span className="text-xs text-muted-foreground font-body">Duration</span>
@@ -478,7 +497,10 @@ if (isLoading)
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2">
                         <span className="text-muted-foreground font-body">Application Deadline:</span>
                         <span className="font-medium font-body sm:text-right">
-                          {formatDateRange(csp.applicationDeadline, csp.applicationDeadline)}
+                          {csp.applicationDeadline
+                            ? formatDateRange(csp.applicationDeadline, csp.applicationDeadline)
+                            : "—"}
+
                         </span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2">
@@ -510,15 +532,22 @@ if (isLoading)
 
                     {/* Apply Button */}
                     <div ref={sidebarButtonRef}>
+
+                      
                       <Button
                         size="lg"
                         className="w-full shadow-2xl hover:shadow-xl transition-shadow"
                         disabled={
-                          (!isLoggedIn && !user) || (isLoggedIn && user?.accountType !== "student")
+                          isDeadlinePassed ||
+                          (!isLoggedIn && !user) ||
+                          (isLoggedIn && user?.accountType !== "student")
                         }
                         onClick={() => {
-                          console.log("Floating button clicked");
-                          console.log(isLoggedIn, user?.accountType);
+                          if (isDeadlinePassed) {
+                            toast.error("The application deadline has passed.");
+                            return;
+                          }
+
                           if (!isLoggedIn) {
                             setShowLoginModal(true);
                             return;
@@ -533,12 +562,15 @@ if (isLoading)
                         }}
                       >
                         <Send className="mr-2 h-5 w-5" />
-                        {!isLoggedIn
-                          ? "Log in to Apply"
-                          : user?.accountType !== "student"
-                          ? "Only Students Can Apply"
-                          : "Apply Now"}
+                        {isDeadlinePassed
+                          ? "Applications Closed"
+                          : !isLoggedIn
+                            ? "Log in to Apply"
+                            : user?.accountType !== "student"
+                              ? "Only Students Can Apply"
+                              : "Apply Now"}
                       </Button>
+
 
 
                     </div>
@@ -567,7 +599,7 @@ if (isLoading)
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground font-body">Current Applicants</span>
-                  <span className="font-medium font-body">{csp.currentVolunteers}</span>
+                  <span className="font-medium font-body">{csp.currentApplications}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground font-body">Total Capacity</span>

@@ -21,7 +21,12 @@ dashboard.get("/ongoing-projects", async (c) => {
         startDate: schema.projects.startDate,
         endDate: schema.projects.endDate,
         orgId: schema.projects.orgId,
+        type: schema.projects.type,
+        country: schema.projects.country,
+        district: schema.projects.district,
+        isRemote: schema.projects.isRemote,
       })
+
       .from(schema.projMemberships)
       .innerJoin(schema.projects, eq(schema.projects.id, schema.projMemberships.projId))
       .where(
@@ -132,12 +137,17 @@ dashboard.get("/upcoming-sessions", async (c) => {
         id: schema.projects.id,
         title: schema.projects.title,
         district: schema.projects.district,
+        country: schema.projects.country,
+        type: schema.projects.type,
+        isRemote: schema.projects.isRemote,
         startDate: schema.projects.startDate,
         endDate: schema.projects.endDate,
         daysOfWeek: schema.projects.daysOfWeek,
         timeStart: schema.projects.timeStart,
         timeEnd: schema.projects.timeEnd,
       })
+
+
       .from(schema.projects)
       .where(
         and(

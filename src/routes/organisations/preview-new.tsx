@@ -100,6 +100,8 @@ function PreviewPage() {
   const endDate = formData.end_date ? new Date(formData.end_date) : null;
   const deadline = formData.application_deadline ? new Date(formData.application_deadline) : null;
 
+  console.log(formData.country)
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation */}

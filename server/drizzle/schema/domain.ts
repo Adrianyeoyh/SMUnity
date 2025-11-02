@@ -85,6 +85,7 @@ export const projects = pgTable("projects", {
   summary: varchar("summary", { length: 500 }),
   category: text("category"),
   type: varchar("type", { length: 20 }).default("local").notNull(), // <-- NEW (local/overseas)
+  country: varchar("country", { length: 100 }),  // only for overseas projects
 
   description: text("description").notNull(),
   aboutProvide: text("about_provide"),

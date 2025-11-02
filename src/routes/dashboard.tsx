@@ -133,24 +133,6 @@ function Dashboard() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1wait  lg:grid-cols-3 gap-6 mb-8">
-          {/* <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Total Hours Completed</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{user.totalHours}h</CardTitle>
-                </div>
-                <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
-                  <Clock className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 pb-0">
-              <div className="text-xs text-muted-foreground font-body">
-                {user.requiredHours - user.totalHours}h remaining for CSU
-              </div>
-            </CardContent>
-          </Card> */}
 
           <Card>
             <CardHeader className="pb-4">
@@ -223,14 +205,22 @@ function Dashboard() {
       ongoingProjects.map((project) => (
         <div key={project.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
           <div className="flex justify-between items-start mb-3">
-            <div>
-              <h3 className="font-heading font-semibold text-lg mb-1">{project.title}</h3>
-              <p className="text-sm text-muted-foreground font-body">{project.orgName}</p>
-            </div>
+           <div>
+            <h3 className="font-heading font-semibold text-lg mb-1">{project.title}</h3>
+            <p className="text-sm text-muted-foreground font-body">{project.orgName}</p>
+            <p className="text-xs text-muted-foreground font-body mt-1 flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {project.isRemote
+                ? "Remote"
+                : project.type === "overseas"
+                  ? project.country || "—"
+                  : project.district || "—"}
+            </p>
+          </div>
             <Badge variant="secondary" className="bg-green-100 text-green-700">Active</Badge>
           </div>
           <div className="flex gap-2 mt-4">
-            <Link to="/csp/$cspId" params={{ cspId: project.id }}>
+            <Link to="/csp/$projectID" params={{ projectID: project.id }}>
               <Button variant="outline" size="sm">View Details</Button>
             </Link>
           </div>
@@ -302,7 +292,11 @@ function Dashboard() {
                             </div>
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              {session.district} • {session.dayOfWeek}
+                              {session.isRemote
+                                ? "Remote"
+                                : session.type === "overseas"
+                                  ? session.country || "—"
+                                  : session.district || "—"} • {session.dayOfWeek}
                             </div>
                             <div className="text-xs">{new Date(session.sessionDate).toLocaleDateString("en-GB")}</div>
                           </div>
@@ -315,30 +309,6 @@ function Dashboard() {
 
             </Card>
 
-            {/* Quick Actions
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-heading">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Link to="/discover" className="block">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Target className="mr-2 h-4 w-4" />
-                    Browse New CSPs
-                  </Button>
-                </Link>
-                <Link to="/favourites" className="block">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Heart className="mr-2 h-4 w-4" />
-                    View Saved Projects
-                  </Button>
-                </Link>
-                <Button className="w-full justify-start" variant="outline">
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  View Service Hours
-                </Button>
-              </CardContent>
-            </Card> */}
 
             
           </div>

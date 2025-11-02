@@ -189,7 +189,7 @@ function ListingApplicationsPage() {
                   </Button>
                 </CollapsibleTrigger>
                 <Button className="">
-                  <Link to="/organisations/preview/$projectPreview" params={{ projectPreview: project.id }}>
+                  <Link to="/csp/$projectID" params={{ projectID: project.id }}>
                     Preview Listing
                   </Link>
                 </Button>
@@ -220,11 +220,18 @@ function ListingApplicationsPage() {
                 {/* Right - Key Info (2/3 width) */}
                 <div className="lg:col-span-2 grid sm:grid-cols-2 gap-3">
                   {/* First Row */}
-                  {project.type === "overseas" && project.isRemote ? (
-                    <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="Country" value={project.district} />
-                  ) : !project.isRemote ? (
-                    <InfoRow icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="District" value={project.district} />
-                  ) : null}
+                  {/* Location */}
+                  {!project.isRemote && (
+                    <InfoRow
+                      icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
+                      label={project.type === "overseas" ? "Country" : "District"}
+                      value={
+                        project.type === "overseas"
+                          ? project.country || "—"
+                          : project.district || "—"
+                      }
+                    />
+                  )}
                   <InfoRow icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Period" value={
                     project.repeatInterval === 0
                       ? format(new Date(project.startDate), "yyyy-MM-dd")

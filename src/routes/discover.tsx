@@ -732,8 +732,15 @@ if (isError)
                       <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-1 flex-1 min-w-0">
                           <MapPin className="h-4 w-4 flex-shrink-0" />
-                          <span className="font-body truncate">{csp.location}</span>
+                          <span className="font-body truncate">
+                            {csp.isRemote
+                              ? "Remote"
+                              : csp.type === "overseas"
+                                ? csp.country || "—"
+                                : csp.location || "—"}
+                          </span>
                         </div>
+
                         <div className="flex items-center flex-1 min-w-0">
                           <Clock className="h-4 w-4 flex-shrink-0 mr-1.5" />
                           <span
@@ -842,10 +849,17 @@ if (isError)
 
                           {/* Location + Duration Row */}
                           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="h-4 w-4" />
-                              <span className="font-body">{csp.location}</span>
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="font-body truncate">
+                                {csp.isRemote
+                                  ? "Remote"
+                                  : csp.type === "overseas"
+                                    ? csp.country || "—"
+                                    : csp.location || "—"}
+                              </span>
                             </div>
+
                             <div className="flex items-center space-x-1">
                               <Clock className="h-4 w-4" />
                               <span className="font-body">{duration}</span>

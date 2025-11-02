@@ -126,14 +126,22 @@ applications.get("/list", async (c) => {
       experience: schema.applications.experience,
       skills: schema.applications.skills,
       comments: schema.applications.comments,
+
       projectId: schema.projects.id,
       projectTitle: schema.projects.title,
       orgId: schema.projects.orgId,
       startDate: schema.projects.startDate,
       endDate: schema.projects.endDate,
+
+      // ✅ Add these
+      type: schema.projects.type,
+      country: schema.projects.country,
       district: schema.projects.district,
+      isRemote: schema.projects.isRemote,
+
       requiredHours: schema.projects.requiredHours,
     })
+
     .from(schema.applications)
     .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
     .where(eq(schema.applications.userId, user.id))

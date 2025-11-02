@@ -337,7 +337,7 @@ function NewProjectPage() {
       skill_tags: [],
 
       district: "",
-      country: "",
+      country: localStorage.getItem("lastSelectedCountry") || "",
       google_maps: "",
       remote: false,
 
@@ -557,6 +557,20 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   }, [start, end, timeStart, timeEnd, repeatInterval, trigger]);
 
   // Ensure days_of_week cannot exceed repeatInterval; (UI limits already)
+
+  // ---------- fix country reset on type toggle ----------
+ useEffect(() => {
+  if (projectType === "local") {
+    setValue("country", ""); // clear when switching back to local
+  } else if (projectType === "overseas") {
+    const current = getValues("country");
+    if (!current) {
+      const last = localStorage.getItem("lastSelectedCountry") || "Singapore";
+      setValue("country", last);
+    }
+  }
+}, [projectType, setValue, getValues]);
+
 
   // ---------- submit with validations (kept as guardrails; most checks are reactive now) ----------
   const onSubmit: SubmitHandler<FormInput> = (data) => {
@@ -799,8 +813,12 @@ const diffWeeks = (s?: Date, e?: Date): number => {
                       render={({ field }) => (
                         <Select
                           value={field.value || ""}
-                          onValueChange={(v) => field.onChange(v)}
+                          onValueChange={(v) => {
+                            field.onChange(v);
+                            localStorage.setItem("lastSelectedCountry", v); // ✅ remember last chosen country
+                          }}
                         >
+
                           <SelectTrigger className="h-11 w-1/2">
                             <SelectValue placeholder="Select a country" />
                           </SelectTrigger>

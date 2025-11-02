@@ -305,8 +305,14 @@ function MyApplications() {
                           {new Date(app.endDate).toLocaleDateString("en-GB")}
                         </div>
                         <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" /> {app.district || "N/A"}
+                          <MapPin className="h-4 w-4" />
+                          {app.isRemote
+                            ? "Remote"
+                            : app.type === "overseas"
+                              ? app.country || "—"
+                              : app.district || "—"}
                         </div>
+
                       </div>
 
                       <div className="mb-3 text-sm text-muted-foreground font-body">
