@@ -1136,22 +1136,33 @@ function Index() {
     return matchesCategory && matchesType && matchesSearch;
   });
 
-  // Carousel auto-rotation - move to next item every 7 seconds
+  // Carousel auto-rotation - infinite loop, move to next item every 7 seconds
   useEffect(() => {
     if (filteredFeaturedCSPs.length === 0) return;
     
     const carouselInterval = setInterval(() => {
-      setCarouselIndex((prev) => (prev + 1) % filteredFeaturedCSPs.length);
+      setCarouselIndex((prev) => {
+        // Infinite loop: wrap around to 0 when reaching the end
+        return (prev + 1) % filteredFeaturedCSPs.length;
+      });
     }, 7000); // 7 seconds
 
     return () => clearInterval(carouselInterval);
   }, [filteredFeaturedCSPs.length]);
 
-  // Show 3 cards at a time, centered around carouselIndex
+  // Show 3 cards at a time, centered around carouselIndex (infinite loop)
   const getVisibleIndices = () => {
     if (filteredFeaturedCSPs.length === 0) return [];
-    if (filteredFeaturedCSPs.length <= 3) return [0, 1, 2].slice(0, filteredFeaturedCSPs.length);
+    if (filteredFeaturedCSPs.length === 1) return [0, 0, 0];
+    if (filteredFeaturedCSPs.length === 2) {
+      // For 2 items, show: [1, 0, 1] or [0, 1, 0]
+      const prev = (carouselIndex - 1 + 2) % 2;
+      const curr = carouselIndex;
+      const next = (carouselIndex + 1) % 2;
+      return [prev, curr, next];
+    }
     
+    // For 3+ items, infinite loop with wrapping
     const prev = (carouselIndex - 1 + filteredFeaturedCSPs.length) % filteredFeaturedCSPs.length;
     const curr = carouselIndex;
     const next = (carouselIndex + 1) % filteredFeaturedCSPs.length;
