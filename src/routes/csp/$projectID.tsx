@@ -104,7 +104,7 @@ function CspDetail() {
   const isStudent = user?.accountType === "student";
   const navigate = useNavigate();
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
+const [showLoginModal, setShowLoginModal] = useState(false);
   const [isFavourite, setIsFavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [showGlitter, setShowGlitter] = useState(false);
@@ -296,12 +296,12 @@ useEffect(() => {
                 <div className="flex gap-2 flex-shrink-0">
                   {isLoggedIn && isStudent && (
                     <div className="relative">
-                      <Button
+                  <Button 
                         variant="ghost"
-                        size="icon"
+                    size="icon"
                         onClick={handleFavourite}
                         className="h-8 w-8 flex-shrink-0 border relative"
-                      >
+                  >
                         <Heart
                           className={`h-5 w-5 transition-all ${
                             isFavourite
@@ -333,7 +333,7 @@ useEffect(() => {
                             })}
                           </>
                         )}
-                      </Button>
+                  </Button>
                     </div>
                   )}
 
@@ -351,7 +351,7 @@ useEffect(() => {
               {/* Key Info Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg border">
                 <div className="flex flex-col items-center text-center space-y-1">
-  <MapPin className="h-5 w-5 text-primary" />
+                  <MapPin className="h-5 w-5 text-primary" />
   <span className="text-xs text-muted-foreground font-body">
     {csp.isRemote
       ? "Mode"
@@ -366,7 +366,7 @@ useEffect(() => {
         ? csp.country || "—"
         : csp.location || "—"}
   </span>
-</div>
+                </div>
                 <div className="flex flex-col items-center text-center space-y-1">
                   <Clock className="h-5 w-5 text-primary" />
                   <span className="text-xs text-muted-foreground font-body">Duration</span>
@@ -558,8 +558,8 @@ useEffect(() => {
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
                       <AlertCircle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
                       <p className="text-xs text-yellow-900 font-body">
-                        Complete CSU module on eLearn before applying
-                      </p>
+                          Complete CSU module on eLearn before applying
+                        </p>
                     </div>
 
                     {/* Apply Button */}
@@ -597,11 +597,11 @@ useEffect(() => {
                           );
 
                           if (hasAlreadyApplied) {
-                            toast.error("You have already applied to this project.");
+                            toast.error("You have already applied to this project");
                             return;
                           }
 
-                          window.location.href = `/csp/${csp.id}/apply`;
+                            window.location.href = `/csp/${csp.id}/apply`;
                         }}
                       >
                         <Send className="mr-2 h-5 w-5" />
@@ -701,9 +701,9 @@ useEffect(() => {
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 shadow-md max-w-xs">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0" />
-                <p className="text-xs text-yellow-800 font-body">
-                  Complete CSU module on eLearn before applying.
-                </p>
+                  <p className="text-xs text-yellow-800 font-body">
+                    Complete CSU module on eLearn before applying.
+                  </p>
               </div>
             </div>
 

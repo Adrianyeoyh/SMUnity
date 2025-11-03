@@ -262,17 +262,17 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           render={({ field }) => (
             <FormItem>
               <div className="flex items-start gap-3 rounded-md border p-3">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
                   <FormLabel>I agree to the community's code of conduct</FormLabel>
-                  <FormDescription>
-                    Be respectful, reliable, and follow project guidelines.
-                  </FormDescription>
+                <FormDescription>
+                  Be respectful, reliable, and follow project guidelines.
+                </FormDescription>
                 </div>
               </div>
               <FormMessage />
@@ -287,18 +287,18 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           render={({ field }) => (
             <FormItem>
               <div className="flex items-start gap-3 rounded-md border p-3 bg-muted/40">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
                     I have read and acknowledge the project schedule                </FormLabel>
-                  <FormDescription>
+                <FormDescription>
                     I declare that I am available for the project's start/end dates, meeting days, and session times.
-                  </FormDescription>
+                </FormDescription>
                 </div>
               </div>
               <FormMessage />

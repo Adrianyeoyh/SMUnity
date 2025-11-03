@@ -2,7 +2,7 @@
 import { createApp } from "#server/factory.ts";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
 import { ok, badReq, notFound } from "#server/helper/index.ts";
 
@@ -145,7 +145,7 @@ applications.get("/list", async (c) => {
     .from(schema.applications)
     .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
     .where(eq(schema.applications.userId, user.id))
-    .orderBy(schema.applications.submittedAt);
+    .orderBy(desc(schema.applications.submittedAt));
 
   return ok(c, { applications: apps });
 });
