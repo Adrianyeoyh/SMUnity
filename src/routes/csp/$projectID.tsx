@@ -604,7 +604,6 @@ useEffect(() => {
                         className="w-full shadow-2xl hover:shadow-xl transition-shadow"
                         disabled={
                           isDeadlinePassed ||
-                          (!isLoggedIn && !user) ||
                           (isLoggedIn && user?.accountType !== "student")
                         }
                         onClick={async () => {
