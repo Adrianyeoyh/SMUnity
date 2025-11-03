@@ -185,6 +185,7 @@ const currentApplications = applications.length;
 
   // Meta
   applicationDeadline: project.applyBy,
+  googleMaps: project.googleMaps ?? null,
 };
 
     console.log("✅ [csp] Payload ready:", data);
