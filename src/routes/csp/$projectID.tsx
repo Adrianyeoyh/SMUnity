@@ -25,7 +25,7 @@ import {
   Phone,
   Map
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { useAuth } from "#client/hooks/use-auth";
 import { LoginModal } from "#client/components/loginModal";
@@ -104,12 +104,11 @@ function CspDetail() {
   const isStudent = user?.accountType === "student";
 
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isfavourite, setIsfavourite] = useState(false);
+  const [isFavourite, setIsFavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
 
   const { projectID } = Route.useParams();
-
 
   const { data: csp, isLoading, isError } = useQuery({
     queryKey: ["csp-detail", projectID],
@@ -145,6 +144,31 @@ function CspDetail() {
   }
 };
 
+const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
+  queryKey: ["saved-projects"],
+  queryFn: fetchSavedProjects,
+  enabled: !!user && isStudent, // wait until user is defined
+  staleTime: 60000, // optional
+});
+
+
+const savedIds = useMemo(
+  () => new Set(savedData?.saved?.map((s: any) => s.projectId || s.id)),
+  [savedData?.saved?.length]
+);
+
+useEffect(() => {
+  if (csp?.id) {
+    setIsFavourite(savedIds.has(csp.id));
+  }
+}, [csp?.id, savedIds]);
+
+useEffect(() => {
+  if (isLoggedIn && isStudent) {
+    refetchSaved?.();
+  }
+}, [isLoggedIn, isStudent]);
+
 
   const handleShare = async () => {
     try {
@@ -178,31 +202,6 @@ function CspDetail() {
       }
     };
   }, []);
-
-  
-
-
-const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
-  queryKey: ["saved-projects"],
-  queryFn: fetchSavedProjects,
-  enabled: isLoggedIn && isStudent, // only for logged-in students
-});
-
-const savedIds = new Set(savedData?.saved?.map((s: any) => s.projectId));
-const [isFavourite, setIsFavourite] = useState(false);
-
-// Sync the initial heart state
-useEffect(() => {
-  if (csp?.id && savedIds.has(csp.id)) {
-    setIsFavourite(true);
-  } else {
-    setIsFavourite(false);
-  }
-}, [csp?.id, savedData]);
-
-// const now = new Date();
-// const deadline = csp.applicationDeadline ? new Date(csp.applicationDeadline) : null;
-// const isDeadlinePassed = deadline ? now > deadline : false;
 
 
   if (isLoading)

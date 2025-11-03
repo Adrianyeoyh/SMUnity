@@ -26,7 +26,7 @@ import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-map
 type MapTypeStyle = google.maps.MapTypeStyle;
 type LatLngLiteral = google.maps.LatLngLiteral;
 type GoogleMapInstance = google.maps.Map;
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
 import { toast } from "sonner";
 import { DISTRICT_REGION_MAP, CATEGORY_OPTIONS } from "../helper";
@@ -211,6 +211,9 @@ function formatScheduleFromFields(csp: CspLocation): string {
 
 
 function DiscoverCSPs() {
+
+  const queryClient = useQueryClient();
+
   const { data: cspLocations = [], isLoading, isError } = useQuery({
   queryKey: ["discover-projects"],
   queryFn: fetchDiscoverProjects,
@@ -220,41 +223,60 @@ const { user, isLoggedIn } = useAuth();
 const isStudent = user?.accountType === "student";
 
 
-const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
+const { data: savedData = { saved: [] } } = useQuery({
   queryKey: ["saved-projects"],
   queryFn: fetchSavedProjects,
-  enabled: isLoggedIn && isStudent, // only fetch for logged-in students
+  enabled: isStudent && user !== undefined, // runs once auth context is resolved
+  staleTime: 60_000, // optional: 1 min cache
+  retry: 1,
 });
 
 
-const savedIds = useMemo(() => new Set(savedData?.saved?.map((s: any) => s.projectId)), [savedData]);
+const savedIds = useMemo(
+  () => new Set((savedData?.saved || []).map((s: any) => s.projectId || s.id)),
+  [savedData?.saved?.length]
+);
+
+
+
+const [tempSavedIds, setTempSavedIds] = useState<Set<string>>(new Set());
 
 const handleToggleSave = async (projectId: string) => {
   try {
-    if (!isLoggedIn) {
-      toast.error("Please log in to save CSPs");
-      return;
-    }
+    if (!isLoggedIn) return toast.error("Please log in to save CSPs");
+    if (!isStudent) return toast.error("Only students can save CSPs");
 
-    if (!isStudent) {
-      toast.error("Only students can save CSPs");
-      return;
-    }
+    const currentlySaved = savedIds.has(projectId) || tempSavedIds.has(projectId);
 
-    if (savedIds.has(projectId)) {
+    // Optimistic UI update
+    setTempSavedIds((prev) => {
+      const next = new Set(prev);
+      if (currentlySaved) next.delete(projectId);
+      else next.add(projectId);
+      return next;
+    });
+
+    if (currentlySaved) {
       await fetchUnsaveProject(projectId);
       toast.success("Removed from favourites");
     } else {
       await fetchSaveProject(projectId);
       toast.success("Added to favourites");
     }
-    refetchSaved(); // refresh favourites
+
+    await queryClient.invalidateQueries({ queryKey: ["saved-projects"] });
   } catch (err) {
-    console.error(err);
     toast.error("Failed to update favourites");
   }
 };
 
+  useEffect(() => {
+  if (isStudent && isLoggedIn) queryClient.invalidateQueries({ queryKey: ["saved-projects"] });
+}, [isLoggedIn, isStudent]);
+
+useEffect(() => {
+  console.log("Saved projects:", savedData);
+}, [savedData]);
 
   const navigate = useNavigate({ from: "/discover" });
   const searchParams = useSearch({ from: "/discover" });
@@ -744,12 +766,13 @@ if (isError)
                             }}
                           >
                             <Heart
-                              className={`h-4 w-4 transition-all ${
-                                savedIds.has(csp.id)
-                                  ? "fill-red-500 text-red-500"
-                                  : "text-muted-foreground hover:text-red-500"
-                              }`}
-                            />
+  className={`h-4 w-4 transition-all ${
+    savedIds.has(csp.id) || tempSavedIds.has(csp.id)
+      ? "fill-red-500 text-red-500"
+      : "text-muted-foreground hover:text-red-500"
+  }`}
+/>
+
                           </Button>
                         )}
                       </div>
@@ -871,12 +894,13 @@ if (isError)
                                 }}
                               >
                                 <Heart
-                                  className={`h-4 w-4 transition-all ${
-                                    savedIds.has(csp.id)
-                                      ? "fill-red-500 text-red-500"
-                                      : "text-muted-foreground hover:text-red-500"
-                                  }`}
-                                />
+  className={`h-4 w-4 transition-all ${
+    savedIds.has(csp.id) || tempSavedIds.has(csp.id)
+      ? "fill-red-500 text-red-500"
+      : "text-muted-foreground hover:text-red-500"
+  }`}
+/>
+
                               </Button>
                             )}
                           </div>
