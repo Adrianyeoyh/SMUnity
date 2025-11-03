@@ -117,7 +117,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
     queryFn: () => fetchCspById(projectID),
   });
 
-  console.log(isLoggedIn,user?.accountType);
+  // console.log(isLoggedIn,user?.accountType);
 
   const handleFavourite = async () => {
   try {

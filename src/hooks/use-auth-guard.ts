@@ -10,7 +10,7 @@ export function useRoleGuard(allowedRoles: Array<"student" | "organisation" | "a
   const { user, isLoading, isLoggedIn } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
-  console.log("Guard check:", { isLoading, isLoggedIn, role: user?.accountType });
+  // console.log("Guard check:", { isLoading, isLoggedIn, role: user?.accountType });
 
 
   useEffect(() => {

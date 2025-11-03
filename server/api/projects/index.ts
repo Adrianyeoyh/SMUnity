@@ -107,7 +107,7 @@ projects.post("/apply", async (c) => {
       agree: data.agree,
     });
 
-    console.log(`✅ [Apply] User ${user.id} successfully applied for project ${projectId}.`);
+    // console.log(`✅ [Apply] User ${user.id} successfully applied for project ${projectId}.`);
     return c.json({ success: true, message: "Application submitted successfully!" }, 200);
   } catch (err) {
     console.error("💥 [Apply] Unexpected server error:", err);

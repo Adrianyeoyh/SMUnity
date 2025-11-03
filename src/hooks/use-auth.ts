@@ -12,7 +12,7 @@ export function useAuth() {
       if (session?.data?.user) {
         setIsLoggedIn(true);
         setUser(session.data.user);
-        console.log("Session data:", session);
+        // console.log("Session data:", session);
 
       } else {
         setIsLoggedIn(false);

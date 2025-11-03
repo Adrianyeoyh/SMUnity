@@ -113,7 +113,7 @@ dashboard.get("/listings", async (c) => {
       schema.projects.type,
     )
     .orderBy(sql`${schema.projects.createdAt} DESC`);
-  console.log("Listings fetched:", listings);
+  // console.log("Listings fetched:", listings);
   return c.json({ listings });
 });
 
