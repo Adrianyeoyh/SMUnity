@@ -6,6 +6,7 @@ import { Toaster } from "#client/components/ui/sonner";
 import { Chatbot } from "#client/components/chatbot/Chatbot";
 import { useEffect } from "react";
 import { useAuth } from "#client/hooks/use-auth";
+import { MobileMenuProvider } from "#client/contexts/mobile-menu-context";
 
 function RootComponent() {
   const routerState = useRouterState();
@@ -83,16 +84,18 @@ function RootComponent() {
 
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-      <Chatbot />
-      <Toaster />
-      <TanStackRouterDevtools />
-    </div>
+    <MobileMenuProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+        <Chatbot />
+        <Toaster />
+        <TanStackRouterDevtools />
+      </div>
+    </MobileMenuProvider>
   );
 }
 

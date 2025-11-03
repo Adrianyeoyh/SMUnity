@@ -8,9 +8,11 @@ import { sendChatMessage, type ChatMessage } from "#client/api/public/chatbot";
 import { toast } from "sonner";
 import { useAuth } from "#client/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMobileMenu } from "#client/contexts/mobile-menu-context";
 
 export function Chatbot() {
   const { user } = useAuth();
+  const { isMenuOpen } = useMobileMenu();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -132,7 +134,7 @@ export function Chatbot() {
       });
   };
 
-  if (!canUseChatbot) {
+  if (!canUseChatbot || isMenuOpen) {
     return null;
   }
 

@@ -457,7 +457,7 @@ function Index() {
       const handleEnter = () => {
         gsap.to(cardInner, {
           rotationY: 180,
-          duration: 0.35,
+          duration: 0.6,
           ease: "power2.inOut",
         });
 
@@ -465,7 +465,7 @@ function Index() {
         gsap.to(card, {
           scale: 1.05,
           y: -8,
-          duration: 0.3,
+          duration: 0.5,
           ease: "power2.out",
         });
 
@@ -479,9 +479,9 @@ function Index() {
           {
             opacity: 1,
             scale: 1,
-            duration: 0.3,
+            duration: 0.4,
             ease: "back.out(1.7)",
-            delay: 0.1,
+            delay: 0.15,
           }
         );
       };
@@ -490,7 +490,7 @@ function Index() {
       const handleLeave = () => {
         gsap.to(cardInner, {
           rotationY: 0,
-          duration: 0.35,
+          duration: 0.6,
           ease: "power2.inOut",
         });
 
@@ -498,7 +498,7 @@ function Index() {
         gsap.to(card, {
           scale: 1,
           y: 0,
-          duration: 0.3,
+          duration: 0.5,
           ease: "power2.in",
         });
       };
@@ -1131,49 +1131,49 @@ function Index() {
       value: "Community", 
       label: "Community",
       icon: Users,
-      image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Mentoring", 
       label: "Mentoring",
       icon: BookOpen,
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Environment", 
       label: "Environment",
       icon: TreePine,
-      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Elderly", 
       label: "Elderly",
       icon: Heart,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Arts & Culture", 
       label: "Arts & Culture",
       icon: Star,
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Animal Welfare", 
       label: "Animal Welfare",
       icon: PawPrint,
-      image: "https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Sports & Leisure", 
       label: "Sports & Leisure",
       icon: Trophy,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1920&h=1080&fit=crop&auto=format"
     },
     { 
       value: "Coding", 
       label: "Coding",
       icon: Code,
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=300&fit=crop"
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920&h=1080&fit=crop&auto=format"
     }
   ];
 
@@ -1584,22 +1584,38 @@ function Index() {
       <AnimatedSection>
         <section 
           ref={categoriesSectionRef} 
-          className="py-16 md:py-20 relative overflow-hidden transition-all duration-700"
-          style={{
-            backgroundImage: hoveredCategory 
-              ? `url(${categories.find(c => c.value === hoveredCategory)?.image})`
-              : undefined,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
+          className="py-16 md:py-20 relative overflow-hidden"
         >
-          {/* Background overlay that changes opacity based on hover */}
+          {/* Blurred background image layer */}
+          <div
+            className="absolute inset-0 transition-all duration-700"
+            style={{
+              backgroundImage: hoveredCategory 
+                ? `url(${categories.find(c => c.value === hoveredCategory)?.image})`
+                : undefined,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              filter: hoveredCategory ? 'blur(12px)' : 'none',
+              transform: hoveredCategory ? 'scale(1.1)' : 'scale(1)',
+              opacity: hoveredCategory ? 1 : 0,
+              transition: 'opacity 0.7s ease, filter 0.7s ease, transform 0.7s ease',
+            }}
+          />
+          
+          {/* Default background when no hover */}
           <div 
             className="absolute inset-0 bg-muted/30 transition-opacity duration-700"
             style={{
-              opacity: hoveredCategory ? 0.3 : 1,
-              backgroundColor: hoveredCategory ? 'rgba(0, 0, 0, 0.7)' : undefined,
+              opacity: hoveredCategory ? 0 : 1,
+            }}
+          />
+          
+          {/* Background overlay that changes opacity based on hover */}
+          <div 
+            className="absolute inset-0 transition-opacity duration-700"
+            style={{
+              backgroundColor: hoveredCategory ? 'rgba(0, 0, 0, 0.6)' : 'transparent',
             }}
           />
           
@@ -1647,8 +1663,7 @@ function Index() {
                     data-card-inner
                     className="relative w-full h-full"
                     style={{ 
-                      transformStyle: "preserve-3d",
-                      transition: "transform 0.35s"
+                      transformStyle: "preserve-3d"
                     }}
                   >
                     {/* Front - Image */}
@@ -2170,3 +2185,4 @@ function Index() {
     </div>
   );
 }
+
