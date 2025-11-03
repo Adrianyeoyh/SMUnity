@@ -7,7 +7,9 @@ import { fetchSavedProjects, fetchUnsaveProject } from "#client/api/student";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
-import { Loader2, Heart, MapPin, Calendar, Clock, Users, Search, Filter, ArrowRight } from "lucide-react";
+import { Loader2, Heart, MapPin, Calendar, Clock, Users, Search } from "lucide-react";
+import { useState } from "react";
+import { Input } from "#client/components/ui/input";
 
 // ────────────── Route Definition ──────────────
 export const Route = createFileRoute("/favourites")({
@@ -63,6 +65,7 @@ function formatScheduleFromFields(csp: any): string {
 function FavouritesPage() {
   const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate({ from: "/favourites" });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isStudent = user?.accountType === "student";
 
@@ -72,7 +75,26 @@ function FavouritesPage() {
     enabled: isLoggedIn && isStudent,
   });
 
-  const favourites = data?.saved ?? [];
+  const allFavourites = data?.saved ?? [];
+
+  // 🔹 Filter favourites based on search query
+  const filterFavourites = (favourites: any[]) => {
+    if (!searchQuery.trim()) return favourites;
+    const query = searchQuery.toLowerCase();
+    return favourites.filter((csp: any) => {
+      return (
+        csp.title?.toLowerCase().includes(query) ||
+        csp.organisation?.toLowerCase().includes(query) ||
+        csp.category?.toLowerCase().includes(query) ||
+        csp.description?.toLowerCase().includes(query) ||
+        csp.district?.toLowerCase().includes(query) ||
+        csp.country?.toLowerCase().includes(query) ||
+        csp.skills?.some((skill: string) => skill.toLowerCase().includes(query))
+      );
+    });
+  };
+
+  const favourites = filterFavourites(allFavourites);
 
   const handleUnsave = async (projectId: string) => {
     try {
@@ -112,7 +134,7 @@ function FavouritesPage() {
     );
 
   // ────────────── No Favourites ──────────────
-  if (favourites.length === 0)
+  if (allFavourites.length === 0)
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center px-6">
         <Heart className="h-12 w-12 text-muted-foreground mb-4" />
@@ -129,30 +151,32 @@ function FavouritesPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-2">
-            My Favourites
-          </h1>
-          <p className="text-muted-foreground font-body text-lg">
-            Your saved community service projects
-          </p>
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+            <div>
+              <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+                My Favourites
+              </h1>
+              <p className="text-muted-foreground font-body text-base sm:text-lg mt-2">
+                Your saved community service projects
+              </p>
+            </div>
+            <div className="relative w-full sm:w-1/3">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search favourites..."
+                className="pl-10 h-10 text-sm sm:text-base w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm">
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-          </div>
-        </div>
 
         {/* Grid View (reused Discover card layout) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -256,8 +280,22 @@ function FavouritesPage() {
           ))}
         </div>
 
+        {/* Empty Search State */}
+        {searchQuery.trim() && favourites.length === 0 && (
+          <div className="text-center py-12">
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="font-heading text-lg font-semibold mb-2">No results found</h3>
+            <p className="text-muted-foreground font-body mb-4">
+              No favourites match your search query "{searchQuery}"
+            </p>
+            <Button variant="outline" onClick={() => setSearchQuery("")}>
+              Clear search
+            </Button>
+          </div>
+        )}
+
         {/* Load More */}
-        {favourites.length > 6 && (
+        {!searchQuery.trim() && allFavourites.length > 6 && (
           <div className="text-center mt-8">
             <Button variant="outline">Load More Favourites</Button>
           </div>
