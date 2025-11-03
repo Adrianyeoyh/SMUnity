@@ -33,6 +33,9 @@ export const env = createEnv({
     AWS_S3_ENDPOINT: z.string(),
     AWS_S3_BUCKET: z.string(),
     FORCE_PATH_STYLE: z.coerce.boolean(),
+
+    // Google Gemini
+    GEMINI_API_KEY: z.string().optional(),
   },
   clientPrefix: "VITE_",
   runtimeEnv: {
@@ -63,6 +66,9 @@ export const env = createEnv({
     AWS_S3_ENDPOINT: process.env.AWS_S3_ENDPOINT,
     AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
     FORCE_PATH_STYLE: process.env.FORCE_PATH_STYLE,
+
+    // Google Gemini
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",

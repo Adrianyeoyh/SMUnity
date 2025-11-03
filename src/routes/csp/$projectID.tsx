@@ -288,18 +288,18 @@ useEffect(() => {
             {/* Header Section */}
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
-                    {csp.category}
-                  </Badge>
-                  <Badge className={`text-xs ${statusBadge.className}`}>
-                    {statusBadge.label}
-                  </Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
+                  {csp.category}
+                </Badge>
+                <Badge className={`text-xs ${statusBadge.className}`}>
+                  {statusBadge.label}
+                </Badge>
                   {csp.type === "overseas" ? (
-                    <Badge variant="outline" className="text-xs">
-                      <Globe className="mr-1 h-3 w-3" />
-                      Overseas
-                    </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    <Globe className="mr-1 h-3 w-3" />
+                    Overseas
+                  </Badge>
                   ) : (
                     <Badge variant="outline" className="text-xs">
                       <Map className="mr-1 h-3 w-3" />

@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Header } from "#client/components/layout/header";
 import { Footer } from "#client/components/layout/footer";
 import { Toaster } from "#client/components/ui/sonner";
+import { Chatbot } from "#client/components/chatbot/Chatbot";
 import { useEffect } from "react";
 import { useAuth } from "#client/hooks/use-auth";
 
@@ -88,6 +89,7 @@ function RootComponent() {
         <Outlet />
       </main>
       <Footer />
+      <Chatbot />
       <Toaster />
       <TanStackRouterDevtools />
     </div>

@@ -94,7 +94,41 @@ const AnimatedSection = ({ children, className = "" }: { children: React.ReactNo
 };
 
 // Moving Background Component for Hero
-const MovingBackground = () => {
+const MovingBackground = ({ heroRef }: { heroRef: React.RefObject<HTMLElement> }) => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const rafRef = useRef<number>();
+
+  // Track mouse movement on hero section with requestAnimationFrame for smooth updates
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (heroRef.current && rafRef.current === undefined) {
+        rafRef.current = requestAnimationFrame(() => {
+          const rect = heroRef.current!.getBoundingClientRect();
+          // Calculate relative position (0 to 1)
+          const x = (e.clientX - rect.left) / rect.width;
+          const y = (e.clientY - rect.top) / rect.height;
+          // Convert to -50 to 50 for smoother movement
+          setMousePosition({
+            x: (x - 0.5) * 100,
+            y: (y - 0.5) * 100,
+          });
+          rafRef.current = undefined;
+        });
+      }
+    };
+
+    const hero = heroRef.current;
+    if (hero) {
+      hero.addEventListener("mousemove", handleMouseMove);
+      return () => {
+        hero.removeEventListener("mousemove", handleMouseMove);
+        if (rafRef.current) {
+          cancelAnimationFrame(rafRef.current);
+        }
+      };
+    }
+  }, [heroRef]);
+
   // Pre-calculate particle positions and timing to avoid glitches
   const particles = Array.from({ length: 12 }, (_, i) => {
     const baseDelay = i * 0.5;
@@ -115,7 +149,7 @@ const MovingBackground = () => {
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
-      {/* Animated gradient orbs - using smooth continuous motion */}
+      {/* Animated gradient orbs - using smooth continuous motion with cursor parallax */}
       <motion.div
         className="absolute w-96 h-96 bg-primary/20 rounded-full blur-3xl"
         animate={{
@@ -127,9 +161,14 @@ const MovingBackground = () => {
           duration: 20,
           repeat: Infinity,
           repeatType: "loop",
-          ease: [0.4, 0, 0.6, 1], // Custom cubic bezier for smoother motion
+          ease: [0.4, 0, 0.6, 1],
         }}
-        style={{ top: "10%", left: "10%" }}
+        style={{ 
+          top: "10%", 
+          left: "10%",
+          transform: `translate(${mousePosition.x * 0.3}px, ${mousePosition.y * 0.3}px)`,
+          transition: 'transform 0.1s ease-out',
+        }}
       />
       <motion.div
         className="absolute w-96 h-96 bg-[#10b981]/20 rounded-full blur-3xl"
@@ -144,7 +183,12 @@ const MovingBackground = () => {
           repeatType: "loop",
           ease: [0.4, 0, 0.6, 1],
         }}
-        style={{ top: "60%", right: "10%" }}
+        style={{ 
+          top: "60%", 
+          right: "10%",
+          transform: `translate(${mousePosition.x * -0.4}px, ${mousePosition.y * -0.4}px)`,
+          transition: 'transform 0.1s ease-out',
+        }}
       />
       <motion.div
         className="absolute w-80 h-80 bg-secondary/20 rounded-full blur-3xl"
@@ -159,7 +203,12 @@ const MovingBackground = () => {
           repeatType: "loop",
           ease: [0.4, 0, 0.6, 1],
         }}
-        style={{ bottom: "20%", left: "50%" }}
+        style={{ 
+          bottom: "20%", 
+          left: "50%",
+          transform: `translate(${mousePosition.x * 0.2}px, ${mousePosition.y * 0.2}px)`,
+          transition: 'transform 0.1s ease-out',
+        }}
       />
       {/* Floating particles with fixed positions and timing */}
       {particles.map((particle) => (
@@ -182,6 +231,8 @@ const MovingBackground = () => {
           style={{
             left: `${particle.startX}%`,
             top: `${particle.startY}%`,
+            transform: `translate(${mousePosition.x * 0.1}px, ${mousePosition.y * 0.1}px)`,
+            transition: 'transform 0.1s ease-out',
           }}
         />
       ))}
@@ -201,12 +252,14 @@ function Index() {
   const [countPartners, setCountPartners] = useState(0);
   const [countCountries, setCountCountries] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
   // Fetch real CSPs from API
   const { data: discoverProjects = [] } = useQuery({
     queryKey: ["discover-projects"],
     queryFn: fetchDiscoverProjects,
   });
+  const heroRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const smunityRef = useRef<HTMLSpanElement>(null);
   const smuRef = useRef<HTMLSpanElement>(null);
@@ -1239,8 +1292,8 @@ function Index() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 h-[93vh] lg:h-screen flex items-center justify-center overflow-hidden py-0">
-        <MovingBackground />
+      <section ref={heroRef} className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 h-[93vh] lg:h-screen flex items-center justify-center overflow-hidden py-0">
+        <MovingBackground heroRef={heroRef} />
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 relative z-10 w-full py-0 pt-0">
           <div className="max-w-4xl mx-auto text-center">
             <motion.h1 
@@ -1529,32 +1582,67 @@ function Index() {
 
       {/* Categories Section */}
       <AnimatedSection>
-        <section ref={categoriesSectionRef} className="py-16 md:py-20 bg-muted/30">
-        <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-              Browse by Category
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body">
-              Find projects that match your interests and passion
-            </p>
-          </div>
+        <section 
+          ref={categoriesSectionRef} 
+          className="py-16 md:py-20 relative overflow-hidden transition-all duration-700"
+          style={{
+            backgroundImage: hoveredCategory 
+              ? `url(${categories.find(c => c.value === hoveredCategory)?.image})`
+              : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          {/* Background overlay that changes opacity based on hover */}
+          <div 
+            className="absolute inset-0 bg-muted/30 transition-opacity duration-700"
+            style={{
+              opacity: hoveredCategory ? 0.3 : 1,
+              backgroundColor: hoveredCategory ? 'rgba(0, 0, 0, 0.7)' : undefined,
+            }}
+          />
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
-            {categories.map((category, idx) => {
-              const IconComponent = category.icon;
-              return (
-                <div
-                key={category.value}
-                  ref={(el) => {
-                    categoryCardsRef.current[idx] = el;
-                  }}
-                  className="relative cursor-pointer group px-1 lg:px-2 overflow-hidden rounded-lg"
-                  style={{ perspective: "1000px" }}
-                onClick={() => {
-                  navigate({ to: "/discover", search: { category: category.value } });
-                }}
-              >
+          <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 relative z-10">
+            <div className="text-center mb-12">
+              <h2 className={`font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-colors duration-700 ${
+                hoveredCategory ? 'text-white drop-shadow-lg' : 'text-foreground'
+              }`}>
+                Browse by Category
+              </h2>
+              <p className={`text-sm sm:text-base md:text-lg font-body transition-colors duration-700 ${
+                hoveredCategory ? 'text-white/90 drop-shadow-md' : 'text-muted-foreground'
+              }`}>
+                Find projects that match your interests and passion
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
+              {categories.map((category, idx) => {
+                const IconComponent = category.icon;
+                const isHovered = hoveredCategory === category.value;
+                const isOtherHovered = hoveredCategory !== null && hoveredCategory !== category.value;
+                
+                return (
+                  <div
+                  key={category.value}
+                    ref={(el) => {
+                      categoryCardsRef.current[idx] = el;
+                    }}
+                    className={`relative cursor-pointer group px-1 lg:px-2 overflow-hidden rounded-lg transition-opacity duration-700 ${
+                      isOtherHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                    } ${isHovered ? 'z-20' : ''}`}
+                    style={{ perspective: "1000px" }}
+                    onMouseEnter={() => {
+                      setHoveredCategory(category.value);
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredCategory(null);
+                    }}
+                    onClick={() => {
+                      navigate({ to: "/discover", search: { category: category.value } });
+                    }}
+                  >
                   <div
                     data-card-inner
                     className="relative w-full h-full"

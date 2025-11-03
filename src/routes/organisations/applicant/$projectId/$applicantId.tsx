@@ -93,7 +93,7 @@ function ApplicantDetailsPage() {
                 }}
                 className="flex-1 sm:flex-none"
               >
-                <Phone className="h-4 w-4 mr-2" /> Call
+                  <Phone className="h-4 w-4 mr-2" /> Call
               </Button>
             </div>
           </CardContent>

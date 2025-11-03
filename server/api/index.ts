@@ -6,6 +6,7 @@ import admin from "./admin";
 import organisationsRoutes from "./organisations";
 import { organisationRequestsRoutes } from "./organisations/requests";
 import discover from "./public/discover";
+import chatbot from "./public/chatbot";
 import projects from "./projects"
 import application from "./organisations/application";
 import student from "./student";
@@ -20,6 +21,7 @@ apiRouter.route("/admin", admin);
 apiRouter.route("/organisations/requests", organisationRequestsRoutes);
 apiRouter.route("/organisations", organisationsRoutes);
 apiRouter.route("/discover", discover);
+apiRouter.route("/chatbot", chatbot);
 apiRouter.route("/projects", projects);
 apiRouter.route("/applications", application)
 apiRouter.route("/student", student);
