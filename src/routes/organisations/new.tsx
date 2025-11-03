@@ -322,7 +322,7 @@ function NewProjectPage() {
     clearErrors,
     getValues,
     trigger,
-    formState: { errors, touchedFields, dirtyFields },
+    formState: { errors, touchedFields, dirtyFields, isSubmitted },
   } = useForm<FormInput>({
     defaultValues: savedData || {
       title: "",
@@ -880,7 +880,9 @@ useEffect(() => {
                     <Controller
                       control={control}
                       name="country"
-                      rules={{ required: !watch("remote") ? "Country is required" : false }}
+                      rules={{ 
+                        required: !watch("remote") ? "Country is required" : false
+                      }}
                       render={({ field }) => (
                         <Select
                           value={field.value || ""}
@@ -901,30 +903,30 @@ useEffect(() => {
                         </Select>
                       )}
                     />
-                    <div className="flex items-center gap-2">
-                      <input
-                        id="remote_overseas"
-                        type="checkbox"
-                        {...register("remote")}
-                        disabled={(projectType as string) === "overseas"} // ✅ disable for overseas
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setValue("remote", checked);
-                          if (checked) {
-                            setValue("district", "Remote");
-                            setValue("google_maps", "");
-                          } else {
-                            setValue("district", "");
-                          }
-                        }}
-                      />
-                      <Label htmlFor="remote_overseas" className="cursor-pointer mb-0 opacity-90">
-                        Remote?
-                      </Label>
-
-                    </div>
+                    {(projectType as string) !== "overseas" && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="remote_overseas"
+                          type="checkbox"
+                          {...register("remote")}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setValue("remote", checked);
+                            if (checked) {
+                              setValue("district", "Remote");
+                              setValue("google_maps", "");
+                            } else {
+                              setValue("district", "");
+                            }
+                          }}
+                        />
+                        <Label htmlFor="remote_overseas" className="cursor-pointer mb-0 opacity-90">
+                          Remote?
+                        </Label>
+                      </div>
+                    )}
                   </div>
-                  {errors.country && !isRemote && <p className="text-sm text-red-600">{errors.country.message as string}</p>}
+                  {errors.country && !isRemote && isSubmitted && <p className="text-sm text-red-600">{errors.country.message as string}</p>}
                 </div>
               </div>
             )}
@@ -1023,7 +1025,12 @@ useEffect(() => {
                     onChange={(e) => {
                       if (e.target.checked) {
                         setValue("repeat_interval", 0);
-                        setValue("days_of_week", []);
+                        // Don't clear days_of_week - allow user to select one day
+                        // Only clear if more than one day is selected
+                        const currentDays = getValues("days_of_week") || [];
+                        if (currentDays.length > 1) {
+                          setValue("days_of_week", []);
+                        }
                       } else {
                         setValue("repeat_interval", 1);
                       }
@@ -1067,14 +1074,18 @@ useEffect(() => {
                     }
                   }
                   const maxDays = duration <= 0 ? 7 : duration <= 7 ? duration : 7;
+                  const isOneTime = repeatInterval === 0;
 
                     return (
                       <div className="flex flex-wrap gap-2">
                         {DAYS.map((day) => {
                           const selected = value.includes(day);
-                          const outOfRange = duration <= 7 ? !validSet.has(day) : false;
+                          // For one-time projects, don't restrict by date range - allow any day to be selected
+                          const outOfRange = isOneTime ? false : (duration <= 7 ? !validSet.has(day) : false);
                           const limitReached = !selected && value.length >= maxDays;
-                          const disable = outOfRange || limitReached;
+                          // For one-time projects, only allow selecting one day
+                          const oneTimeLimitReached = isOneTime && !selected && value.length >= 1;
+                          const disable = outOfRange || limitReached || oneTimeLimitReached;
                           return (
                             <Button
                               key={day}
@@ -1083,9 +1094,16 @@ useEffect(() => {
                               size="sm"
                               disabled={disable}
                               onClick={() => {
-                                const next = selected
-                                  ? value.filter((d) => d !== day)
-                                  : [...value, day];
+                                let next;
+                                if (isOneTime) {
+                                  // For one-time, replace the current selection with the new day
+                                  next = selected ? [] : [day];
+                                } else {
+                                  // For recurring, toggle as usual
+                                  next = selected
+                                    ? value.filter((d) => d !== day)
+                                    : [...value, day];
+                                }
                                 field.onChange(next);
                               }}
                               aria-pressed={selected}

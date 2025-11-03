@@ -270,7 +270,7 @@ function FavouritesPage() {
                   </div>
                 </div>
 
-                <Link to="/csp/$projectID" params={{ projectID: csp.projectId || csp.id }}>
+                <Link to="/csp/$projectID" params={{ projectID: csp.projectId || csp.id }} search={{ from: undefined }}>
                   <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     View Details
                   </Button>

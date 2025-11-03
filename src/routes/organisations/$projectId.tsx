@@ -334,16 +334,22 @@ function ListingApplicationsPage() {
                 <div className="bg-muted/40 rounded-lg p-4">
                   <SectionCard title="Organiser Details">
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Building2 className="h-4 w-4" /> {project.orgName}
+                      <Building2 className="h-4 w-4" /> {project.orgName || "—"}
                     </p>
+                    {project.org.website ? (
+                      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Globe className="h-4 w-4" />{" "}
+                        <a href={project.org.website} target="_blank" rel="noopener noreferrer" className="underline">
+                          {project.org.website}
+                        </a>
+                      </p>
+                    ) : (
+                      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Globe className="h-4 w-4" /> —
+                      </p>
+                    )}
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Globe className="h-4 w-4" />{" "}
-                      <a href={project.org.website} target="_blank" className="underline">
-                        {project.org.website}
-                      </a>
-                    </p>
-                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-4 w-4" /> {project.org.phone}
+                      <Phone className="h-4 w-4" /> {project.org.phone || "—"}
                     </p>
                   </SectionCard>
                 </div>
@@ -357,7 +363,7 @@ function ListingApplicationsPage() {
           <CardHeader>
             <CardTitle className="font-heading text-lg">Applications</CardTitle>
             <CardDescription className="font-body text-sm">
-              Filter and review all volunteer submissions for this project.
+              Filter and review all volunteer submissions for this project
             </CardDescription>
           </CardHeader>
           <CardContent>

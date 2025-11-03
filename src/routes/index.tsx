@@ -1751,7 +1751,7 @@ function Index() {
                       </div>
                     </div>
 
-                    <Link to="/csp/$projectID" params={{ projectID: csp.id }}>
+                    <Link to="/csp/$projectID" params={{ projectID: csp.id }} search={{ from: undefined }}>
                       <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                       </Button>
@@ -1866,7 +1866,7 @@ function Index() {
                           </div>
                         </div>
 
-                        <Link to="/csp/$projectID" params={{ projectID: csp.id }}>
+                        <Link to="/csp/$projectID" params={{ projectID: csp.id }} search={{ from: undefined }}>
                           <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                             {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                           </Button>

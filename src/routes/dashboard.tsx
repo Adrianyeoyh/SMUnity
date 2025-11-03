@@ -4,6 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#clie
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Progress } from "#client/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "#client/components/ui/dialog";
+import { Separator } from "#client/components/ui/separator";
+import { Input } from "#client/components/ui/input";
+import { Textarea } from "#client/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "#client/components/ui/radio-group";
+import { Checkbox } from "#client/components/ui/checkbox";
 import { useMe } from "#client/api/hooks";
 import {
   Calendar,
@@ -31,12 +42,48 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "accepted":
+      return "bg-green-100 text-green-800";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    case "rejected":
+      return "bg-red-100 text-red-800";
+    case "confirmed":
+      return "bg-blue-100 text-blue-800";
+    case "withdrawn":
+      return "bg-gray-100 text-gray-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case "accepted":
+      return "Accepted";
+    case "pending":
+      return "Pending";
+    case "rejected":
+      return "Rejected";
+    case "confirmed":
+      return "Confirmed";
+    case "withdrawn":
+      return "Withdrawn";
+    default:
+      return status;
+  }
+};
+
 function Dashboard() {
   const { data: userData } = useMe();
   const userName = userData?.name ?? "Student";
   // console.log("user data: ", userData);
 
   const [showCSUCard, setShowCSUCard] = useState(true);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedApplicationData, setSelectedApplicationData] = useState<any | null>(null);
   
 
   useEffect(() => {
@@ -48,7 +95,11 @@ function Dashboard() {
 
   const handleCSUCardDismiss = () => {
     setShowCSUCard(false);
-    localStorage.setItem("csuCardHidden", "true");
+  };
+
+  const handleViewApplication = (app: any) => {
+    setSelectedApplicationData(app);
+    setViewDialogOpen(true);
   };
 
   // 🔹 Fetch Dashboard Data
@@ -202,7 +253,7 @@ function Dashboard() {
     {ongoingProjects.length === 0 ? (
       <p className="text-sm text-muted-foreground text-center py-4">No active projects</p>
     ) : (
-      ongoingProjects.map((project) => (
+      ongoingProjects.map((project: any) => (
         <div key={project.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
           <div className="flex justify-between items-start mb-3">
            <div>
@@ -220,7 +271,7 @@ function Dashboard() {
             <Badge variant="secondary" className="bg-green-100 text-green-700">Active</Badge>
           </div>
           <div className="flex gap-2 mt-4">
-            <Link to="/csp/$projectID" params={{ projectID: project.id }}>
+            <Link to="/csp/$projectID" params={{ projectID: project.id }} search={{ from: undefined }}>
               <Button variant="outline" size="sm">View Details</Button>
             </Link>
           </div>
@@ -242,18 +293,28 @@ function Dashboard() {
     {applications.length === 0 ? (
       <p className="text-sm text-muted-foreground text-center py-4">No applications found</p>
     ) : (
-      applications.map((app) => (
+      applications.map((app: any) => (
         <div key={app.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-          <div>
-            <h4 className="font-heading font-semibold mb-1">{app.projectTitle}</h4>
-            <p className="text-sm text-muted-foreground font-body">Status: {app.status}</p>
-            <p className="text-xs text-muted-foreground font-body mt-1">
-              Applied: {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+          <Link 
+            to="/csp/$projectID" 
+            params={{ projectID: app.projectId.toString() }} 
+            search={{ from: "dashboard" }}
+            className="flex-1"
+          >
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <h4 className="font-heading font-semibold">{app.projectTitle}</h4>
+              <Badge className={`text-xs ${getStatusColor(app.status)}`}>
+                {getStatusLabel(app.status)}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground font-body mt-1 flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              Applied on: {new Date(app.submittedAt).toLocaleDateString("en-GB")}
             </p>
-          </div>
-          <Link to="/csp/$cspId" params={{ cspId: app.projectId }}>
-            <Button variant="ghost" size="sm">View</Button>
           </Link>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewApplication(app); }}>
+            View Application
+          </Button>
         </div>
       ))
     )}
@@ -277,7 +338,7 @@ function Dashboard() {
                 ) : upcomingSessions.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">No upcoming sessions this week</p>
                 ) : (
-                  upcomingSessions.map((session) => (
+                  upcomingSessions.map((session: any) => (
                     <div key={`${session.projectId}-${session.sessionDate}`} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="flex items-start gap-3">
                         <div className="bg-primary/10 rounded-lg p-2 flex-shrink-0">
@@ -308,12 +369,70 @@ function Dashboard() {
               </CardContent>
 
             </Card>
-
-
-            
           </div>
         </div>
       </div>
+
+      {/* View Application Modal */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">
+              Application for {selectedApplicationData?.projectTitle}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedApplicationData ? (
+            <div className="space-y-6 font-body text-sm mt-4">
+              <div>
+                <h3 className="font-heading text-lg mb-2">Motivation</h3>
+                <Textarea value={selectedApplicationData.motivation} readOnly className="min-h-[100px]" />
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="font-heading text-lg mb-2">Experience</h3>
+                <RadioGroup value={selectedApplicationData.experience} disabled>
+                  <div className="flex gap-2">
+                    {["none", "some", "extensive"].map((exp) => (
+                      <div key={exp} className="flex items-center space-x-2 border rounded-md p-2">
+                        <RadioGroupItem value={exp} />
+                        <span className="capitalize font-body">{exp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div>
+                <h3 className="font-heading text-lg mb-2">Skills</h3>
+                <Input value={selectedApplicationData.skills || "—"} readOnly />
+              </div>
+
+              <div>
+                <h3 className="font-heading text-lg mb-2">Additional Comments</h3>
+                <Textarea value={selectedApplicationData.comments || "—"} readOnly className="min-h-[80px]" />
+              </div>
+
+              <Separator />
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={selectedApplicationData.agree} disabled />
+                  <span className="text-sm text-muted-foreground">Agreed to Code of Conduct</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={selectedApplicationData.acknowledgeSchedule} disabled />
+                  <span className="text-sm text-muted-foreground">Acknowledged Project Schedule</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-4">Loading...</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

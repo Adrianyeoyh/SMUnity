@@ -255,6 +255,9 @@ useEffect(() => {
             if (search.from === "preview") {
               // Go back to the organisation project overview page
               navigate({ to: "/organisations/$projectId", params: { projectId: projectID } });
+            } else if (search.from === "dashboard") {
+              // Go back to dashboard
+              navigate({ to: "/dashboard" });
             } else {
               // Navigate directly to discover page to avoid routing to apply form
               navigate({ to: "/discover" });
@@ -266,6 +269,8 @@ useEffect(() => {
           <span className="font-body">
             {search.from === "preview" 
               ? `Back to ${csp?.title || "Project"} Overview`
+              : search.from === "dashboard"
+              ? "Back to Dashboard"
               : "Back to Discover CSPs"}
           </span>
         </button>
