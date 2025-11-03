@@ -18,6 +18,7 @@ import {
   User,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { useQuery } from "@tanstack/react-query";
@@ -173,6 +174,18 @@ function ListingApplicationsPage() {
                 </CardDescription>
               </div>
               <div className="flex flex-row items-center gap-4">
+                {project.googleMaps && project.type === "local" && (
+                  <a
+                    href={project.googleMaps}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    View on Maps
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" size="sm" className="flex items-center gap-1">
                     {isOpen ? (
@@ -189,7 +202,7 @@ function ListingApplicationsPage() {
                   </Button>
                 </CollapsibleTrigger>
                 <Button className="">
-                  <Link to="/csp/$projectID" params={{ projectID: project.id }}>
+                  <Link to="/csp/$projectID" params={{ projectID: project.id }} search={{ from: "preview" }}>
                     Preview Listing
                   </Link>
                 </Button>

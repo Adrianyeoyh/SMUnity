@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
@@ -34,6 +34,9 @@ import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/csp/$projectID")({
   component: CspDetail,
+  validateSearch: (search: Record<string, unknown>) => ({
+    from: (search.from as string) || undefined,
+  }),
 });
 
 // Helper functions from discover page
@@ -103,11 +106,13 @@ function CspDetail() {
   const { isLoggedIn, user } = useAuth();
   const isStudent = user?.accountType === "student";
   const navigate = useNavigate();
+  const search = useSearch({ from: "/csp/$projectID" });
 
 const [showLoginModal, setShowLoginModal] = useState(false);
   const [isFavourite, setIsFavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [showGlitter, setShowGlitter] = useState(false);
+  const [hasSeenCSUReminder, setHasSeenCSUReminder] = useState(false);
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
 
   const { projectID } = Route.useParams();
@@ -201,7 +206,12 @@ useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         // Show floating button when sidebar button is NOT visible
-        setShowFloatingButton(!entry.isIntersecting);
+        const shouldShow = !entry.isIntersecting;
+        setShowFloatingButton(shouldShow);
+        // Track if CSU reminder has been shown at least once
+        if (shouldShow && !hasSeenCSUReminder) {
+          setHasSeenCSUReminder(true);
+        }
       },
       {
         threshold: 0,
@@ -218,7 +228,7 @@ useEffect(() => {
         observer.unobserve(sidebarButtonRef.current);
       }
     };
-  }, []);
+  }, [hasSeenCSUReminder]);
 
 
   if (isLoading)
@@ -238,17 +248,26 @@ useEffect(() => {
   const fillRate = Math.round((csp.currentVolunteers / csp.maxVolunteers) * 100);
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 lg:px-6 xl:px-8 2xl:px-10 py-8">
         {/* Back Button */}
         <button 
           onClick={() => {
-            // Navigate directly to discover page to avoid routing to apply form
-            navigate({ to: "/discover" });
+            if (search.from === "preview") {
+              // Go back to the organisation project overview page
+              navigate({ to: "/organisations/$projectId", params: { projectId: projectID } });
+            } else {
+              // Navigate directly to discover page to avoid routing to apply form
+              navigate({ to: "/discover" });
+            }
           }}
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          <span className="font-body">Back to Discover CSPs</span>
+          <span className="font-body">
+            {search.from === "preview" 
+              ? `Back to ${csp?.title || "Project"} Overview`
+              : "Back to Discover CSPs"}
+          </span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -256,23 +275,37 @@ useEffect(() => {
           <div className="lg:col-span-2 space-y-6">
             {/* Header Section */}
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
-                  {csp.category}
-                </Badge>
-                <Badge className={`text-xs ${statusBadge.className}`}>
-                  {statusBadge.label}
-                </Badge>
-                {csp.type === "overseas" ? (
-                  <Badge variant="outline" className="text-xs">
-                    <Globe className="mr-1 h-3 w-3" />
-                    Overseas
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
+                    {csp.category}
                   </Badge>
-                ) : (
-                  <Badge variant="outline" className="text-xs">
-                    <Map className="mr-1 h-3 w-3" />
-                    Local
+                  <Badge className={`text-xs ${statusBadge.className}`}>
+                    {statusBadge.label}
                   </Badge>
+                  {csp.type === "overseas" ? (
+                    <Badge variant="outline" className="text-xs">
+                      <Globe className="mr-1 h-3 w-3" />
+                      Overseas
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-xs">
+                      <Map className="mr-1 h-3 w-3" />
+                      Local
+                    </Badge>
+                  )}
+                </div>
+                {csp.googleMaps && csp.type === "local" && (
+                  <a
+                    href={csp.googleMaps}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 flex-shrink-0"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    View on Maps
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 )}
               </div>
 
@@ -293,7 +326,7 @@ useEffect(() => {
                   </div>
                 </div>
                 
-                <div className="flex gap-2 flex-shrink-0">
+                <div className="flex gap-2 flex-shrink-0 items-start">
                   {isLoggedIn && isStudent && (
                     <div className="relative">
                   <Button 
@@ -694,8 +727,8 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Floating Apply Button - Only when sidebar button not visible */}
-        {isApplicationOpen && showFloatingButton && (
+        {/* Floating Apply Button - Only when sidebar button not visible and CSU reminder hasn't been shown */}
+        {isApplicationOpen && showFloatingButton && !hasSeenCSUReminder && (
           <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* CSU Module Reminder */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 shadow-md max-w-xs">
