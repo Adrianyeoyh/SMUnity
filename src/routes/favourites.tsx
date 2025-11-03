@@ -118,7 +118,7 @@ function FavouritesPage() {
         <Heart className="h-12 w-12 text-muted-foreground mb-4" />
         <h3 className="font-heading text-lg font-semibold mb-2">No Favourites Yet</h3>
         <p className="text-muted-foreground font-body mb-6">
-          You haven’t saved any CSPs yet. Start exploring and click the heart icon to add favourites!
+          You haven’t saved any CSPs yet. Start exploring and click the heart icon to add to favourites!
         </p>
         <Button onClick={() => navigate({ to: "/discover" })}>Browse CSPs</Button>
       </div>

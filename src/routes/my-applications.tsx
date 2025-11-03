@@ -24,6 +24,7 @@ import {
   FileText,
   AlertTriangle,
   CalendarPlus,
+  Search,
 } from "lucide-react";
 import {
   Dialog,
@@ -50,14 +51,31 @@ function MyApplications() {
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedApplicationData, setSelectedApplicationData] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // 🔹 Fetch user’s applications
+  // 🔹 Fetch user's applications
   const { data, isLoading, error } = useQuery({
     queryKey: ["student-applications"],
     queryFn: fetchMyApplications,
   });
 
   const applications = data?.applications ?? [];
+
+  // 🔹 Filter applications based on search query
+  const filterApplications = (apps: any[]) => {
+    if (!searchQuery.trim()) return apps;
+    const query = searchQuery.toLowerCase();
+    return apps.filter((app: any) => {
+      return (
+        app.projectTitle?.toLowerCase().includes(query) ||
+        app.organisation?.toLowerCase().includes(query) ||
+        app.status?.toLowerCase().includes(query) ||
+        app.motivation?.toLowerCase().includes(query) ||
+        app.district?.toLowerCase().includes(query) ||
+        app.country?.toLowerCase().includes(query)
+      );
+    });
+  };
 
   // 🔹 Mutations
   const confirmMutation = useMutation({
@@ -114,14 +132,15 @@ function MyApplications() {
     else toast.error("Failed to add to Google Calendar.");
   };
 
-  // 🔹 Tab groupings
+  // 🔹 Tab groupings with search filter
+  const filteredApplications = filterApplications(applications);
   const groupedTabs = [
-    { label: "All", value: "all", data: applications },
-    { label: "Pending", value: "pending", data: applications.filter((a: any) => a.status === "pending") },
-    { label: "Accepted", value: "accepted", data: applications.filter((a: any) => a.status === "accepted") },
-    { label: "Confirmed", value: "confirmed", data: applications.filter((a: any) => a.status === "confirmed") },
-    { label: "Rejected", value: "rejected", data: applications.filter((a: any) => a.status === "rejected") },
-    { label: "Withdrawn", value: "withdrawn", data: applications.filter((a: any) => a.status === "withdrawn") },
+    { label: "All", value: "all", data: filteredApplications },
+    { label: "Pending", value: "pending", data: filterApplications(applications.filter((a: any) => a.status === "pending")) },
+    { label: "Accepted", value: "accepted", data: filterApplications(applications.filter((a: any) => a.status === "accepted")) },
+    { label: "Confirmed", value: "confirmed", data: filterApplications(applications.filter((a: any) => a.status === "confirmed")) },
+    { label: "Rejected", value: "rejected", data: filterApplications(applications.filter((a: any) => a.status === "rejected")) },
+    { label: "Withdrawn", value: "withdrawn", data: filterApplications(applications.filter((a: any) => a.status === "withdrawn")) },
   ];
 
   const getStatusColor = (status: string) => {
@@ -254,18 +273,33 @@ function MyApplications() {
 
       {/* ✅ Header */}
       <div className="border-b bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-4">My Applications</h1>
-          <p className="text-muted-foreground font-body text-lg">Track and manage your CSP applications</p>
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 sm:mb-4">
+            <div>
+              <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold">My Applications</h1>
+              <p className="text-muted-foreground font-body text-base sm:text-lg mt-2">Track and manage your CSP applications</p>
+            </div>
+             <div className="relative w-full sm:w-1/3">
+               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+               <Input
+                 type="search"
+                 placeholder="Search applications..."
+                 className="pl-10 h-10 text-sm sm:text-base w-full"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+               />
+             </div>
+          </div>
         </div>
       </div>
 
       {/* ✅ Tabs */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 sm:px-6 py-6">
+
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="h-auto grid w-full grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-0">
             {groupedTabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
+              <TabsTrigger key={tab.value} value={tab.value} className="text-xs sm:text-sm whitespace-nowrap">
                 {tab.label} ({tab.data.length})
               </TabsTrigger>
             ))}
@@ -275,74 +309,81 @@ function MyApplications() {
             <TabsContent key={tab.value} value={tab.value} className="space-y-4">
               {tab.data.length > 0 ? (
                 tab.data.map((app: any) => (
-                  <Card key={app.id} className="hover:shadow-lg transition-shadow">
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
+                  <Card key={app.id} className="hover:shadow-lg transition-shadow group/card">
+                    <CardContent className="px-4 sm:px-6 pt-0 pb-0">
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0 mb-4">
+                        <div className="flex-1 min-w-0">
                           <Link to="/csp/$projectID" params={{ projectID: app.projectId }}>
-                            <h3 className="font-heading text-xl font-semibold text-primary hover:underline cursor-pointer">
+                            <h3 className="font-heading text-lg sm:text-xl font-semibold text-foreground group-hover/card:text-primary transition-colors cursor-pointer break-words">
                               {app.projectTitle}
                             </h3>
                           </Link>
-                          <p className="text-muted-foreground font-body">{app.organisation}</p>
+                          <p className="text-sm sm:text-base text-muted-foreground font-body">{app.organisation}</p>
                         </div>
-                        <Badge className={getStatusColor(app.status)}>
+                        <Badge className={`${getStatusColor(app.status)} flex-shrink-0`}>
                           {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" /> Applied:{" "}
-                          {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+                      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                          <span className="truncate">
+                            <span>Applied: </span>
+                            {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" /> Start:{" "}
-                          {new Date(app.startDate).toLocaleDateString("en-GB")}
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                          <span className="truncate">
+                            <span>Start: </span>
+                            {new Date(app.startDate).toLocaleDateString("en-GB")}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" /> End:{" "}
-                          {new Date(app.endDate).toLocaleDateString("en-GB")}
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                          <span className="truncate">
+                            <span>End: </span>
+                            {new Date(app.endDate).toLocaleDateString("en-GB")}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {app.isRemote
-                            ? "Remote"
-                            : app.type === "overseas"
-                              ? app.country || "—"
-                              : app.district || "—"}
+                        <div className="flex items-center gap-1 min-w-0">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">
+                            <span>Location: </span>
+                            {app.isRemote
+                              ? "Remote"
+                              : app.type === "overseas"
+                                ? app.country || "—"
+                                : app.district || "—"}
+                          </span>
                         </div>
-
                       </div>
 
-                      <div className="mb-3 text-sm text-muted-foreground font-body">
-                        <strong>Your Motivation:</strong> {app.motivation}
+                      <div className="mb-3 text-xs sm:text-sm text-muted-foreground font-body">
+                        <strong>Your Motivation:</strong> <span className="break-words">{app.motivation}</span>
                       </div>
 
-                      <div className="mb-4 p-3 rounded-lg bg-muted/40">
-                        <p className="text-sm font-body">
-                          <AlertTriangle className="inline h-4 w-4 mr-1 text-muted-foreground" />
+                      <div className="mb-4 p-2 sm:p-3 rounded-lg bg-muted/40">
+                        <p className="text-xs sm:text-sm font-body">
+                          <AlertTriangle className="inline h-3 w-3 sm:h-4 sm:w-4 mr-1 text-muted-foreground" />
                           {getStatusMessage(app.status)}
                         </p>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <Button size="sm" onClick={() => handleViewApplication(app)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Application
-                        </Button>
-
+                      <div className="flex flex-wrap gap-2 justify-end">
                         {app.status === "accepted" && (
                           <>
-                            <Button size="sm" onClick={() => openConfirmDialog(app, "confirm")}>
-                              <CheckCircle className="mr-2 h-4 w-4" /> Confirm
+                            <Button size="sm" onClick={() => openConfirmDialog(app, "confirm")} className="text-xs sm:text-sm">
+                              <CheckCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Confirm
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => openConfirmDialog(app, "withdraw")}
+                              className="text-xs sm:text-sm"
                             >
-                              <FileText className="mr-2 h-4 w-4" /> Withdraw
+                              <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Withdraw
                             </Button>
                           </>
                         )}
@@ -352,8 +393,9 @@ function MyApplications() {
                             size="sm"
                             variant="outline"
                             onClick={() => openConfirmDialog(app, "withdraw")}
+                            className="text-xs sm:text-sm"
                           >
-                            <FileText className="mr-2 h-4 w-4" /> Withdraw
+                            <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Withdraw
                           </Button>
                         )}
 
@@ -362,10 +404,19 @@ function MyApplications() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleAddToCalendar(app)}
+                            className="text-xs sm:text-sm"
                           >
-                            <CalendarPlus className="mr-2 h-4 w-4" /> Add to Google Calendar
+                            <CalendarPlus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> 
+                            <span className="hidden sm:inline">Add to Google Calendar</span>
+                            <span className="sm:hidden">Calendar</span>
                           </Button>
                         )}
+
+                        <Button size="sm" onClick={() => handleViewApplication(app)} className="text-xs sm:text-sm">
+                          <Eye className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="hidden sm:inline">View Application</span>
+                          <span className="sm:hidden">View</span>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
