@@ -8,7 +8,7 @@ export async function fetchOngoingProjects() {
     const err = await res.text();
     throw new Error(`Failed to fetch ongoing projects: ${err}`);
   }
-
+  console.log(res, "log")
   return res.json();
 }
 

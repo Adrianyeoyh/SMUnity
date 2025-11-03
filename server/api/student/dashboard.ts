@@ -36,8 +36,8 @@ dashboard.get("/ongoing-projects", async (c) => {
           gt(schema.projects.endDate, sql`NOW()`)     // project not yet ended
         )
       );
-
-    return c.json(ok(c, { projects }));
+    console.log(projects,"projects")
+    return ok(c, { projects });
   } catch (err) {
     console.error("❌ Ongoing projects error:", err);
     badReq(c,"Failed to load ongoing projects");
@@ -53,8 +53,8 @@ dashboard.get("/pending-applications", async (c) => {
       .select({ count: sql<number>`COUNT(*)::int` })
       .from(schema.applications)
       .where(and(eq(schema.applications.userId, user.id), eq(schema.applications.status, "pending")));
-
-    return c.json(ok(c,{ pendingCount: count }));
+    console.log(count, "pending")
+    return ok(c,{ pendingCount: count });
   } catch (err) {
     console.error("❌ Pending applications error:", err);
     return badReq(c,"Failed to load pending applications");
@@ -77,8 +77,8 @@ dashboard.get("/completed-projects", async (c) => {
           lt(schema.projects.endDate, sql`NOW()`) // project has ended
         )
       );
-
-    return c.json(ok(c, { completedCount: count }));
+    console.log(count, "completed")
+    return ok(c, { completedCount: count });
   } catch (err) {
     console.error("❌ Completed projects error:", err);
     return badReq(c,"Failed to load completed projects");
@@ -105,8 +105,8 @@ dashboard.get("/applications", async (c) => {
       .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
       .where(eq(schema.applications.userId, user.id))
       .orderBy(sql`applications.submitted_at DESC`);
-
-    return c.json(ok(c, { applications }));
+      console.log(applications,"applications")
+    return ok(c, { applications });
   } catch (err) {
     console.error("❌ Error fetching user applications:", err);
     return badReq(c,"Failed to fetch user applications");
@@ -207,7 +207,7 @@ dashboard.get("/upcoming-sessions", async (c) => {
     sessions.sort(
       (a, b) => new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime()
     );
-
+    console.log(sessions, "sessions")
     return ok(c, { sessions });
   } catch (err) {
     console.error("❌ Error generating upcoming sessions:", err);
