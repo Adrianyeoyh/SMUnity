@@ -1203,7 +1203,7 @@ function Index() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 h-[93vh] flex items-center justify-center overflow-hidden py-0">
+      <section className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 h-[93vh] lg:h-screen flex items-center justify-center overflow-hidden py-0">
         <MovingBackground />
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 relative z-10 w-full py-0 pt-0">
           <div className="max-w-4xl mx-auto text-center">
@@ -1359,7 +1359,7 @@ function Index() {
       </section>
 
       {/* About SMUnity Section */}
-      <section ref={aboutSectionRef} id="about" className="pt-16 pb-20 md:pb-24 lg:pt-8 lg:pb-12 bg-background min-h-screen flex items-center">
+      <section ref={aboutSectionRef} id="about" className="pt-16 pb-20 md:pb-24 lg:pt-20 lg:pb-22 lg:min-h-0 bg-background min-h-screen lg:flex items-center">
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 max-w-7xl w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
             {/* Left side - Heading and Description */}
