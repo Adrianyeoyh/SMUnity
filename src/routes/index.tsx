@@ -26,6 +26,8 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -199,6 +201,12 @@ function Index() {
   const [countPartners, setCountPartners] = useState(0);
   const [countCountries, setCountCountries] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
+
+  // Fetch real CSPs from API
+  const { data: discoverProjects = [] } = useQuery({
+    queryKey: ["discover-projects"],
+    queryFn: fetchDiscoverProjects,
+  });
   const statsRef = useRef<HTMLDivElement>(null);
   const smunityRef = useRef<HTMLSpanElement>(null);
   const smuRef = useRef<HTMLSpanElement>(null);
@@ -840,8 +848,8 @@ function Index() {
     };
   }, []);
 
-  // Mock data for demonstration
-  const featuredCSPs = [
+  // Mock data for demonstration (fallback)
+  const mockFeaturedCSPs = [
     {
       id: "1",
       title: "Beach Cleanup Drive",
@@ -1116,8 +1124,36 @@ function Index() {
     }
   ];
 
+  // Use real CSPs from API for local projects, filter for local and map to match structure
+  const realFeaturedCSPs = discoverProjects
+    .filter((project: any) => project.type === "local")
+    .slice(0, 6)
+    .map((project: any) => ({
+      id: project.id,
+      title: project.title,
+      organisation: project.organisation,
+      location: project.isRemote ? "Remote" : (project.location || project.district || "—"),
+      category: project.category || "Community",
+      type: project.type,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      duration: project.serviceHours ? `${project.serviceHours}h` : "",
+      serviceHours: project.serviceHours || 0,
+      maxVolunteers: project.maxVolunteers || 0,
+      currentVolunteers: project.currentVolunteers || 0,
+      isRemote: project.isRemote || false,
+      status: project.status || "open",
+      applicationDeadline: project.applicationDeadline,
+      description: project.description || "",
+      skills: project.skills || [],
+      tags: project.tags || [],
+    }));
+
+  // Fallback to mock data if no real CSPs available
+  const featuredCSPs = realFeaturedCSPs.length > 0 ? realFeaturedCSPs : mockFeaturedCSPs;
+
   // Filter CSPs based on search, category, and type
-  const filteredFeaturedCSPs = featuredCSPs.filter(csp => {
+  const filteredFeaturedCSPs = featuredCSPs.filter((csp: any) => {
     const matchesCategory = selectedCategory === "all" || csp.category === selectedCategory;
     const matchesType = selectedType === "all" || (csp as any).type === selectedType;
     
@@ -1130,8 +1166,8 @@ function Index() {
       csp.location.toLowerCase().includes(query) ||
       csp.category.toLowerCase().includes(query) ||
       csp.description.toLowerCase().includes(query) ||
-      csp.skills.some(skill => skill.toLowerCase().includes(query)) ||
-      csp.tags.some(tag => tag.toLowerCase().includes(query));
+      csp.skills.some((skill: string) => skill.toLowerCase().includes(query)) ||
+      csp.tags.some((tag: string) => tag.toLowerCase().includes(query));
     
     return matchesCategory && matchesType && matchesSearch;
   });
@@ -1275,7 +1311,7 @@ function Index() {
                   style={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" }}
                 >
                   SMUnity
-                </span>
+              </span>
                 <span className="ml-1 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:scale-110 pointer-events-none z-10">
                   <span className="relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full p-[2px]" style={{ 
                     background: "linear-gradient(135deg, #2563eb 0%, #10b981 100%)"
@@ -1363,7 +1399,7 @@ function Index() {
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 max-w-7xl w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
             {/* Left side - Heading and Description */}
-            <div className="space-y-6">
+          <div className="space-y-6">
               <motion.h2 
                 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground"
                 initial={{ opacity: 0, x: -50 }}
@@ -1426,7 +1462,7 @@ function Index() {
               >
                 Finding a volunteer cause should not be complicated. SMUnity aims to brings all your community service needs into <strong className="text-foreground">one centralised, seamless platform</strong>. Discover verified local and overseas projects, submit instant applications, and make an impact while completing CSU requirements all within SMUnity! 
               </motion.p>
-            </div>
+                </div>
 
             {/* Right side - Feature Cards (staggered on scroll) */}
             <div className="space-y-16 md:space-y-24">
@@ -1441,7 +1477,7 @@ function Index() {
                 <div className="flex items-center gap-4 justify-center md:justify-start">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center flex-shrink-0">
                     <Search className="h-7 w-7 text-white" />
-                  </div>
+              </div>
                   <h3 className="font-heading font-semibold text-lg sm:text-xl md:text-2xl">Find Your Match</h3>
                 </div>
                 <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body leading-relaxed">
@@ -1460,7 +1496,7 @@ function Index() {
                 <div className="flex items-center gap-4 justify-center md:justify-start">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center flex-shrink-0">
                     <Target className="h-7 w-7 text-white" />
-                  </div>
+              </div>
                   <h3 className="font-heading font-semibold text-lg sm:text-xl md:text-2xl">Apply with Ease</h3>
                 </div>
                 <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body leading-relaxed">
@@ -1479,7 +1515,7 @@ function Index() {
                 <div className="flex items-center gap-4 justify-center md:justify-start">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#2563eb] to-[#10b981] rounded-full flex items-center justify-center flex-shrink-0">
                     <HeartHandshake className="h-7 w-7 text-white" />
-                  </div>
+              </div>
                   <h3 className="font-heading font-semibold text-lg sm:text-xl md:text-2xl">Make an Impact</h3>
                 </div>
                 <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-body leading-relaxed">
@@ -1509,16 +1545,16 @@ function Index() {
               const IconComponent = category.icon;
               return (
                 <div
-                  key={category.value}
+                key={category.value}
                   ref={(el) => {
                     categoryCardsRef.current[idx] = el;
                   }}
                   className="relative cursor-pointer group px-1 lg:px-2 overflow-hidden rounded-lg"
                   style={{ perspective: "1000px" }}
-                  onClick={() => {
-                    navigate({ to: "/discover", search: { category: category.value } });
-                  }}
-                >
+                onClick={() => {
+                  navigate({ to: "/discover", search: { category: category.value } });
+                }}
+              >
                   <div
                     data-card-inner
                     className="relative w-full h-full"
@@ -1541,7 +1577,7 @@ function Index() {
                         style={{ backgroundImage: `url(${category.image})` }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                    </div>
+                </div>
 
                     {/* Back - Icon and Label */}
                     <div
@@ -1667,7 +1703,7 @@ function Index() {
             
             {/* Mobile/Tablet Grid - Below 992px */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:hidden">
-              {filteredFeaturedCSPs.map((csp, idx) => {
+              {filteredFeaturedCSPs.map((csp: any, idx: number) => {
                 // Hide projects beyond the 3rd on phone screens (< 768px)
                 const isHiddenOnMobile = idx >= 3;
                 const statusBadge = getStatusBadge(csp.status);
@@ -1738,7 +1774,7 @@ function Index() {
                       </div>
 
                       <div className="flex flex-wrap gap-1">
-                        {csp.skills.slice(0, window.innerWidth >= 1280 ? 3 : 2).map((skill) => (
+                        {csp.skills.slice(0, window.innerWidth >= 1280 ? 3 : 2).map((skill: string) => (
                           <Badge key={skill} variant="outline" className="text-xs">
                             {skill}
                           </Badge>
@@ -1751,7 +1787,7 @@ function Index() {
                       </div>
                     </div>
 
-                    <Link to="/csp/$projectID" params={{ projectID: csp.id }} search={{ from: undefined }}>
+                    <Link to="/csp/$projectID" params={{ projectID: String(csp.id) }} search={{ from: undefined }}>
                       <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                       </Button>
@@ -1767,7 +1803,7 @@ function Index() {
             <div className="hidden lg:block relative py-6">
               <div className="relative w-full max-w-5xl mx-auto overflow-hidden">
                 <div className="relative h-[390px] flex items-center justify-center">
-                  {filteredFeaturedCSPs.map((csp, idx) => {
+                  {filteredFeaturedCSPs.map((csp: any, idx: number) => {
                     const visibleIndices = getVisibleIndices();
                     const position = visibleIndices.indexOf(idx);
                     
@@ -1853,7 +1889,7 @@ function Index() {
                           </div>
 
                           <div className="flex flex-wrap gap-1">
-                            {csp.skills.slice(0, 3).map((skill) => (
+                            {csp.skills.slice(0, 3).map((skill: string) => (
                               <Badge key={skill} variant="outline" className="text-xs">
                                 {skill}
                               </Badge>
@@ -1866,7 +1902,7 @@ function Index() {
                           </div>
                         </div>
 
-                        <Link to="/csp/$projectID" params={{ projectID: csp.id }} search={{ from: undefined }}>
+                        <Link to="/csp/$projectID" params={{ projectID: String(csp.id) }} search={{ from: undefined }}>
                           <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                             {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                           </Button>
@@ -1883,7 +1919,7 @@ function Index() {
             {/* Carousel Indicators - Desktop only */}
             {filteredFeaturedCSPs.length > 3 && (
               <div className="hidden lg:flex justify-center gap-2">
-                {filteredFeaturedCSPs.map((_, idx) => (
+                {filteredFeaturedCSPs.map((_: any, idx: number) => (
                   <button
                     key={idx}
                     className={`h-2 rounded-full transition-all ${
@@ -2003,10 +2039,10 @@ function Index() {
             {/* Right Side - Description and Buttons */}
             <div className="text-center md:text-left">
               <p className="text-base sm:text-lg md:text-xl mb-8 max-w-2xl md:max-w-none text-white">
-                Join thousands of SMU students who are already making an impact in their communities. 
-                Start your community service journey today!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            Join thousands of SMU students who are already making an impact in their communities. 
+            Start your community service journey today!
+          </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/discover" className="group">
                   <Button 
                     size="lg" 
@@ -2014,30 +2050,30 @@ function Index() {
                     className="relative text-primary font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-white/20 border-2 border-white bg-white group-hover:bg-white/95 px-8 py-6 text-base sm:text-lg overflow-hidden"
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      Discover CSPs
+                Discover CSPs
                       <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       initial={false}
                     />
-                  </Button>
-                </Link>
+              </Button>
+            </Link>
                 <Link to="/discover" className="group">
                   <Button 
                     size="lg" 
                     className="relative bg-secondary hover:bg-secondary/95 text-secondary-foreground font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-secondary/30 border-2 border-secondary/50 group-hover:border-secondary px-8 py-6 text-base sm:text-lg overflow-hidden group-hover:scale-105"
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      Get Started
+                Get Started
                       <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       initial={false}
                     />
-                  </Button>
-                </Link>
+              </Button>
+            </Link>
               </div>
             </div>
           </div>

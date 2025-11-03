@@ -316,13 +316,13 @@ function ListingApplicationsPage() {
                 <div className="space-y-2">
                   <p className="font-medium text-foreground">Project Tags</p>
                   {project.projectTags && project.projectTags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                       {project.projectTags.map((tag: string) => (
-                        <Badge key={tag} variant="secondary" className="capitalize">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
+                      <Badge key={tag} variant="secondary" className="capitalize">
+                        {tag}
+                      </Badge>
+                    ))}
+                </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">—</p>
                   )}
@@ -338,11 +338,11 @@ function ListingApplicationsPage() {
                     </p>
                     {project.org.website ? (
                       <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Globe className="h-4 w-4" />{" "}
+                      <Globe className="h-4 w-4" />{" "}
                         <a href={project.org.website} target="_blank" rel="noopener noreferrer" className="underline">
-                          {project.org.website}
-                        </a>
-                      </p>
+                        {project.org.website}
+                      </a>
+                    </p>
                     ) : (
                       <p className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Globe className="h-4 w-4" /> —
