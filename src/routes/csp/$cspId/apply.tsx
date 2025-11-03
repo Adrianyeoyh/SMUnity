@@ -19,15 +19,15 @@ function ApplyForCSPPage() {
   });
 
   if (isLoading) {
-    return <div className="p-12 text-center text-muted-foreground">Loading project details...</div>;
+    return <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center text-muted-foreground">Loading project details...</div>;
   }
 
   if (isError || !project) {
-    return <div className="p-12 text-center text-destructive">Failed to load project.</div>;
+    return <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center text-destructive">Failed to load project.</div>;
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-3xl">
+    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-3xl">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
         <button
           onClick={() => window.history.back()}

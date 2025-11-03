@@ -338,7 +338,7 @@ function AdminDashboard() {
     await createOrganiser(organiserForm);
 
     toast.success("Organiser created successfully", {
-      description: `${organiserForm.organiserName} from ${organiserForm.organisationName} has been added.`,
+      description: `${organiserForm.organiserName} from ${organiserForm.organisationName} has been added`,
       className: "bg-green-50 border border-green-200 font-body",
     });
 

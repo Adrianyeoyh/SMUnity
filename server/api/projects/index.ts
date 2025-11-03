@@ -90,8 +90,8 @@ projects.post("/apply", async (c) => {
       .limit(1);
 
     if (existing.length > 0) {
-      console.warn(`⚠️ [Apply] User ${user.id} already applied for project ${projectId}.`);
-      return c.json({ error: "You have already applied to this project." }, 400);
+      console.warn(`⚠️ [Apply] User ${user.id} already applied for project ${projectId}`);
+      return c.json({ error: "You have already applied to this project" }, 400);
     }
 
     // ✅ Step 5: Insert new application

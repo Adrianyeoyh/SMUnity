@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
 import { Badge } from "#client/components/ui/badge";
 import { Separator } from "#client/components/ui/separator";
-import { fetchSavedProjects, fetchSaveProject, fetchUnsaveProject } from "#client/api/student";
+import { fetchSavedProjects, fetchSaveProject, fetchUnsaveProject, fetchMyApplications } from "#client/api/student";
 
 import { Progress } from "#client/components/ui/progress";
 import { 
@@ -102,10 +102,12 @@ const formatTimeCommitment = (
 function CspDetail() {
   const { isLoggedIn, user } = useAuth();
   const isStudent = user?.accountType === "student";
+  const navigate = useNavigate();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isFavourite, setIsFavourite] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
+  const [showGlitter, setShowGlitter] = useState(false);
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
 
   const { projectID } = Route.useParams();
@@ -128,12 +130,19 @@ function CspDetail() {
       return;
     }
 
+    const wasFavourite = isFavourite;
+    
     if (isFavourite) {
       await fetchUnsaveProject(csp.id);
       toast.success("Removed from favourites");
     } else {
       await fetchSaveProject(csp.id);
       toast.success("Added to favourites");
+      // Trigger glitter animation when adding to favourites
+      if (!wasFavourite) {
+        setShowGlitter(true);
+        setTimeout(() => setShowGlitter(false), 600);
+      }
     }
 
     setIsFavourite(!isFavourite);
@@ -149,6 +158,14 @@ const { data: savedData = { saved: [] }, refetch: refetchSaved } = useQuery({
   queryFn: fetchSavedProjects,
   enabled: !!user && isStudent, // wait until user is defined
   staleTime: 60000, // optional
+});
+
+// Fetch user's applications to check if they've already applied
+const { data: applicationsData } = useQuery({
+  queryKey: ["student-applications"],
+  queryFn: fetchMyApplications,
+  enabled: !!user && isStudent, // only fetch if user is logged in and is a student
+  staleTime: 60000,
 });
 
 
@@ -225,8 +242,8 @@ useEffect(() => {
         {/* Back Button */}
         <button 
           onClick={() => {
-            // Use browser back to retain previous filters and pagination
-            window.history.back();
+            // Navigate directly to discover page to avoid routing to apply form
+            navigate({ to: "/discover" });
           }}
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
@@ -278,26 +295,53 @@ useEffect(() => {
                 
                 <div className="flex gap-2 flex-shrink-0">
                   {isLoggedIn && isStudent && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleFavourite}
-                      className="h-8 w-8 flex-shrink-0"
-                    >
-                      <Heart
-                        className={`h-5 w-5 transition-all ${
-                          isFavourite
-                            ? "fill-red-500 text-red-500"
-                            : "text-muted-foreground hover:text-red-500"
-                        }`}
-                      />
-                    </Button>
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleFavourite}
+                        className="h-8 w-8 flex-shrink-0 border relative"
+                      >
+                        <Heart
+                          className={`h-5 w-5 transition-all ${
+                            isFavourite
+                              ? "fill-red-500 text-red-500"
+                              : "text-black hover:text-black"
+                          }`}
+                        />
+                        {showGlitter && (
+                          <>
+                            {[...Array(8)].map((_, i) => {
+                              const angle = (i * 360) / 8;
+                              const distance = 20;
+                              const radians = (angle * Math.PI) / 180;
+                              const tx = Math.cos(radians) * distance;
+                              const ty = Math.sin(radians) * distance;
+                              return (
+                                <span
+                                  key={i}
+                                  className="glitter-particle"
+                                  style={{
+                                    left: '50%',
+                                    top: '50%',
+                                    '--tx': `${tx}px`,
+                                    '--ty': `${ty}px`,
+                                    animationDelay: `${i * 0.05}s`,
+                                  } as React.CSSProperties}
+                                />
+                              );
+                            })}
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   )}
 
                   <Button 
                     variant="outline" 
                     size="icon"
                     onClick={handleShare}
+                    className="h-8 w-8"
                   >
                     <Share2 className="h-4 w-4" />
                   </Button>
@@ -511,13 +555,11 @@ useEffect(() => {
                     <Separator />
 
                     {/* CSU Module Reminder */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-xs text-blue-900 font-body">
-                          Complete CSU module on eLearn before applying
-                        </p>
-                      </div>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
+                      <p className="text-xs text-yellow-900 font-body">
+                        Complete CSU module on eLearn before applying
+                      </p>
                     </div>
 
                     {/* Apply Button */}
@@ -532,7 +574,7 @@ useEffect(() => {
                           (!isLoggedIn && !user) ||
                           (isLoggedIn && user?.accountType !== "student")
                         }
-                        onClick={() => {
+                        onClick={async () => {
                           if (isDeadlinePassed) {
                             toast.error("The application deadline has passed.");
                             return;
@@ -545,6 +587,17 @@ useEffect(() => {
 
                           if (user?.accountType !== "student") {
                             toast.error("Only student accounts can apply for CSPs.");
+                            return;
+                          }
+
+                          // Check if user has already applied to this project
+                          const applications = applicationsData?.applications ?? [];
+                          const hasAlreadyApplied = applications.some(
+                            (app: any) => app.projectId === csp.id || app.project?.id === csp.id
+                          );
+
+                          if (hasAlreadyApplied) {
+                            toast.error("You have already applied to this project.");
                             return;
                           }
 
@@ -646,13 +699,11 @@ useEffect(() => {
           <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* CSU Module Reminder */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 shadow-md max-w-xs">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-yellow-800 font-body">
-                    Complete CSU module on eLearn before applying.
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0" />
+                <p className="text-xs text-yellow-800 font-body">
+                  Complete CSU module on eLearn before applying.
+                </p>
               </div>
             </div>
 

@@ -23,41 +23,42 @@ import { Separator } from "#client/components/ui/separator"
 import { createApplication } from "#client/api/projects/index.ts"
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router"
+import { useQueryClient } from "@tanstack/react-query"
 
 const FormSchema = z.object({
   // 1️⃣ Motivation
   motivation: z
     .string()
-    .min(20, "Please write at least 20 characters.")
-    .max(800, "Keep it under 800 characters."),
+    .min(20, "Please write at least 20 characters")
+    .max(800, "Keep it under 800 characters"),
 
 
   // 3️⃣ Experience
   experience: z.enum(["none", "some", "extensive"]).refine(
     (val) => ["none", "some", "extensive"].includes(val),
-    { message: "Select your prior experience." }
+    { message: "Select your prior experience" }
   ),
 
   // 4️⃣ Skills
   skills: z
     .string()
-    .max(160, "160 characters max.")
+    .max(160, "160 characters max")
     .transform((v) => (v?.trim() ? v.trim() : "")),
 
   // 5️⃣ Agreement
   agree: z.boolean().refine((val) => val === true, {
-    message: "You must agree to the code of conduct."
+    message: "You must agree to the code of conduct"
   }),
 
   // 6️⃣ Schedule acknowledgement
   acknowledgeSchedule: z.boolean().refine((val) => val === true, {
-    message: "You must acknowledge the project schedule before applying."
+    message: "You must acknowledge the project schedule before applying"
   }),
 
   // 7️⃣ Additional comments
   comments: z
     .string()
-    .max(500, "Maximum 500 characters.")
+    .max(500, "Maximum 500 characters")
     .optional(),
 })
 
@@ -74,6 +75,22 @@ export type ApplicationFormProps = {
 
 export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const storageKey = `application-form-draft-${projectId}`;
+  
+  // Load saved form data from localStorage
+  const getSavedFormData = (): Partial<FormValues> => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error("Failed to load saved form data:", error);
+    }
+    return {};
+  };
+
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -83,12 +100,26 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
       agree: false,
       acknowledgeSchedule: false,
       comments: "",
+      ...getSavedFormData(), // Load saved data if available
     },
   });
 
   const [submitting, setSubmitting] = React.useState(false)
   const [serverError, setServerError] = React.useState<string | null>(null)
   const [serverSuccess, setServerSuccess] = React.useState<string | null>(null)
+
+  // Save form data to localStorage on changes (debounced)
+  React.useEffect(() => {
+    const subscription = form.watch((value) => {
+      // Save to localStorage
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(value));
+      } catch (error) {
+        console.error("Failed to save form data:", error);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, storageKey]);
 
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
@@ -108,6 +139,21 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
         data: values,
         submittedAt: new Date().toISOString(),
       });
+      
+      // Invalidate dashboard queries to refresh statistics
+      queryClient.invalidateQueries({ queryKey: ["pending-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["all-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["student-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["ongoing-projects"] });
+      queryClient.invalidateQueries({ queryKey: ["completed-projects"] });
+      
+      // Clear saved form data from localStorage on successful submission
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (error) {
+        console.error("Failed to clear saved form data:", error);
+      }
+      
       form.reset();
       navigate({ to: `/csp/${projectId}` }); // <--- this line
     } catch (err: any) {
@@ -138,7 +184,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
               <FormControl>
                 <Textarea
                   placeholder="Share your motivation, what you hope to learn, and how you plan to contribute"
-                  className="min-h-28"
+                  className="min-h-28 text-sm sm:text-base"
                   {...field}
                 />
               </FormControl>
@@ -197,6 +243,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
               <FormControl>
                 <Input
                   placeholder="e.g., Design, Social Media, Tutoring, Fundraising"
+                  className="text-sm sm:text-base"
                   {...field}
                 />
               </FormControl>
@@ -213,18 +260,20 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           control={form.control}
           name="agree"
           render={({ field }) => (
-            <FormItem className="flex items-start gap-3 rounded-md border p-3">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>I agree to the community's code of conduct</FormLabel>
-                <FormDescription>
-                  Be respectful, reliable, and follow project guidelines.
-                </FormDescription>
+            <FormItem>
+              <div className="flex items-start gap-3 rounded-md border p-3">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>I agree to the community's code of conduct</FormLabel>
+                  <FormDescription>
+                    Be respectful, reliable, and follow project guidelines.
+                  </FormDescription>
+                </div>
               </div>
               <FormMessage />
             </FormItem>
@@ -236,19 +285,21 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           control={form.control}
           name="acknowledgeSchedule"
           render={({ field }) => (
-            <FormItem className="flex items-start gap-3 rounded-md border p-3 bg-muted/40">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  I have read and acknowledge the project schedule                </FormLabel>
-                <FormDescription>
-                  This includes the start/end dates, meeting days, and session times.
-                </FormDescription>
+            <FormItem>
+              <div className="flex items-start gap-3 rounded-md border p-3 bg-muted/40">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    I have read and acknowledge the project schedule                </FormLabel>
+                  <FormDescription>
+                    I declare that I am available for the project's start/end dates, meeting days, and session times.
+                  </FormDescription>
+                </div>
               </div>
               <FormMessage />
             </FormItem>
@@ -264,8 +315,8 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
               <FormLabel>Additional comments (optional)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Any other remarks or special requests you’d like to share with the organisers"
-                  className="min-h-20"
+                  placeholder="Any other remarks or special requests you'd like to share with the organisers"
+                  className="min-h-20 text-sm sm:text-base"
                   {...field}
                 />
               </FormControl>
@@ -281,7 +332,15 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           <Button
             type="button"
             variant="ghost"
-            onClick={() => form.reset()}
+            onClick={() => {
+              form.reset();
+              // Clear saved form data when resetting
+              try {
+                localStorage.removeItem(storageKey);
+              } catch (error) {
+                console.error("Failed to clear saved form data:", error);
+              }
+            }}
             disabled={submitting}
           >
             Reset

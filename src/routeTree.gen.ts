@@ -36,7 +36,6 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthAdminOnlyRouteImport } from './routes/auth/adminOnly'
 import { Route as AdminOrganisationsRouteImport } from './routes/admin/organisations'
-import { Route as AdminDashboard2RouteImport } from './routes/admin/dashboard2'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
 import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
@@ -173,11 +172,6 @@ const AdminOrganisationsRoute = AdminOrganisationsRouteImport.update({
   path: '/admin/organisations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDashboard2Route = AdminDashboard2RouteImport.update({
-  id: '/admin/dashboard2',
-  path: '/admin/dashboard2',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -213,7 +207,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof Admin_rootRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/dashboard2': typeof AdminDashboard2Route
   '/admin/organisations': typeof AdminOrganisationsRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -245,7 +238,6 @@ export interface FileRoutesByTo {
   '/admin': typeof Admin_rootRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/dashboard2': typeof AdminDashboard2Route
   '/admin/organisations': typeof AdminOrganisationsRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -278,7 +270,6 @@ export interface FileRoutesById {
   '/admin/__root': typeof Admin_rootRoute
   '/admin/cspId': typeof AdminCspIdRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/dashboard2': typeof AdminDashboard2Route
   '/admin/organisations': typeof AdminOrganisationsRoute
   '/auth/adminOnly': typeof AuthAdminOnlyRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -313,7 +304,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/cspId'
     | '/admin/dashboard'
-    | '/admin/dashboard2'
     | '/admin/organisations'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -345,7 +335,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/cspId'
     | '/admin/dashboard'
-    | '/admin/dashboard2'
     | '/admin/organisations'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -377,7 +366,6 @@ export interface FileRouteTypes {
     | '/admin/__root'
     | '/admin/cspId'
     | '/admin/dashboard'
-    | '/admin/dashboard2'
     | '/admin/organisations'
     | '/auth/adminOnly'
     | '/auth/callback'
@@ -411,7 +399,6 @@ export interface RootRouteChildren {
   Admin_rootRoute: typeof Admin_rootRoute
   AdminCspIdRoute: typeof AdminCspIdRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminDashboard2Route: typeof AdminDashboard2Route
   AdminOrganisationsRoute: typeof AdminOrganisationsRoute
   AuthAdminOnlyRoute: typeof AuthAdminOnlyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -609,13 +596,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrganisationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/dashboard2': {
-      id: '/admin/dashboard2'
-      path: '/admin/dashboard2'
-      fullPath: '/admin/dashboard2'
-      preLoaderRoute: typeof AdminDashboard2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -685,7 +665,6 @@ const rootRouteChildren: RootRouteChildren = {
   Admin_rootRoute: Admin_rootRoute,
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminDashboard2Route: AdminDashboard2Route,
   AdminOrganisationsRoute: AdminOrganisationsRoute,
   AuthAdminOnlyRoute: AuthAdminOnlyRoute,
   AuthCallbackRoute: AuthCallbackRoute,

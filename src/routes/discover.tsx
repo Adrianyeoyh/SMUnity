@@ -240,6 +240,7 @@ const savedIds = useMemo(
 
 
 const [tempSavedIds, setTempSavedIds] = useState<Set<string>>(new Set());
+const [glitteringProjectId, setGlitteringProjectId] = useState<string | null>(null);
 
 const handleToggleSave = async (projectId: string) => {
   try {
@@ -262,6 +263,11 @@ const handleToggleSave = async (projectId: string) => {
     } else {
       await fetchSaveProject(projectId);
       toast.success("Added to favourites");
+      // Trigger glitter animation when adding to favourites
+      if (!currentlySaved) {
+        setGlitteringProjectId(projectId);
+        setTimeout(() => setGlitteringProjectId(null), 600);
+      }
     }
 
     await queryClient.invalidateQueries({ queryKey: ["saved-projects"] });
@@ -461,7 +467,7 @@ if (isError)
                     <Input
                       type="search"
                       placeholder="Search for CSPs, organisations, or skills..."
-                      className="pl-10 h-11"
+                      className="pl-10 h-11 text-sm sm:text-base"
                       value={searchQuery}
                       onChange={(e) => {
                         setSearchQuery(e.target.value);
@@ -717,8 +723,8 @@ if (isError)
               </p>
             </div>
             
-            {/* View Toggle - Icon Only, Bigger */}
-            <div className="flex items-center gap-2">
+            {/* View Toggle - Icon Only, Bigger - Hidden on small screens */}
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="default"
@@ -756,24 +762,49 @@ if (isError)
                           </Badge>
                         </div>
                         {isLoggedIn && isStudent && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 flex-shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleSave(csp.id);
-                            }}
-                          >
-                            <Heart
+                          <div className="relative">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 flex-shrink-0 relative"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleSave(csp.id);
+                              }}
+                            >
+                              <Heart
   className={`h-4 w-4 transition-all ${
     savedIds.has(csp.id) || tempSavedIds.has(csp.id)
       ? "fill-red-500 text-red-500"
-      : "text-muted-foreground hover:text-red-500"
+      : "text-black hover:text-black"
   }`}
 />
-
-                          </Button>
+                              {glitteringProjectId === csp.id && (
+                                <>
+                                  {[...Array(8)].map((_, i) => {
+                                    const angle = (i * 360) / 8;
+                                    const distance = 20;
+                                    const radians = (angle * Math.PI) / 180;
+                                    const tx = Math.cos(radians) * distance;
+                                    const ty = Math.sin(radians) * distance;
+                                    return (
+                                      <span
+                                        key={i}
+                                        className="glitter-particle"
+                                        style={{
+                                          left: '50%',
+                                          top: '50%',
+                                          '--tx': `${tx}px`,
+                                          '--ty': `${ty}px`,
+                                          animationDelay: `${i * 0.05}s`,
+                                        } as React.CSSProperties}
+                                      />
+                                    );
+                                  })}
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         )}
                       </div>
                       <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
@@ -853,8 +884,9 @@ if (isError)
             </div>
           )}
 
-          {/* List View */}
+          {/* List View - Hidden on small screens */}
           {viewMode === "list" && (
+            <div className="hidden md:block">
             <div className="space-y-4">
               {paginatedCSPs.map((csp) => {
                 const statusBadge = getStatusBadge(csp.status);
@@ -862,7 +894,7 @@ if (isError)
                 
                 return (
                   <Card key={csp.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                    <CardContent className="p-6">
+                    <CardContent className="px-6">
                       <div className="flex flex-col md:flex-row gap-6">
                         {/* Left: Content */}
                         <div className="flex-1 space-y-3">
@@ -884,24 +916,49 @@ if (isError)
                               </p>
                             </div>
                             {isLoggedIn && isStudent && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleSave(csp.id);
-                                }}
-                              >
-                                <Heart
+                              <div className="relative">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 relative"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleSave(csp.id);
+                                  }}
+                                >
+                                  <Heart
   className={`h-4 w-4 transition-all ${
     savedIds.has(csp.id) || tempSavedIds.has(csp.id)
       ? "fill-red-500 text-red-500"
-      : "text-muted-foreground hover:text-red-500"
+      : "text-black hover:text-black"
   }`}
 />
-
-                              </Button>
+                                  {glitteringProjectId === csp.id && (
+                                    <>
+                                      {[...Array(8)].map((_, i) => {
+                                        const angle = (i * 360) / 8;
+                                        const distance = 20;
+                                        const radians = (angle * Math.PI) / 180;
+                                        const tx = Math.cos(radians) * distance;
+                                        const ty = Math.sin(radians) * distance;
+                                        return (
+                                          <span
+                                            key={i}
+                                            className="glitter-particle"
+                                            style={{
+                                              left: '50%',
+                                              top: '50%',
+                                              '--tx': `${tx}px`,
+                                              '--ty': `${ty}px`,
+                                              animationDelay: `${i * 0.05}s`,
+                                            } as React.CSSProperties}
+                                          />
+                                        );
+                                      })}
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
                             )}
                           </div>
 
@@ -909,11 +966,11 @@ if (isError)
                             {csp.description}
                           </p>
 
-                          {/* Location + Duration Row */}
+                          {/* Location, Time, Date, and Participants Row */}
                           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center space-x-1 flex-1 min-w-0">
+                            <div className="flex items-center space-x-1">
                               <MapPin className="h-4 w-4 flex-shrink-0" />
-                              <span className="font-body truncate">
+                              <span className="font-body">
                                 {csp.isRemote
                                   ? "Remote"
                                   : csp.type === "overseas"
@@ -926,14 +983,12 @@ if (isError)
                               <Clock className="h-4 w-4" />
                               <span className="font-body">{duration}</span>
                             </div>
-                          </div>
 
-                          {/* Date + Volunteers Row */}
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center space-x-1">
                               <Calendar className="h-4 w-4" />
                               <span className="font-body">{formatDateRange(csp.startDate, csp.startDate)}</span>
                             </div>
+
                             <div className="flex items-center space-x-1">
                               <Users className="h-4 w-4" />
                               <span className="font-body">{csp.currentVolunteers}/{csp.maxVolunteers}</span>
@@ -967,6 +1022,7 @@ if (isError)
                   </Card>
                 );
               })}
+            </div>
             </div>
           )}
 

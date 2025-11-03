@@ -83,12 +83,12 @@ export function Header() {
         ? "bg-transparent border-transparent" 
         : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
     }`}>
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between relative">
           {/* Logo */}
           <Link 
             to={getLogoDestination()} 
-            className="flex items-center space-x-3 mr-4"
+            className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0 md:mr-8 lg:mr-12"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
@@ -102,7 +102,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 lg:gap-12">
+          <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-4 lg:gap-6 xl:gap-12 md:left-[calc(50%+2rem)] lg:left-1/2">
             {isLoading ? null : !isLoggedIn ? (
               <>
                 <Link 
