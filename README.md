@@ -1,168 +1,229 @@
-# SMUnity
-Find CSPs for SMU's students
+# 🏫 IS216 Web Application Development II
 
-# React + Hono Template
+---
 
-A modern full-stack TypeScript template combining React frontend with Hono backend, designed for rapid development and production deployment.
+## Section & Group Number
+G4 Group 12
 
-## How to Run
+---
 
-### Prerequisites
+## Group Members
 
-- Bun >=1.2.15
+| Photo | Full Name | Role / Features Responsible For |
+|:--:|:--|:--|
+| <img src="photos/adrian.jpg" width="80"> | Adrian Yeo Ying Hong | Backend Developer: Backend Infrastructure, Sign in, Role based Security Restriction Management, Database Management, Backend API calls, Deployment, Git master, Backend-frontend Integration |
+| <img src="photos/Kara.jpg" width="80"> | Kara Huang Xiu Ning | Frontend Developer: Interactive Landing Page, Discover CSPs and Filters, Create Project Listing flow, Admin Dashboard, Website Screen Responsiveness |
+| <img src="photos/Calynn.jpg" width="80"> | Calynn | Frontend Developer - Organisation Dashboard, Nav Bar Profile Dropdown Backend - Organisation Profile Edit, Page Locking for Student Pages, Status Tab Counts |
+| <img src="photos/Sheryl.jpg" width="80"> | Tan Xing Yee Sheryl | Frontend Developer - Profile page, Organiser Dashboard, Admin Dashboard, Create Organiser listing form, Google Maps design |
+| <img src="photos/Rey.jpg" width="80"> | John Rey Valdellon Pastores | Backend Developer - Google Maps & Google Calendar API Integration |
+| <img src="photos/KaiJie.jpg" width="80"> | Leo Kai Jie | {To be Filled} |
 
-### Development
 
-```bash
-# Install dependencies
-bun install
+---
 
-# Start development server (both frontend and backend)
-bun dev
-```
+## Business Problem
 
-This will start:
+Describe the **real-world business or community problem** your project addresses.
 
-- Backend server on http://localhost:4001
-- Frontend dev server on http://localhost:4000 (proxies API calls to backend)
+> Current CSP opportunities are scattered across multiple platforms, making it difficult for students to discover project aligned with their interest and availability.
+> Organizations lack a unified system for application management and volunteer tracking.
+> SMUnity addresses these paint points by creating an integrated platform where students can discover and apply for CSP opportunities, and organizations, can post projects and manage applications efficiently. 
 
-### Individual Components
+---
 
-```bash
-# Start only the backend server
-bun dev:server
+## Web Solution Overview
 
-# Start only the frontend (requires backend to be running)
-bun dev:vite
-```
+### 🎯 Intended Users
 
-### Production
+SMU Students - Undergraduates at SMU seeking community service opportunities to fulfill graduation requirements
 
-```bash
-# Build the application
-bun build
+CSP Leaders and Organizations - Community service organizations heads, coordinators and project leads responsible for posting volunteer opportunties, managing application and recruiting student voluneers.
 
-# Start production server
-bun start
-```
+
+### 💡 What Users Can Do & Benefits  
+
+| Feature | Description | User Benefit |
+|:--|:--|:--|
+| Search & Filter Projects | Find CSPs by category, location, duration, and keywords | Saves time finding relevant results |
+| View on Interactive Map | Locate CSP opportunities nearby with Google Maps integration | Quick discovery of projects in the area |
+| Apply for Projects | Submit applications directly through the platform | Simple way to apply for opportunities |
+| Track Application Status | Monitor application progress (pending, accepted, rejected, confirmed, withdrawn) | Clear visibility into application outcomes |
+| Google Calendar Sync | Integrate confirmed projects into calendar | Manage volunteer schedule with other activities |
+| Personalized Dashboard | View all saved projects and application history | Centralized hub for managing volunteer activities |
+| Organization Management Portal | Post opportunities, review applications, and manage volunteer slots | Connect with and manage student volunteers |
+
+---
 
 ## Tech Stack
+| Logo | Technology | Purpose / Usage |
+|:--:|:--|:--|
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png" width="40"> | **React** | Frontend UI framework |
+| <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfLiZmMOa7nJKl15YVdWyMrEY19RETEDe8mA&s" width="40"> | **Bun** | JavaScript runtime and package manager |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/2560px-Tailwind_CSS_Logo.svg.png" width="40"> | **Tailwind CSS** | Styling and responsiveness |
+| <img src="https://gsap.com/community/uploads/monthly_2020_03/tweenmax.png.cf27916e926fbb328ff214f66b4c8429.png" width="40"> | **GSAP** | UI animations |
+| <img src="https://www.framer.com/creators-assets/_next/image/?url=https%3A%2F%2Fy4pdgnepgswqffpt.public.blob.vercel-storage.com%2Fcomponents%2FbSeEZJm22jsjERCOGQvq%2Flenis-IR6x5YJmajCtRooZgkmfzfBTzWJTLg&w=1920&q=90" width="40"> | **Lenis** | Smooth scrolling |
+| <img src="https://media.licdn.com/dms/image/v2/D4E0BAQGvrlykNx9Xaw/company-logo_200_200/company-logo_200_200/0/1684762073756/neondatabase_logo?e=2147483647&v=beta&t=pjpaL_-tBQPhI4Jr9cNceBx7tV8drTsa5yG30NZfVm4" width="40"> | **Neonbase** | Database and real-time sync |
+| <img src="https://avatars.githubusercontent.com/u/163827765?s=200&v=4" width="40"> | **Better Auth** | Authentication and sessions |
+| <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Yyu-X8Q9rvur3BTaHSf1XaRNbizBAZjFbA&s" width="40"> | **Google Cloud** | OAuth login integration |
+| <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Maps_Pin_FullColor.width-500.format-webp.webp" width="40"> | **Google Maps** | Location-based features |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Google_Calendar_icon_%282020%29.svg/2048px-Google_Calendar_icon_%282020%29.svg.png" width="40"> | **Google Calendar** | Event scheduling |
+| <img src="https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png" width="40"> | **Vercel** | Deployment |
 
-### Frontend
 
-- **React 19** - Latest React with concurrent features
-- **TanStack Router** - Type-safe routing with file-based routing
-- **TanStack Query** - Server state management and caching
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS v4** - Utility-first CSS framework
-- **TypeScript** - Type safety across the entire stack
+---
 
-### Backend
+## Use Case & User Journey
 
-- **Hono** - Fast, lightweight web framework for TypeScript
-- **@hono/node-server** - Node.js adapter for Hono
-- **Zod** - Schema validation and type inference
-- **@t3-oss/env-core** - Type-safe environment variable validation
+Provide screenshots and captions showing how users interact with your app.
 
-### Development Tools
+1. **Landing Page**  
+   <img src="screenshots/landing.jpg" width="600">  
+   - Displays the homepage with navigation options.
 
-- **Vitest** - Fast unit testing framework
-- **ESLint** - Code linting with TypeScript support
-- **Prettier** - Code formatting
-- **tsx** - TypeScript execution for development
-- **esbuild** - Fast bundling for production builds
+2. **CSP Discover and Matching**  
+   <img src="screenshots/discover.jpg" width="600">  
+   - Users can search and filter through CSPs in this page
 
-## Runtime Environment Variables (`/api/runtime.js`)
+3. **User Dashboard**  
+   <img src="screenshots/dashboard.png" width="600">  
+   - Shows saved data and recent activities.
 
-The template includes a special endpoint at `/api/runtime.js` that dynamically injects environment variables into the client at runtime. This script is loaded in `index.html`:
+> Save screenshots inside `/screenshots` with clear filenames.
 
-```html
-<script type="text/javascript" src="/api/runtime.js"></script>
+---
+
+## Developers Setup Guide
+
+Comprehensive steps to help other developers or evaluators run and test your project.
+
+---
+
+### 0) Prerequisites
+- [Git](https://git-scm.com/) v2.4+  
+- [Node.js](https://nodejs.org/) v18+ and npm v9+  
+- Access to backend or cloud services used (Firebase, MongoDB Atlas, AWS S3, etc.)
+
+---
+
+### 1) Download the Project
+```bash
+git clone https://github.com/<org-or-user>/<repo-name>.git
+cd <repo-name>
+npm install
 ```
 
-### Why This Exists
+---
 
-This pattern solves a critical problem with client-side environment variables in containerized/production deployments:
+### 2) Configure Environment Variables
+Create a `.env` file in the root directory with the following structure:
 
-1. **Build-time vs Runtime**: Vite normally bakes environment variables into the bundle at build time via `import.meta.env`
-2. **Container Flexibility**: With Docker/K8s, you want to build once and deploy anywhere with different env vars
-3. **Dynamic Configuration**: The `/api/runtime.js` endpoint serves a JavaScript snippet that sets `window.__env` with current server environment variables
+```bash
 
-### How It Works
+VITE_API_URL=<your_backend_or_firebase_url>
+VITE_FIREBASE_API_KEY=<your_firebase_api_key>
+VITE_FIREBASE_AUTH_DOMAIN=<your_auth_domain>
+VITE_FIREBASE_PROJECT_ID=<your_project_id>
+VITE_FIREBASE_STORAGE_BUCKET=<your_storage_bucket>
+VITE_FIREBASE_MESSAGING_SENDER_ID=<your_sender_id>
+VITE_FIREBASE_APP_ID=<your_app_id>
 
-1. **Server endpoint** (`server/index.ts` lines 13-21):
+```
 
-   ```typescript
-   .get("/api/runtime.js", (c) => {
-     return c.text(
-       `window.__env = ${JSON.stringify(
-         Object.fromEntries(
-           Object.entries(env).filter(([key]) => key.startsWith("VITE_"))
-         ), null, 2
-       )}`,
-       200,
-       { "Content-Type": "application/javascript" }
-     );
-   })
+> Never commit the `.env` file to your repository.  
+> Instead, include a `.env.example` file with placeholder values.
+
+---
+
+### 3) Backend / Cloud Service Setup
+
+#### Firebase
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project.
+3. Enable the following:
+   - **Authentication** → Email/Password sign-in
+   - **Firestore Database** or **Realtime Database**
+   - **Hosting (optional)** if you plan to deploy your web app
+4. Copy the Firebase configuration into your `.env` file.
+
+#### Optional: Express.js / MongoDB
+If your app includes a backend:
+1. Create a `/server` folder for backend code.
+2. Inside `/server`, create a `.env` file with:
+   ```bash
+   MONGO_URI=<your_mongodb_connection_string>
+   JWT_SECRET=<your_jwt_secret_key>
+   ```
+3. Start the backend:
+   ```bash
+   cd server
+   npm install
+   npm start
    ```
 
-2. **Client consumption** (`src/env.ts`):
+---
 
-   ```typescript
-   export const env: Env = {
-     VITE_APP_URL: window.__env?.VITE_APP_URL ?? import.meta.env.VITE_APP_URL,
-     // Falls back to build-time values if runtime values unavailable
-   };
-   ```
-
-3. **Type safety**: Both server and client env configs use Zod schemas for validation
-
-This approach provides:
-
-- ✅ **Container-friendly**: Same build works across environments
-- ✅ **Type-safe**: Full TypeScript support for env vars
-- ✅ **Fallback support**: Works in development with build-time values
-- ✅ **Secure**: Only `VITE_` prefixed variables are exposed to client
-
-## Project Structure
-
+### 4) Run the Frontend
+To start the development server:
+```bash
+npm run dev
 ```
-react-hono-template/
-├── server/                 # Backend Hono server
-│   ├── index.ts           # Main server entry point
-│   └── env.ts             # Server environment validation
-├── src/                   # Frontend React application
-│   ├── routes/            # File-based routing
-│   ├── env.ts             # Client environment variables
-│   ├── main.tsx           # React app entry point
-│   └── globals.css        # Global styles
-├── dist/                  # Production build output
-│   ├── static/            # Frontend static assets
-│   └── index.js           # Bundled server
-└── tests/                 # Test files
+The project will run on [http://localhost:5173](http://localhost:5173) by default.
+
+To build and preview the production version:
+```bash
+npm run build
+npm run preview
 ```
 
-## Scripts
+---
 
-- `bun dev` - Start development environment
-- `bun build` - Build for production
-- `bun start` - Start production server
-- `bun test` - Run tests
-- `bun lint` - Lint code
-- `bun format` - Check code formatting
-- `bun typecheck` - Run TypeScript type checking
-- `bun clean` - Clean build artifacts and dependencies
+### 5) Testing the Application
 
-## Environment Variables
+#### Manual Testing
+Perform the following checks before submission:
 
-Create a `.env` file in the root directory:
+| Area | Test Description | Expected Outcome |
+|:--|:--|:--|
+| Authentication | Register, Login, Logout | User successfully signs in/out |
+| CRUD Operations | Add, Edit, Delete data | Database updates correctly |
+| Responsiveness | Test on mobile & desktop | Layout adjusts without distortion |
+| Navigation | All menu links functional | Pages route correctly |
+| Error Handling | Invalid inputs or missing data | User-friendly error messages displayed |
 
-```env
-# Required for client
-VITE_APP_URL=http://localhost:4000
-
-# Server configuration
-NODE_ENV=development
+#### Automated Testing (Optional)
+If applicable:
+```bash
+npm run test
 ```
 
-All `VITE_` prefixed variables are automatically exposed to the client through the runtime.js mechanism.
+---
+
+### 6) Common Issues & Fixes
+
+| Issue | Cause | Fix |
+|:--|:--|:--|
+| `Module not found` | Missing dependencies | Run `npm install` again |
+| `Firebase: permission-denied` | Firestore security rules not set | Check rules under Firestore → Rules |
+| `CORS policy error` | Backend not allowing requests | Enable your domain in CORS settings |
+| `.env` variables undefined | Missing `VITE_` prefix | Rename variables to start with `VITE_` |
+| `npm run dev` fails | Node version mismatch | Check Node version (`node -v` ≥ 18) |
+
+---
+
+## Group Reflection
+
+Each member should contribute 2–3 sentences on their learning and project experience.
+
+> **Example Template:**  
+> - *Adrian Yeo Ying Hong:* Learnt to use other local development tools like docker containers and drizzle, and better auth for local authentication management, role based permissions which i learnt from cybersecurity, operating systems and networking mods from previous and ongoing semesters.  
+> - *Kara Huang Xiu Ning:* I learnt to develop a clean UI with reusable components and multi-role user management, which required coordinating complex workflows between students, organisations, and administrators while maintaining an easy-to-use system. I also had the opportunity to explore and integrate advanced animations (smooth-scrolling) to create a modern, user-friendly interface. 
+> - *Calynn:* I learned more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.  
+> - *Tan Xing Yee Shery:* I learnt more about tools such as react, tailwind css, drizzle, betterauth, etc. I got to explore Lenis and GSAP which I never knew existed. I also was able to learn more about working with external APIs which I havent really explored much before. Hence, this project gave me the chance to be able to learn and discover new things which would be useful for future uses.
+> - *John Rey Valdellon Pastores:* Learned how to use tools that I haven't touched before such Tailwind CSS, bun, docker, drizzle, typescript and many others. I also got to experience how to use APIs, especially in Google Cloud, first hand in a website and I believe this would help for my own personal projects.
+> - *Leo Kai Jie:* 
+
+
+As a team, reflect on:
+- Key takeaways from working with real-world frameworks  
+- Challenges faced and how they were resolved  
+- Insights on teamwork, project management, and problem-solving  
