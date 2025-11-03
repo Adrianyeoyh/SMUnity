@@ -72,7 +72,7 @@ application.patch("/decision", async (c) => {
       })
       .where(eq(schema.applications.id, applicationId));
 
-    console.log(`✅ [Application Decision] Org ${orgUser.id} ${action}ed application ${applicationId}`);
+    // console.log(`✅ [Application Decision] Org ${orgUser.id} ${action}ed application ${applicationId}`);
 
     return c.json({
       success: true,

@@ -18,11 +18,6 @@ import type {
 
 // -------- users --------
 export function useMe() {
-  console.log(useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiGet<MeRes>("/api/users/me"),
-  }).data)
-  console.log("hit")
   return useQuery({
     queryKey: ["me"],
     queryFn: () => apiGet<MeRes>("/api/users/me"),

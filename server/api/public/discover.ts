@@ -10,7 +10,7 @@ const discover = createApp();
 
 discover.get("/", async (c) => {
   try {
-    console.log("📡 [discover] Fetching active projects...");
+    // console.log("📡 [discover] Fetching active projects...");
 
     const now = new Date(); // server time ok; your status calc already uses this
 
@@ -94,8 +94,8 @@ discover.get("/", async (c) => {
       };
     });
 
-    console.log("✅ [discover] Found", payload.length, "projects");
-    console.log("✅ [discover] Payload ready", payload);
+    // console.log("✅ [discover] Found", payload.length, "projects");
+    // console.log("✅ [discover] Payload ready", payload);
     return ok(c, payload);
   } catch (err) {
     console.error("🚨 [discover] Error loading projects:", err);
@@ -105,7 +105,7 @@ discover.get("/", async (c) => {
 
 discover.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");
-  console.log("📡 [csp] Fetching project:", projectId);
+  // console.log("📡 [csp] Fetching project:", projectId);
 
   try {
     // 1️⃣ Fetch project with organisation info
@@ -188,7 +188,7 @@ const currentApplications = applications.length;
   googleMaps: project.googleMaps ?? null,
 };
 
-    console.log("✅ [csp] Payload ready:", data);
+    // console.log("✅ [csp] Payload ready:", data);
     return ok(c, data);
   } catch (err) {
     console.error("🚨 [csp] Error:", err);

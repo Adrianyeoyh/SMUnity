@@ -122,7 +122,7 @@ const [showLoginModal, setShowLoginModal] = useState(false);
     queryFn: () => fetchCspById(projectID),
   });
 
-  console.log(isLoggedIn,user?.accountType);
+  // console.log(isLoggedIn,user?.accountType);
 
   const handleFavourite = async () => {
   try {
@@ -609,7 +609,6 @@ useEffect(() => {
                         className="w-full shadow-2xl hover:shadow-xl transition-shadow"
                         disabled={
                           isDeadlinePassed ||
-                          (!isLoggedIn && !user) ||
                           (isLoggedIn && user?.accountType !== "student")
                         }
                         onClick={async () => {

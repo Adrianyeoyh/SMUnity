@@ -24,7 +24,7 @@ export type AdminDashboardResponse = {
 adminDashboardRoutes.get("/", async (c) => {
 
   const session = c.get("user");
-  console.log(session);
+  // console.log(session);
   // session
 
   const usersCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.user);

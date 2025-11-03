@@ -33,7 +33,7 @@ function OrgDashboard() {
     queryKey: ["orgListings"],
     queryFn: fetchOrgListings,
   });
-  console.log("listingsData:", listingsData);
+  // console.log("listingsData:", listingsData);
 
 
   // Count of listings for each status

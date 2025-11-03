@@ -87,7 +87,7 @@ function Login() {
       const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
       const isStudent = Boolean(studentMatch);
 
-      console.log(name);
+      // console.log(name);
       if (isStudent && isSMUDomain) {
         throw new Error("Students must use Google sign-in with SMU email.");
       }
