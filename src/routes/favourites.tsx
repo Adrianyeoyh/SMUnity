@@ -174,7 +174,7 @@ function FavouritesPage() {
                     className="h-8 w-8 flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleUnsave(csp.projectId);
+                      handleUnsave(csp.projectId || csp.id);
                     }}
                   >
                     <Heart className="h-4 w-4 fill-red-500 text-red-500 transition-all" />
@@ -246,7 +246,7 @@ function FavouritesPage() {
                   </div>
                 </div>
 
-                <Link to="/csp/$projectID" params={{ projectID: csp.projectId }}>
+                <Link to="/csp/$projectID" params={{ projectID: csp.projectId || csp.id }}>
                   <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     View Details
                   </Button>
