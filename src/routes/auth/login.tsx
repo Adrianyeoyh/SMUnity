@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "#client/components/ui/card";
 import { Separator } from "#client/components/ui/separator";
-import { HeartHandshake, AlertCircle } from "lucide-react";
+import { HeartHandshake, Eye, EyeOff} from "lucide-react";
 import { z } from "zod";
 
 export const Route = createFileRoute("/auth/login")({
@@ -28,6 +28,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth/login" });
   const redirectTo = search.redirectTo || "/dashboard";
@@ -35,11 +36,7 @@ function Login() {
   async function handleGoogleLogin() {
     try {
       setIsLoading(true);
-      setError(null);
-      const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(
-        redirectTo
-      )}`;
-      const result = await auth.signIn.social({
+      await auth.signIn.social({
         provider: "google",
         callbackURL: "http://localhost:4000/dashboard",
         //  callbackUrl,
@@ -50,8 +47,7 @@ function Login() {
       //   navigate({ to: redirectTo });
       // }
     } catch (err: any) {
-      const msg = err instanceof Error ? err.message : "Unexpected error";
-      setError(msg);
+      // Don't display errors for Google login - silent failure
     } finally {
       setIsLoading(false);
     }
@@ -62,10 +58,7 @@ function Login() {
     setHasAttemptedSubmit(true);
     setError(null);
 
-    if (!emailLogin.email || !emailLogin.password) {
-      setError("Please fill in all fields");
-      return;
-    }
+    
 
     setIsLoading(true);
     try {
@@ -89,7 +82,7 @@ function Login() {
 
       // console.log(name);
       if (isStudent && isSMUDomain) {
-        throw new Error("Students must use Google sign-in with SMU email.");
+        throw new Error("Students must use Google sign-in with SMU email");
       }
 
       if (name === "Admin") navigate({ to: "/admin/dashboard" });
@@ -126,13 +119,6 @@ function Login() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {error && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
-              <p className="text-sm text-destructive font-body">{error}</p>
-            </div>
-          )}
-
           {/* GOOGLE OAUTH */}
           <Button
             onClick={handleGoogleLogin}
@@ -179,8 +165,11 @@ function Login() {
                 type="email"
                 placeholder="Email"
                 value={emailLogin.email}
-                onChange={(e) => setEmailLogin({ ...emailLogin, email: e.target.value })}
-                className={hasAttemptedSubmit && !emailLogin.email ? 'border-destructive' : ''}
+                onChange={(e) => {
+                  setEmailLogin({ ...emailLogin, email: e.target.value });
+                  setError(null);
+                }}
+                className={hasAttemptedSubmit && !emailLogin.email && !emailLogin.password ? 'border-destructive' : error && emailLogin.email && emailLogin.password ? 'border-destructive' : ''}
               />
               {hasAttemptedSubmit && !emailLogin.email && (
                 <p className="text-sm text-destructive font-body">
@@ -189,14 +178,31 @@ function Login() {
               )}
             </div>
             <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="Password"
-                value={emailLogin.password}
-                onChange={(e) => setEmailLogin({ ...emailLogin, password: e.target.value })}
-                className={hasAttemptedSubmit && !emailLogin.password ? 'border-destructive' : ''}
-              />
-              {hasAttemptedSubmit && !emailLogin.password && (
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={emailLogin.password}
+                  onChange={(e) => {
+                    setEmailLogin({ ...emailLogin, password: e.target.value });
+                    setError(null);
+                  }}
+                  className={hasAttemptedSubmit && !emailLogin.password && emailLogin.email ? 'border-destructive pr-10' : error ? 'border-destructive pr-10' : 'pr-10'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {hasAttemptedSubmit && !emailLogin.password && emailLogin.email && (
                 <p className="text-sm text-destructive font-body">
                   Please enter your password
                 </p>
@@ -223,6 +229,13 @@ function Login() {
                 </Link>
               </div>
             </div>
+            {error && emailLogin.email && emailLogin.password && (
+              <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3">
+                <p className="text-sm text-destructive font-body">
+                  {error}
+                </p>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
