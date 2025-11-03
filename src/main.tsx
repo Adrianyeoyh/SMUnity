@@ -29,11 +29,11 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <LenisProvider>
-        <ReactQueryProvider>
-          <NuqsProvider>
-            <RouterProvider router={router} />
-          </NuqsProvider>
-        </ReactQueryProvider>
+      <ReactQueryProvider>
+        <NuqsProvider>
+          <RouterProvider router={router} />
+        </NuqsProvider>
+      </ReactQueryProvider>
       </LenisProvider>
     </StrictMode>,
   );

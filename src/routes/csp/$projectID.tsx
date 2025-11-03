@@ -36,6 +36,8 @@ export const Route = createFileRoute("/csp/$projectID")({
   component: CspDetail,
   validateSearch: (search: Record<string, unknown>) => ({
     from: (search.from as string) || undefined,
+    applicantProjectId: (search.applicantProjectId as string) || undefined,
+    applicantId: (search.applicantId as string) || undefined,
   }),
 });
 
@@ -258,6 +260,9 @@ useEffect(() => {
             } else if (search.from === "dashboard") {
               // Go back to dashboard
               navigate({ to: "/dashboard" });
+            } else if (search.from === "applicant" && search.applicantProjectId && search.applicantId) {
+              // Go back to applicant details page
+              navigate({ to: "/organisations/applicant/$projectId/$applicantId", params: { projectId: search.applicantProjectId, applicantId: search.applicantId } });
             } else {
               // Navigate directly to discover page to avoid routing to apply form
               navigate({ to: "/discover" });
@@ -266,13 +271,15 @@ useEffect(() => {
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          <span className="font-body">
-            {search.from === "preview" 
-              ? `Back to ${csp?.title || "Project"} Overview`
-              : search.from === "dashboard"
-              ? "Back to Dashboard"
-              : "Back to Discover CSPs"}
-          </span>
+           <span className="font-body">
+             {search.from === "preview" 
+               ? `Back to ${csp?.title || "Project"} Overview`
+               : search.from === "dashboard"
+               ? "Back to Dashboard"
+               : search.from === "applicant"
+               ? "Back to Applicant Details"
+               : "Back to Discover CSPs"}
+           </span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

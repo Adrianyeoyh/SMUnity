@@ -179,16 +179,16 @@ function Login() {
             </div>
             <div className="space-y-2">
               <div className="relative">
-                <Input
+              <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={emailLogin.password}
+                placeholder="Password"
+                value={emailLogin.password}
                   onChange={(e) => {
                     setEmailLogin({ ...emailLogin, password: e.target.value });
                     setError(null);
                   }}
                   className={hasAttemptedSubmit && !emailLogin.password && emailLogin.email ? 'border-destructive pr-10' : error ? 'border-destructive pr-10' : 'pr-10'}
-                />
+              />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}

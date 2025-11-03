@@ -763,16 +763,16 @@ if (isError)
                         </div>
                         {isLoggedIn && isStudent && (
                           <div className="relative">
-                            <Button
-                              variant="ghost"
-                              size="icon"
+                          <Button
+                            variant="ghost"
+                            size="icon"
                               className="h-8 w-8 flex-shrink-0 relative"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleToggleSave(csp.id);
-                              }}
-                            >
-                              <Heart
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleSave(csp.id);
+                            }}
+                          >
+                            <Heart
   className={`h-4 w-4 transition-all ${
     savedIds.has(csp.id) || tempSavedIds.has(csp.id)
       ? "fill-red-500 text-red-500"
@@ -803,7 +803,7 @@ if (isError)
                                   })}
                                 </>
                               )}
-                            </Button>
+                          </Button>
                           </div>
                         )}
                       </div>
@@ -917,16 +917,16 @@ if (isError)
                             </div>
                             {isLoggedIn && isStudent && (
                               <div className="relative">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                   className="h-8 w-8 relative"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleToggleSave(csp.id);
-                                  }}
-                                >
-                                  <Heart
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSave(csp.id);
+                                }}
+                              >
+                                <Heart
   className={`h-4 w-4 transition-all ${
     savedIds.has(csp.id) || tempSavedIds.has(csp.id)
       ? "fill-red-500 text-red-500"
@@ -957,7 +957,7 @@ if (isError)
                                       })}
                                     </>
                                   )}
-                                </Button>
+                              </Button>
                               </div>
                             )}
                           </div>
@@ -982,7 +982,7 @@ if (isError)
                             <div className="flex items-center space-x-1">
                               <Clock className="h-4 w-4" />
                               <span className="font-body">{duration}</span>
-                            </div>
+                          </div>
 
                             <div className="flex items-center space-x-1">
                               <Calendar className="h-4 w-4" />

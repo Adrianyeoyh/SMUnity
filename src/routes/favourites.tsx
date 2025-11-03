@@ -155,11 +155,11 @@ function FavouritesPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
             <div>
               <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-                My Favourites
-              </h1>
+            My Favourites
+          </h1>
               <p className="text-muted-foreground font-body text-base sm:text-lg mt-2">
-                Your saved community service projects
-              </p>
+            Your saved community service projects
+          </p>
             </div>
             <div className="relative w-full sm:w-1/3">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

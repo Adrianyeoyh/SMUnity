@@ -330,21 +330,21 @@ function MyApplications() {
                           <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
                           <span className="truncate">
                             <span>Applied: </span>
-                            {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+                          {new Date(app.submittedAt).toLocaleDateString("en-GB")}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 min-w-0">
                           <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
                           <span className="truncate">
                             <span>Start: </span>
-                            {new Date(app.startDate).toLocaleDateString("en-GB")}
+                          {new Date(app.startDate).toLocaleDateString("en-GB")}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 min-w-0">
                           <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
                           <span className="truncate">
                             <span>End: </span>
-                            {new Date(app.endDate).toLocaleDateString("en-GB")}
+                          {new Date(app.endDate).toLocaleDateString("en-GB")}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 min-w-0">

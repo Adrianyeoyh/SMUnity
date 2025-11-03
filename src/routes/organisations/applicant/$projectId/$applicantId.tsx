@@ -2,13 +2,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fetchApplicantDetails } from "#client/api/organisations/application.ts";
+import { fetchListingById } from "#client/api/organisations/listing.ts";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "#client/components/ui/card";
 import { Separator } from "#client/components/ui/separator";
 import { Badge } from "#client/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "#client/components/ui/avatar";
 import { ScrollArea } from "#client/components/ui/scroll-area";
-import { ArrowLeft, Mail, Phone, GraduationCap, MapPin } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Calendar } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/organisations/applicant/$projectId/$applicantId")({
   component: ApplicantDetailsPage,
@@ -23,56 +25,75 @@ function ApplicantDetailsPage() {
     queryFn: () => fetchApplicantDetails(projectId, applicantId),
   });
 
-  if (isLoading) return <p className="p-6 text-muted-foreground">Loading applicant details...</p>;
-  if (isError || !data) return <p className="p-6 text-destructive">Failed to load applicant data.</p>;
+  const { data: projectData } = useQuery({
+    queryKey: ["listing", projectId],
+    queryFn: () => fetchListingById({ queryKey: ["listing", projectId] }),
+  });
+
+  if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="p-6 text-sm sm:text-base text-muted-foreground">Loading applicant details...</p></div>;
+  if (isError || !data) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="p-6 text-sm sm:text-base text-destructive">Failed to load applicant data.</p></div>;
 
   const { user, profile, application, history } = data;
+  const project = projectData?.project || projectData;
+  const projectTitle = project?.title || "project";
   const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
     : "NA";
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container mx-auto space-y-8">
-        <Button variant="ghost" onClick={() => navigate({ to: `/organisations/${projectId}` })}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to project
-        </Button>
+    <div className="min-h-screen bg-background py-4 sm:py-6 md:py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+        <button 
+          onClick={() => navigate({ to: `/organisations/${projectId}` })}
+          className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          <span className="font-body break-words">Back to {projectTitle} Overview</span>
+        </button>
 
         {/* Profile Card */}
         <Card>
-          <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 p-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
+          <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-6 p-4 sm:p-6">
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+              <Avatar className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0">
                 <AvatarImage src={user?.image ?? ""} />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
-              <div>
-                <h1 className="text-2xl font-heading font-semibold">{user?.name}</h1>
-                <p className="text-muted-foreground">{profile?.school ?? "Unknown school"}</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-heading font-semibold break-words">{user?.name}</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">{profile?.school ?? "Unknown school"}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Year {profile?.entryYear ?? "?"} • {profile?.studentId ?? ""}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-3">
                   {(profile?.skills ?? []).map((s: string) => (
-                    <Badge key={s} variant="outline">{s}</Badge>
+                    <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
                   ))}
                   {(profile?.interests ?? []).map((i: string) => (
-                    <Badge key={i} className="bg-primary/10 text-primary">{i}</Badge>
+                    <Badge key={i} className="bg-primary/10 text-primary text-xs">{i}</Badge>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 text-sm">
-              <Button variant="secondary" asChild>
+            <div className="flex flex-row sm:flex-col gap-2 text-sm w-full sm:w-auto">
+              <Button variant="secondary" asChild className="flex-1 sm:flex-none">
                 <a href={`mailto:${user?.email}`}>
                   <Mail className="h-4 w-4 mr-2" /> Email
                 </a>
               </Button>
-              <Button variant="outline" asChild>
-                <a href={`tel:${profile?.phone}`}>
-                  <Phone className="h-4 w-4 mr-2" /> Call
-                </a>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  if (profile?.phone) {
+                    window.location.href = `tel:${profile.phone}`;
+                  } else {
+                    toast.error("The student has yet to provide a contact number");
+                  }
+                }}
+                className="flex-1 sm:flex-none"
+              >
+                <Phone className="h-4 w-4 mr-2" /> Call
               </Button>
             </div>
           </CardContent>
@@ -80,62 +101,84 @@ function ApplicantDetailsPage() {
 
         {/* Application Details */}
         <Card>
-          <CardHeader>
-            <CardTitle>Application Details</CardTitle>
-            <CardDescription>Submitted on {format(new Date(application.submittedAt), "PPP")}</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Application Details</CardTitle>
+            <CardDescription className="flex items-center gap-2 text-xs sm:text-sm">
+              <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+              Submitted on: {format(new Date(application.submittedAt), "do MMMM yyyy")}
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 sm:p-6">
             <div>
-              <h3 className="font-medium">Motivation</h3>
-              <p className="text-muted-foreground">{application.motivation}</p>
+              <h3 className="font-medium text-sm sm:text-base">Motivation</h3>
+              <p className="text-sm sm:text-base text-muted-foreground break-words whitespace-pre-wrap">{application.motivation}</p>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium">Experience</h3>
-              <p className="text-muted-foreground capitalize">{application.experience}</p>
+              <h3 className="font-medium text-sm sm:text-base">Experience</h3>
+              <p className="text-sm sm:text-base text-muted-foreground capitalize break-words">{application.experience}</p>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium">Relevant Skills</h3>
-              <p className="text-muted-foreground">{application.skills || "—"}</p>
+              <h3 className="font-medium text-sm sm:text-base">Relevant Skills</h3>
+              <p className="text-sm sm:text-base text-muted-foreground break-words">{application.skills || "—"}</p>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium">Additional Comments</h3>
-              <p className="text-muted-foreground">{application.comments || "—"}</p>
+              <h3 className="font-medium text-sm sm:text-base">Additional Comments</h3>
+              <p className="text-sm sm:text-base text-muted-foreground break-words whitespace-pre-wrap">{application.comments || "—"}</p>
             </div>
           </CardContent>
         </Card>
 
         {/* Application History */}
        <Card>
-        <CardHeader>
-          <CardTitle>Application History</CardTitle>
-          <CardDescription>All applications by this volunteer</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">Application History</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">All applications by this volunteer</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <ScrollArea className="max-h-[400px]">
             <div className="divide-y">
               {history.map((app: any) => (
                 <div
                   key={app.id}
-                  className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                  className="p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div>
-                    <p className="font-medium">{app.projectTitle}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(app.submittedAt), "PPP")} • {app.status}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-sm sm:text-base break-words">{app.projectTitle}</p>
+                      {app.status === "pending" && (
+                        <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2">
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                      {format(new Date(app.submittedAt), "dd/MM/yyyy")}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Badge>{app.status}</Badge>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {app.status !== "pending" && (
+                      <Badge className={`text-xs ${app.status === "pending" ? "bg-yellow-100 text-yellow-800" : ""}`}>
+                        {app.status === "pending" ? "Pending" : app.status}
+                      </Badge>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
                       asChild
+                      className="text-xs sm:text-sm"
                     >
-                      <Link to={`/csp/${app.projectId}`}>View</Link>
+                      <Link 
+                        to="/csp/$projectID" 
+                        params={{ projectID: String(app.projectId) }} 
+                        search={{ from: "applicant", applicantProjectId: projectId, applicantId: applicantId }}
+                      >
+                        View
+                      </Link>
                     </Button>
                   </div>
                 </div>

@@ -202,7 +202,7 @@ function ListingApplicationsPage() {
                   </Button>
                 </CollapsibleTrigger>
                 <Button className="">
-                  <Link to="/csp/$projectID" params={{ projectID: project.id }} search={{ from: "preview" }}>
+                  <Link to="/csp/$projectID" params={{ projectID: project.id }} search={{ from: "preview", applicantProjectId: undefined, applicantId: undefined }}>
                     Preview Listing
                   </Link>
                 </Button>
@@ -493,12 +493,14 @@ function ListingApplicationsPage() {
             <DialogTitle className="text-lg font-semibold">
               {decisionType === "accept" ? "Confirm Acceptance" : "Confirm Rejection"}
             </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to {decisionType} this application?
-              <br />
-              <span className="font-medium">
-                Applicant: {selectedApp?.applicant?.name ?? "Unknown"}
-              </span>
+            <DialogDescription className="space-y-2">
+              <p>Are you sure you want to {decisionType} this application?</p>
+              <p>
+                <span className="font-body">Applicant: </span>
+                <span className="font-medium">
+                  {selectedApp?.applicant?.name ?? "Unknown"}
+                </span>
+              </p>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
