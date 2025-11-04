@@ -10,7 +10,7 @@ import chatbot from "./public/chatbot";
 import projects from "./projects"
 import application from "./organisations/application";
 import student from "./student";
-import { createApp } from "#server/factory.ts";
+import { createApp } from "#server/factory";
 import { profileRoutes } from "./profile";
 
 
