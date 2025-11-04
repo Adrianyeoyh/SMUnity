@@ -1,89 +1,97 @@
-// server/api/organisations/profile.ts
 import { createApp } from "#server/factory.ts";
 import { db } from "#server/drizzle/db.ts";
 import * as schema from "#server/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { authMiddleware, organisationMiddleware } from "#server/middlewares/auth.ts";
+import { organisationMiddleware } from "#server/middlewares/auth.ts";
 import { ok } from "#server/helper/index.ts";
-import z from "zod";
+import { z } from "zod";
 
-const profile = createApp()
-  .use(authMiddleware)
-  .use(organisationMiddleware);
+const profile = createApp().use(organisationMiddleware);
 
 // ✅ GET /api/organisations/profile
 profile.get("/", async (c) => {
   const user = c.get("user");
-  if (!user?.email) return c.json({ error: "Unauthorized" }, 401);
+  if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
 
-  // Find organisation request linked to this user’s email
-  const org = await db.query.organisationRequests.findFirst({
-    where: eq(schema.organisationRequests.requesterEmail, user.email),
+  // Fetch organisation joined with its user record
+  const org = await db.query.organisations.findFirst({
+    where: eq(schema.organisations.userId, user.id),
+    with: {
+      user: {
+        columns: { id: true, name: true, email: true, image: true },
+      },
+    },
   });
 
   if (!org) {
-    return c.json({ error: "Organisation request not found for this user." }, 404);
+    return c.json({ error: "Organisation profile not found" }, 404);
   }
 
   return ok(c, {
-    id: org.id,
-    organisationName: org.orgName,
-    contactPerson: org.requesterName,
-    email: org.requesterEmail,
+    id: org.userId,
+    name: org.user.name,
+    email: org.user.email,
+    slug: org.slug,
     phone: org.phone,
     website: org.website,
-    description: org.orgDescription,
-    status: org.status,
+    description: org.description,
+    createdBy: org.createdBy,
     createdAt: org.createdAt,
+    updatedAt: org.updatedAt,
   });
 });
 
 // ✅ PATCH /api/organisations/profile
 const UpdateSchema = z.object({
-  organisationName: z.string().trim().min(1),
-  contactPerson: z.string().trim().min(1),
+  name: z.string().trim().min(1),
   phone: z.string().trim().min(8),
   website: z.string().trim().optional().nullable(),
   description: z.string().trim().min(1),
+  slug: z.string().trim().min(2).optional(),
 });
 
 profile.patch("/", async (c) => {
   const user = c.get("user");
-  if (!user?.email) return c.json({ error: "Unauthorized" }, 401);
+  if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
 
   const body = await c.req.json();
   const parsed = UpdateSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "Invalid data" }, 400);
 
-  // Update the record in organisation_requests
-  const [updated] = await db
-    .update(schema.organisationRequests)
-    .set({
-      orgName: parsed.data.organisationName,
-      requesterName: parsed.data.contactPerson,
-      phone: parsed.data.phone,
-      website: parsed.data.website ?? "",
-      orgDescription: parsed.data.description,
-      status: "pending", // optional — or keep as existing org.status
-    })
-    .where(eq(schema.organisationRequests.requesterEmail, user.email))
-    .returning();
+  // Update organisation record
+  const [updatedOrg] = await db
+  .update(schema.organisations)
+  .set({
+    slug: parsed.data.slug ?? undefined,
+    phone: parsed.data.phone,
+    website: parsed.data.website ?? "",
+    description: parsed.data.description,
+    updatedAt: new Date(),
+  })
+  .where(eq(schema.organisations.userId, user.id))
+  .returning();
 
-  if (!updated) {
+
+  // Update user display name (if provided)
+  await db
+  .update(schema.user)
+  .set({ name: parsed.data.name, updatedAt: new Date() })
+  .where(eq(schema.user.id, user.id));
+
+
+  if (!updatedOrg) {
     return c.json({ error: "Failed to update organisation profile." }, 500);
   }
 
   return ok(c, {
-    id: updated.id,
-    organisationName: updated.orgName,
-    contactPerson: updated.requesterName,
-    email: updated.requesterEmail,
-    phone: updated.phone,
-    website: updated.website,
-    description: updated.orgDescription,
-    status: updated.status,
-    createdAt: updated.createdAt,
-  });
+  id: updatedOrg.userId,
+  name: parsed.data.name,
+  slug: updatedOrg.slug,
+  phone: updatedOrg.phone,
+  website: updatedOrg.website,
+  description: updatedOrg.description,
+  updatedAt: updatedOrg.updatedAt,
+});
 });
 
 export default profile;

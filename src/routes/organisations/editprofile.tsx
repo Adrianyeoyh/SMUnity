@@ -24,8 +24,7 @@ export const Route = createFileRoute("/organisations/editprofile")({
 });
 
 const organisationProfileSchema = z.object({
-  organisationName: z.string().trim().min(1, "Organisation name is required"),
-  contactPerson: z.string().trim().min(1, "Contact person is required"),
+  name: z.string().trim().min(1, "Organisation name is required"),
   phone: z.string().trim().min(8, "Phone number must be at least 8 digits"),
   website: z
     .string()
@@ -49,8 +48,7 @@ function OrganisationProfileEdit() {
   const form = useForm<OrganisationProfileFormValues>({
     resolver: zodResolver(organisationProfileSchema),
     defaultValues: {
-      organisationName: "",
-      contactPerson: "",
+      name: "",
       phone: "",
       website: "",
       description: "",
@@ -61,8 +59,7 @@ function OrganisationProfileEdit() {
   useEffect(() => {
     if (!data) return;
     form.reset({
-      organisationName: data.organisationName ?? "",
-      contactPerson: data.contactPerson ?? "",
+      name: data.name ?? "",
       phone: data.phone ?? "",
       website: data.website ?? "",
       description: data.description ?? "",
@@ -131,26 +128,12 @@ function OrganisationProfileEdit() {
                   <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                       control={form.control}
-                      name="organisationName"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Organisation Name</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="e.g. Sample Organisation" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="contactPerson"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Person</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="e.g. John Doe" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

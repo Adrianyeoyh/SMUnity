@@ -112,8 +112,8 @@ export interface CompletedCspRow {
 
 export interface OrganisationProfileData {
   id: number;
-  organisationName: string;
-  contactPerson: string;
+  name: string;
+
   email: string;
   phone: string;
   website: string | null;
@@ -126,5 +126,5 @@ export interface OrganisationProfileData {
 
 export type OrganisationFormData = Pick<
   OrganisationProfileData,
-  "organisationName" | "contactPerson" | "phone" | "website" | "description"
+  "name" | "phone" | "website" | "description"
 >;
