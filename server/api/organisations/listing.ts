@@ -96,7 +96,42 @@ listing.post("/new", async (c) => {
   }
 });
 
-listing.delete("/delete")
+listing.delete("/:projectId", async (c) => {
+  try {
+    const user = c.get("user");
+    const projectId = c.req.param("projectId");
+
+    if (!user || user.accountType !== "organisation") {
+      return c.json({ error: "Not authorised" }, 403);
+    }
+
+    // Verify project belongs to this org
+    const [project] = await db
+      .select()
+      .from(schema.projects)
+      .where(eq(schema.projects.id, projectId))
+      .limit(1);
+
+    if (!project) return c.json({ error: "Project not found" }, 404);
+    if (project.orgId !== user.id)
+      return c.json({ error: "You do not own this project" }, 403);
+
+    // Cascade delete memberships and applications first (optional but safe)
+    await db.delete(schema.applications).where(eq(schema.applications.projectId, projectId));
+    await db.delete(schema.projMemberships).where(eq(schema.projMemberships.projId, projectId));
+
+    // Delete the project itself
+    await db.delete(schema.projects).where(eq(schema.projects.id, projectId));
+
+    return c.json({ success: true, message: "Project deleted successfully" });
+  } catch (err) {
+    console.error("❌ Delete project failed:", err);
+    return c.json(
+      { error: "Failed to delete project", details: err instanceof Error ? err.message : err },
+      500
+    );
+  }
+});
 
 listing.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");

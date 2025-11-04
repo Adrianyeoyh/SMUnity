@@ -74,3 +74,16 @@ export async function fetchListingById({ queryKey }: any) {
   }
 }
 
+export async function deleteOrganisationProject(projectId: string) {
+  const res = await fetch(`/api/organisations/listing/${projectId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Failed to delete project: ${err}`);
+  }
+
+  return res.json();
+}

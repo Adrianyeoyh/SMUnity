@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrgDashboard, fetchOrgListings } from "#client/api/organisations/dashboard.ts";
 import { Input } from "#client/components/ui/input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteOrganisationProject } from "#client/api/organisations/listing.ts";
 
 export const Route = createFileRoute("/organisations/dashboard")({
   component: OrgDashboard,
@@ -97,11 +99,28 @@ function OrgDashboard() {
     });
   }, []);
 
-  const handleDeleteListing = useCallback((listingTitle: string) => {
-    toast.error("Listing deleted", {
-      description: `${listingTitle} has been removed from your dashboard.`,
-    });
-  }, []);
+  const queryClient = useQueryClient();
+
+const deleteMutation = useMutation({
+  mutationFn: deleteOrganisationProject,
+  onSuccess: (_, projectId) => {
+    toast.success("Listing deleted", { description: "Project removed successfully." });
+    // Invalidate listings to refetch updated list
+    queryClient.invalidateQueries({ queryKey: ["orgListings"] });
+  },
+  onError: (err: any) => {
+    toast.error("Failed to delete listing", { description: err.message });
+  },
+});
+
+const handleDeleteListing = useCallback(
+  (projectId: string, title: string) => {
+    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      deleteMutation.mutate(projectId);
+    }
+  },
+  [deleteMutation]
+);
 
   const getTagIcon = useCallback((tag: string) => {
     const baseClass = "h-3 w-3";
@@ -536,11 +555,13 @@ function OrgDashboard() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDeleteListing(listing.title)}
+                        onClick={() => handleDeleteListing(listing.id, listing.title)}
                         aria-label={`Delete ${listing.title}`}
+                        disabled={deleteMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
+
                     </div>
                   </div>
                 </div>
