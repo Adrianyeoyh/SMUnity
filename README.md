@@ -174,30 +174,37 @@ FORCE_PATH_STYLE="true"
       bun db:studio
    ```
 
+4. Access at: `https://local.drizzle.studio`
 
-#### Firebase
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project.
-3. Enable the following:
-   - **Authentication** → Email/Password sign-in
-   - **Firestore Database** or **Realtime Database**
-   - **Hosting (optional)** if you plan to deploy your web app
-4. Copy the Firebase configuration into your `.env` file.
+#### Google Cloud Console
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create or select a project
+3. Enable APIs:
+   - Navigate to **APIs & Services** → **Enable APIs**
+   - Enable: **Google+ API**, **Google Maps JavaScript API**, **Google Calendar API**
 
-#### Optional: Express.js / MongoDB
-If your app includes a backend:
-1. Create a `/server` folder for backend code.
-2. Inside `/server`, create a `.env` file with:
-   ```bash
-   MONGO_URI=<your_mongodb_connection_string>
-   JWT_SECRET=<your_jwt_secret_key>
-   ```
-3. Start the backend:
-   ```bash
-   cd server
-   npm install
-   npm start
-   ```
+4. Create OAuth Credentials:
+   - Go to **APIs & Services** → **Credentials**
+   - Click **Create Credentials** → **OAuth 2.0 Client ID**
+   - Application type: **Web application**
+   - Add Authorized redirect URI: `http://localhost:4000/api/auth/callback/google`
+   - Copy **Client ID** and **Client Secret** to your `.env`
+
+5. Get Maps API Key:
+   - In **Credentials**, click **Create Credentials** → **API Key**
+   - Copy to `.env` as `VITE_GOOGLE_MAPS_API_KEY`
+
+6. Get Gemini API Key:
+   - Go to [Google AI Studio](https://ai.google.dev/aistudio)
+   - Create an API key
+   - Copy to `.env` as `GEMINI_API_KEY`
+
+#### Better Auth Secret
+Generate a secure secret for authentication:
+```bash
+   openssl rand -base64 32
+```
+   - Copy the output to your `.env` as `BETTER_AUTH_SECRET`
 
 ---
 
