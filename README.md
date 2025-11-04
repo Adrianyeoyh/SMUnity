@@ -251,11 +251,15 @@ npm run test
 
 | Issue | Cause | Fix |
 |:--|:--|:--|
-| `Module not found` | Missing dependencies | Run `npm install` again |
-| `Firebase: permission-denied` | Firestore security rules not set | Check rules under Firestore → Rules |
-| `CORS policy error` | Backend not allowing requests | Enable your domain in CORS settings |
+| `Module not found` | Missing dependencies | Run `bun install` again |
+| Docker containers not starting | Docker Desktop not running | Open Docker Desktop and ensure it's running |
+| `Database connection failed` | PostgreSQL not running in Docker | Run `docker-compose up -d` to start services |
+| `BETTER_AUTH_SECRET not found` | Missing environment variable | Generate secret with `openssl rand -base64 32` and add to `.env` |
 | `.env` variables undefined | Missing `VITE_` prefix | Rename variables to start with `VITE_` |
-| `npm run dev` fails | Node version mismatch | Check Node version (`node -v` ≥ 18) |
+| `Google OAuth error` | Invalid redirect URI | Check Google Console OAuth settings match `http://localhost:4000/api/auth/callback/google` |
+| `bun dev` fails | Wrong Bun/Node version | Check versions: `bun -v` ≥ 1.2.15, `node -v` ≥ 22.14.0 |
+| Port already in use (4000 or 4001) | Another process using the port | Stop other processes or change ports in config |
+| MinIO connection error | MinIO not running | Verify Docker services with `docker ps` |
 
 ---
 
