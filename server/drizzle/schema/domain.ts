@@ -25,6 +25,24 @@ export const notificationTypeEnum = pgEnum("notification_type", ["info", "warnin
 export const interviewOutcomeEnum = pgEnum("interview_outcome", ["pending", "pass", "fail", "no_show", "reschedule"]);
 export const requestStatusEnum = pgEnum("request_status", ["pending", "approved", "rejected"]);
 
+export const organisationRequests = pgTable("organisation_requests", { 
+  id: uuid("id").defaultRandom().primaryKey(), // ✅ UUID PK
+  requesterEmail: text("requester_email").notNull().unique(), // external email for non-SMU
+  requesterName: text("requester_name"),
+  orgName: varchar("org_name", { length: 160 }).notNull(),
+  orgDescription: text("org_description"),
+  website: varchar("website", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  status: requestStatusEnum("status").notNull().default("pending"),
+  decidedBy: text("decided_by").references(() => user.id),
+  decidedAt: timestamp("decided_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  comments: text("comments"),
+}, (t) => ({
+  requesterIdx: index("org_requests_email_idx").on(t.requesterEmail),
+  statusIdx: index("org_requests_status_idx").on(t.status),
+}));
+
 // ---------- PROFILES (extended user info) ----------
 export const profiles = pgTable("profiles", {
   userId: text("user_id").primaryKey().references(() => user.id),
@@ -59,23 +77,6 @@ export const organisations = pgTable("organisations", {
   userUnique: uniqueIndex("org_user_unique").on(t.userId),
   creatorIdx: index("org_created_by_idx").on(t.createdBy),
 }));
-
-// ---------- MEMBERSHIPS ----------
-export const projMemberships = pgTable("project_memberships", {
-  projId: uuid("project_id").notNull().references(() => projects.id),
-  userId: text("user_id").notNull().references(() => profiles.userId),
-  acceptedAt: timestamp("accepted_at"),
-}, (t) => ({
-  pk: primaryKey({ columns: [t.projId, t.userId] }),
-  byUser: index("proj_memberships_user_idx").on(t.userId),
-}));
-
-// ---------- PROJECTS ----------
-const tsvector = customType<{ data: string }>({
-  dataType() {
-    return "tsvector";
-  },
-});
 
 export const projects = pgTable("projects", {
   // existing columns...
@@ -114,6 +115,23 @@ export const projects = pgTable("projects", {
   projectTags: text("project_tags").array().default(sql`ARRAY[]::text[]`),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// ---------- MEMBERSHIPS ----------
+export const projMemberships = pgTable("project_memberships", {
+  projId: uuid("project_id").notNull().references(() => projects.id),
+  userId: text("user_id").notNull().references(() => profiles.userId),
+  acceptedAt: timestamp("accepted_at"),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.projId, t.userId] }),
+  byUser: index("proj_memberships_user_idx").on(t.userId),
+}));
+
+// ---------- PROJECTS ----------
+const tsvector = customType<{ data: string }>({
+  dataType() {
+    return "tsvector";
+  },
 });
 
 export const applications = pgTable("applications", {
@@ -157,25 +175,6 @@ export const savedProjects = pgTable("saved_projects", {
 }, (t) => ({
   pk: primaryKey({ columns: [t.projectId, t.userId] }),
   byUser: index("saved_user_idx").on(t.userId),
-}));
-
-
-export const organisationRequests = pgTable("organisation_requests", { 
-  id: uuid("id").defaultRandom().primaryKey(), // ✅ UUID PK
-  requesterEmail: text("requester_email").notNull().unique(), // external email for non-SMU
-  requesterName: text("requester_name"),
-  orgName: varchar("org_name", { length: 160 }).notNull(),
-  orgDescription: text("org_description"),
-  website: varchar("website", { length: 255 }),
-  phone: varchar("phone", { length: 50 }),
-  status: requestStatusEnum("status").notNull().default("pending"),
-  decidedBy: text("decided_by").references(() => user.id),
-  decidedAt: timestamp("decided_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  comments: text("comments"),
-}, (t) => ({
-  requesterIdx: index("org_requests_email_idx").on(t.requesterEmail),
-  statusIdx: index("org_requests_status_idx").on(t.status),
 }));
 
 export const notifications = pgTable("notifications", {
