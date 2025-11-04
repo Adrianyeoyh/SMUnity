@@ -1,9 +1,12 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
-
+import { cors } from "hono/cors";
 import { env } from "#server/env.ts";
 import { auth } from "#server/lib/auth.ts";
+
+import { apiRouter } from '#server/api'
+import { authMiddleware } from "./middlewares/auth";
 
 const app = new Hono()
   .get("/health", (c) => {
@@ -14,13 +17,26 @@ const app = new Hono()
   .use(
     "/*",
     serveStatic({
-      root: "./dist/static",
+      root: "dist/static",
       index: "index.html",
       onNotFound: (path) => {
         console.log(path);
       },
     }),
   );
+
+app.use(
+  "*",
+  cors({
+    origin: "http://localhost:4000",
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.use(authMiddleware).route("/api", apiRouter);
+
 
 app
   .basePath("/api")

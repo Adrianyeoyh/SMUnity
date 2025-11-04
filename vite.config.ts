@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target: "http://localhost:4001",
           changeOrigin: true,
+          secure: false,
         },
       },
     },

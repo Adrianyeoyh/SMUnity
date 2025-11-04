@@ -22,8 +22,9 @@
     "baseUrl": ".",
     "paths": {
       "#server/*": ["./server/*"],
+      "#client/*": ["./src/*"],
       "#shared/*": ["./shared/*"]
     }
   },
-  "include": ["vite.config.ts", "server"]
+  "include": ["vite.config.ts", "server","scripts"]
 }
