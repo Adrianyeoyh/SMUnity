@@ -23,11 +23,11 @@ G4 Group 12
 
 ## Business Problem
 
-Describe the **real-world business or community problem** your project addresses.
-
 > Current CSP opportunities are scattered across multiple platforms, making it difficult for students to discover project aligned with their interest and availability.
 > Organizations lack a unified system for application management and volunteer tracking.
-> SMUnity addresses these paint points by creating an integrated platform where students can discover and apply for CSP opportunities, and organizations, can post projects and manage applications efficiently. 
+> SMUnity solves this by consolidating all CSP listings into one accessible hub, allowing students to browse available projects, filter them by skills, interests or location, and apply directly through the site.
+> For CSP leaders, the platform provides an intuitive admin panel to post opportunities, manage applications, and track volunteer slots.
+> By streamlining both discovery and management, SMUnity makes it easier for students to find their CSPs and organisations to manage their programs efficiently in one place, fostering greater participation and impact within the SMU community.
 
 ---
 
@@ -100,16 +100,19 @@ Comprehensive steps to help other developers or evaluators run and test your pro
 
 ### 0) Prerequisites
 - [Git](https://git-scm.com/) v2.4+  
-- [Node.js](https://nodejs.org/) v18+ and npm v9+  
+- [Node.js](https://nodejs.org/) v22.14.0+
+- [Bun](https://bun.sh/) v1.2.15+
+- [PostgreSQL](https://www.postgresql.org/) v17+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - Access to backend or cloud services used (Firebase, MongoDB Atlas, AWS S3, etc.)
 
 ---
 
 ### 1) Download the Project
 ```bash
-git clone https://github.com/<org-or-user>/<repo-name>.git
-cd <repo-name>
-npm install
+git clone https://github.com/Adrianyeoyh/SMUnity.git
+cd SMUnity
+bun install
 ```
 
 ---
@@ -119,13 +122,34 @@ Create a `.env` file in the root directory with the following structure:
 
 ```bash
 
-VITE_API_URL=<your_backend_or_firebase_url>
-VITE_FIREBASE_API_KEY=<your_firebase_api_key>
-VITE_FIREBASE_AUTH_DOMAIN=<your_auth_domain>
-VITE_FIREBASE_PROJECT_ID=<your_project_id>
-VITE_FIREBASE_STORAGE_BUCKET=<your_storage_bucket>
-VITE_FIREBASE_MESSAGING_SENDER_ID=<your_sender_id>
-VITE_FIREBASE_APP_ID=<your_app_id>
+DATABASE_URL="postgresql://postgres:password@localhost:5432/app"
+
+BETTER_AUTH_SECRET="your-generated-secret-here"
+
+VITE_APP_URL="http://localhost:4000"
+VITE_SERVER_URL="http://localhost:4001"
+
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+VITE_GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
+VITE_GOOGLE_CALENDAR_CLIENT_ID="your-calendar-client-id.apps.googleusercontent.com"
+VITE_GOOGLE_CALENDAR_CLIENT_SECRET="your-calendar-client-secret"
+
+GEMINI_API_KEY="your-gemini-api-key"
+
+SMTP_HOST="localhost"
+SMTP_PORT="1025"
+SMTP_SECURE="false"
+SMTP_USER="username"
+SMTP_PASS="password"
+SMTP_FROM="no-reply@localhost"
+
+AWS_ACCESS_KEY_ID="admin"
+AWS_SECRET_ACCESS_KEY="password"
+AWS_REGION="ap-southeast-1"
+AWS_S3_ENDPOINT="http://localhost:9000"
+AWS_S3_BUCKET="app"
+FORCE_PATH_STYLE="true"
 
 ```
 
@@ -135,6 +159,21 @@ VITE_FIREBASE_APP_ID=<your_app_id>
 ---
 
 ### 3) Backend / Cloud Service Setup
+
+#### Docker
+1. Start local database and services
+   ```bash
+      docker-compose up -d
+   ```
+2. Push schema to the database
+   ```bash
+      bun db:push
+   ```
+3. Open Drizzle Studio for local database:
+   ```bash
+      bun db:studio
+   ```
+
 
 #### Firebase
 1. Go to [Firebase Console](https://console.firebase.google.com/)
@@ -211,15 +250,17 @@ npm run test
 ---
 
 ## Group Reflection
+ 
+> - *Adrian Yeo Ying Hong:* Learnt to use other local development tools like docker containers and drizzle, and better auth for local authentication management, role based permissions which i learnt from cybersecurity, operating systems and networking mods from previous and ongoing semesters. 
 
-Each member should contribute 2–3 sentences on their learning and project experience.
-
-> **Example Template:**  
-> - *Adrian Yeo Ying Hong:* Learnt to use other local development tools like docker containers and drizzle, and better auth for local authentication management, role based permissions which i learnt from cybersecurity, operating systems and networking mods from previous and ongoing semesters.  
 > - *Kara Huang Xiu Ning:* I learnt to develop a clean UI with reusable components and multi-role user management, which required coordinating complex workflows between students, organisations, and administrators while maintaining an easy-to-use system. I also had the opportunity to explore and integrate advanced animations (smooth-scrolling) to create a modern, user-friendly interface. 
+
 > - *Calynn:* I learned more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.  
+
 > - *Tan Xing Yee Shery:* I learnt more about tools such as react, tailwind css, drizzle, betterauth, etc. I got to explore Lenis and GSAP which I never knew existed. I also was able to learn more about working with external APIs which I havent really explored much before. Hence, this project gave me the chance to be able to learn and discover new things which would be useful for future uses.
+
 > - *John Rey Valdellon Pastores:* Learned how to use tools that I haven't touched before such Tailwind CSS, bun, docker, drizzle, typescript and many others. I also got to experience how to use APIs, especially in Google Cloud, first hand in a website and I believe this would help for my own personal projects.
+
 > - *Leo Kai Jie:* 
 
 
