@@ -1,7 +1,7 @@
-import { db } from "#server/drizzle/db.ts";
-import { createApp } from "#server/factory.ts";
+import { db } from "#server/drizzle/db";
+import { createApp } from "#server/factory";
 import * as schema from "#server/drizzle/schema";
-import { studentMiddleware } from "#server/middlewares/auth.ts";
+import { studentMiddleware } from "#server/middlewares/auth";
 import z from "zod";
 import { eq, count, and } from "drizzle-orm";
 

@@ -7,8 +7,8 @@ import { env } from "#server/env";
 const chatbot = createApp();
 
 import { db } from "#server/drizzle/db";
-import * as schema from "#server/drizzle/schema/domain";
-import { user } from "#server/drizzle/schema/auth";
+import * as schema from "#server/drizzle/schema";
+import { user } from "#server/drizzle/schema";
 import { gte, eq, or, like } from "drizzle-orm";
 
 // System prompt for the chatbot
@@ -123,10 +123,10 @@ chatbot.post("/chat", async (c) => {
         const orgs = await db
           .select({
             userId: schema.organisations.userId,
-            orgName: user.name,
+            orgName: schema.user.name,
           })
           .from(schema.organisations)
-          .leftJoin(user, eq(schema.organisations.userId, user.id));
+          .leftJoin(schema.user, eq(schema.organisations.userId, schema.user.id));
 
         const orgNameMap = new Map(orgs.map(o => [o.userId, o.orgName || "Unknown Organisation"]));
 
@@ -206,7 +206,7 @@ chatbot.post("/chat", async (c) => {
       );
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, any>;
     const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process your request.";
 
     return ok(c, {
@@ -214,8 +214,10 @@ chatbot.post("/chat", async (c) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return badReq(c, "Invalid request format", { errors: error.errors });
-    }
+  return badReq(c, "Invalid request format", {
+    errors: (error as any).issues ?? [],
+  });
+}
     console.error("Chatbot error:", error);
     return c.json({ error: "Internal server error" }, 500);
   }

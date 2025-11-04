@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { au } from "node_modules/better-auth/dist/shared/better-auth.jwa4Tx7v";
+import { authenticatedMiddleware } from "#server/middlewares/auth.js";
 
 const profileSchema = z.object({
   phone: z.string().trim().min(8),
@@ -11,7 +13,7 @@ const profileSchema = z.object({
   interests: z.array(z.string().trim().min(1)).min(1),
 });
 
-export const profileRoutes = new Hono();
+export const profileRoutes = new Hono().use(authenticatedMiddleware);
 
 profileRoutes.get("/", async (c) => {
   const session = c.get("user");

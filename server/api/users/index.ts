@@ -4,8 +4,9 @@ import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { z } from "zod";
+import { authenticatedMiddleware } from "#server/middlewares/auth.js";
 
-export const usersRoutes = new Hono();
+export const usersRoutes = new Hono().use(authenticatedMiddleware);
 
 async function buildMePayload(userId: string) {
   const [user] = await db.select().from(schema.user).where(eq(schema.user.id, userId)).limit(1);
@@ -18,12 +19,6 @@ async function buildMePayload(userId: string) {
     .from(schema.applications)
     .where(eq(schema.applications.userId, userId));
   const [{ count: applications }] = apps.length ? apps : [{ count: 0 }];
-
-  // const hours = await db
-  //   .select({ count: sql<number>`coalesce(sum(${schema.timesheets.hours}),0)::int` })
-  //   .from(schema.timesheets)
-  //   .where(and(eq(schema.timesheets.userId, userId), eq(schema.timesheets.verified, true)));
-  // const [{ count: verifiedHours }] = hours.length ? hours : [{ count: 0 }];
 
   return {
     id: user.id,
@@ -39,7 +34,6 @@ async function buildMePayload(userId: string) {
           school: profile.school,
           skills: profile.skills ?? [],
           interests: profile.interests ?? [],
-          csuCompletedAt: profile.csuCompletedAt,
         }
       : null,
     dashboard: {
