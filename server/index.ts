@@ -25,15 +25,15 @@ const app = new Hono()
     }),
   );
 
-app.use(
-  "*",
-  cors({
-    origin: "http://localhost:4000",
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+// app.use(
+//   "*",
+//   cors({
+//     origin: "http://localhost:4000",
+//     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+//   })
+// );
 
 app.use(authMiddleware).route("/api", apiRouter);
 

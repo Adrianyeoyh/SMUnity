@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 4000,
       open: false,
+      historyApiFallback: true, // 👈 Fix reload 404s in dev
       proxy: {
         "/api": {
           target: "http://localhost:4001",
