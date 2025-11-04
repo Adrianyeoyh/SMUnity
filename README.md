@@ -76,19 +76,68 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 
 Provide screenshots and captions showing how users interact with your app.
 
+### Student User Journey
+
 1. **Landing Page**  
    <img src="screenshots/landing.jpg" width="600">  
    - Displays the homepage with navigation options.
 
 2. **CSP Discover and Matching**  
    <img src="screenshots/discover.jpg" width="600">  
-   - Users can search and filter through CSPs in this page
+   - Users can search and filter through CSPs in this page by Category, Location (Map), and Keywords
 
-3. **User Dashboard**  
-   <img src="screenshots/dashboard.png" width="600">  
-   - Shows saved data and recent activities.
+3. **View CSP Details**  
+   <img src="screenshots/viewCSPDetails.jpg" width="600">  
+   - Detailed CSP View Page showing description, requirements, and application.
 
-> Save screenshots inside `/screenshots` with clear filenames.
+4. **GoogleOAuth Sign In**  
+   <img src="screenshots/GoogleSignIn.jpg" width="600">  
+   - Users sign in securely using their accounts before applying.
+
+5. **User Application Form**  
+   <img src="screenshots/applicationform.jpg" width="600">  
+   - Users must complete the application form to apply for a CSP.
+
+6. **User Dashboard**  
+   <img src="screenshots/UserDashboard.jpg" width="600">  
+   - Main dashboard displaying overview on user CSP applications and upcoming events, .
+
+7. **User My Applications**  
+   <img src="screenshots/MyApplications.jpg" width="600">  
+   - Dedicated application tracking page monitoring all their applications for CSP.
+
+### Organization User Journey
+
+8. **Organisation Dashboard**  
+   <img src="screenshots/OrganisationDashboard.jpg" width="600">  
+   - Dashboard for organisation coordinators to view all posted listings, track application status, manage volunteer slots, and access analytics.
+
+9. **Create New CSP Listing**  
+   <img src="screenshots/CreateListing.jpg" width="600">  
+   - Organisation coordinators can create a CSP Listing with specified requirements that they need to fill.
+
+10. **View Posted Listing**  
+   <img src="screenshots/ViewListing.jpg" width="600">  
+   - Organisation coordinators can view details of their posted listing including project overview with all listing details, student applicant profiles, and options to accept or reject applications.
+
+11. **View Applicant Details**  
+   <img src="screenshots/ViewApplicant.jpg" width="600">  
+   - Organisation coordinators can view applicant's details including options to call and email and view details from application form.
+
+### Admin User Journey
+
+12. **Admin Dashboard**  
+   <img src="screenshots/AdminDashboard.jpg" width="600">  
+   - Admin Dashboard provides an overview of platform activity on active organisations, total CSP listings, and active users. Admins can quickly review, approve, or reject pending organisations.
+
+13. **CreateOrganiserForm**  
+   <img src="screenshots/CreateOrganiserForm.jpg" width="600">  
+   - Admins can create a new organiser by filling out the organiser form.
+
+14. **ViewOrganisation**  
+   <img src="screenshots/ViewOrganisation.jpg" width="600">  
+   - Lets admins browse all registered organisations, search or filter by status and see contact details for each entry. Admins can suspend or reactivate organisations directly from this list for quick management.
+
 
 ---
 
