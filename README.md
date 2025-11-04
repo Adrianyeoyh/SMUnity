@@ -161,20 +161,23 @@ FORCE_PATH_STYLE="true"
 ### 3) Backend / Cloud Service Setup
 
 #### Docker
-1. Start local database and services
+
+1. Make sure Docker Desktop is installed and running before proceeding.
+
+2. Start local database and services
    ```bash
       docker-compose up -d
    ```
-2. Push schema to the database
+3. Push schema to the database
    ```bash
       bun db:push
    ```
-3. Open Drizzle Studio for local database:
+4. Open Drizzle Studio for local database:
    ```bash
       bun db:studio
    ```
 
-4. Access at: `https://local.drizzle.studio`
+5. Access at: `https://local.drizzle.studio`
 
 #### Google Cloud Console
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
@@ -211,14 +214,14 @@ Generate a secure secret for authentication:
 ### 4) Run the Frontend
 To start the development server:
 ```bash
-npm run dev
+bun dev
 ```
-The project will run on [http://localhost:5173](http://localhost:5173) by default.
+The project will run on [http://localhost:4000](http://localhost:4000) by default.
 
 To build and preview the production version:
 ```bash
-npm run build
-npm run preview
+bun build 
+bun start
 ```
 
 ---
