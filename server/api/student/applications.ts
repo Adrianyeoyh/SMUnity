@@ -1,10 +1,10 @@
 // server/api/student/applications.ts
-import { createApp } from "#server/factory.ts";
+import { createApp } from "#server/factory";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
-import { ok, badReq, notFound } from "#server/helper/index.ts";
+import { ok, badReq, notFound } from "#server/helper";
 
 
 const applications = createApp()

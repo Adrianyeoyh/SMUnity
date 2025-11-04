@@ -3,10 +3,10 @@ import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createApp } from "#server/factory.ts";
-import { organisationMiddleware } from "#server/middlewares/auth.ts";
-import { extractCoordsFromGoogleMaps } from "#server/helper/index.ts";
-import { ok } from "#server/helper/index.ts";
+import { createApp } from "#server/factory";
+import { organisationMiddleware } from "#server/middlewares/auth";
+import { extractCoordsFromGoogleMaps } from "#server/helper";
+import { ok } from "#server/helper";
 
 
 const listing = createApp();

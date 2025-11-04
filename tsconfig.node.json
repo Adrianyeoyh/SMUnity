@@ -1,19 +1,47 @@
+// {
+//   "compilerOptions": {
+//     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+//     "target": "ES2022",
+//     "lib": ["ES2023"],
+//     "module": "ESNext",
+//     "skipLibCheck": true,
+
+//     /* Bundler mode */
+//     "moduleResolution": "bundler",
+//     "allowImportingTsExtensions": false,
+//     "isolatedModules": true,
+//     "moduleDetection": "force",
+//     "noEmit": true,
+
+//     /* Linting */
+//     "strict": true,
+//     "noUnusedLocals": true,
+//     "noUnusedParameters": true,
+//     "noFallthroughCasesInSwitch": true,
+//     "noUncheckedSideEffectImports": true,
+//     "baseUrl": ".",
+//     "paths": {
+//       "#server/*": ["./server/*"],
+//       "#client/*": ["./src/*"],
+//       "#shared/*": ["./shared/*"]
+//     }
+//   },
+//   "include": ["vite.config.ts", "server","scripts"]
+// }
 {
   "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
     "lib": ["ES2023"],
     "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": false,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -21,10 +49,12 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "#server/*": ["./server/*"],
-      "#client/*": ["./src/*"],
-      "#shared/*": ["./shared/*"]
-    }
+      "#server/*": ["server/*"],
+      "#client/*": ["src/*"],
+      "#shared/*": ["shared/*"]
+    },
+    "outDir": "dist/server",
+    "skipLibCheck": true
   },
-  "include": ["vite.config.ts", "server","scripts"]
+  "include": ["vite.config.ts", "server", "scripts"]
 }

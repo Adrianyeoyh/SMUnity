@@ -2,12 +2,12 @@
 import { db } from "#server/drizzle/db";
 import { organisationRequests, user, organisations, account } from "#server/drizzle/schema";
 import { eq, desc } from "drizzle-orm";
-import { createApp } from "#server/factory.ts";
+import { createApp } from "#server/factory";
 import { hashPassword } from "better-auth/crypto";
 import crypto from "crypto";
-import { mailer } from "#server/lib/mailer.ts";
-import { auth } from "#server/lib/auth.ts";
-import { env } from "#server/env.ts";
+import { mailer } from "#server/lib/mailer";
+import { auth } from "#server/lib/auth";
+import { env } from "#server/env";
 
 
 

@@ -2,8 +2,8 @@
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/domain";
 import { eq, and, gt, lt, sql, lte, gte, inArray  } from "drizzle-orm";
-import { ok, badReq, forbidden, notFound } from "#server/helper/index.ts";
-import { createApp } from "#server/factory.ts";
+import { ok, badReq, forbidden, notFound } from "#server/helper";
+import { createApp } from "#server/factory";
 import { addDays, isAfter, isBefore, parseISO, format, startOfDay } from "date-fns";
 // import { z } from "zod";
 

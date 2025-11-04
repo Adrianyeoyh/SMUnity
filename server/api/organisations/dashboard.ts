@@ -1,4 +1,4 @@
-import { createApp } from "#server/factory.ts";
+import { createApp } from "#server/factory";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/domain";
 import { eq, sql, inArray, and } from "drizzle-orm";

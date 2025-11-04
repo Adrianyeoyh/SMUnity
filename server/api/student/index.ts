@@ -1,5 +1,5 @@
-import { createApp } from "#server/factory.ts";
-import { studentMiddleware } from "#server/middlewares/auth.ts";
+import { createApp } from "#server/factory";
+import { studentMiddleware } from "#server/middlewares/auth";
 import applications from "./applications";
 import dashboard from "./dashboard";
 import profile from "./profile";

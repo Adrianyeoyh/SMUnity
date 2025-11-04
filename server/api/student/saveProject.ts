@@ -4,9 +4,9 @@ import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
-import { ok, badReq, forbidden } from "#server/helper/index.ts";
-import { authMiddleware } from "#server/middlewares/auth.ts"; // adjust if you use different middleware
-import { createApp } from "#server/factory.ts";
+import { ok, badReq, forbidden } from "#server/helper";
+import { authMiddleware } from "#server/middlewares/auth"; // adjust if you use different middleware
+import { createApp } from "#server/factory";
 
 const savedProjectsRoute = createApp()
 

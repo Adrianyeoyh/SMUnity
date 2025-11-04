@@ -5,7 +5,7 @@ import { openAPI } from "better-auth/plugins";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { env } from "#server/env";
-import { mailer } from "#server/lib/mailer.ts";
+import { mailer } from "#server/lib/mailer";
 import { and, eq, gt } from "drizzle-orm";
 
 export const auth = betterAuth({

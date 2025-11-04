@@ -1,10 +1,10 @@
-import { db } from "#server/drizzle/db.ts";
-import { createApp } from "#server/factory.ts";
-import { organisationMiddleware } from "#server/middlewares/auth.ts";
+import { db } from "#server/drizzle/db";
+import { createApp } from "#server/factory";
+import { organisationMiddleware } from "#server/middlewares/auth";
 import * as schema from "#server/drizzle/schema";
 import z from "zod";
 import { and, desc, eq } from "drizzle-orm";
-import { ok } from "#server/helper/index.ts";
+import { ok } from "#server/helper";
 
 const application = createApp().use(organisationMiddleware);
 

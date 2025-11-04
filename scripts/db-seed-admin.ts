@@ -1,7 +1,7 @@
 import { hashPassword } from "better-auth/crypto";
 import { db } from '../server/drizzle/db';
 import { user } from "../server/drizzle/schema";
-import { account } from "../server/drizzle/schema/auth.ts";
+import { account } from "../server/drizzle/schema/auth";
 
 await db.transaction(async (tx) => {
     // Admin user

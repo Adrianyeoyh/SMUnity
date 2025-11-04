@@ -3,9 +3,9 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { sql, eq } from "drizzle-orm";
-import { ok } from "#server/helper/index.ts";
-import { adminMiddleware, AuthVariables } from "#server/middlewares/auth.ts";
-import { createApp } from "#server/factory.ts";
+import { ok } from "#server/helper";
+import { adminMiddleware, AuthVariables } from "#server/middlewares/auth";
+import { createApp } from "#server/factory";
 
 export const adminDashboardRoutes = createApp()
 // .use(adminMiddleware); 

@@ -1,9 +1,9 @@
-import { createApp } from "#server/factory.ts";
-import { db } from "#server/drizzle/db.ts";
+import { createApp } from "#server/factory";
+import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { organisationMiddleware } from "#server/middlewares/auth.ts";
-import { ok } from "#server/helper/index.ts";
+import { organisationMiddleware } from "#server/middlewares/auth";
+import { ok } from "#server/helper";
 import { z } from "zod";
 
 const profile = createApp().use(organisationMiddleware);

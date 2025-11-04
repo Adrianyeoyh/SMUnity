@@ -4,10 +4,10 @@ import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { hashPassword } from "better-auth/crypto";
 import { sql, eq } from "drizzle-orm";
-import { adminMiddleware } from "#server/middlewares/auth.ts";
-import { createApp } from "#server/factory.ts";
+import { adminMiddleware } from "#server/middlewares/auth";
+import { createApp } from "#server/factory";
 import { error } from "console";
-import { slugify } from "#server/helper/index.ts";
+import { slugify } from "#server/helper";
 
 export const adminCreate = createApp()
 // .use(adminMiddleware); 

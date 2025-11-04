@@ -3,12 +3,12 @@ import { Hono } from "hono";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq, desc } from "drizzle-orm";
-import { createApp } from "#server/factory.ts";
+import { createApp } from "#server/factory";
 import listing from "./listing";
 import dashboard from "./dashboard";
 import application from "./application";
 import profile from "./profile";
-import { authMiddleware, organisationMiddleware } from "#server/middlewares/auth.ts";
+import { authMiddleware, organisationMiddleware } from "#server/middlewares/auth";
 
 
 const organisationsRoutes = createApp()
