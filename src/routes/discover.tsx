@@ -34,19 +34,14 @@ import { fetchSavedProjects, fetchSaveProject, fetchUnsaveProject } from "../api
 // import { useMe } from "#client/api/hooks.ts";
 import { useAuth } from "#client/hooks/use-auth.ts";
 
-// Helper function to extract coordinates from Google Maps URL
 async function extractCoordsFromGoogleMapsUrl(url: string): Promise<{ lat: number; lng: number } | null> {
   try {
-    // For shortened goo.gl URLs, we need to follow the redirect
     if (url.includes('goo.gl') || url.includes('maps.app.goo.gl')) {
-      // Use a CORS proxy or make backend request
-      // For now, return null - you'll need to add these manually or via backend
       console.warn('Shortened URL detected, needs manual coordinate extraction:', url);
       return null;
     }
     
-    // Parse regular Google Maps URLs
-    // Format: https://www.google.com/maps/place/.../@LAT,LNG,ZOOM
+    // Google maps link shld be with coordinates like this:  https://www.google.com/maps/place/.../@LAT,LNG,ZOOM
     const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (match) {
       return {
@@ -55,7 +50,6 @@ async function extractCoordsFromGoogleMapsUrl(url: string): Promise<{ lat: numbe
       };
     }
     
-    // Try query parameter format: ?q=LAT,LNG
     const qMatch = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (qMatch) {
       return {
@@ -363,7 +357,7 @@ if (isError)
     "all", "Community", "Mentoring", "Environment", "Elderly", "Arts & Culture", "Animal Welfare", "Sports & Leisure", "Coding"
   ];
 
-  // Enhanced filtering with all criteria
+  // Filtering for CSP
   const filteredCSPs = cspLocations.filter(csp => {
     // Category filter
     const matchesCategory = selectedCategory === "all" || csp.category === selectedCategory;
@@ -1115,8 +1109,7 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
             return csp;
           }
           
-          // If has Google Maps URL but no coordinates, skip for now
-          // (shortened URLs need backend processing)
+          // If Google Maps URL has no coordinates, then skips LOL
           if (csp.googleMaps && !csp.latitude && !csp.longitude) {
             console.log(`CSP "${csp.title}" has Google Maps URL but no coordinates yet`);
             return null;

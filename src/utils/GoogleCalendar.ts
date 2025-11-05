@@ -1,10 +1,6 @@
-/**
- * Google Calendar URL-based Helper
- * Opens Google Calendar page with event pre-filled
- */
 
-// Add event to Google Calendar via URL
-export const addToGoogleCalendar = (event: {
+ // For Google Calendar
+ export const addToGoogleCalendar = (event: {
   title: string;
   date: string;
   time: string;
@@ -12,18 +8,15 @@ export const addToGoogleCalendar = (event: {
   description?: string;
 }) => {
   try {
-    // Parse date and time
     const [startTime, endTime] = event.time.split(' - ');
     const eventDate = new Date(event.date);
     
     const startDateTime = parseDateTime(eventDate, startTime);
     const endDateTime = parseDateTime(eventDate, endTime);
 
-    // Format for Google Calendar URL
     const startStr = formatGoogleDate(startDateTime);
     const endStr = formatGoogleDate(endDateTime);
 
-    // Create Google Calendar URL
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: event.title,
@@ -34,8 +27,7 @@ export const addToGoogleCalendar = (event: {
     });
 
     const url = `https://calendar.google.com/calendar/render?${params.toString()}`;
-    
-    // Opens Google Calendar in New tab
+  
     window.open(url, '_blank');
     
     return { success: true };
@@ -45,7 +37,6 @@ export const addToGoogleCalendar = (event: {
   }
 };
 
-// Helper: Format date for Google Calendar URL
 function formatGoogleDate(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -57,7 +48,6 @@ function formatGoogleDate(date: Date): string {
   return `${year}${month}${day}T${hours}${minutes}${seconds}`;
 }
 
-// Helper function to parse time
 function parseDateTime(date: Date, time: string): Date {
   const [timeStr, period] = time.split(' ');
   let [hours, minutes] = timeStr.split(':').map(Number);
