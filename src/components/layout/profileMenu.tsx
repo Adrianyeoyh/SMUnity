@@ -24,9 +24,9 @@ function ProfileMenu() {
           <Button
             variant="ghost"
             size="icon"
-            className="focus-visible:ring-0 focus-visible:ring-offset-0 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full p-0 transition-all duration-200 hover:scale-110"
+            className="focus-visible:ring-0 focus-visible:ring-offset-0 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full p-0 transition-all duration-200 hover:scale-110 group"
           >
-            <div className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-200 hover:shadow-lg hover:bg-primary/90 cursor-pointer">
+            <div className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-200 group-hover:shadow-lg group-hover:bg-primary/90">
               {firstLetter}
             </div>
           </Button>

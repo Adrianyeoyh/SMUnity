@@ -23,7 +23,7 @@ import {
   TrendingUp,
   Award,
   Heart,
-  CheckCircle2,
+  CircleCheckBig,
   AlertCircle,
   CircleCheck,
   ArrowRight,
@@ -78,9 +78,10 @@ const getStatusLabel = (status: string) => {
 
 function Dashboard() {
   const { data: userData, isLoading: isLoadingUser } = useMe();
-  const userName = userData?.name;
+  const userName = userData?.name ? userData.name.replace(/_/g, " ").trim() : undefined;
   // console.log("user data: ", userData);
 
+  console.log(userData);
   const [showCSUCard, setShowCSUCard] = useState(true);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedApplicationData, setSelectedApplicationData] = useState<any | null>(null);
@@ -183,7 +184,7 @@ function Dashboard() {
         )}
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1wait  lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
           <Card>
             <CardHeader className="pb-4">
@@ -216,6 +217,23 @@ function Dashboard() {
             </CardHeader>
             <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">Awaiting response</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardDescription className="font-body mb-4 font-semibold">Successful Applications</CardDescription>
+                  <CardTitle className="font-heading text-3xl text-primary">{completedCount}</CardTitle>
+                </div>
+                <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
+                  <CircleCheckBig className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0 pb-0">
+              <div className="text-xs text-muted-foreground font-body">Total contributions</div>
             </CardContent>
           </Card>
 
