@@ -1,11 +1,11 @@
 // import { serve } from "@hono/node-server";
 import { serveStatic } from 'hono/bun'
 import { Hono } from "hono";
-import { env } from "./server/env";
-import { auth } from "./server/lib/auth";
+import { env } from "./env";
+import { auth } from "./lib/auth";
 
-import { apiRouter } from './server/api'
-import { authMiddleware } from "./server/middlewares/auth";
+import { apiRouter } from './api'
+import { authMiddleware } from "./middlewares/auth";
 
 const api = new Hono().use(authMiddleware)
   .get("/runtime.js", (c) => {
@@ -30,9 +30,9 @@ const app = new Hono()
       status: "ok",
     });
   })
-  .use("/assets/*", serveStatic({ root: "./public" }))
-  .use("/*", serveStatic({ root: "./public" }))
-  .get("*", serveStatic({ path: "./public/index.html" }));
+  .use("/assets/*", serveStatic({ root: "./dist/static" }))
+  .use("/*", serveStatic({ root: "./dist/static" }))
+  .get("*", serveStatic({ path: "./dist/static/index.html" }));
 
 export default {
   port: process.env.NODE_ENV == "development" ? 4001 : 4000,
