@@ -24,14 +24,13 @@ export const auth = betterAuth({
         type: 'boolean',
         required: true,
         defaultValue: true,
-        input: true, // Allows user to set this field during registration or profile updates
+        input: true, 
       },
-      // Add other custom fields as needed
       accountType: {
         type: 'string',
         required: true,
         defaultValue: 'student',
-        input: false, // Hides this field from user input
+        input: false, 
       },
     },
   },
@@ -40,9 +39,9 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   telemetry: { enabled: false },
   cookies: {
-    domain: "localhost",   // applies to all localhost ports
-    sameSite: "lax",       // allows cross-site (cross-port) requests
-    secure: false,         // true only for HTTPS in production
+    domain: "localhost",   
+    sameSite: "lax",       
+    secure: false,         
   },
 
   // ── Email + Password for organisers
@@ -100,12 +99,10 @@ export const auth = betterAuth({
           const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
           const isStudent = Boolean(studentMatch);
 
-          // 🧠 CASE 1: SMU student → allowed
           if (isSMUDomain && isStudent) {
             return { data: user };
           }
 
-          // 🧠 CASE 2: SMU staff or professor → must be verified organiser
           if (isSMUDomain && !isStudent) {
             const [orgReq] = await db
               .select()
@@ -122,11 +119,9 @@ export const auth = betterAuth({
               });
             }
 
-            // Organisation request approved → allow account creation
             return { data: user };
           }
 
-          // 🧠 CASE 3: external organiser (non-SMU domain)
           return { data: user };
         },
 
@@ -146,7 +141,6 @@ export const auth = betterAuth({
           })
           .where(eq(schema.user.id, user.id));
 
-        // 🧭 Student setup
         if (isStudent) {
           const entryYear = studentMatch ? Number(studentMatch[1]) : null;
           await db
@@ -162,7 +156,6 @@ export const auth = betterAuth({
           return;
         }
 
-        // 🧭 Organisation setup
         const [orgReq] = await db
           .select()
           .from(schema.organisationRequests)
@@ -171,7 +164,6 @@ export const auth = betterAuth({
             eq(schema.organisationRequests.status, "approved")
           ));
 
-        // only create if an approved org request exists
         if (orgReq) {
           const slug = orgReq.orgName.toLowerCase().trim().replace(/[\s\W-]+/g, "-");
           await db

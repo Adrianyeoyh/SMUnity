@@ -10,9 +10,8 @@ const discover = createApp();
 
 discover.get("/", async (c) => {
   try {
-    // console.log("📡 [discover] Fetching active projects...");
 
-    const now = new Date(); // server time ok; your status calc already uses this
+    const now = new Date(); 
 
     const rows = await db
       .select({
@@ -35,7 +34,6 @@ discover.get("/", async (c) => {
         skills: schema.projects.skillTags,
         tags: schema.projects.projectTags,
 
-        // ⬇️ add these 3
         timeStart: schema.projects.timeStart,
         timeEnd: schema.projects.timeEnd,
         daysOfWeek: schema.projects.daysOfWeek,
@@ -44,12 +42,10 @@ discover.get("/", async (c) => {
       .where(gte(schema.projects.applyBy, now))
 
 
-    // Fetch org display name from user table via organisations if you don't already have it joined here
-    // Minimal additional join to map organisationUserId -> user.name:
     const orgs = await db
     .select({
         userId: schema.organisations.userId,
-        orgName: user.name, // ✅ now valid
+        orgName: user.name, 
     })
     .from(schema.organisations)
     .leftJoin(user, eq(schema.organisations.userId, user.id));
@@ -57,10 +53,8 @@ discover.get("/", async (c) => {
     const orgNameById = new Map(orgs.map(o => [o.userId, o.orgName || ""]));
 
     const payload = rows.map((r) => {
-      // compute currentVolunteers if you want; or 0 if you haven’t joined it here
-      const currentVolunteers = 0; // keep as-is unless you want to count memberships here
+      const currentVolunteers = 0; 
 
-      // status: keep your existing client code, or compute here if preferred
       let status: "open" | "closing-soon" | "closed" | "full" = "open";
       if (r.applicationDeadline && r.applicationDeadline < now) status = "closed";
 
@@ -74,7 +68,7 @@ discover.get("/", async (c) => {
         type: r.type ?? "local",
         startDate: r.startDate,
         endDate: r.endDate,
-        duration: "", // UI will render from timeStart/timeEnd/daysOfWeek
+        duration: "", 
         serviceHours: r.serviceHours ?? 0,
         maxVolunteers: r.maxVolunteers ?? 0,
         currentVolunteers,
@@ -87,34 +81,29 @@ discover.get("/", async (c) => {
         skills: r.skills ?? [],
         tags: r.tags ?? [],
 
-        // ⬇️ pass through schedule fields
-        timeStart: r.timeStart,      // e.g. "08:30:00" (drizzle pg time -> string)
-        timeEnd: r.timeEnd,          // e.g. "13:30:00"
-        daysOfWeek: r.daysOfWeek,    // e.g. ["Monday","Wednesday","Friday"]
+        timeStart: r.timeStart,      
+        timeEnd: r.timeEnd,          
+        daysOfWeek: r.daysOfWeek,    
       };
     });
 
-    // console.log("✅ [discover] Found", payload.length, "projects");
-    // console.log("✅ [discover] Payload ready", payload);
     return ok(c, payload);
   } catch (err) {
-    console.error("🚨 [discover] Error loading projects:", err);
+    console.error(" [discover] Error loading projects:", err);
     return c.json({ error: "Failed to load projects" }, 500);
   }
 });
 
 discover.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");
-  // console.log("📡 [csp] Fetching project:", projectId);
 
   try {
-    // 1️⃣ Fetch project with organisation info
     const project = await db.query.projects.findFirst({
       where: eq(schema.projects.id, projectId),
       with: {
         org: {
           with: {
-            user: true, // includes user.name (organisation display name)
+            user: true, 
           },
         },
       },
@@ -122,14 +111,13 @@ discover.get("/:projectId", async (c) => {
 
     if (!project) return c.json({ error: "Project not found" }, 404);
 
-    // 2️⃣ Count current volunteers
     const members = await db
       .select()
       .from(schema.projMemberships)
       .where(eq(schema.projMemberships.projId, projectId));
     const currentVolunteers = members.length;
 
-    // 2️⃣ Count ALL applications (regardless of status)
+
 const applications = await db
   .select()
   .from(schema.applications)
@@ -138,7 +126,6 @@ const applications = await db
 const currentApplications = applications.length;
 
 
-    // 3️⃣ Prepare clean payload
     const data = {
   id: project.id,
   title: project.title,
@@ -156,7 +143,6 @@ const currentApplications = applications.length;
   isRemote: project.isRemote,
   status: "open",
 
-  // Descriptive fields
   description: project.description ?? "",
   aboutDo: project.aboutDo ?? "",
   aboutProvide: project.aboutProvide ?? "",
@@ -166,32 +152,28 @@ const currentApplications = applications.length;
   imageUrl: project.imageUrl ?? "",
   images: project.imageUrl ? [project.imageUrl] : [],
 
-  // Scheduling / Duration fields
   repeatInterval: project.repeatInterval,
   repeatUnit: project.repeatUnit,
   daysOfWeek: project.daysOfWeek ?? [],
   timeStart: project.timeStart,
   timeEnd: project.timeEnd,
 
-  // Organisation info
   organisationInfo: {
     name: project.org?.user?.name ?? "Unknown",
     description: project.org?.description ?? "",
     website: project.org?.website ?? "",
     phone: project.org?.phone ?? "",
-    email: project.org?.user?.email ?? "", // ✅ added
+    email: project.org?.user?.email ?? "",
     isVerified: true,
   },
 
-  // Meta
   applicationDeadline: project.applyBy,
   googleMaps: project.googleMaps ?? null,
 };
 
-    // console.log("✅ [csp] Payload ready:", data);
     return ok(c, data);
   } catch (err) {
-    console.error("🚨 [csp] Error:", err);
+    console.error(" [csp] Error:", err);
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });

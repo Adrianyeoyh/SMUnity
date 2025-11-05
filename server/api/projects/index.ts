@@ -22,20 +22,19 @@ projects.post("/apply", async (c) => {
   try {
     const user = c.get("user");
     if (!user?.id) {
-      console.error("❌ [Apply] Not authenticated user tried to submit.");
+      console.error(" [Apply] Not authenticated user tried to submit.");
       return c.json({ error: "Not authenticated." }, 401);
     }
 
     const body = await c.req.json();
     const parsed = ApplicationSchema.safeParse(body);
     if (!parsed.success) {
-      console.error("❌ [Apply] Invalid form data:", parsed.error.flatten());
+      console.error(" [Apply] Invalid form data:", parsed.error.flatten());
       return c.json({ error: "Invalid form data", details: parsed.error.flatten() }, 400);
     }
 
     const { projectId, ...data } = parsed.data;
 
-    // ✅ Step 1: Fetch project details including application deadline
     const [project] = await db
       .select({
         id: schema.projects.id,
@@ -47,18 +46,17 @@ projects.post("/apply", async (c) => {
       .limit(1);
 
     if (!project) {
-      console.error("❌ [Apply] Project not found:", projectId);
+      console.error(" [Apply] Project not found:", projectId);
       return c.json({ error: "Project not found." }, 404);
     }
 
-    // ✅ Step 2: Check if deadline has passed
     if (project.applyBy) {
       const now = new Date();
       const deadline = new Date(project.applyBy);
 
       if (now > deadline) {
         console.warn(
-          `⚠️ [Apply] User ${user.id} tried to apply after deadline (${deadline.toISOString()})`
+          ` [Apply] User ${user.id} tried to apply after deadline (${deadline.toISOString()})`
         );
         return c.json(
           { error: "The application deadline for this project has passed." },
@@ -67,7 +65,6 @@ projects.post("/apply", async (c) => {
       }
     }
 
-    // ✅ Step 3: Check capacity
     const [{ count: currentCount }] = await db
       .select({ count: count() })
       .from(schema.projMemberships)
@@ -94,7 +91,6 @@ projects.post("/apply", async (c) => {
       return c.json({ error: "You have already applied to this project" }, 400);
     }
 
-    // ✅ Step 5: Insert new application
     await db.insert(schema.applications).values({
       projectId,
       userId: user.id,
@@ -107,10 +103,10 @@ projects.post("/apply", async (c) => {
       agree: data.agree,
     });
 
-    // console.log(`✅ [Apply] User ${user.id} successfully applied for project ${projectId}.`);
+
     return c.json({ success: true, message: "Application submitted successfully!" }, 200);
   } catch (err) {
-    console.error("💥 [Apply] Unexpected server error:", err);
+    console.error(" [Apply] Unexpected server error:", err);
     return c.json({ error: "Internal server error" }, 500);
   }
 });

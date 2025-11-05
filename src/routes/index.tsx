@@ -98,16 +98,13 @@ const MovingBackground = ({ heroRef }: { heroRef: React.RefObject<HTMLElement> }
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const rafRef = useRef<number>();
 
-  // Track mouse movement on hero section with requestAnimationFrame for smooth updates
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (heroRef.current && rafRef.current === undefined) {
         rafRef.current = requestAnimationFrame(() => {
           const rect = heroRef.current!.getBoundingClientRect();
-          // Calculate relative position (0 to 1)
           const x = (e.clientX - rect.left) / rect.width;
           const y = (e.clientY - rect.top) / rect.height;
-          // Convert to -50 to 50 for smoother movement
           setMousePosition({
             x: (x - 0.5) * 100,
             y: (y - 0.5) * 100,
@@ -278,8 +275,8 @@ function Index() {
           if (entry.isIntersecting && !hasAnimated) {
             setHasAnimated(true);
             
-            const duration = 2000; // 2 seconds total
-            const fps = 60; // 60 frames per second
+            const duration = 2000; 
+            const fps = 60; 
             const totalFrames = (duration / 1000) * fps;
             const frameInterval = duration / totalFrames;
             
@@ -288,12 +285,10 @@ function Index() {
               frame++;
               const progress = frame / totalFrames;
               
-              // Calculate current values based on progress
               setCountCSPs(Math.floor(150 * progress));
               setCountPartners(Math.floor(430 * progress));
               setCountCountries(Math.floor(40 * progress));
               
-              // Stop when animation completes
               if (frame >= totalFrames) {
                 setCountCSPs(150);
                 setCountPartners(430);
@@ -318,7 +313,6 @@ function Index() {
     };
   }, [hasAnimated]);
 
-  // GSAP Animations for Categories Section - Flip cards on hover
   useEffect(() => {
     const cards = categoryCardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0 || !categoriesSectionRef.current) return;
@@ -326,7 +320,6 @@ function Index() {
     const handlers: Array<{ card: HTMLDivElement; enter: () => void; leave: () => void }> = [];
     let hasAnimated = false;
 
-    // Set initial hidden state for all cards
     cards.forEach((card) => {
       gsap.set(card, {
         opacity: 0,
@@ -336,10 +329,8 @@ function Index() {
       });
     });
 
-    // Store animation timelines for reversal
     const cardAnimations: gsap.core.Tween[] = [];
 
-    // Intersection Observer to trigger animations when section is in view
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -354,7 +345,6 @@ function Index() {
               
               if (!cardInner || !cardFront || !cardBack) return;
 
-              // Set initial 3D styles
               gsap.set(card, {
                 perspective: 1000,
                 transformStyle: "preserve-3d",
@@ -375,7 +365,6 @@ function Index() {
                 rotationY: 180,
               });
 
-                // Entrance animation with stagger
                 const anim = gsap.to(card, {
                   opacity: 1,
                   y: 0,
@@ -389,7 +378,6 @@ function Index() {
               });
             }
           } else if (!entry.isIntersecting && hasAnimated) {
-            // Reverse animations when scrolling back up
             cardAnimations.forEach((anim, idx) => {
               gsap.to(anim.targets(), {
                 opacity: 0,
@@ -400,10 +388,8 @@ function Index() {
                 ease: "power2.in",
                 delay: idx * 0.05,
                 onComplete: () => {
-                  // Reset hasAnimated after all animations complete to allow re-triggering
                   if (idx === cardAnimations.length - 1) {
                     hasAnimated = false;
-                    // Reset initial hidden state so cards can animate in again
                     cards.forEach((card) => {
                       gsap.set(card, {
                         opacity: 0,
@@ -432,7 +418,6 @@ function Index() {
       
       if (!cardInner || !cardFront || !cardBack) return;
 
-      // Initialize 3D styles (even if not visible yet)
       gsap.set(card, {
         perspective: 1000,
         transformStyle: "preserve-3d",
@@ -453,7 +438,6 @@ function Index() {
         rotationY: 180,
       });
 
-      // Hover enter handler - flip to back
       const handleEnter = () => {
         gsap.to(cardInner, {
           rotationY: 180,
@@ -461,7 +445,6 @@ function Index() {
           ease: "power2.inOut",
         });
 
-        // Scale up slightly
         gsap.to(card, {
           scale: 1.05,
           y: -8,
@@ -469,7 +452,6 @@ function Index() {
           ease: "power2.out",
         });
 
-        // Animate icon and text entrance
         gsap.fromTo(
           cardBack,
           {
@@ -486,7 +468,6 @@ function Index() {
         );
       };
 
-      // Hover leave handler - flip to front
       const handleLeave = () => {
         gsap.to(cardInner, {
           rotationY: 0,
@@ -494,7 +475,6 @@ function Index() {
           ease: "power2.inOut",
         });
 
-        // Reset scale
         gsap.to(card, {
           scale: 1,
           y: 0,
@@ -527,13 +507,10 @@ function Index() {
     let hasAnimated = false;
     const section = featuredCSPsSectionRef.current;
 
-    // Get all carousel cards and mobile grid cards
     const carouselContainer = section.querySelector('[class*="hidden"][class*="lg:block"]');
     const mobileGrid = section.querySelector('.grid.grid-cols-1');
     
-    // Set initial hidden state for desktop carousel
     if (carouselContainer) {
-      // Find the container with absolute positioned cards - use more flexible selector
       const cardsContainer = carouselContainer.querySelector('[class*="relative"][class*="h-"]') || 
                              carouselContainer.querySelector('[class*="relative"][class*="flex"]');
       if (cardsContainer) {
@@ -548,7 +525,6 @@ function Index() {
       }
     }
 
-    // Set initial hidden state for mobile grid
     if (mobileGrid) {
       const gridCards = Array.from(mobileGrid.children);
       gridCards.forEach((card) => {
@@ -561,11 +537,9 @@ function Index() {
       });
     }
 
-    // Store animation references for reversal
     const carouselAnimations: gsap.core.Tween[] = [];
     const mobileAnimations: gsap.core.Tween[] = [];
 
-    // Intersection Observer to trigger animations when section is in view
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -573,7 +547,6 @@ function Index() {
             if (!hasAnimated) {
               hasAnimated = true;
 
-              // Animate desktop carousel cards
               if (carouselContainer) {
                 const cardsContainer = carouselContainer.querySelector('[class*="relative"][class*="h-"]') || 
                                        carouselContainer.querySelector('[class*="relative"][class*="flex"]');
@@ -593,7 +566,6 @@ function Index() {
                 }
               }
 
-              // Animate mobile grid cards
               if (mobileGrid) {
                 const gridCards = Array.from(mobileGrid.children);
                 gridCards.forEach((card, idx) => {
@@ -611,13 +583,11 @@ function Index() {
               }
             }
           } else if (!entry.isIntersecting && hasAnimated) {
-            // Reverse animations when scrolling back up
             const totalAnimations = carouselAnimations.length + mobileAnimations.length;
             let completedReversals = 0;
             
             const resetState = () => {
               hasAnimated = false;
-              // Reset initial hidden state so cards can animate in again
               if (carouselContainer) {
                 const cardsContainer = carouselContainer.querySelector('[class*="relative"][class*="h-"]') || 
                                        carouselContainer.querySelector('[class*="relative"][class*="flex"]');
@@ -692,7 +662,6 @@ function Index() {
     };
   }, []);
 
-  // GSAP Animations for CTA Section
   useEffect(() => {
     if (!ctaSectionRef.current) return;
 
@@ -709,14 +678,12 @@ function Index() {
             if (!hasAnimated) {
               hasAnimated = true;
               
-              // Animate heading with card boxes
               const headingContainer = section.querySelector('div.flex.flex-col.items-center');
               if (headingContainer) {
                 const readyBox = headingContainer.querySelector('[data-cta-text="ready"]') as HTMLElement;
                 const makeBox = headingContainer.querySelector('[data-cta-text="make"]') as HTMLElement;
                 
                 if (readyBox && makeBox) {
-                  // Set initial states
                   gsap.set(readyBox, {
                     y: -100,
                     opacity: 0,
@@ -730,7 +697,6 @@ function Index() {
                     rotation: -5,
                   });
                   
-                  // Animate "Ready to" box - slide down from top
                   const readyAnim = gsap.to(readyBox, {
                     y: 0,
                     opacity: 1,
@@ -740,7 +706,6 @@ function Index() {
                   });
                   ctaAnimations.push(readyAnim);
                   
-                  // Animate "Make a Difference?" box - drop down with rotation
                   const makeAnim = gsap.to(makeBox, {
                     y: 0,
                     opacity: 1,
@@ -754,7 +719,6 @@ function Index() {
                 }
               }
 
-              // Animate paragraph
               if (paragraph) {
                 const paraAnim = gsap.fromTo(
                   paragraph,
@@ -773,7 +737,6 @@ function Index() {
                 ctaAnimations.push(paraAnim);
               }
 
-              // Animate buttons with stagger
               if (buttons.length > 0) {
                 const buttonAnim = gsap.fromTo(
                   Array.from(buttons),
@@ -796,7 +759,6 @@ function Index() {
               }
             }
           } else if (!entry.isIntersecting && hasAnimated) {
-            // Reverse animations when scrolling back up
             const headingContainer = section.querySelector('div.flex.flex-col.items-center');
             if (headingContainer) {
               const readyBox = headingContainer.querySelector('[data-cta-text="ready"]') as HTMLElement;
@@ -842,10 +804,9 @@ function Index() {
               });
             });
             
-            // Reset initial states after reversal completes
             const reversalDelay = Math.max(
               buttons.length * 0.05,
-              0.7 // Make sure longest animation (makeBox) completes
+              0.7 
             );
             
             setTimeout(() => {
@@ -901,7 +862,6 @@ function Index() {
     };
   }, []);
 
-  // Mock data for demonstration (fallback)
   const mockFeaturedCSPs = [
     {
       id: "1",
@@ -1263,11 +1223,9 @@ function Index() {
     if (isTransitioning) return;
     setIsTransitioning(true);
     
-    // Slide right first
     setSlideOffset(1);
     
     setTimeout(() => {
-      // Update index
       setCarouselIndex((prev) => (prev - 1 + filteredFeaturedCSPs.length) % filteredFeaturedCSPs.length);
       setSlideOffset(0);
       setTimeout(() => setIsTransitioning(false), 50);
@@ -1278,11 +1236,9 @@ function Index() {
     if (isTransitioning) return;
     setIsTransitioning(true);
     
-    // Slide left first
     setSlideOffset(-1);
     
     setTimeout(() => {
-      // Update index
       setCarouselIndex((prev) => (prev + 1) % filteredFeaturedCSPs.length);
       setSlideOffset(0);
       setTimeout(() => setIsTransitioning(false), 50);
@@ -1460,9 +1416,7 @@ function Index() {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6 }}
                 onAnimationComplete={() => {
-                  // Start GSAP animations after framer-motion completes
                   if (smuRef.current && communityRef.current) {
-                    // Gradient reveal animation (left to right) using clip-path
                     gsap.fromTo(
                       [smuRef.current, communityRef.current],
                       {
@@ -1476,7 +1430,6 @@ function Index() {
                       }
                     );
 
-                    // Wiggle animation - starts after gradient reveal
                     gsap.delayedCall(1.8, () => {
                       const wiggleTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3 });
                       wiggleTimeline.to([smuRef.current, communityRef.current], {
@@ -1807,7 +1760,6 @@ function Index() {
             {/* Mobile/Tablet Grid - Below 992px */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:hidden">
               {filteredFeaturedCSPs.map((csp: any, idx: number) => {
-                // Hide projects beyond the 3rd on phone screens (< 768px)
                 const isHiddenOnMobile = idx >= 3;
                 const statusBadge = getStatusBadge(csp.status);
                 const duration = (csp as any).duration || `${csp.serviceHours}h`;
@@ -1910,7 +1862,6 @@ function Index() {
                     const visibleIndices = getVisibleIndices();
                     const position = visibleIndices.indexOf(idx);
                     
-                    // Only render cards that should be visible
                     if (position === -1) return null;
                     
                     const statusBadge = getStatusBadge(csp.status);

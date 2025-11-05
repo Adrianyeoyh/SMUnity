@@ -9,11 +9,10 @@ dashboard.get("/", async (c) => {
     const user = c.get("user");
     if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-    // Fetch all project IDs belonging to this organisation
     const orgProjects = await db
       .select({ id: schema.projects.id })
       .from(schema.projects)
-      .where(eq(schema.projects.orgId, user.id!)); // ✅ non-null assertion
+      .where(eq(schema.projects.orgId, user.id!)); 
 
     const projectIds = orgProjects.map((p) => p.id);
     if (projectIds.length === 0) {
@@ -83,7 +82,6 @@ dashboard.get("/listings", async (c) => {
       type: schema.projects.type,
       volunteerCount: sql<number>`COUNT(${schema.projMemberships.userId})`.as("volunteerCount"),
 
-      // derive the status dynamically using SQL CASE
       status: sql<string>`
         CASE
           WHEN ${schema.projects.applyBy} > NOW() THEN 'open'
@@ -113,7 +111,6 @@ dashboard.get("/listings", async (c) => {
       schema.projects.type,
     )
     .orderBy(sql`${schema.projects.createdAt} DESC`);
-  // console.log("Listings fetched:", listings);
   return c.json({ listings });
 });
 

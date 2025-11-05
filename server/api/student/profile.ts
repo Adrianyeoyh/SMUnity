@@ -12,7 +12,6 @@ profile.get("/completed", async (c) => {
 
   const now = new Date();
 
-  // ✅ use one .where() with and()
   const rows = await db
     .select({
       id: schema.projects.id,
@@ -26,7 +25,6 @@ profile.get("/completed", async (c) => {
     .innerJoin(schema.projects, eq(schema.projMemberships.projId, schema.projects.id))
     .where(and(eq(schema.projMemberships.userId, user.id), lt(schema.projects.endDate, now)));
 
-  // optional: join organisations and user name
   const orgs = await db
     .select({
       userId: schema.organisations.userId,

@@ -11,7 +11,6 @@ import * as schema from "#server/drizzle/schema";
 import { user } from "#server/drizzle/schema";
 import { gte, eq, or, like } from "drizzle-orm";
 
-// System prompt for the chatbot
 function getSystemPrompt(isLoggedIn: boolean, availableProjects: any[] = []) {
   const projectsContext = availableProjects.length > 0
     ? `\n\nAVAILABLE PROJECTS LIST (use these actual projects when answering):\n` +
@@ -57,7 +56,6 @@ ${projectsContext}
 Important: Only provide general guidance. Never make specific changes to applications or provide personal information about users.`;
 }
 
-// Request schema
 const chatRequestSchema = z.object({
   message: z.string().min(1).max(1000),
   conversationHistory: z
@@ -72,16 +70,13 @@ const chatRequestSchema = z.object({
 });
 
 chatbot.post("/chat", async (c) => {
-  // Check if user is student or not logged in
   const user = c.get("user");
   const accountType = user?.accountType;
 
-  // Only allow students or non-logged-in users
   if (user && accountType !== "student") {
     return forbidden(c, "Chatbot is only available for students and visitors");
   }
 
-  // Check if Gemini API key is configured
   if (!env.GEMINI_API_KEY) {
     return c.json(
       { error: "Chatbot service is not configured. Please contact support." },
@@ -90,15 +85,12 @@ chatbot.post("/chat", async (c) => {
   }
 
   try {
-    // Parse and validate request
     const body = await c.req.json();
     const { message, conversationHistory } = chatRequestSchema.parse(body);
 
-    // Fetch available projects for project-finding queries
     let availableProjects: any[] = [];
     const isFindingProject = /find|show|search|looking for|recommend|suggest|want.*project|need.*project|any.*project|available.*project/i.test(message);
-    
-    // Always fetch projects if it's a finding query, or if the message contains category/keyword hints
+
     if (isFindingProject) {
       try {
         const now = new Date();
@@ -117,9 +109,8 @@ chatbot.post("/chat", async (c) => {
           })
           .from(schema.projects)
           .where(gte(schema.projects.applyBy, now))
-          .limit(30); // Increased limit to get more projects
+          .limit(30);
 
-        // Get organisation names from user table
         const orgs = await db
           .select({
             userId: schema.organisations.userId,
@@ -136,34 +127,28 @@ chatbot.post("/chat", async (c) => {
         }));
       } catch (error) {
         console.error("Error fetching projects for chatbot:", error);
-        // Continue without projects - chatbot will handle gracefully
       }
     }
 
-    // Prepare contents for Gemini API
-    // Gemini uses a different format - we need to convert conversation history
     const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
     
     const isLoggedIn = !!user && user.accountType === "student";
     const systemPrompt = getSystemPrompt(isLoggedIn, availableProjects);
     
-    // Add system prompt as the first user message (Gemini doesn't have system role)
     const loginStatusNote = isLoggedIn 
-      ? "\n\n⚠️ IMPORTANT: The user asking questions IS CURRENTLY LOGGED IN as a student. They have access to their dashboard and can check application statuses."
-      : "\n\n⚠️ IMPORTANT: The user asking questions IS NOT LOGGED IN. They must sign in to check application statuses.";
+      ? "\n\n IMPORTANT: The user asking questions IS CURRENTLY LOGGED IN as a student. They have access to their dashboard and can check application statuses."
+      : "\n\n IMPORTANT: The user asking questions IS NOT LOGGED IN. They must sign in to check application statuses.";
     
     contents.push({
       role: "user",
       parts: [{ text: systemPrompt + loginStatusNote + "\n\nYou are now ready to answer questions." }],
     });
     
-    // Add a model response to separate system prompt from conversation
     contents.push({
       role: "model",
       parts: [{ text: "Understood. I'm ready to help with SMUnity questions." }],
     });
     
-    // Convert conversation history to Gemini format
     (conversationHistory || []).forEach((msg) => {
       contents.push({
         role: msg.role === "user" ? "user" : "model",
@@ -171,15 +156,12 @@ chatbot.post("/chat", async (c) => {
       });
     });
     
-    // Add current user message
     contents.push({
       role: "user",
       parts: [{ text: message }],
     });
 
     // Call Gemini API
-    // Using gemini-2.5-flash (fast and efficient, stable model)
-    // Alternative models: gemini-2.5-pro, gemini-2.0-flash
     const model = "gemini-2.5-flash";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
     

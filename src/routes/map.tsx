@@ -25,7 +25,6 @@ function MapView() {
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  // Mock data for demonstration
   const cspLocations = [
     {
       id: "1",

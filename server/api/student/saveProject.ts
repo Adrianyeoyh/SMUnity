@@ -14,7 +14,6 @@ savedProjectsRoute.post("/", async (c) => {
     const user = c.get("user");
     if (!user?.id) return forbidden(c, "Not authenticated");
 
-    // Validate request body
     const body = await c.req.json();
     const parsed = z
       .object({
@@ -26,7 +25,6 @@ savedProjectsRoute.post("/", async (c) => {
 
     const { projectId } = parsed.data;
 
-    // Check if already saved
     const existing = await db
       .select()
       .from(schema.savedProjects)
@@ -37,7 +35,6 @@ savedProjectsRoute.post("/", async (c) => {
       return badReq(c, "Project already saved");
     }
 
-    // Insert new saved project
     await db.insert(schema.savedProjects).values({
       projectId,
       userId: user.id,
@@ -62,7 +59,6 @@ savedProjectsRoute.post("/", async (c) => {
 
     const { projectId } = parsed.data;
 
-    // Remove saved project
     await db
       .delete(schema.savedProjects)
       .where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, user.id)));

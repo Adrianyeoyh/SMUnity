@@ -8,12 +8,10 @@ import { z } from "zod";
 
 const profile = createApp().use(organisationMiddleware);
 
-// ✅ GET /api/organisations/profile
 profile.get("/", async (c) => {
   const user = c.get("user");
   if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
 
-  // Fetch organisation joined with its user record
   const org = await db.query.organisations.findFirst({
     where: eq(schema.organisations.userId, user.id),
     with: {
@@ -41,7 +39,6 @@ profile.get("/", async (c) => {
   });
 });
 
-// ✅ PATCH /api/organisations/profile
 const UpdateSchema = z.object({
   name: z.string().trim().min(1),
   phone: z.string().trim().min(8),
@@ -58,7 +55,7 @@ profile.patch("/", async (c) => {
   const parsed = UpdateSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "Invalid data" }, 400);
 
-  // Update organisation record
+
   const [updatedOrg] = await db
   .update(schema.organisations)
   .set({
@@ -72,7 +69,6 @@ profile.patch("/", async (c) => {
   .returning();
 
 
-  // Update user display name (if provided)
   await db
   .update(schema.user)
   .set({ name: parsed.data.name, updatedAt: new Date() })
