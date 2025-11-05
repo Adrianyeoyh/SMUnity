@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=production bun dist/index.js",
-    "build": "bun with-env vite build && bun build --minify --sourcemap --target=bun --outdir=dist server/index.ts",
+    "build": "bun with-env vite build",
     "build:docker": "docker build -t react-hono-template .",
     "preview": "bun with-env vite preview",
     "clean": "git clean -xdf .cache .turbo dist node_modules .tanstack",
