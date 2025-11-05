@@ -3,7 +3,6 @@ import { z } from "zod";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { au } from "node_modules/better-auth/dist/shared/better-auth.jwa4Tx7v";
 import { authenticatedMiddleware } from "#server/middlewares/auth.js";
 
 const profileSchema = z.object({
