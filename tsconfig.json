@@ -1,5 +1,20 @@
-// {
+{
   
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "paths": {
+      "#server/*": ["./server/*"],
+      "#client/*": ["./src/*"],
+      "#shared/*": ["./shared/*"]
+    }
+  }
+}
+
+// {
 //   "files": [],
 //   "references": [
 //     { "path": "./tsconfig.app.json" },
@@ -8,48 +23,23 @@
 //   "compilerOptions": {
 //     "composite": true,
 //     "noEmit": false,
+
+//     "baseUrl": ".",
 //     "paths": {
-//       "#server/*": ["./server/*"],
-//       "#client/*": ["./src/*"],
-//       "#shared/*": ["./shared/*"]
+//       "#server/*": ["server/*"],
+//       "#client/*": ["src/*"],
+//       "#shared/*": ["shared/*"]
 //     },
+
 //     "module": "ESNext",
 //     "moduleResolution": "Bundler",
 //     "allowImportingTsExtensions": false,
 //     "esModuleInterop": true,
-//     "skipLibCheck": true,
 //     "resolveJsonModule": true,
+//     "skipLibCheck": true,
 //     "strict": false
 //   },
-//   "include": ["server", "src", "shared"]
+
+
+//   "include": []
 // }
-
-{
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "composite": true,
-    "noEmit": false,
-
-    "baseUrl": ".",
-    "paths": {
-      "#server/*": ["server/*"],
-      "#client/*": ["src/*"],
-      "#shared/*": ["shared/*"]
-    },
-
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": false,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": false
-  },
-
-
-  "include": []
-}
