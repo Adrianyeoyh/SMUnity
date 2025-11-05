@@ -453,7 +453,27 @@ const handleDeleteListing = useCallback(
             </div>
           </div>
         ) : (
-          <>
+          <div className="space-y-4">
+          <div 
+            className="max-h-[600px] overflow-y-auto overflow-x-hidden space-y-6"
+            style={{ 
+              overscrollBehavior: "contain"
+            }}
+            onWheel={(e) => {
+              const target = e.currentTarget;
+              const { scrollTop, scrollHeight, clientHeight } = target;
+              const isAtTop = scrollTop === 0;
+              const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+              
+              // Prevent page scroll if we can scroll within the container
+              if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                e.stopPropagation();
+                e.preventDefault();
+                // Manually scroll the container
+                target.scrollTop += e.deltaY;
+              }
+            }}
+          >
           {currentListings.map((listing) => {
             const fillPercentage = Math.round(
               (Math.min(listing.volunteerCount, listing.slotsTotal) / listing.slotsTotal) * 100
@@ -568,53 +588,51 @@ const handleDeleteListing = useCallback(
               </div>
                 );
             })}
-
-            {displayListings.length > 0 && (
-              <div className="mt-8 pb-12">
-                <div className="flex flex-col items-center gap-4">
-                  <p className="text-sm text-muted-foreground font-body">
-                    Showing {startIndex + 1}-{Math.min(endIndex, displayListings.length)} of {displayListings.length} results
-                  </p>
+          </div>
+          {displayListings.length > 0 && (
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-sm text-muted-foreground font-body">
+                Showing {startIndex + 1}-{Math.min(endIndex, displayListings.length)} of {displayListings.length} {displayListings.length === 1 ? "result" : "results"}
+              </p>
+              
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
                   
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                       <Button
-                        variant="outline"
+                        key={page}
+                        variant={page === currentPage ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(page)}
+                        className="w-8 h-8 p-0"
                       >
-                        Previous
+                        {page}
                       </Button>
-                      
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <Button
-                            key={page}
-                            variant={page === currentPage ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCurrentPage(page)}
-                            className="w-8 h-8 p-0"
-                          >
-                            {page}
-                          </Button>
-                        ))}
-                      </div>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
                 </div>
-              </div>
-            )}
-          </>
+              )}
+            </div>
+          )}
+          </div>
         )}
 
 

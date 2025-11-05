@@ -193,6 +193,11 @@ useEffect(() => {
   }
 }, [isLoggedIn, isStudent]);
 
+// Scroll to top when navigating to a project detail page
+useEffect(() => {
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}, [projectID]);
+
 
   const handleShare = async () => {
     try {

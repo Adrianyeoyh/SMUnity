@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, useEffect, type ReactNode } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
@@ -80,6 +80,11 @@ function ListingApplicationsPage() {
   const { projectId } = Route.useParams();
   const navigate = useNavigate({ from: "/organisations/$projectId" });
 
+  // Scroll to top when navigating to a project detail page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [projectId]);
+
   const { data, isLoading, isError, refetch } = useQuery({
   queryKey: ["listing", projectId],
   queryFn: fetchListingById,
@@ -87,6 +92,8 @@ function ListingApplicationsPage() {
 
 
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [decisionType, setDecisionType] = useState<"accept" | "reject" | null>(null);
@@ -117,6 +124,17 @@ function ListingApplicationsPage() {
         : applications.filter((a: any) => a.status === statusFilter),
     [applications, statusFilter]
   );
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(visibleApplications.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedApplications = visibleApplications.slice(startIndex, endIndex);
 
 
   // ✅ Render conditionally *after* all hooks
@@ -391,7 +409,27 @@ function ListingApplicationsPage() {
                     <p>No applicants for this filter yet</p>
                   </div>
                 ) : (
-                  <div className="rounded-xl border">
+                  <div className="space-y-4">
+                  <div 
+                    className="max-h-[600px] overflow-y-auto overflow-x-hidden rounded-xl border"
+                    style={{ 
+                      overscrollBehavior: "contain"
+                    }}
+                    onWheel={(e) => {
+                      const target = e.currentTarget;
+                      const { scrollTop, scrollHeight, clientHeight } = target;
+                      const isAtTop = scrollTop === 0;
+                      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                      
+                      // Prevent page scroll if we can scroll within the container
+                      if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        // Manually scroll the container
+                        target.scrollTop += e.deltaY;
+                      }
+                    }}
+                  >
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -403,7 +441,7 @@ function ListingApplicationsPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {visibleApplications.map((app: any) => {
+                        {paginatedApplications.map((app: any) => {
                           const meta = STATUS_META[app.status as ApplicationStatus];
                           return (
                             <TableRow key={app.id}>
@@ -479,6 +517,50 @@ function ListingApplicationsPage() {
                         })}
                       </TableBody>
                     </Table>
+                  </div>
+                  {visibleApplications.length > 0 && (
+                    <div className="flex flex-col items-center gap-4">
+                      <p className="text-sm text-muted-foreground font-body">
+                        Showing {startIndex + 1}-{Math.min(endIndex, visibleApplications.length)} of {visibleApplications.length} {visibleApplications.length === 1 ? "result" : "results"}
+                      </p>
+                      
+                      {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                          >
+                            Previous
+                          </Button>
+                          
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                              <Button
+                                key={page}
+                                variant={page === currentPage ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCurrentPage(page)}
+                                className="w-8 h-8 p-0"
+                              >
+                                {page}
+                              </Button>
+                            ))}
+                          </div>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   </div>
                 )}
               </TabsContent>

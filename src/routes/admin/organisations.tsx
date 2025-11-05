@@ -325,7 +325,7 @@ function AdminOrganisationsPage() {
                     Previous
                   </Button>
                   <div className="text-sm text-muted-foreground font-body">
-                    Showing {begin}-{end} of {filtered.length} results
+                    Showing {begin}-{end} of {filtered.length} {filtered.length === 1 ? "result" : "results"}
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
                     Next
@@ -336,7 +336,7 @@ function AdminOrganisationsPage() {
             return (
               <div className="mt-6 flex items-center justify-center">
                 <div className="text-sm text-muted-foreground font-body">
-                  Showing {begin}-{end} of {filtered.length} results
+                  Showing {begin}-{end} of {filtered.length} {filtered.length === 1 ? "result" : "results"}
                 </div>
               </div>
             );

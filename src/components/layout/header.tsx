@@ -281,7 +281,7 @@ export function Header() {
                   </Popover>
 
                 <div className="hidden md:block">
-                  <ProfileMenu/>
+                <ProfileMenu/>
                 </div>
               </>
             ) : (
@@ -497,7 +497,7 @@ export function Header() {
                     >
                           <LogOut className="mr-2 h-5 w-5" />
                       Logout
-                    </Button>
+                      </Button>
                   </div>
                 </>
               ) : user?.accountType === 'organisation' ? (
@@ -575,17 +575,17 @@ export function Header() {
                     <span>Discover CSPs</span>
                   </Link>
                   {user?.accountType !== 'organisation' && (
-                    <Link 
-                      to="/my-applications" 
+                  <Link 
+                    to="/my-applications" 
                           className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                    >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                           <FileText className="h-5 w-5" />
-                      <span>My Applications</span>
-                    </Link>
+                    <span>My Applications</span>
+                  </Link>
                   )}
                   {user?.accountType !== 'organisation' && user?.accountType !== 'admin' && (
                     <Link 

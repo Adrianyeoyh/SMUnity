@@ -42,7 +42,7 @@ function ApplicantDetailsPage() {
 
   return (
     <div className="min-h-screen bg-background py-4 sm:py-6 md:py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-4">
         <button 
           onClick={() => navigate({ to: `/organisations/${projectId}` })}
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
@@ -61,9 +61,9 @@ function ApplicantDetailsPage() {
               </Avatar>
               <div className="min-w-0 flex-1">
                 <h1 className="text-xl sm:text-2xl font-heading font-semibold break-words">{user?.name}</h1>
-                <p className="text-sm sm:text-base text-muted-foreground">{profile?.school ?? "Unknown school"}</p>
+                <p className="text-sm sm:text-base text-muted-foreground">{profile?.school ?? "School not specified"}</p>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  Year {profile?.entryYear ?? "?"} • {profile?.studentId ?? ""}
+                  Year {profile?.entryYear ?? "?"} • {profile?.studentId ?? "Student Number not specified"}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-3">
                   {(profile?.skills ?? []).map((s: string) => (
@@ -101,8 +101,8 @@ function ApplicantDetailsPage() {
 
         {/* Application Details */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Application Details</CardTitle>
+          <CardHeader className="pt-4 pb-4 px-4 sm:pt-4 sm:pb-4 sm:px-6">
+            <CardTitle className="text-lg sm:text-xl font-heading">Application Details</CardTitle>
             <CardDescription className="flex items-center gap-2 text-xs sm:text-sm">
               <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               Submitted on: {format(new Date(application.submittedAt), "do MMMM yyyy")}
@@ -110,36 +110,56 @@ function ApplicantDetailsPage() {
           </CardHeader>
           <CardContent className="space-y-4 p-4 sm:p-6">
             <div>
-              <h3 className="font-medium text-sm sm:text-base">Motivation</h3>
+              <h3 className="font-medium text-sm sm:text-base font-body">Motivation</h3>
               <p className="text-sm sm:text-base text-muted-foreground break-words whitespace-pre-wrap">{application.motivation}</p>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium text-sm sm:text-base">Experience</h3>
+              <h3 className="font-medium text-sm sm:text-base font-body">Experience</h3>
               <p className="text-sm sm:text-base text-muted-foreground capitalize break-words">{application.experience}</p>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium text-sm sm:text-base">Relevant Skills</h3>
+              <h3 className="font-medium text-sm sm:text-base font-body">Relevant Skills</h3>
               <p className="text-sm sm:text-base text-muted-foreground break-words">{application.skills || "—"}</p>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium text-sm sm:text-base">Additional Comments</h3>
+              <h3 className="font-medium text-sm sm:text-base font-body">Additional Comments</h3>
               <p className="text-sm sm:text-base text-muted-foreground break-words whitespace-pre-wrap">{application.comments || "—"}</p>
             </div>
           </CardContent>
         </Card>
 
         {/* Application History */}
-       <Card>
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-lg sm:text-xl">Application History</CardTitle>
-          <CardDescription className="text-xs sm:text-sm">All applications by this volunteer</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          <ScrollArea className="max-h-[400px]">
-            <div className="divide-y">
+        <Card className="-mt-4 mb-4">
+         <CardHeader className="pt-4 pb-4 px-4 sm:pt-4 sm:pb-4 sm:px-6">
+           <CardTitle className="text-lg sm:text-xl font-heading">Application History</CardTitle>
+           <CardDescription className="text-xs sm:text-sm">Number of applications made by this volunteer: {history?.length || 0}</CardDescription>
+         </CardHeader>
+        <CardContent className="p-0">
+          <div className="px-4 sm:px-6 py-4">
+            <div 
+              className="h-[400px] overflow-y-scroll overflow-x-hidden"
+              style={{ 
+                overscrollBehavior: "contain"
+              }}
+              onWheel={(e) => {
+                const target = e.currentTarget;
+                const { scrollTop, scrollHeight, clientHeight } = target;
+                const isAtTop = scrollTop === 0;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                
+                // Prevent page scroll if we can scroll within the container
+                if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  // Manually scroll the container
+                  target.scrollTop += e.deltaY;
+                }
+              }}
+            >
+              <div className="divide-y">
               {history.map((app: any) => (
                 <div
                   key={app.id}
@@ -148,11 +168,21 @@ function ApplicantDetailsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium text-sm sm:text-base break-words">{app.projectTitle}</p>
-                      {app.status === "pending" && (
-                        <Badge className="bg-yellow-100 text-yellow-800 text-xs">
-                          Pending
-                        </Badge>
-                      )}
+                      {(() => {
+                        const statusMeta: Record<string, { tone: string; label: string }> = {
+                          pending: { tone: "bg-amber-100 text-amber-800", label: "Pending" },
+                          accepted: { tone: "bg-emerald-100 text-emerald-800", label: "Accepted" },
+                          rejected: { tone: "bg-rose-100 text-rose-800", label: "Rejected" },
+                          confirmed: { tone: "bg-purple-100 text-purple-800", label: "Confirmed" },
+                          withdrawn: { tone: "bg-gray-100 text-gray-700", label: "Withdrawn" },
+                        };
+                        const meta = statusMeta[app.status as string] || { tone: "bg-gray-100 text-gray-700", label: app.status };
+                        return (
+                          <Badge className={`text-xs ${meta.tone}`}>
+                            {meta.label}
+                          </Badge>
+                        );
+                      })()}
                     </div>
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2">
                       <Calendar className="h-3 w-3 flex-shrink-0" />
@@ -161,11 +191,6 @@ function ApplicantDetailsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {app.status !== "pending" && (
-                      <Badge className={`text-xs ${app.status === "pending" ? "bg-yellow-100 text-yellow-800" : ""}`}>
-                        {app.status === "pending" ? "Pending" : app.status}
-                      </Badge>
-                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -183,8 +208,9 @@ function ApplicantDetailsPage() {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
-          </ScrollArea>
+          </div>
         </CardContent>
       </Card>
       </div>

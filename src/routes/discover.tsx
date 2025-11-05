@@ -713,7 +713,7 @@ if (isError)
                 {selectedCategory !== "all" && ` in ${selectedCategory}`}
               </p>
               <p className="text-sm text-muted-foreground font-body">
-                Showing {startIndex + 1}-{Math.min(endIndex, sortedCSPs.length)} of {sortedCSPs.length} results
+                Showing {startIndex + 1}-{Math.min(endIndex, sortedCSPs.length)} of {sortedCSPs.length} {sortedCSPs.length === 1 ? "result" : "results"}
               </p>
             </div>
             

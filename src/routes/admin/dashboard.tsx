@@ -1,9 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
-import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#client/components/ui/dialog";
@@ -60,7 +59,6 @@ function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [showOrganiserModal, setShowOrganiserModal] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [organiserForm, setOrganiserForm] = useState({
     email: "",
     organiserName: "",
@@ -237,9 +235,6 @@ function AdminDashboard() {
 
   // Reset scroll position when page changes
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = 0;
-    }
   }, [currentPage]);
 
 
@@ -349,14 +344,14 @@ function AdminDashboard() {
     setHasAttemptedSubmit(false);
     setShowOrganiserModal(false);
     
-    // Refresh dashboard data
-    const data = await fetchAdminDashboard();
-    setStats({
-      activeOrganisations: data.totals.organisations,
-      totalCSPListings: data.totals.projects,
-      activeUsers: data.totals.users,
-      pending: data.totals.pending,
-    });
+      // Refresh dashboard data
+      const data = await fetchAdminDashboard();
+      setStats({
+        activeOrganisations: data.totals.organisations,
+        totalCSPListings: data.totals.projects,
+        activeUsers: data.totals.users,
+        pending: data.pendingOrgRequests || 0,
+      });
   } catch (error: any) {
     toast.error("Failed to create organiser", {
       description: error.message || "Something went wrong",
@@ -529,7 +524,26 @@ function AdminDashboard() {
               </Tabs>
           </div>
 
-              <ScrollArea ref={scrollAreaRef} className="max-h-[480px] overflow-x-hidden">
+              <div 
+                className="max-h-[480px] overflow-y-auto overflow-x-hidden"
+                style={{ 
+                  overscrollBehavior: "contain"
+                }}
+                onWheel={(e) => {
+                  const target = e.currentTarget;
+                  const { scrollTop, scrollHeight, clientHeight } = target;
+                  const isAtTop = scrollTop === 0;
+                  const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                  
+                  // Prevent page scroll if we can scroll within the container
+                  if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    // Manually scroll the container
+                    target.scrollTop += e.deltaY;
+                  }
+                }}
+              >
             <div className="space-y-4" data-section="request-list">
               {currentOrganisers.map((organiser) => (
                     <div
@@ -613,14 +627,14 @@ function AdminDashboard() {
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
 
           {/* Results Counter and Pagination */}
           {filteredQueue.length > 0 && (
             <div className="mt-6">
               <div className="text-center mb-4">
                 <p className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1}-{Math.min(endIndex, filteredQueue.length)} of {filteredQueue.length} results
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredQueue.length)} of {filteredQueue.length} {filteredQueue.length === 1 ? "result" : "results"}
                 </p>
               </div>
               

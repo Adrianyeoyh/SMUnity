@@ -128,8 +128,7 @@ function MyApplications() {
       location: app.district || "Singapore",
       description: `Community Service Project: ${app.projectTitle}\n\nOrganisation: ${app.organisation}\nService Hours: ${app.serviceHours ?? "N/A"}h`,
     });
-    if (result.success) toast.success("📅 Event added to Google Calendar!");
-    else toast.error("Failed to add to Google Calendar.");
+    // Notification removed per user request
   };
 
   // 🔹 Tab groupings with search filter
