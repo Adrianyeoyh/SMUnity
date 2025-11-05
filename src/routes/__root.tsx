@@ -85,16 +85,16 @@ function RootComponent() {
 
   return (
     <MobileMenuProvider>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">
-          <Outlet />
-        </main>
-        <Footer />
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
         <Chatbot />
-        <Toaster />
-        <TanStackRouterDevtools />
-      </div>
+      <Toaster />
+      <TanStackRouterDevtools />
+    </div>
     </MobileMenuProvider>
   );
 }

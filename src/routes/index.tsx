@@ -13,6 +13,7 @@ import {
   Star,
   ArrowRight,
   ArrowUpRight,
+  ArrowUp,
   BookOpen,
   Target,
   TreePine,
@@ -24,7 +25,7 @@ import {
   HeartHandshake
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDiscoverProjects } from "#client/api/public/discover.ts";
@@ -250,6 +251,7 @@ function Index() {
   const [countCountries, setCountCountries] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   // Fetch real CSPs from API
   const { data: discoverProjects = [] } = useQuery({
@@ -862,6 +864,35 @@ function Index() {
     };
   }, []);
 
+  // Scroll to top button visibility - show only after passing the CTA section
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ctaSectionRef.current) return;
+      
+      const ctaSection = ctaSectionRef.current;
+      const ctaRect = ctaSection.getBoundingClientRect();
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Show button if:
+      // 1. User has scrolled past the CTA section (bottom of CTA is above viewport), OR
+      // 2. User is within 200px of the bottom of the page
+      const hasPassedCTA = ctaRect.bottom < 0;
+      const isNearBottom = scrollPosition >= documentHeight - 200;
+      
+      setShowScrollToTop(hasPassedCTA || isNearBottom);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial position
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const mockFeaturedCSPs = [
     {
       id: "1",
@@ -1354,7 +1385,7 @@ function Index() {
                 <Input
                   type="search"
                   placeholder="Search for CSPs, organisations, or skills..."
-                  className="pl-12 pr-20 sm:pr-24 md:pr-28 py-4 text-base sm:text-lg h-14 rounded-xl border-2 focus:border-transparent focus:outline-none focus:ring-0 placeholder:opacity-100 focus:placeholder:opacity-0 transition-all placeholder:text-sm sm:placeholder:text-base"
+                  className="pl-12 pr-20 sm:pr-24 md:pr-28 py-4 text-base sm:text-lg h-14 rounded-xl border-2 bg-background/95 backdrop-blur-sm shadow-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:opacity-100 focus:placeholder:opacity-0 transition-all placeholder:text-sm sm:placeholder:text-base"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -1404,7 +1435,7 @@ function Index() {
       </section>
 
       {/* About SMUnity Section */}
-      <section ref={aboutSectionRef} id="about" className="pt-16 pb-20 md:pb-24 lg:pt-20 lg:pb-22 lg:min-h-0 bg-background min-h-screen lg:flex items-center">
+      <section ref={aboutSectionRef} id="about" className="pt-16 pb-20 md:pb-24 lg:pt-20 lg:pb-22 bg-background lg:flex items-center">
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 max-w-7xl w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
             {/* Left side - Heading and Description */}
@@ -1573,19 +1604,19 @@ function Index() {
           />
           
           <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 relative z-10">
-            <div className="text-center mb-12">
+          <div className="text-center mb-12">
               <h2 className={`font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-colors duration-700 ${
                 hoveredCategory ? 'text-white drop-shadow-lg' : 'text-foreground'
               }`}>
-                Browse by Category
-              </h2>
+              Browse by Category
+            </h2>
               <p className={`text-sm sm:text-base md:text-lg font-body transition-colors duration-700 ${
                 hoveredCategory ? 'text-white/90 drop-shadow-md' : 'text-muted-foreground'
               }`}>
-                Find projects that match your interests and passion
-              </p>
-            </div>
-            
+              Find projects that match your interests and passion
+            </p>
+          </div>
+          
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
               {categories.map((category, idx) => {
                 const IconComponent = category.icon;
@@ -1594,7 +1625,7 @@ function Index() {
                 
                 return (
                   <div
-                  key={category.value}
+                key={category.value}
                     ref={(el) => {
                       categoryCardsRef.current[idx] = el;
                     }}
@@ -1608,10 +1639,10 @@ function Index() {
                     onMouseLeave={() => {
                       setHoveredCategory(null);
                     }}
-                    onClick={() => {
-                      navigate({ to: "/discover", search: { category: category.value } });
-                    }}
-                  >
+                onClick={() => {
+                  navigate({ to: "/discover", search: { category: category.value } });
+                }}
+              >
                   <div
                     data-card-inner
                     className="relative w-full h-full"
@@ -2072,10 +2103,10 @@ function Index() {
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Side - Boxes */}
-            <div className="flex flex-col items-center md:items-start justify-center relative md:ml-16" style={{ minHeight: '180px' }}>
+            <div className="flex flex-col items-center md:items-start justify-center relative md:ml-0 lg:ml-8" style={{ minHeight: '180px' }}>
               {/* First Box - "Ready to" */}
               <div 
-                className="px-8 py-4 sm:px-10 sm:py-5 md:px-12 md:py-6 rounded-xl bg-secondary text-secondary-foreground font-heading font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl relative z-10 shadow-lg"
+                className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 rounded-xl bg-secondary text-secondary-foreground font-heading font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl relative z-10 shadow-lg"
                 data-cta-text="ready"
               >
                 Ready to
@@ -2083,29 +2114,29 @@ function Index() {
               
               {/* Second Box - "Make a Difference?" - Overlaps below */}
               <div 
-                className="px-8 py-4 sm:px-10 sm:py-5 md:px-12 md:py-6 rounded-xl bg-accent font-heading font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl relative -mt-4 sm:-ml-8 shadow-lg"
+                className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 rounded-xl bg-accent font-heading font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl relative -mt-2 sm:-mt-3 md:-mt-3 lg:-mt-4 -ml-2 sm:-ml-4 md:-ml-6 lg:-ml-8 xl:-ml-10 shadow-lg"
                 data-cta-text="make"
               >
-                <span className="text-gradient-smunity">Make a Difference?</span>
+                <span className="text-gradient-smunity whitespace-nowrap">Make a Difference?</span>
               </div>
             </div>
             
             {/* Right Side - Description and Buttons */}
-            <div className="text-center md:text-left">
-              <p className="text-base sm:text-lg md:text-xl mb-8 max-w-2xl md:max-w-none text-white">
+            <div className="text-center md:text-left md:mr-8 lg:mr-0">
+              <p className="text-base sm:text-lg md:text-xl mb-8 max-w-none text-white">
             Join thousands of SMU students who are already making an impact in their communities. 
             Start your community service journey today!
           </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link to="/discover" className="group">
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="relative text-primary font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-white/20 border-2 border-white bg-white group-hover:bg-white/95 px-8 py-6 text-base sm:text-lg overflow-hidden"
+                    className="relative text-primary font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-white/20 border-2 border-white bg-white group-hover:bg-white/95 px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 lg:px-8 lg:py-6 text-sm sm:text-base md:text-lg overflow-hidden"
                   >
                     <span className="relative z-10 flex items-center gap-2">
                 Discover CSPs
-                      <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                      <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -2116,11 +2147,11 @@ function Index() {
                 <Link to="/discover" className="group">
                   <Button 
                     size="lg" 
-                    className="relative bg-secondary hover:bg-secondary/95 text-secondary-foreground font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-secondary/30 border-2 border-secondary/50 group-hover:border-secondary px-8 py-6 text-base sm:text-lg overflow-hidden group-hover:scale-105"
+                    className="relative bg-secondary hover:bg-secondary/95 text-secondary-foreground font-semibold transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-secondary/30 border-2 border-secondary/50 group-hover:border-secondary px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 lg:px-8 lg:py-6 text-sm sm:text-base md:text-lg overflow-hidden group-hover:scale-105"
                   >
                     <span className="relative z-10 flex items-center gap-2">
                 Get Started
-                      <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                      <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -2133,6 +2164,28 @@ function Index() {
           </div>
         </div>
       </section>
+
+      {/* Scroll to Top Button */}
+      <AnimatePresence>
+        {showScrollToTop && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+          >
+            <Button
+              onClick={scrollToTop}
+              size="icon"
+              className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-110"
+              aria-label="Scroll to top"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

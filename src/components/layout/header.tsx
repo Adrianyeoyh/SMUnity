@@ -214,7 +214,7 @@ export function Header() {
             )}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 relative z-50">
             {isLoading ? null : isLoggedIn ? (
               <>
                 <Popover>
@@ -356,7 +356,7 @@ export function Header() {
           {isMenuOpen && !isLoading && (
             <>
               <motion.div 
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] md:hidden"
                 onClick={() => setIsMenuOpen(false)}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -365,7 +365,7 @@ export function Header() {
               />
               
               <motion.div 
-                className="fixed inset-0 z-50 md:hidden bg-background overflow-y-auto"
+                className="fixed inset-0 z-[70] md:hidden bg-background overflow-y-auto flex flex-col"
                 initial={{ y: "-100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "-100%" }}
@@ -375,8 +375,9 @@ export function Header() {
                   stiffness: 200,
                   duration: 0.4
                 }}
+                style={{ height: '100vh', width: '100vw', top: 0, left: 0, right: 0, bottom: 0 }}
               >
-              <div className="container mx-auto px-4 sm:px-6 py-6">
+              <div className="container mx-auto px-4 sm:px-6 py-6 pb-12 flex-1">
                 <div className="flex items-center justify-between mb-8">
                   <Link 
                     to={getLogoDestination()}
