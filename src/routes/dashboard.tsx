@@ -78,7 +78,10 @@ const getStatusLabel = (status: string) => {
 
 function Dashboard() {
   const { data: userData } = useMe();
-  const userName = userData?.name ?? "Student";
+  const userName =
+    userData?.name
+      ? userData.name.replace(/_/g, " ").trim()
+      : "Student";
   // console.log("user data: ", userData);
 
   console.log(userData);
