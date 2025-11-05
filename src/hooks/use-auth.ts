@@ -29,7 +29,6 @@ export function useAuth() {
   useEffect(() => {
     checkAuth();
 
-    // Listen for custom auth events
     const handleAuthChange = () => {
       checkAuth();
     };

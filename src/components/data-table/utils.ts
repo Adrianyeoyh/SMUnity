@@ -1,4 +1,3 @@
-// TODO: check if we can move to /data-table-filter-command/utils.ts
 import type { ColumnFiltersState } from "@tanstack/react-table";
 import { z } from "zod";
 
@@ -28,19 +27,6 @@ export function deserialize<T extends z.ZodAny>(schema: T) {
   return (value: string) => castToSchema.safeParse(value);
 }
 
-// export function serialize<T extends z.AnyZodObject>(schema: T) {
-//   return (value: z.infer<T>) =>
-//     schema
-//       .transform((val) => {
-//         Object.keys(val).reduce((prev, curr) => {
-//           if (Array.isArray(val[curr])) {
-//             return `${prev}${curr}:${val[curr].join(",")} `;
-//           }
-//           return `${prev}${curr}:${val[curr]} `;
-//         }, "");
-//       })
-//       .safeParse(value);
-// }
 
 export function serializeColumFilters<TData>(
   columnFilters: ColumnFiltersState,
@@ -49,7 +35,7 @@ export function serializeColumFilters<TData>(
   return columnFilters.reduce((prev, curr) => {
     const { type, commandDisabled } = filterFields?.find(
       (field) => curr.id === field.value,
-    ) || { commandDisabled: true }; // if column filter is not found, disable the command by default
+    ) || { commandDisabled: true }; 
 
     if (commandDisabled) return prev;
 

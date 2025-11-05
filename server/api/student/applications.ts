@@ -9,9 +9,6 @@ import { ok, badReq, notFound } from "#server/helper";
 
 const applications = createApp()
 
-// ----------------------
-// ✅ Confirm Application
-// ----------------------
 applications.post("/confirm", async (c) => {
   const user = c.get("user");
   if (!user?.id) return badReq(c, "Not authenticated");
@@ -22,7 +19,6 @@ applications.post("/confirm", async (c) => {
 
   const { applicationId } = schemaCheck.data;
 
-  // 1️⃣ Find application
   const [app] = await db
     .select({
       id: schema.applications.id,
@@ -37,18 +33,15 @@ applications.post("/confirm", async (c) => {
   if (!app) return notFound(c, "Application not found");
   if (app.userId !== user.id) return badReq(c, "You cannot modify another user’s application");
 
-  // 2️⃣ Ensure it’s in accepted state
   if (app.status !== "accepted") {
     return badReq(c, "Application is not in an approvable state");
   }
 
-  // 3️⃣ Update application → confirmed
   await db
     .update(schema.applications)
     .set({ status: "confirmed", decidedAt: new Date() })
     .where(eq(schema.applications.id, applicationId));
 
-  // 4️⃣ Add to project_memberships if not already
   const existingMembership = await db
     .select()
     .from(schema.projMemberships)
@@ -71,9 +64,6 @@ applications.post("/confirm", async (c) => {
   return ok(c, { message: "Application confirmed successfully." });
 });
 
-// ----------------------
-// ❌ Withdraw Application
-// ----------------------
 applications.post("/withdraw", async (c) => {
   const user = c.get("user");
   if (!user?.id) return badReq(c, "Not authenticated");
@@ -98,7 +88,6 @@ applications.post("/withdraw", async (c) => {
   if (!app) return notFound(c, "Application not found");
   if (app.userId !== user.id) return badReq(c, "Unauthorized");
 
-  // Only pending or accepted can withdraw
   if (!["pending", "accepted", "approved"].includes(app.status))
     return badReq(c, "Cannot withdraw after confirmation or rejection");
 
@@ -110,9 +99,6 @@ applications.post("/withdraw", async (c) => {
   return ok(c, { message: "Application withdrawn successfully." });
 });
 
-// ----------------------
-// 📜 Get All Applications
-// ----------------------
 applications.get("/list", async (c) => {
   const user = c.get("user");
   if (!user?.id) return badReq(c, "Not authenticated");
@@ -133,7 +119,6 @@ applications.get("/list", async (c) => {
       startDate: schema.projects.startDate,
       endDate: schema.projects.endDate,
 
-      // ✅ Add these
       type: schema.projects.type,
       country: schema.projects.country,
       district: schema.projects.district,

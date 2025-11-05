@@ -1,10 +1,6 @@
 // src/api/organisations/listing.ts
 import { FormInput } from "#client/helper";
 
-/**
- * Create a new project listing for an organisation.
- * Calls the backend endpoint at /api/organisations/listing/new
- */
 export async function createOrganisationProject(data: FormInput) {
   const payload = {
     title: data.title,
@@ -52,24 +48,24 @@ export async function fetchListingById({ queryKey }: any) {
   const [_key, projectId] = queryKey;
 
   try {
-    console.log("🔍 Fetching listing for projectId:", projectId);
+    console.log(" Fetching listing for projectId:", projectId);
     const res = await fetch(`/api/organisations/listing/${projectId}`, {
       credentials: "include",
     });
 
-    console.log("📡 Response status:", res.status, res.statusText);
+    console.log(" Response status:", res.status, res.statusText);
 
     if (!res.ok) {
       const text = await res.text();
-      console.error("❌ Fetch failed:", res.status, text);
+      console.error(" Fetch failed:", res.status, text);
       throw new Error(`Failed to fetch project listing: ${text}`);
     }
 
     const json = await res.json();
-    console.log("✅ Parsed JSON response:", json);
+    console.log(" Parsed JSON response:", json);
     return json.data ?? json;
   } catch (err) {
-    console.error("🚨 fetchListingById error:", err);
+    console.error(" fetchListingById error:", err);
     throw err;
   }
 }

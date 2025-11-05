@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "./use-auth";
 import { useRouter } from "@tanstack/react-router";
 
-/**
- * Restricts route access based on allowed roles.
- * Redirects immediately if user is unauthorized.
- */
+
 export function useRoleGuard(allowedRoles: Array<"student" | "organisation" | "admin">) {
   const { user, isLoading, isLoggedIn } = useAuth();
   const router = useRouter();
@@ -14,9 +11,8 @@ export function useRoleGuard(allowedRoles: Array<"student" | "organisation" | "a
 
 
   useEffect(() => {
-    if (isLoading) return; // wait for auth to finish
+    if (isLoading) return; 
 
-    // not logged in → redirect to login
     if (!isLoggedIn) {
       setIsRedirecting(true);
       router.navigate({ to: "/auth/login", replace: true });
@@ -25,7 +21,6 @@ export function useRoleGuard(allowedRoles: Array<"student" | "organisation" | "a
 
     const role = user?.accountType;
 
-    // role mismatch → reroute to correct dashboard
     if (!allowedRoles.includes(role)) {
       setIsRedirecting(true);
 

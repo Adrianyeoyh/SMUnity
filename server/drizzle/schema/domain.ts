@@ -26,7 +26,7 @@ export const interviewOutcomeEnum = pgEnum("interview_outcome", ["pending", "pas
 export const requestStatusEnum = pgEnum("request_status", ["pending", "approved", "rejected"]);
 
 export const organisationRequests = pgTable("organisation_requests", { 
-  id: uuid("id").defaultRandom().primaryKey(), // ✅ UUID PK
+  id: uuid("id").defaultRandom().primaryKey(), 
   requesterEmail: text("requester_email").notNull().unique(), // external email for non-SMU
   requesterName: text("requester_name"),
   orgName: varchar("org_name", { length: 160 }).notNull(),
@@ -49,7 +49,7 @@ export const profiles = pgTable("profiles", {
   phone: varchar("phone", { length: 50 }),
 
   // ---- Student fields ----
-  studentId: varchar("student_id", { length: 20 }), // e.g., S1234567A
+  studentId: varchar("student_id", { length: 20 }), 
   entryYear: integer("entry_year"),
   school: varchar("school", { length: 100 }),
 
@@ -79,14 +79,13 @@ export const organisations = pgTable("organisations", {
 }));
 
 export const projects = pgTable("projects", {
-  // existing columns...
   id: uuid("project_id").defaultRandom().primaryKey(),
   orgId: text("org_id").references(() => organisations.userId).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: varchar("summary", { length: 500 }),
   category: text("category"),
-  type: varchar("type", { length: 20 }).default("local").notNull(), // <-- NEW (local/overseas)
-  country: varchar("country", { length: 100 }),  // only for overseas projects
+  type: varchar("type", { length: 20 }).default("local").notNull(), 
+  country: varchar("country", { length: 100 }),  
 
   description: text("description").notNull(),
   aboutProvide: text("about_provide"),
@@ -107,7 +106,7 @@ export const projects = pgTable("projects", {
   timeEnd: time("time_end"),
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
-  applyBy: timestamp("apply_by"), // <-- NEW
+  applyBy: timestamp("apply_by"), 
 
   slotsTotal: integer("slots_total").notNull().default(0),
   requiredHours: integer("required_hours").notNull().default(0),
@@ -151,10 +150,9 @@ export const applications = pgTable("applications", {
 
   motivation: text("motivation").notNull(),
 
-  // ✅ new fields
-  experience: text("experience").notNull(), // e.g. "none" | "some" | "extensive"
-  skills: text("skills"), // optional short string
-  comments: text("comments"), // optional additional remarks
+  experience: text("experience").notNull(), 
+  skills: text("skills"), 
+  comments: text("comments"), 
   acknowledgeSchedule: boolean("acknowledge_schedule").notNull().default(false),
   agree: boolean("agree").notNull().default(false),
 

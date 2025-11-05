@@ -16,7 +16,6 @@ import type {
   UpcomingRow,
 } from "./types";
 
-// -------- users --------
 export function useMe() {
   return useQuery({
     queryKey: ["me"],
@@ -52,7 +51,6 @@ export function useSaveProfileSettings() {
   });
 }
 
-// -------- projects (public) --------
 export function useProjectCards(params?: {
   q?: string; categoryId?: number; tagId?: number[]; status?: "approved" | "pending" | "draft" | "closed" | "archived";
 }) {
@@ -85,7 +83,6 @@ export function useProjectSessions(id: number | undefined) {
   });
 }
 
-// -------- student applications --------
 export function useMyApplications(status?: MyAppRow["status"]) {
   const qs = status ? `?status=${status}` : "";
   return useQuery({
@@ -116,7 +113,6 @@ export function useWithdrawApplication() {
   });
 }
 
-// -------- favourites --------
 export function usefavourites() {
   return useQuery({
     queryKey: ["favourites"],
@@ -140,7 +136,6 @@ export function useUnsavefavourite() {
   });
 }
 
-// -------- upcoming sessions (student) --------
 export function useUpcomingSessions() {
   return useQuery({
     queryKey: ["upcomingSessions"],
@@ -158,9 +153,7 @@ export function useCompletedCSPs() {
   });
 }
 
-// -------- organisations --------
 
-// Fetch organisation data (profile)
 export function useOrganisation() {
   return useQuery({
     queryKey: ["organisation"],
@@ -168,14 +161,12 @@ export function useOrganisation() {
   });
 }
 
-// Update organisation profile (e.g. name, contact, description)
 export function useUpdateOrganisation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: OrganisationFormData) =>
       apiPatch<OrganisationProfileData>("/api/organisations/profile", payload),
     onSuccess: (data) => {
-      // Update cache so Profile page instantly reflects changes
       qc.setQueryData(["organisation"], data);
       qc.invalidateQueries({ queryKey: ["organisationSettings"] });
     },

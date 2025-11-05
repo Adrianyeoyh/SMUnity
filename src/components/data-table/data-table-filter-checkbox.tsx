@@ -22,28 +22,24 @@ export function DataTableFilterCheckbox<TData>({
   const { table, columnFilters, isLoading, getFacetedUniqueValues } =
     useDataTable();
   const column = table.getColumn(value);
-  // REMINDER: avoid using column?.getFilterValue()
   const filterValue = columnFilters.find((i) => i.id === value)?.value;
   const facetedValue =
     getFacetedUniqueValues?.(table, value) || column?.getFacetedUniqueValues();
 
   const Component = component;
-
-  // filter out the options based on the input value
+e
   const filterOptions = options?.filter(
     (option) =>
       inputValue === "" ||
       option.label.toLowerCase().includes(inputValue.toLowerCase()),
   );
 
-  // CHECK: it could be filterValue or searchValue
   const filters = filterValue
     ? Array.isArray(filterValue)
       ? filterValue
       : [filterValue]
     : [];
 
-  // REMINDER: if no options are defined, while fetching data, we should show a skeleton
   if (isLoading && !filterOptions?.length)
     return (
       <div className="border-border grid divide-y rounded-lg border">
@@ -70,10 +66,8 @@ export function DataTableFilterCheckbox<TData>({
           onChange={(e) => setInputValue(e.target.value)}
         />
       ) : null}
-      {/* FIXME: due to the added max-h and overflow-y-auto, the hover state and border is laying on top of the scroll bar */}
       <div className="border-border max-h-[200px] overflow-y-auto rounded-lg border empty:border-none">
         {filterOptions
-          // TODO: we shoudn't sort the options here, instead filterOptions should be sorted by default
           // .sort((a, b) => a.label.localeCompare(b.label))
           ?.map((option, index) => {
             const checked = filters.includes(option.value);

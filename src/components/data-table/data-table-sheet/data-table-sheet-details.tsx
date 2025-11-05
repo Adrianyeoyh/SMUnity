@@ -72,7 +72,6 @@ export function DataTableSheetDetails({
     const down = (e: KeyboardEvent) => {
       if (!selectedRowKey) return;
 
-      // REMINDER: prevent dropdown navigation inside of sheet to change row selection
       const activeElement = document.activeElement;
       const isMenuActive = activeElement?.closest('[role="menu"]');
 
@@ -96,15 +95,11 @@ export function DataTableSheetDetails({
     <Sheet
       open={!!selectedRowKey}
       onOpenChange={() => {
-        // REMINDER: focus back to the row that was selected
-        // We need to manually focus back due to missing Trigger component
         const el = selectedRowKey
           ? document.getElementById(selectedRowKey)
           : null;
         table.resetRowSelection();
 
-        // REMINDER: when navigating between tabs in the sheet and exit the sheet, the tab gets lost
-        // We need a minimal delay to allow the sheet to close before focusing back to the row
         setTimeout(() => el?.focus(), 0);
       }}
     >

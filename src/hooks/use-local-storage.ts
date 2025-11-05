@@ -16,7 +16,6 @@ export function useLocalStorage<T>(
   const [storedValue, setStoredValue] = useState(initialValue);
 
   useEffect(() => {
-    // initialize
     if (typeof window !== "undefined") {
       const stored = getItemFromLocalStorage(key);
       if (stored !== null) setStoredValue(stored);
@@ -28,13 +27,11 @@ export function useLocalStorage<T>(
       if (value instanceof Function) {
         setStoredValue((prev: T) => {
           const newValue = value(prev);
-          // Save to localStorage
           window.localStorage.setItem(key, JSON.stringify(newValue));
           return newValue;
         });
       } else {
         setStoredValue(value);
-        // Save to localStorage
         window.localStorage.setItem(key, JSON.stringify(value));
       }
       return setStoredValue;

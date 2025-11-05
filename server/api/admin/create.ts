@@ -29,7 +29,6 @@ adminCreate.post("/", async (c) => {
     const now = new Date();
 
     await db.transaction(async (tx) => {
-      // 1️⃣ Create user
       await tx.insert(schema.user).values({
         id: orgSlug,
         name: data.organisationName,
@@ -40,7 +39,6 @@ adminCreate.post("/", async (c) => {
         updatedAt: now,
       });
 
-      // 2️⃣ Create account (credentials)
       await tx.insert(schema.account).values({
         id: orgSlug,
         accountId: orgSlug,
@@ -51,7 +49,6 @@ adminCreate.post("/", async (c) => {
         updatedAt: now,
       });
 
-      // 3️⃣ Create organisation record
       await tx.insert(schema.organisations).values({
         userId: orgSlug,
         slug: orgSlug,

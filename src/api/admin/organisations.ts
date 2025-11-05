@@ -8,17 +8,11 @@ export type OrganisationRecord = {
   website?: string;
   projects: number;
   status: "active" | "pending" | "suspended";
-  createdAt: string; // ISO date
+  createdAt: string; 
   description?: string;
 };
 
-// Temporary stub returning mock data until backend endpoint exists
 export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
-  // In the future, replace with:
-  // const res = await fetch("/api/admin/organisations", { credentials: "include" });
-  // if (!res.ok) throw new Error("Failed to load organisations");
-  // const json = await res.json();
-  // return json.data ?? json;
 
   await new Promise((r) => setTimeout(r, 250));
 
@@ -59,12 +53,8 @@ export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
   ];
 }
 
-// Temporary stub to "suspend" an organisation client-side
 export async function suspendOrganisation(orgId: string): Promise<OrganisationRecord | null> {
-  // Simulate network delay
   await new Promise((r) => setTimeout(r, 200));
-  // In real impl: await fetch(`/api/admin/organisations/${orgId}/suspend`, { method: 'POST' })
-  // For now just return a minimal object; caller should merge into state
   return {
     id: orgId,
     name: "",
@@ -75,10 +65,8 @@ export async function suspendOrganisation(orgId: string): Promise<OrganisationRe
   } as OrganisationRecord;
 }
 
-// Temporary stub to "reactivate" an organisation client-side
 export async function reactivateOrganisation(orgId: string): Promise<OrganisationRecord | null> {
   await new Promise((r) => setTimeout(r, 200));
-  // In real impl: await fetch(`/api/admin/organisations/${orgId}/reactivate`, { method: 'POST' })
   return {
     id: orgId,
     name: "",

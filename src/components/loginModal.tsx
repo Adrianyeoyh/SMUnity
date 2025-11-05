@@ -24,7 +24,6 @@ export function LoginModal({
   setError(null);
 
   try {
-    // 👇 include redirect info
     const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`;
     const result = await auth.signIn.social({
       provider: "google",
@@ -32,10 +31,8 @@ export function LoginModal({
     });
 
     if (result.data?.url) {
-      // OAuth redirect — goes to Google
       window.location.href = result.data.url;
     } else if (result.data?.user) {
-      // Non-redirect flow (already logged in)
       onClose();
       navigate({ to: redirectTo });
     }
@@ -51,7 +48,6 @@ export function LoginModal({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border border-teal-100">
-        {/* Icon + Heading */}
         <div className="flex flex-col items-center mb-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#1BA39C] to-[#0D9488] mb-3">
             <HeartHandshake className="h-7 w-7 text-white" />
@@ -64,7 +60,6 @@ export function LoginModal({
           </p>
         </div>
 
-        {/* Google Sign In Button */}
         <button
           onClick={handleGoogleLogin}
           disabled={isLoading}
@@ -91,14 +86,12 @@ export function LoginModal({
           {isLoading ? "Redirecting..." : "Continue with Google"}
         </button>
 
-        {/* Error Message */}
         {error && (
           <p className="text-sm text-red-600 mt-3 bg-red-50 border border-red-100 rounded-md py-2 px-3">
             {error}
           </p>
         )}
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="mt-6 text-sm text-gray-500 hover:text-gray-700 font-body transition"

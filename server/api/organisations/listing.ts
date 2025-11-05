@@ -10,13 +10,12 @@ import { ok } from "#server/helper";
 
 
 const listing = createApp();
-// Define validation schema for the incoming request
 const ProjectCreateSchema = z.object({
   title: z.string().min(1),
   summary: z.string(),
   category: z.string(),
   project_type: z.enum(["local", "overseas"]),
-  country: z.string().optional().nullable(), // ✅ add
+  country: z.string().optional().nullable(),
   description: z.string(),
   about_provide: z.string(),
   about_do: z.string(),
@@ -30,9 +29,9 @@ const ProjectCreateSchema = z.object({
   days_of_week: z.array(z.string()).default([]),
   time_start: z.string(),
   time_end: z.string(),
-  start_date: z.string(),           // ✅ just string
-  end_date: z.string(),             // ✅ just string
-  application_deadline: z.string(), // ✅ just string
+  start_date: z.string(),           
+  end_date: z.string(),             
+  application_deadline: z.string(), 
   commitable_hours: z.number(),
   slots: z.number(),
   image_url: z.string(),
@@ -44,7 +43,6 @@ listing.post("/new", async (c) => {
   const body = await c.req.json();
   const parsed = ProjectCreateSchema.parse(body);
 
-  // Example: get orgId from current session (pseudo)
   const user = c.get("user");
   if (!user || user.accountType !== "organisation") {
     return c.json({ error: "Not authorised" }, 403);
@@ -88,7 +86,7 @@ listing.post("/new", async (c) => {
     });
 
   } catch (err) {
-    console.error("❌ Project creation failed:", err);
+    console.error(" Project creation failed:", err);
     return c.json(
       { error: "Error", details: err instanceof Error ? err.message : err },
       500
@@ -105,7 +103,6 @@ listing.delete("/:projectId", async (c) => {
       return c.json({ error: "Not authorised" }, 403);
     }
 
-    // Verify project belongs to this org
     const [project] = await db
       .select()
       .from(schema.projects)
@@ -116,16 +113,14 @@ listing.delete("/:projectId", async (c) => {
     if (project.orgId !== user.id)
       return c.json({ error: "You do not own this project" }, 403);
 
-    // Cascade delete memberships and applications first (optional but safe)
     await db.delete(schema.applications).where(eq(schema.applications.projectId, projectId));
     await db.delete(schema.projMemberships).where(eq(schema.projMemberships.projId, projectId));
 
-    // Delete the project itself
     await db.delete(schema.projects).where(eq(schema.projects.id, projectId));
 
     return c.json({ success: true, message: "Project deleted successfully" });
   } catch (err) {
-    console.error("❌ Delete project failed:", err);
+    console.error(" Delete project failed:", err);
     return c.json(
       { error: "Failed to delete project", details: err instanceof Error ? err.message : err },
       500
@@ -136,7 +131,6 @@ listing.delete("/:projectId", async (c) => {
 listing.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");
 
-  // --- Fetch project + org info ---
   const project = await db.query.projects.findFirst({
     where: eq(schema.projects.id, projectId),
     with: {
@@ -157,7 +151,6 @@ listing.get("/:projectId", async (c) => {
 
   if (!project) return c.json({ error: "Project not found" }, 404);
 
-  // --- Count current members ---
   const members = await db
     .select()
     .from(schema.projMemberships)
@@ -165,7 +158,6 @@ listing.get("/:projectId", async (c) => {
 
   const volunteerCount = members.length;
 
-  // --- Fetch applications + join with user ---
   const applications = await db
     .select({
       id: schema.applications.id,
@@ -180,7 +172,6 @@ listing.get("/:projectId", async (c) => {
     .leftJoin(schema.user, eq(schema.user.id, schema.applications.userId))
     .where(eq(schema.applications.projectId, projectId));
 
-  // --- Respond to frontend ---
   return c.json({
     project: {
       ...project,

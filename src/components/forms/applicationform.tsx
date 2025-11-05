@@ -26,36 +26,30 @@ import { useNavigate } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
 
 const FormSchema = z.object({
-  // 1️⃣ Motivation
   motivation: z
     .string()
     .min(20, "Please write at least 20 characters")
     .max(800, "Keep it under 800 characters"),
 
 
-  // 3️⃣ Experience
   experience: z.enum(["none", "some", "extensive"]).refine(
     (val) => ["none", "some", "extensive"].includes(val),
     { message: "Select your prior experience" }
   ),
 
-  // 4️⃣ Skills
   skills: z
     .string()
     .max(160, "160 characters max")
     .transform((v) => (v?.trim() ? v.trim() : "")),
 
-  // 5️⃣ Agreement
   agree: z.boolean().refine((val) => val === true, {
     message: "You must agree to the code of conduct"
   }),
 
-  // 6️⃣ Schedule acknowledgement
   acknowledgeSchedule: z.boolean().refine((val) => val === true, {
     message: "You must acknowledge the project schedule before applying"
   }),
 
-  // 7️⃣ Additional comments
   comments: z
     .string()
     .max(500, "Maximum 500 characters")
@@ -78,7 +72,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
   const queryClient = useQueryClient();
   const storageKey = `application-form-draft-${projectId}`;
   
-  // Load saved form data from localStorage
   const getSavedFormData = (): Partial<FormValues> => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -100,7 +93,7 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
       agree: false,
       acknowledgeSchedule: false,
       comments: "",
-      ...getSavedFormData(), // Load saved data if available
+      ...getSavedFormData(), 
     },
   });
 
@@ -108,10 +101,8 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
   const [serverError, setServerError] = React.useState<string | null>(null)
   const [serverSuccess, setServerSuccess] = React.useState<string | null>(null)
 
-  // Save form data to localStorage on changes (debounced)
   React.useEffect(() => {
     const subscription = form.watch((value) => {
-      // Save to localStorage
       try {
         localStorage.setItem(storageKey, JSON.stringify(value));
       } catch (error) {
@@ -140,14 +131,12 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
         submittedAt: new Date().toISOString(),
       });
       
-      // Invalidate dashboard queries to refresh statistics
       queryClient.invalidateQueries({ queryKey: ["pending-applications"] });
       queryClient.invalidateQueries({ queryKey: ["all-applications"] });
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
       queryClient.invalidateQueries({ queryKey: ["ongoing-projects"] });
       queryClient.invalidateQueries({ queryKey: ["completed-projects"] });
       
-      // Clear saved form data from localStorage on successful submission
       try {
         localStorage.removeItem(storageKey);
       } catch (error) {
@@ -155,11 +144,10 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
       }
       
       form.reset();
-      navigate({ to: `/csp/${projectId}` }); // <--- this line
+      navigate({ to: `/csp/${projectId}` }); 
     } catch (err: any) {
-        console.error("❌ Application submission failed:", err);
+        console.error(" Application submission failed:", err);
 
-        // Show a descriptive toast message
         const message =
           err?.message ||
           (err?.response?.error ? `Server Error: ${err.response.error}` : "Failed to apply");
@@ -174,7 +162,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* 1️⃣ Motivation */}
         <FormField
           control={form.control}
           name="motivation"
@@ -198,7 +185,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
 
         <Separator />
 
-        {/* 3️⃣ Experience */}
         <FormField
           control={form.control}
           name="experience"
@@ -233,7 +219,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {/* 4️⃣ Skills */}
         <FormField
           control={form.control}
           name="skills"
@@ -255,7 +240,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {/* 5️⃣ Code of Conduct */}
         <FormField
           control={form.control}
           name="agree"
@@ -280,7 +264,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {/* 6️⃣ Schedule Acknowledgement */}
         <FormField
           control={form.control}
           name="acknowledgeSchedule"
@@ -306,7 +289,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
           )}
         />
 
-        {/* 7️⃣ Additional Comments */}
         <FormField
           control={form.control}
           name="comments"
@@ -334,7 +316,6 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
             variant="ghost"
             onClick={() => {
               form.reset();
-              // Clear saved form data when resetting
               try {
                 localStorage.removeItem(storageKey);
               } catch (error) {

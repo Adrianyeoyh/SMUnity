@@ -30,9 +30,7 @@ export const parseAsSort = createParser({
 });
 
 export const searchParamsParser = {
-  // FILTERS
   url: parseAsString,
-  // TODO: limit to two array entries
   p95: parseAsArrayOf(parseAsInteger, SLIDER_DELIMITER),
   public: parseAsArrayOf(parseAsBoolean, ARRAY_DELIMITER),
   active: parseAsArrayOf(parseAsBoolean, ARRAY_DELIMITER),
@@ -43,4 +41,3 @@ export const searchParamsParser = {
 
 export const searchParamsCache = createSearchParamsCache(searchParamsParser);
 
-// NOTE: check if `inferParserType` could be useful

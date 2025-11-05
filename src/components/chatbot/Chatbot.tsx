@@ -41,7 +41,6 @@ export function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input when chat opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
@@ -56,7 +55,6 @@ export function Chatbot() {
       content: input.trim(),
     };
 
-    // Add user message immediately
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setShowSuggestions(false);
@@ -95,7 +93,6 @@ export function Chatbot() {
   };
 
   const handleSuggestedQuestion = (question: string) => {
-    // Creates a user message 
     const userMessage: ChatMessage = {
       role: "user",
       content: question,
@@ -105,7 +102,6 @@ export function Chatbot() {
     setShowSuggestions(false);
     setIsLoading(true);
 
-    // Send the message
     sendChatMessage({
       message: question,
       conversationHistory: messages,
@@ -170,7 +166,7 @@ export function Chatbot() {
               mass: 0.6,
             }}
             className="fixed bottom-24 right-20 sm:right-24 w-96 h-[500px] max-h-[calc(100vh-10rem)] shadow-2xl z-50 max-w-[calc(100vw-3rem)] sm:max-w-none"
-            style={{ originX: 1, originY: 1 }} // Scale from bottom-right corner
+            style={{ originX: 1, originY: 1 }} 
           >
             <Card className="w-full h-full flex flex-col overflow-hidden !py-0" style={{ overflow: 'hidden' }}>
           <div className="p-4 bg-primary text-primary-foreground rounded-t-lg">

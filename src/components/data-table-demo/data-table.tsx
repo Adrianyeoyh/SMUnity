@@ -44,7 +44,6 @@ export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   defaultColumnFilters?: ColumnFiltersState;
-  // TODO: add sortingColumnFilters
   filterFields?: DataTableFilterField<TData>[];
 }
 
@@ -79,7 +78,6 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    // REMINDER: it doesn't support array of strings (WARNING: might not work for other types)
     getFacetedUniqueValues: (table: TTable<TData>, columnId: string) => () => {
       const facets = getFacetedUniqueValues<TData>()(table, columnId)();
       const customFacets = new Map();
@@ -116,7 +114,6 @@ export function DataTable<TData, TValue>({
     );
 
     setSearch(search);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnFilters]);
 
   return (

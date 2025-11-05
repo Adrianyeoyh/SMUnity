@@ -63,7 +63,6 @@ export const columns: ColumnDef<ColumnSchema>[] = [
     filterFn: (row, id, value) => {
       const array = row.getValue(id) as string[];
       if (typeof value === "string") return array.includes(value);
-      // up to the user to define either `.some` or `.every`
       if (Array.isArray(value)) return value.some((i) => array.includes(i));
       return false;
     },
@@ -151,7 +150,6 @@ export const columns: ColumnDef<ColumnSchema>[] = [
       if (Array.isArray(value)) {
         if (isArrayOfDates(value) && rowValue instanceof Date) {
           const sorted = value.sort((a, b) => a.getTime() - b.getTime());
-          // TODO: check length
           return (
             sorted[0]?.getTime() <= rowValue.getTime() &&
             rowValue.getTime() <= sorted[1]?.getTime()
