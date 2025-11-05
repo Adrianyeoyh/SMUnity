@@ -289,7 +289,7 @@ function Dashboard() {
             <Badge variant="secondary" className="bg-green-100 text-green-700">Active</Badge>
           </div>
           <div className="flex gap-2 mt-4">
-            <Link to="/csp/$projectID" params={{ projectID: project.id }} search={{ from: undefined }}>
+            <Link to="/csp/$projectID" params={{ projectID: project.id }} search={{ from: undefined, applicantProjectId: undefined, applicantId: undefined }}>
               <Button variant="outline" size="sm">View Details</Button>
             </Link>
           </div>
@@ -316,7 +316,7 @@ function Dashboard() {
           <Link 
             to="/csp/$projectID" 
             params={{ projectID: app.projectId.toString() }} 
-            search={{ from: "dashboard" }}
+            search={{ from: "dashboard", applicantProjectId: undefined, applicantId: undefined }}
             className="flex-1"
           >
             <div className="flex items-center gap-2 mb-1 flex-wrap">

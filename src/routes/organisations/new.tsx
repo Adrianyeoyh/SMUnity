@@ -9,11 +9,151 @@ import { Button } from "#client/components/ui/button";
 import { Label } from "#client/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#client/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Badge } from "#client/components/ui/badge";
 import { FormInput, CATEGORY_OPTIONS, DISTRICTS, COUNTRIES, SKILL_CHOICES, TAG_CHOICES } from "#client/helper/index.ts";
 
 // ---------- Constants ----------
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Searchable Combobox Component
+function Combobox({
+  options,
+  value,
+  onValueChange,
+  placeholder,
+  disabled = false,
+  className = "",
+}: {
+  options: string[];
+  value: string;
+  onValueChange: (value: string) => void;
+  placeholder: string;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Reset search when dropdown closes
+  useEffect(() => {
+    if (!open) {
+      setSearchQuery("");
+    }
+  }, [open]);
+
+  // Focus input when dropdown opens
+  useEffect(() => {
+    if (open && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [open]);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div className={`relative ${className}`}>
+          <Input
+            ref={inputRef}
+            value={open ? searchQuery : value}
+            onChange={(e) => {
+              if (open) {
+                setSearchQuery(e.target.value);
+              }
+            }}
+            onFocus={() => setOpen(true)}
+            onClick={() => setOpen(true)}
+            placeholder={placeholder}
+            disabled={disabled}
+            className="w-full pr-8"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-9 w-8 hover:bg-transparent"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(!open);
+            }}
+            disabled={disabled}
+          >
+            <ChevronsUpDown className="h-4 w-4 opacity-50" />
+          </Button>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="p-0" 
+        align="start" 
+        style={{ width: "var(--radix-popover-trigger-width)" }}
+        onWheel={(e) => {
+          // Prevent scroll propagation to page when scrolling inside dropdown
+          e.stopPropagation();
+        }}
+        onTouchMove={(e) => {
+          // Prevent scroll propagation on touch devices
+          e.stopPropagation();
+        }}
+      >
+        <Command shouldFilter={false}>
+          <CommandList 
+            className="max-h-[300px] overflow-y-auto overscroll-contain" 
+            style={{ 
+              overscrollBehavior: "contain", 
+              WebkitOverflowScrolling: "touch",
+              maxHeight: "300px"
+            }}
+            onWheel={(e) => {
+              // Stop scroll event from propagating to parent
+              e.stopPropagation();
+              const target = e.currentTarget;
+              const { scrollTop, scrollHeight, clientHeight } = target;
+              const isAtTop = scrollTop === 0;
+              const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+              
+              // Prevent page scroll if we can scroll within the dropdown
+              if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                e.preventDefault();
+              }
+            }}
+            onTouchMove={(e) => {
+              // Prevent touch scroll propagation
+              e.stopPropagation();
+            }}
+          >
+            <CommandEmpty>No {placeholder.toLowerCase()} found.</CommandEmpty>
+            <CommandGroup>
+              {filteredOptions.map((option) => (
+                <CommandItem
+                  key={option}
+                  value={option}
+                  onSelect={() => {
+                    onValueChange(option);
+                    setSearchQuery("");
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      value === option ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  {option}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 // Skills Selector Component
 function SkillsSelector({ value, onChange }: { value: string[]; onChange: (skills: string[]) => void }) {
@@ -32,8 +172,10 @@ function SkillsSelector({ value, onChange }: { value: string[]; onChange: (skill
     !selectedSkills.includes(searchQuery.trim());
 
   const handleAddSkill = (skill: string) => {
-    if (skill.trim() && !selectedSkills.includes(skill.trim())) {
-      onChange([...selectedSkills, skill.trim()]);
+    // Trim only leading/trailing spaces, preserve internal spaces
+    const trimmedSkill = skill.trim();
+    if (trimmedSkill && !selectedSkills.includes(trimmedSkill)) {
+      onChange([...selectedSkills, trimmedSkill]);
       setSearchQuery("");
       setOpen(false);
     }
@@ -92,7 +234,26 @@ function SkillsSelector({ value, onChange }: { value: string[]; onChange: (skill
               value={searchQuery}
               onValueChange={setSearchQuery}
             />
-            <CommandList className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md">
+            <CommandList 
+              className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md"
+              onWheel={(e) => {
+                // Stop scroll event from propagating to parent
+                e.stopPropagation();
+                const target = e.currentTarget;
+                const { scrollTop, scrollHeight, clientHeight } = target;
+                const isAtTop = scrollTop === 0;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                
+                // Prevent page scroll if we can scroll within the dropdown
+                if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                  e.preventDefault();
+                }
+              }}
+              onTouchMove={(e) => {
+                // Prevent touch scroll propagation
+                e.stopPropagation();
+              }}
+            >
               {filteredSkills.length > 0 && (
                 <CommandGroup heading="Available Skills">
                   {filteredSkills.map((skill) => (
@@ -108,10 +269,10 @@ function SkillsSelector({ value, onChange }: { value: string[]; onChange: (skill
               {isCustomSkill && (
                 <CommandGroup heading="Custom Skill">
                   <CommandItem
-                    onSelect={() => handleAddSkill(searchQuery.trim())}
+                    onSelect={() => handleAddSkill(searchQuery)}
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add &quot;{searchQuery.trim()}&quot;
+                    Add &quot;{searchQuery}&quot;
                   </CommandItem>
                 </CommandGroup>
               )}
@@ -167,8 +328,10 @@ function TagsSelector({ value, onChange }: { value: string[]; onChange: (tags: s
     !selectedTags.includes(searchQuery.trim());
 
   const handleAddTag = (tag: string) => {
-    if (tag.trim() && !selectedTags.includes(tag.trim())) {
-      onChange([...selectedTags, tag.trim()]);
+    // Trim only leading/trailing spaces, preserve internal spaces
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !selectedTags.includes(trimmedTag)) {
+      onChange([...selectedTags, trimmedTag]);
       setSearchQuery("");
       setOpen(false);
     }
@@ -227,7 +390,26 @@ function TagsSelector({ value, onChange }: { value: string[]; onChange: (tags: s
               value={searchQuery}
               onValueChange={setSearchQuery}
             />
-            <CommandList className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md">
+            <CommandList 
+              className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-md"
+              onWheel={(e) => {
+                // Stop scroll event from propagating to parent
+                e.stopPropagation();
+                const target = e.currentTarget;
+                const { scrollTop, scrollHeight, clientHeight } = target;
+                const isAtTop = scrollTop === 0;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                
+                // Prevent page scroll if we can scroll within the dropdown
+                if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+                  e.preventDefault();
+                }
+              }}
+              onTouchMove={(e) => {
+                // Prevent touch scroll propagation
+                e.stopPropagation();
+              }}
+            >
               {filteredTags.length > 0 && (
                 <CommandGroup heading="Available Tags">
                   {filteredTags.map((tag) => (
@@ -243,10 +425,10 @@ function TagsSelector({ value, onChange }: { value: string[]; onChange: (tags: s
               {isCustomTag && (
                 <CommandGroup heading="Custom Tag">
                   <CommandItem
-                    onSelect={() => handleAddTag(searchQuery.trim())}
+                    onSelect={() => handleAddTag(searchQuery)}
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add &quot;{searchQuery.trim()}&quot;
+                    Add &quot;{searchQuery}&quot;
                   </CommandItem>
                 </CommandGroup>
               )}
@@ -627,7 +809,7 @@ useEffect(() => {
   } else if (projectType === "overseas") {
     const current = getValues("country");
     if (!current) {
-      const last = localStorage.getItem("lastSelectedCountry") || "Singapore";
+      const last = localStorage.getItem("lastSelectedCountry") || "";
       setValue("country", last);
     }
   }
@@ -733,7 +915,7 @@ useEffect(() => {
                   onValueChange={(v) => setValue("category", v)}
                 >
                   <SelectTrigger className="h-11 w-full"><SelectValue placeholder="Select category" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px]" style={{ maxHeight: "300px", overscrollBehavior: "contain" }}>
                     {CATEGORY_OPTIONS.map((opt) => (
                       <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                     ))}
@@ -747,7 +929,7 @@ useEffect(() => {
                   onValueChange={(v) => setValue("project_type", v as "local" | "overseas")}
                 >
                   <SelectTrigger className="h-11 w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px]" style={{ maxHeight: "300px", overscrollBehavior: "contain" }}>
                     <SelectItem value="local">Local</SelectItem>
                     <SelectItem value="overseas">Overseas</SelectItem>
                   </SelectContent>
@@ -817,20 +999,13 @@ useEffect(() => {
                     name="district"
                     rules={{ required: !watch("remote") ? "District is required unless remote" : false }}
                     render={({ field }) => (
-                      <Select
+                      <Combobox
+                        options={DISTRICTS}
                         value={isRemote ? "" : field.value || ""}
                         onValueChange={(v) => field.onChange(v)}
+                        placeholder="Select a district..."
                         disabled={isRemote}
-                      >
-                        <SelectTrigger className="h-11 w-full">
-                          <SelectValue placeholder="Select a district" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DISTRICTS.map((d) => (
-                            <SelectItem key={d} value={d}>{d}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   />
                   {errors.district && !isRemote && <p className="text-sm text-red-600">{errors.district.message as string}</p>}
@@ -884,23 +1059,16 @@ useEffect(() => {
                         required: !watch("remote") ? "Country is required" : false
                       }}
                       render={({ field }) => (
-                        <Select
+                        <Combobox
+                          options={COUNTRIES}
                           value={field.value || ""}
                           onValueChange={(v) => {
                             field.onChange(v);
                             localStorage.setItem("lastSelectedCountry", v); // ✅ remember last chosen country
                           }}
-                        >
-
-                          <SelectTrigger className="h-11 w-1/2">
-                            <SelectValue placeholder="Select a country" />
-                          </SelectTrigger>
-                          <SelectContent className="max-w-[var(--radix-select-trigger-width)]" position="popper">
-                            {COUNTRIES.map((c) => (
-                              <SelectItem key={c} value={c} className="whitespace-normal">{c}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          placeholder="Select a country..."
+                          className="w-1/2"
+                        />
                       )}
                     />
                     {(projectType as string) !== "overseas" && (
@@ -1033,6 +1201,17 @@ useEffect(() => {
                         }
                       } else {
                         setValue("repeat_interval", 1);
+                        // Clear days_of_week when switching from one-time to recurring
+                        // so user can select the correct number of days based on repeat_interval
+                        setValue("days_of_week", []);
+                        // If end_date equals start_date (from one-time mode), clear end_date
+                        // so user can set a proper date range for recurring projects
+                        const currentStart = getValues("start_date");
+                        const currentEnd = getValues("end_date");
+                        if (currentStart && currentEnd && 
+                            startOfDay(currentStart).getTime() === startOfDay(currentEnd).getTime()) {
+                          setValue("end_date", undefined, { shouldValidate: false });
+                        }
                       }
                     }}
                     checked={repeatInterval === 0}
@@ -1062,9 +1241,11 @@ useEffect(() => {
                   render={({ field }) => {
                     // ✅ Determine valid days based on date range
                   const value = field.value || [];
+                  const isOneTime = repeatInterval === 0;
                   const duration = diffDaysInclusive(start, end);
                   const validSet = new Set<string>();
-                  if (start && end) {
+                  // Only restrict by date range for recurring projects with valid date range
+                  if (!isOneTime && start && end && duration > 0) {
                     const cur = new Date(start);
                     cur.setHours(0, 0, 0, 0);
                     const endDay = startOfDay(end);
@@ -1073,16 +1254,18 @@ useEffect(() => {
                       cur.setDate(cur.getDate() + 1);
                     }
                   }
-                  const maxDays = duration <= 0 ? 7 : duration <= 7 ? duration : 7;
-                  const isOneTime = repeatInterval === 0;
 
                     return (
                       <div className="flex flex-wrap gap-2">
                         {DAYS.map((day) => {
                           const selected = value.includes(day);
                           // For one-time projects, don't restrict by date range - allow any day to be selected
-                          const outOfRange = isOneTime ? false : (duration <= 7 ? !validSet.has(day) : false);
-                          const limitReached = !selected && value.length >= maxDays;
+                          // For recurring projects, only restrict if we have a valid date range and it's within 7 days
+                          const outOfRange = isOneTime 
+                            ? false 
+                            : (duration > 0 && duration <= 7 && validSet.size > 0 ? !validSet.has(day) : false);
+                          // Disable based on repeatInterval (number of days per week)
+                          const limitReached = !selected && !isOneTime && repeatInterval > 0 && value.length >= repeatInterval;
                           // For one-time projects, only allow selecting one day
                           const oneTimeLimitReached = isOneTime && !selected && value.length >= 1;
                           const disable = outOfRange || limitReached || oneTimeLimitReached;

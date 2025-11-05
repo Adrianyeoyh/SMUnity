@@ -95,9 +95,9 @@ const AnimatedSection = ({ children, className = "" }: { children: React.ReactNo
 };
 
 // Moving Background Component for Hero
-const MovingBackground = ({ heroRef }: { heroRef: React.RefObject<HTMLElement> }) => {
+const MovingBackground = ({ heroRef }: { heroRef: React.RefObject<HTMLElement | null> }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -1873,7 +1873,7 @@ function Index() {
                       </div>
                     </div>
 
-                    <Link to="/csp/$projectID" params={{ projectID: String(csp.id) }} search={{ from: undefined }}>
+                    <Link to="/csp/$projectID" params={{ projectID: String(csp.id) }} search={{ from: undefined, applicantProjectId: undefined, applicantId: undefined }}>
                       <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                       </Button>
@@ -1987,7 +1987,7 @@ function Index() {
                           </div>
                         </div>
 
-                        <Link to="/csp/$projectID" params={{ projectID: String(csp.id) }} search={{ from: undefined }}>
+                        <Link to="/csp/$projectID" params={{ projectID: String(csp.id) }} search={{ from: undefined, applicantProjectId: undefined, applicantId: undefined }}>
                           <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                             {csp.status === "full" || csp.status === "closed" ? "View Details" : "Apply Now"}
                           </Button>

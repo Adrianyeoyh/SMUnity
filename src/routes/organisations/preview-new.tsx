@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { createOrganisationProject } from "#client/api/organisations/listing";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { FormInput } from "#client/helper/index.ts";
 
@@ -56,6 +56,7 @@ export const Route = createFileRoute("/organisations/preview-new")({
 
 function PreviewPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<FormInput | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -73,10 +74,19 @@ function PreviewPage() {
   const m = useMutation({
     mutationFn: createOrganisationProject,
     onSuccess: () => {
-      toast.success("Project created successfully!");
+      // Clear localStorage first
       localStorage.removeItem("newListingFormData");
       localStorage.removeItem("newListingFormDraft");
-      navigate({ to: "/organisations/dashboard" });
+      
+      // Invalidate queries to refresh dashboard data (don't wait for it)
+      queryClient.invalidateQueries({ queryKey: ["org-listings"] });
+      queryClient.invalidateQueries({ queryKey: ["org-dashboard"] });
+      
+      // Navigate immediately - use window.location as fallback if navigate doesn't work
+      navigate({ to: "/organisations/dashboard", replace: true });
+      
+      // Show success toast after navigation starts
+      toast.success("Project created successfully!");
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to create project");
@@ -88,6 +98,7 @@ function PreviewPage() {
   }
 
   const handleSubmit = () => {
+    setOpen(false);
     m.mutate(formData);
   };
 

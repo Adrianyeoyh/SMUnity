@@ -123,7 +123,9 @@ export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps
         ...values,
       });
 
-      toast.success(response.message || "Application submitted!");
+      toast.success(response.message || "Application submitted!", {
+        description: "You can view your applications under My Applications",
+      });
       setServerSuccess(response.message);
       onSubmitted?.({
         projectId,

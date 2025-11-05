@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { Button } from "#client/components/ui/button";
 import { Badge } from "#client/components/ui/badge";
@@ -51,6 +51,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function AdminDashboard() {
+  const navigate = useNavigate();
 
   const [organiserQueue, setOrganiserQueue] = useState<OrganiserRecord[]>([]);
   const [tabValue, setTabValue] = useState<"all" | OrganiserStatus>("all");
@@ -347,6 +348,15 @@ function AdminDashboard() {
     setFormErrors({ email: "", organiserName: "", organisationName: "", password: "" });
     setHasAttemptedSubmit(false);
     setShowOrganiserModal(false);
+    
+    // Refresh dashboard data
+    const data = await fetchAdminDashboard();
+    setStats({
+      activeOrganisations: data.totals.organisations,
+      totalCSPListings: data.totals.projects,
+      activeUsers: data.totals.users,
+      pending: data.totals.pending,
+    });
   } catch (error: any) {
     toast.error("Failed to create organiser", {
       description: error.message || "Something went wrong",
