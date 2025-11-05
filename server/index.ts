@@ -1,46 +1,15 @@
-import { serve } from "@hono/node-server";
-import { serveStatic } from "@hono/node-server/serve-static";
+// import { serve } from "@hono/node-server";
+import { serveStatic } from 'hono/bun'
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { env } from "#server/env.ts";
 import { auth } from "#server/lib/auth.ts";
 
 import { apiRouter } from '#server/api'
 import { authMiddleware } from "./middlewares/auth";
 
-const app = new Hono()
-  .get("/health", (c) => {
-    return c.json({
-      status: "ok",
-    });
-  })
-  .use(
-    "/*",
-    serveStatic({
-      root: "dist/static",
-      index: "index.html",
-      onNotFound: (path) => {
-        console.log(path);
-      },
-    }),
-  );
-
-// app.use(
-//   "*",
-//   cors({
-//     origin: "http://localhost:4000",
-//     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowHeaders: ["Content-Type", "Authorization"],
-//     credentials: true,
-//   })
-// );
-
-app.use(authMiddleware).route("/api", apiRouter);
-
-
-app
-  .basePath("/api")
+const api = new Hono().use(authMiddleware)
   .get("/runtime.js", (c) => {
+    console.log(env.VITE_APP_URL)
     return c.text(
       `
       window.__env = ${JSON.stringify(Object.fromEntries(Object.entries(env).filter(([key]) => key.startsWith("VITE_"))), null, 2)}
@@ -51,13 +20,22 @@ app
   })
   .on(["POST", "GET"], "/auth/*", (c) => {
     return auth.handler(c.req.raw);
-  });
+  })
+  .route("/", apiRouter)
 
-serve({
-  port: 4001,
-  fetch: app.fetch,
-});
+const app = new Hono()
+  .route("/api", api)
+  .get("/health", (c) => {
+    return c.json({
+      status: "ok",
+    });
+  })
+  .use("/assets/*", serveStatic({ root: "./dist/static" }))
+  .use("/*", serveStatic({ root: "./dist/static" }))
+  .get("*", serveStatic({ path: "./dist/static/index.html" }));
 
-console.log(`App is running on port 4001`);
+export default {
+  port: process.env.NODE_ENV == "development" ? 4001 : 4000,
+  ...app
+}
 
-export default app;

@@ -14,6 +14,7 @@ import {
 import { Separator } from "#client/components/ui/separator";
 import { HeartHandshake, Eye, EyeOff} from "lucide-react";
 import { z } from "zod";
+import { env } from "#client/env";
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -38,7 +39,7 @@ function Login() {
       setIsLoading(true);
       await auth.signIn.social({
         provider: "google",
-        callbackURL: "http://localhost:4000/dashboard",
+        callbackURL: env.VITE_APP_URL + "/dashboard",
         //  callbackUrl,
       });
       // if (result.data?.url) {

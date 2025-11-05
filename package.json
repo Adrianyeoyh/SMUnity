@@ -16,12 +16,12 @@
     "#client/*": "./src/*"
   },
   "scripts": {
-    "start": "NODE_ENV=production bun with-env bun dist/index.js",
+    "start": "NODE_ENV=production bun dist/index.js",
     "build": "bun with-env vite build && bun build --minify --sourcemap --target=bun --outdir=dist server/index.ts",
     "build:docker": "docker build -t react-hono-template .",
     "preview": "bun with-env vite preview",
     "clean": "git clean -xdf .cache .turbo dist node_modules .tanstack",
-    "dev:server": "bun with-env tsx watch server/index.ts",
+    "dev:server": "NODE_ENV=development bun with-env bun run --hot server/index.ts",
     "dev:vite": "wait-on http://localhost:4001/health && bun with-env vite",
     "dev": "concurrently \"bun dev:server\" \"bun dev:vite\"",
     "format": "prettier --check . --ignore-path .gitignore",
