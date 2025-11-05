@@ -30,9 +30,9 @@ const app = new Hono()
       status: "ok",
     });
   })
-  .use("/assets/*", serveStatic({ root: "./dist/static" }))
-  .use("/*", serveStatic({ root: "./dist/static" }))
-  .get("*", serveStatic({ path: "./dist/static/index.html" }));
+  .use("/assets/*", serveStatic({ root: "./public" }))
+  .use("/*", serveStatic({ root: "./public" }))
+  .get("*", serveStatic({ path: "./public/index.html" }));
 
 export default {
   port: process.env.NODE_ENV == "development" ? 4001 : 4000,
