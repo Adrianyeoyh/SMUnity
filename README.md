@@ -23,7 +23,7 @@ G4 Group 12
 
 ## Business Problem
 
-> Current CSP opportunities are scattered across multiple platforms, making it difficult for students to discover project aligned with their interest and availability.
+> Current CSP opportunities are scattered across multiple platforms, making it difficult for students to discover projects aligned with their interests and availability.
 > Organizations lack a unified system for application management and volunteer tracking.
 > SMUnity solves this by consolidating all CSP listings into one accessible hub, allowing students to browse available projects, filter them by skills, interests or location, and apply directly through the site.
 > For CSP leaders, the platform provides an intuitive admin panel to post opportunities, manage applications, and track volunteer slots.
@@ -37,7 +37,7 @@ G4 Group 12
 
 SMU Students - Undergraduates at SMU seeking community service opportunities to fulfill graduation requirements
 
-CSP Leaders and Organizations - Community service organizations heads, coordinators and project leads responsible for posting volunteer opportunties, managing application and recruiting student voluneers.
+CSP Leaders and Organizations - Community service organizations heads, coordinators and project leads responsible for posting volunteer opportunities, managing applications, and recruiting student volunteers.
 
 
 ### 💡 What Users Can Do & Benefits  
@@ -67,7 +67,7 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Yyu-X8Q9rvur3BTaHSf1XaRNbizBAZjFbA&s" width="40"> | **Google Cloud** | OAuth login integration |
 | <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Maps_Pin_FullColor.width-500.format-webp.webp" width="40"> | **Google Maps** | Location-based features |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Google_Calendar_icon_%282020%29.svg/2048px-Google_Calendar_icon_%282020%29.svg.png" width="40"> | **Google Calendar** | Event scheduling |
-| <img src="https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png" width="40"> | **Vercel** | Deployment |
+| <img src="https://download.logo.wine/logo/Amazon_Web_Services/Amazon_Web_Services-Logo.wine.png" width="40"> | **AWS** | Deployment |
 
 
 ---
@@ -100,7 +100,7 @@ Provide screenshots and captions showing how users interact with your app.
 
 6. **User Dashboard**  
    <img src="screenshots/UserDashboard.jpg" width="600">  
-   - Main dashboard displaying overview on user CSP applications and upcoming events, .
+   - Main dashboard displaying overview of user CSP applications and upcoming events.
 
 7. **User My Applications**  
    <img src="screenshots/MyApplications.jpg" width="600">  
@@ -320,7 +320,7 @@ npm run test
 
 > - *Calynn:* I learned more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.  
 
-> - *Tan Xing Yee Shery:* I learnt more about tools such as react, tailwind css, drizzle, betterauth, etc. I got to explore Lenis and GSAP which I never knew existed. I also was able to learn more about working with external APIs which I havent really explored much before. Hence, this project gave me the chance to be able to learn and discover new things which would be useful for future uses.
+> - *Tan Xing Yee Sheryl:* I learnt more about tools such as react, tailwind css, drizzle, betterauth, etc. I got to explore Lenis and GSAP which I never knew existed. I also was able to learn more about working with external APIs which I haven't really explored much before. Hence, this project gave me the chance to be able to learn and discover new things which would be useful for future uses.
 
 > - *John Rey Valdellon Pastores:* Learned how to use tools that I haven't touched before such Tailwind CSS, bun, docker, drizzle, typescript and many others. I also got to experience how to use APIs, especially in Google Cloud, first hand in a website and I believe this would help for my own personal projects.
 
