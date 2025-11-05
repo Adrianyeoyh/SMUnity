@@ -14,7 +14,6 @@ export function DataTableFilterResetButton<TData>({
   const column = table.getColumn(value);
   const filterValue = columnFilters.find((f) => f.id === value)?.value;
 
-  // TODO: check if we could useMemo
   const filters = filterValue
     ? Array.isArray(filterValue)
       ? filterValue

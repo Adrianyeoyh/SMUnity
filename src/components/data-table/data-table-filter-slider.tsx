@@ -20,7 +20,6 @@ function getFilter(filterValue: unknown) {
       : null;
 }
 
-// TODO: discuss if we even need the `defaultMin` and `defaultMax`
 export function DataTableFilterSlider<TData>({
   value: _value,
   min: defaultMin,

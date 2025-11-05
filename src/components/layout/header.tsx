@@ -30,7 +30,6 @@ export function Header() {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
 
-  // Track scroll position
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -41,7 +40,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fake notifications data
   const notifications = [
     {
       id: 1,
@@ -71,12 +69,11 @@ export function Header() {
     setTimeout(() => setIsJiggling(false), 600);
   };
 
-  // Determine logo destination based on user type
   const getLogoDestination = () => {
     if (!isLoggedIn || !user) return "/";
     if (user.accountType === "admin") return "/admin/dashboard";
     if (user.accountType === "organisation") return "/organisations/dashboard";
-    return "/dashboard"; // student/default
+    return "/dashboard"; 
   };
 
   return (
@@ -87,7 +84,6 @@ export function Header() {
     }`}>
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between relative">
-          {/* Logo */}
           <Link 
             to={getLogoDestination()} 
             className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0 md:mr-8 lg:mr-12"
@@ -103,7 +99,6 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-4 lg:gap-6 xl:gap-12 md:left-[calc(50%+2rem)] lg:left-1/2">
             {isLoading ? null : !isLoggedIn ? (
               <>
@@ -219,11 +214,9 @@ export function Header() {
             )}
           </nav>
 
-          {/* Right Side Actions */}
           <div className="flex items-center gap-2">
             {isLoading ? null : isLoggedIn ? (
               <>
-                {/* Notifications - Only when logged in */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button 
@@ -279,13 +272,10 @@ export function Header() {
                     </PopoverContent>
                   </Popover>
 
-                {/* User Menu - Only when logged in */}
-                {/* in components/layout/ProfileMenu.tsx */}
                 <ProfileMenu/>
               </>
             ) : (
               <>
-                {/* Auth Buttons - Only when not logged in */}
                 <div className="hidden md:flex items-center space-x-2">
                   <Link to="/auth/login">
                     <Button>
@@ -296,7 +286,6 @@ export function Header() {
               </>
             )}
 
-            {/* Mobile Notifications - Only when logged in */}
             {isLoggedIn && (
               <Popover>
                 <PopoverTrigger asChild>
@@ -348,7 +337,6 @@ export function Header() {
               </Popover>
             )}
 
-            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -364,11 +352,9 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu - Full Screen Overlay */}
         <AnimatePresence>
           {isMenuOpen && !isLoading && (
             <>
-              {/* Backdrop */}
               <motion.div 
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
                 onClick={() => setIsMenuOpen(false)}
@@ -378,7 +364,6 @@ export function Header() {
                 transition={{ duration: 0.3 }}
               />
               
-              {/* Full Screen Menu */}
               <motion.div 
                 className="fixed inset-0 z-50 md:hidden bg-background overflow-y-auto"
                 initial={{ y: "-100%" }}
@@ -392,7 +377,6 @@ export function Header() {
                 }}
               >
               <div className="container mx-auto px-4 sm:px-6 py-6">
-                {/* Header with close button */}
                 <div className="flex items-center justify-between mb-8">
                   <Link 
                     to={getLogoDestination()}
@@ -418,7 +402,6 @@ export function Header() {
                   </Button>
                 </div>
 
-                {/* Navigation Links */}
                 <nav className="flex flex-col space-y-6">
                   {!isLoggedIn ? (
                     <>

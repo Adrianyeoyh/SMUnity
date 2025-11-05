@@ -59,7 +59,6 @@ export function DataTableSheetRowAction<
         return (
           <DropdownMenuItem
             onClick={() => {
-              // FIXME:
               const filterValue = column?.getFilterValue() as
                 | undefined
                 | Array<unknown>;
@@ -149,9 +148,6 @@ export function DataTableSheetRowAction<
         )}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
-            // REMINDER: default behavior is to open the dropdown menu
-            // But because we use it to navigate between rows, we need to prevent it
-            // and only use "Enter" to select the option
             e.preventDefault();
           }
           onKeyDown?.(e);

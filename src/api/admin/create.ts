@@ -12,9 +12,7 @@ export type CreateOrganiserResponse = {
   error?: string;
 };
 
-/**
- * Calls the backend /api/admin/organisations/create endpoint
- */
+
 export async function createOrganiser(
   payload: CreateOrganiserPayload
 ): Promise<CreateOrganiserResponse> {
@@ -23,7 +21,7 @@ export async function createOrganiser(
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include", // important for session cookies
+    credentials: "include", 
     body: JSON.stringify(payload),
   });
 

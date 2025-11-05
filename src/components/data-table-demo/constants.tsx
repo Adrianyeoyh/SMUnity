@@ -57,7 +57,6 @@ export const filterFields = [
     value: "tags",
     type: "checkbox",
     defaultOpen: true,
-    // REMINDER: "use client" needs to be declared in the file - otherwise getting serialization error from Server Component
     component: (props: Option) => {
       if (typeof props.value === "boolean") return null;
       if (typeof props.value === "undefined") return null;

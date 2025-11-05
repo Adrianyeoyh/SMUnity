@@ -32,7 +32,7 @@ export async function fetchApplicantDetails(projectId: string, applicantId: stri
     const data = await res.json();
     return data;
   } catch (err) {
-    console.error("❌ fetchApplicantDetails failed:", err);
+    console.error(" fetchApplicantDetails failed:", err);
     throw err;
   }
 }
