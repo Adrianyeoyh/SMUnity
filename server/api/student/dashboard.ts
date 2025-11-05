@@ -31,7 +31,7 @@ dashboard.get("/ongoing-projects", async (c) => {
       .where(
         and(
           eq(schema.projMemberships.userId, user.id),
-          lt(schema.projects.startDate, sql`NOW()`),  /
+          lt(schema.projects.startDate, sql`NOW()`),
           gt(schema.projects.endDate, sql`NOW()`)     
         )
       );
