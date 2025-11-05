@@ -65,6 +65,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
         [data-sonner-toaster] {
           overflow: visible !important;
         }
+        [data-sonner-toaster][data-position="top-right"] {
+          right: 0.5rem !important;
+        }
       `}</style>
     <Sonner
       theme={theme as ToasterProps["theme"]}

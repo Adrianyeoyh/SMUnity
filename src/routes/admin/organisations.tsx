@@ -112,7 +112,7 @@ function AdminOrganisationsPage() {
       setRecords((prev) => prev.map((r) => (r.id === org.id ? { ...r, status: "suspended" } : r)));
       setSelected((prev) => (prev && prev.id === org.id ? { ...prev, status: "suspended" } : prev));
       toast.success("Organisation suspended", {
-        description: `${org.name} has been suspended and can no longer create or manage projects.`,
+        description: `${org.name} has been suspended and can no longer create or manage projects`,
       });
     } catch (error) {
       toast.error("Failed to suspend organisation");
@@ -129,7 +129,7 @@ function AdminOrganisationsPage() {
       setRecords((prev) => prev.map((r) => (r.id === org.id ? { ...r, status: "active" } : r)));
       setSelected((prev) => (prev && prev.id === org.id ? { ...prev, status: "active" } : prev));
       toast.success("Organisation reactivated", {
-        description: `${org.name} can now create and manage projects again.`,
+        description: `${org.name} can now create and manage projects again`,
       });
     } catch (error) {
       toast.error("Failed to reactivate organisation");

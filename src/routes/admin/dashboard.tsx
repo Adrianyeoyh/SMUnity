@@ -324,8 +324,8 @@ function AdminDashboard() {
   if (!organiserForm.password.trim()) {
     newErrors.password = "Password is required";
     hasErrors = true;
-  } else if (organiserForm.password.length < 6) {
-    newErrors.password = "Password must be at least 6 characters";
+  } else if (organiserForm.password.length < 8) {
+    newErrors.password = "Password must be at least 8 characters";
     hasErrors = true;
   }
 

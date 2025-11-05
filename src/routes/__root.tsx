@@ -7,6 +7,7 @@ import { Chatbot } from "#client/components/chatbot/Chatbot";
 import { useEffect } from "react";
 import { useAuth } from "#client/hooks/use-auth";
 import { MobileMenuProvider } from "#client/contexts/mobile-menu-context";
+import { motion } from "framer-motion";
 
 function RootComponent() {
   const routerState = useRouterState();
@@ -83,12 +84,25 @@ function RootComponent() {
 
 
 
+  const pathname = routerState.location.pathname;
+
   return (
     <MobileMenuProvider>
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.3,
+            ease: "easeOut"
+          }}
+          className="h-full"
+        >
+          <Outlet />
+        </motion.div>
       </main>
       <Footer />
         <Chatbot />

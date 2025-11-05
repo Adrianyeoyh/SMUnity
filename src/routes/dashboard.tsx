@@ -77,8 +77,8 @@ const getStatusLabel = (status: string) => {
 };
 
 function Dashboard() {
-  const { data: userData } = useMe();
-  const userName = userData?.name ?? "Student";
+  const { data: userData, isLoading: isLoadingUser } = useMe();
+  const userName = userData?.name;
   // console.log("user data: ", userData);
 
   const [showCSUCard, setShowCSUCard] = useState(true);
@@ -141,7 +141,7 @@ function Dashboard() {
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-8">
           <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Welcome back, {userName}!
+            {isLoadingUser ? "Welcome back!" : `Welcome back, ${userName || "there"}!`}
           </h1>
           <p className="text-muted-foreground font-body text-lg">
             Track your community service journey and upcoming commitments

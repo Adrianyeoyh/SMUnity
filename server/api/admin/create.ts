@@ -16,7 +16,7 @@ const createOrgSchema = z.object({
   organiserName: z.string().min(1),
   organisationName: z.string().min(1),
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(8),
 });
 
 

@@ -12,7 +12,8 @@ import {
   Search,
   FileText,
   LayoutDashboard,
-  Building2
+  Building2,
+  Heart
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "#client/hooks/use-auth";
@@ -21,14 +22,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/p
 import ProfileMenu from "#client/components/layout/profileMenu.tsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMobileMenu } from "#client/contexts/mobile-menu-context";
+import { useMe } from "#client/api/hooks";
 
 export function Header() {
   const { isMenuOpen, setIsMenuOpen } = useMobileMenu();
   const [isJiggling, setIsJiggling] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { isLoggedIn, isLoading, logout, user } = useAuth();
+  const { data: userData } = useMe();
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
+
+  // Get first letter of user's name for avatar
+  const userName = userData?.name || user?.email || "";
+  const firstLetter = userName ? userName.charAt(0).toUpperCase() : "?";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -161,8 +168,8 @@ export function Header() {
                 ><LayoutDashboard className="h-4 w-4" />
                   <span>Dashboard</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
-              </Link>
-              <Link 
+                </Link>
+                <Link 
                   to="/discover" 
                   className="nav-link relative text-xs sm:text-sm md:text-base font-medium text-foreground transition-colors flex items-center justify-center space-x-2 py-2 group whitespace-nowrap"
                   onClick={() => {
@@ -173,7 +180,7 @@ export function Header() {
                   <span>Discover CSPs</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: 'oklch(0.45 0.15 200)' }}></span>
                 </Link>
-              </>     
+              </>
             ): (
               <>
                 <Link 
@@ -214,7 +221,8 @@ export function Header() {
             )}
           </nav>
 
-          <div className="flex items-center gap-2 relative z-50">
+          <div className="flex items-center gap-3 sm:gap-4 relative z-50">
+            {/* Desktop Notifications (hidden on mobile) */}
             {isLoading ? null : isLoggedIn ? (
               <>
                 <Popover>
@@ -272,7 +280,9 @@ export function Header() {
                     </PopoverContent>
                   </Popover>
 
-                <ProfileMenu/>
+                <div className="hidden md:block">
+                  <ProfileMenu/>
+                </div>
               </>
             ) : (
               <>
@@ -286,13 +296,14 @@ export function Header() {
               </>
             )}
 
+            {/* Mobile: Notifications first, then Hamburger */}
             {isLoggedIn && (
               <Popover>
                 <PopoverTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="relative md:hidden mr-2"
+                    className="relative md:hidden"
                     onClick={handleBellClick}
                   >
                     <Bell className={`h-5 w-5 ${isJiggling ? 'animate-pulse' : ''}`} style={{
@@ -337,6 +348,7 @@ export function Header() {
               </Popover>
             )}
 
+            {/* Hamburger Menu - always last on mobile */}
             <Button
               variant="ghost"
               size="icon"
@@ -403,131 +415,223 @@ export function Header() {
                   </Button>
                 </div>
 
+                {/* Profile Avatar Section - only show when logged in */}
+                {isLoggedIn && userName && (
+                  <div className="flex items-center gap-3 mb-6 pb-6 border-b">
+                    <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-lg transition-all duration-200 hover:scale-110 hover:shadow-lg hover:bg-primary/90 cursor-pointer">
+                      {firstLetter}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-base text-foreground">{userName}</p>
+                      <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                )}
+
                 <nav className="flex flex-col space-y-6">
                   {!isLoggedIn ? (
                     <>
-                      <Link 
+                  <Link 
                         to="/" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                         <Home className="h-5 w-5" />
                         <span>Home</span>
-                      </Link>
-                      <Link 
-                        to="/discover" 
+                  </Link>
+                  <Link 
+                    to="/discover" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                         <Search className="h-5 w-5" />
-                        <span>Discover CSPs</span>
-                      </Link>
+                    <span>Discover CSPs</span>
+                  </Link>
                       <div className="pt-6 border-t space-y-3">
-                        <Link to="/auth/login" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/auth/login" onClick={() => setIsMenuOpen(false)}>
                           <Button className="w-full" size="lg">
-                            Sign In
-                          </Button>
-                        </Link>
-                      </div>
-                    </>
+                        Sign In
+                      </Button>
+                    </Link>
+                  </div>
+                </>
                   ) : user?.accountType === 'admin' ? (
-                    <>
-                      <Link 
+                <>
+                  <Link 
                         to="/admin/dashboard" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                         <LayoutDashboard className="h-5 w-5" />
                         <span>Dashboard</span>
-                      </Link>
+                  </Link>
                       <Link 
                         to="/admin/organisations" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
+                      onClick={() => {
+                        setIsMenuOpen(false);
                           window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                      }}
+                    >
                         <Building2 className="h-5 w-5" />
                         <span>View Organisations</span>
                       </Link>
-                    </>
-                  ) : (
-                    <>
-                      <Link 
-                        to="/dashboard" 
+                      <div className="pt-6 border-t">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                          size="lg"
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                          <LogOut className="mr-2 h-5 w-5" />
+                      Logout
+                    </Button>
+                  </div>
+                </>
+              ) : user?.accountType === 'organisation' ? (
+                <>
+                  <Link 
+                        to="/organisations/dashboard" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                         <LayoutDashboard className="h-5 w-5" />
                         <span>Dashboard</span>
-                      </Link>
-                      <Link 
-                        to="/discover" 
+                  </Link>
+                  <Link 
+                    to="/discover" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                         <Search className="h-5 w-5" />
-                        <span>Discover CSPs</span>
-                      </Link>
-                      <Link 
-                        to="/my-applications" 
+                    <span>Discover CSPs</span>
+                  </Link>
+                  <Link 
+                    to="/organisations/profile" 
                         className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
-                        <FileText className="h-5 w-5" />
-                        <span>My Applications</span>
-                      </Link>
-                      <Link 
-                        to="/profile" 
-                        className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      >
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
                         <User className="h-5 w-5" />
-                        <span>Profile</span>
-                      </Link>
+                    <span>Profile</span>
+                  </Link>
                       <div className="pt-6 border-t">
-                        <Button 
-                          className="w-full" 
-                          variant="outline"
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
                           size="lg"
-                          onClick={() => {
-                            logout();
-                            setIsMenuOpen(false);
-                          }}
-                        >
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                    >
                           <LogOut className="mr-2 h-5 w-5" />
-                          Logout
-                        </Button>
-                      </div>
-                    </>
+                      Logout
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                <Link 
+                    to="/dashboard" 
+                        className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                        <LayoutDashboard className="h-5 w-5" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link 
+                    to="/discover" 
+                        className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                        <Search className="h-5 w-5" />
+                    <span>Discover CSPs</span>
+                  </Link>
+                  {user?.accountType !== 'organisation' && (
+                    <Link 
+                      to="/my-applications" 
+                          className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                          <FileText className="h-5 w-5" />
+                      <span>My Applications</span>
+                    </Link>
                   )}
-                </nav>
-              </div>
+                  {user?.accountType !== 'organisation' && user?.accountType !== 'admin' && (
+                    <Link 
+                      to="/favourites" 
+                          className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                          <Heart className="h-5 w-5" />
+                      <span>Favourites</span>
+                    </Link>
+                  )}
+                  <Link 
+                    to="/profile" 
+                        className="text-lg sm:text-xl font-medium text-foreground hover:text-primary transition-colors flex items-center space-x-3 py-3"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                        <User className="h-5 w-5" />
+                    <span>Profile</span>
+                  </Link>
+                      <div className="pt-6 border-t">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                          size="lg"
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                          <LogOut className="mr-2 h-5 w-5" />
+                      Logout
+                    </Button>
+                  </div>
+                </>
+              )}
+            </nav>
+          </div>
               </motion.div>
             </>
-          )}
+        )}
         </AnimatePresence>
       </div>
     </header>

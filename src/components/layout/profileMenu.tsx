@@ -2,15 +2,20 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "#client/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "#client/components/ui/popover";
-import { User } from "lucide-react";
 import { useAuth } from "#client/hooks/use-auth";
+import { useMe } from "#client/api/hooks";
 
 function ProfileMenu() {
   const { logout, user } = useAuth();
+  const { data: userData } = useMe();
   const [open, setOpen] = useState(false);
 
   const isOrganisation = user?.role === "organisation" || user?.accountType === "organisation";
   const isAdmin = user?.accountType === "admin";
+
+  // Get first letter of user's name for avatar
+  const userName = userData?.name || user?.email || "";
+  const firstLetter = userName ? userName.charAt(0).toUpperCase() : "?";
 
   return (
     <div className="relative">
@@ -19,15 +24,17 @@ function ProfileMenu() {
           <Button
             variant="ghost"
             size="icon"
-            className="focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="focus-visible:ring-0 focus-visible:ring-offset-0 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full p-0 transition-all duration-200 hover:scale-110"
           >
-            <User className="h-5 w-5" />
+            <div className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-200 hover:shadow-lg hover:bg-primary/90 cursor-pointer">
+              {firstLetter}
+            </div>
           </Button>
         </PopoverTrigger>
 
         <PopoverContent
           align="end"
-          className="w-36 p-2 space-y-1 bg-white shadow-lg rounded-md"
+          className="w-36 sm:w-40 md:w-44 p-2 sm:p-3 space-y-1 bg-white shadow-lg rounded-md"
           sideOffset={8}
         >
           {!isAdmin && (
