@@ -1,8 +1,8 @@
 // import { serve } from "@hono/node-server";
 import { serveStatic } from 'hono/bun'
 import { Hono } from "hono";
-import { env } from "#server/env.ts";
-import { auth } from "#server/lib/auth.ts";
+import { env } from "#server/env";
+import { auth } from "#server/lib/auth";
 
 import { apiRouter } from '#server/api'
 import { authMiddleware } from "./middlewares/auth";

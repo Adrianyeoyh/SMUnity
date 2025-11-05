@@ -9,6 +9,7 @@ import { addDays, isAfter, isBefore, parseISO, format, startOfDay } from "date-f
 
 const dashboard = createApp();
 
+// ---------- 1️⃣ Get Ongoing Projects ----------
 dashboard.get("/ongoing-projects", async (c) => {
   try {
     const user = c.get("user");
@@ -31,18 +32,19 @@ dashboard.get("/ongoing-projects", async (c) => {
       .where(
         and(
           eq(schema.projMemberships.userId, user.id),
-          lt(schema.projects.startDate, sql`NOW()`),
-          gt(schema.projects.endDate, sql`NOW()`)     
+                    lt(schema.projects.startDate, sql`NOW()`),  // project started
+          gt(schema.projects.endDate, sql`NOW()`)     // project not yet ended
         )
       );
     console.log(projects,"projects")
     return ok(c, { projects });
   } catch (err) {
-    console.error(" Ongoing projects error:", err);
+    console.error("❌ Ongoing projects error:", err);
     badReq(c,"Failed to load ongoing projects");
   }
 });
 
+// ---------- 2️⃣ Count Pending Applications ----------
 dashboard.get("/pending-applications", async (c) => {
   try {
     const user = c.get("user");
@@ -54,11 +56,12 @@ dashboard.get("/pending-applications", async (c) => {
     console.log(count, "pending")
     return ok(c,{ pendingCount: count });
   } catch (err) {
-    console.error(" Pending applications error:", err);
+    console.error("❌ Pending applications error:", err);
     return badReq(c,"Failed to load pending applications");
   }
 });
 
+// ---------- 3️⃣ Count Completed Projects ----------
 dashboard.get("/completed-projects", async (c) => {
   try {
     const user = c.get("user");
@@ -71,13 +74,13 @@ dashboard.get("/completed-projects", async (c) => {
         and(
           eq(schema.applications.userId, user.id),
           eq(schema.applications.status, "confirmed"),
-          lt(schema.projects.endDate, sql`NOW()`) 
+          lt(schema.projects.endDate, sql`NOW()`) // project has ended
         )
       );
     console.log(count, "completed")
     return ok(c, { completedCount: count });
   } catch (err) {
-    console.error(" Completed projects error:", err);
+    console.error("❌ Completed projects error:", err);
     return badReq(c,"Failed to load completed projects");
   }
 });
@@ -105,7 +108,7 @@ dashboard.get("/applications", async (c) => {
       console.log(applications,"applications")
     return ok(c, { applications });
   } catch (err) {
-    console.error(" Error fetching user applications:", err);
+    console.error("❌ Error fetching user applications:", err);
     return badReq(c,"Failed to fetch user applications");
   }
 });
@@ -118,6 +121,7 @@ dashboard.get("/upcoming-sessions", async (c) => {
     const today = startOfDay(new Date());
     const oneWeekLater = addDays(today, 7);
 
+    // 1️⃣ Find all memberships of the user
     const memberships = await db
       .select({ projId: schema.projMemberships.projId })
       .from(schema.projMemberships)
@@ -127,6 +131,7 @@ dashboard.get("/upcoming-sessions", async (c) => {
 
     const projectIds = memberships.map((m) => m.projId);
 
+    // 2️⃣ Get all active projects within date range
     const projects = await db
       .select({
         id: schema.projects.id,
@@ -152,6 +157,7 @@ dashboard.get("/upcoming-sessions", async (c) => {
         )
       );
 
+    // 3️⃣ Generate upcoming sessions
     const dayNameToIndex: Record<string, number> = {
       Sunday: 0,
       Monday: 1,
@@ -175,11 +181,13 @@ dashboard.get("/upcoming-sessions", async (c) => {
         const date = addDays(today, i);
         const dayIndex = date.getDay();
 
+        // Check if today’s weekday matches one of project.daysOfWeek
         const matches = project.daysOfWeek.some(
           (d) => dayNameToIndex[d] === dayIndex
         );
 
         if (matches) {
+          // Only include if within project active window
           if (isAfter(date, projectEnd) || isBefore(date, projectStart)) continue;
 
           sessions.push({
@@ -195,13 +203,14 @@ dashboard.get("/upcoming-sessions", async (c) => {
       }
     }
 
+    // Sort sessions by date
     sessions.sort(
       (a, b) => new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime()
     );
     console.log(sessions, "sessions")
     return ok(c, { sessions });
   } catch (err) {
-    console.error(" Error generating upcoming sessions:", err);
+    console.error("❌ Error generating upcoming sessions:", err);
     return badReq(c, "Failed to generate upcoming sessions");
   }
 });
