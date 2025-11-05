@@ -1,11 +1,11 @@
 // import { serve } from "@hono/node-server";
 import { serveStatic } from 'hono/bun'
 import { Hono } from "hono";
-import { env } from "#server/env";
-import { auth } from "#server/lib/auth";
+import { env } from "./server/env";
+import { auth } from "./server/lib/auth";
 
-import { apiRouter } from '#server/api'
-import { authMiddleware } from "./middlewares/auth";
+import { apiRouter } from './server/api'
+import { authMiddleware } from "./server/middlewares/auth";
 
 const api = new Hono().use(authMiddleware)
   .get("/runtime.js", (c) => {

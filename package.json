@@ -21,7 +21,7 @@
     "build:docker": "docker build -t react-hono-template .",
     "preview": "bun with-env vite preview",
     "clean": "git clean -xdf .cache .turbo dist node_modules .tanstack",
-    "dev:server": "NODE_ENV=development bun with-env bun run --hot server/index.ts",
+    "dev:server": "NODE_ENV=development bun with-env bun run --hot server.ts",
     "dev:vite": "wait-on http://localhost:4001/health && bun with-env vite",
     "dev": "concurrently \"bun dev:server\" \"bun dev:vite\"",
     "format": "prettier --check . --ignore-path .gitignore",
