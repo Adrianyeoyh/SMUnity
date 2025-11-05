@@ -25,7 +25,6 @@ queue.post("/:id/approve", async (c) => {
   const admin = c.get("user");
 
   try {
-    // Step 1️⃣ - Fetch request
     const [req] = await db
       .select()
       .from(organisationRequests)
@@ -33,7 +32,6 @@ queue.post("/:id/approve", async (c) => {
 
     if (!req) return c.json({ error: "Request not found" }, 404);
 
-    // Step 2️⃣ - Update status
     await db
       .update(organisationRequests)
       .set({
@@ -43,10 +41,8 @@ queue.post("/:id/approve", async (c) => {
       })
       .where(eq(organisationRequests.id, id));
 
-    // Step 3️⃣ - Generate password
     const randomPassword = crypto.randomBytes(8).toString("hex");
 
-    // Step 4️⃣ - Create new user via Better-Auth
     const createResponse = await auth.handler(
     new Request(env.VITE_APP_URL + "/api/auth/sign-up/email", {
     method: "POST",
@@ -64,7 +60,6 @@ queue.post("/:id/approve", async (c) => {
       throw new Error("Failed to create Better-Auth user");
     }
 
-    // Step 5️⃣ - Send confirmation email
     await mailer.sendMail({
       to: req.requesterEmail,
       subject: "Your SMUnity Organisation Request Has Been Approved",
@@ -95,7 +90,6 @@ queue.post("/:id/reject", async (c) => {
   const admin = c.get("user");
 
   try {
-    // Step 1️⃣ - Fetch organisation request
     const [req] = await db
       .select()
       .from(organisationRequests)
@@ -105,7 +99,6 @@ queue.post("/:id/reject", async (c) => {
       return c.json({ error: "Organisation request not found" }, 404);
     }
 
-    // Step 2️⃣ - Update status
     await db
       .update(organisationRequests)
       .set({
@@ -115,7 +108,6 @@ queue.post("/:id/reject", async (c) => {
       })
       .where(eq(organisationRequests.id, id));
 
-    // Step 3️⃣ - Send rejection email
     const reason = req.comments
       ? `<p><b>Admin Comments:</b> ${req.comments}</p>`
       : "";
@@ -135,7 +127,6 @@ queue.post("/:id/reject", async (c) => {
       `,
     });
 
-    // Step 4️⃣ - Return success
     return c.json({
       success: true,
       message: "Organisation request rejected and notification sent.",

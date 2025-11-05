@@ -34,11 +34,9 @@ export function Chatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Check if user is student or not logged in
   const canUseChatbot =
     !user || (user && user.accountType === "student");
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -97,13 +95,12 @@ export function Chatbot() {
   };
 
   const handleSuggestedQuestion = (question: string) => {
-    // Create a user message directly
+    // Creates a user message 
     const userMessage: ChatMessage = {
       role: "user",
       content: question,
     };
 
-    // Add user message immediately
     setMessages((prev) => [...prev, userMessage]);
     setShowSuggestions(false);
     setIsLoading(true);

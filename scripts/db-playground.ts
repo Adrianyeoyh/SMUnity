@@ -5,7 +5,6 @@ import * as schema from "../server/drizzle/schema/domain";
 import { user as authUser, account as authAccount } from "../server/drizzle/schema/auth";
 import { eq, inArray } from "drizzle-orm";
 
-/** Small helpers */
 const now = () => new Date();
 const pwd = async () => await hashPassword("password");
 
@@ -76,7 +75,7 @@ async function runSeed() {
 
     for (const r of orgRequests) {
       await tx.insert(schema.organisationRequests).values({
-        id: undefined, // defaultRandom()
+        id: undefined, 
         requesterEmail: r.requesterEmail,
         requesterName: r.requesterName,
         orgName: r.orgName,
@@ -91,7 +90,7 @@ async function runSeed() {
       }).onConflictDoNothing();
     }
 
-    // 3) ORGANISATIONS (approved ones become real orgs/users). All with password "password".
+    // 3) ORGANISATIONS 
     const orgs = [
       { id: "org1", name: "Green Singapore", slug: "green-singapore", website: "https://greensg.org", phone: "61234567" },
       { id: "org2", name: "Youth Connect", slug: "youth-connect", website: "https://youthconnect.sg", phone: "69876543" },
@@ -134,7 +133,7 @@ async function runSeed() {
       }).onConflictDoNothing();
     }
 
-    // 4) PROJECTS (multiple listings per org) — random photos via Unsplash
+    // 4) PROJECTS (multiple listings per org) 
     const projectSeeds = [
       // org1 (3 listings)
       {
@@ -215,7 +214,6 @@ async function runSeed() {
         imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7",
         projectTags: ["Education", "Recycling"],
       },
-      // org2 (2 listings)
       {
         orgId: "org2",
         title: "Virtual Mentoring Program",
@@ -268,7 +266,6 @@ async function runSeed() {
         imageUrl: "https://images.unsplash.com/photo-1557426272-fc759fdf7a8d",
         projectTags: ["Workshops"],
       },
-      // org3 (2 listings)
       {
         orgId: "org3",
         title: "Animal Shelter Volunteering",
@@ -357,7 +354,6 @@ async function runSeed() {
       }))
     ).onConflictDoNothing();
 
-    // Map titles -> project IDs
     const titles = projectSeeds.map(p => p.title);
     const inserted = await tx
       .select({ id: schema.projects.id, title: schema.projects.title })
@@ -444,7 +440,6 @@ async function runSeed() {
         decidedAt: app.status === "pending" ? null : now(),
       }).onConflictDoNothing();
 
-      // If confirmed -> create membership
       if (app.status === "confirmed") {
         await tx.insert(schema.projMemberships).values({
           projId,
@@ -455,7 +450,7 @@ async function runSeed() {
     }
   });
 
-  console.log("✅ Seed complete.");
+  console.log("Seed complete.");
 }
 
 runSeed()

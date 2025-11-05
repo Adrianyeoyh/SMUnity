@@ -7,10 +7,8 @@ import "./globals.css";
 import { NuqsProvider } from "./providers/nuqs";
 import { ReactQueryProvider } from "./providers/react-query";
 import { LenisProvider } from "./providers/lenis";
-// Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
-// Create a new router instance
 const router = createRouter({ routeTree });
 
 // Register the router instance for type safety
