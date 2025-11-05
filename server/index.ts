@@ -59,3 +59,5 @@ serve({
 });
 
 console.log(`App is running on port 4001`);
+
+export default app;
