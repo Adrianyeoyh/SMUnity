@@ -98,6 +98,7 @@ queue.post("/:id/approve", async (c) => {
 queue.post("/:id/reject", async (c) => {
   const id = c.req.param("id");
   const admin = c.get("user");
+  const { comments } = await c.req.json(); // get reason from frontend
 
   try {
     const [req] = await db
@@ -115,11 +116,13 @@ queue.post("/:id/reject", async (c) => {
         status: "rejected",
         decidedBy: admin.id,
         decidedAt: new Date(),
+        comments, // save rejection reason
       })
       .where(eq(organisationRequests.id, id));
 
-    const reason = req.comments
-      ? `<p><b>Admin Comments:</b> ${req.comments}</p>`
+    // use the latest reason instead of stale req.comments
+    const reasonHtml = comments
+      ? `<p><b>Admin Comments:</b> ${comments}</p>`
       : "";
 
     await mailer.sendMail({
@@ -130,7 +133,7 @@ queue.post("/:id/reject", async (c) => {
         <p>Dear ${req.requesterName || "Organisation"},</p>
         <p>We regret to inform you that your organisation request for 
         <b>${req.orgName}</b> has been <b>rejected</b>.</p>
-        ${reason}
+        ${reasonHtml}
         <p>If you believe this was a mistake or would like to revise your application, 
         please contact the SMUnity admin team for clarification.</p>
         <p>Thank you for your interest in contributing to the SMU community.</p>

@@ -427,7 +427,7 @@ function InterestsSelector({
 
 function ProfileEditRoute() {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/profileedit" });
+  const search = useSearch({ from: "/_student/profileedit" });
   const activeSection = search.section;
   const showAbout = !activeSection || activeSection === "about";
   const showSkills = !activeSection || activeSection === "skills";
