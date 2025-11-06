@@ -24,10 +24,10 @@ G4 Group 12
 ## Business Problem
 
 > Current CSP opportunities are scattered across multiple platforms, making it difficult for students to discover projects aligned with their interests and availability.
-> Organizations lack a unified system for application management and volunteer tracking.
+> Organisations lack a unified system for application management and volunteer tracking.
 > SMUnity solves this by consolidating all CSP listings into one accessible hub, allowing students to browse available projects, filter them by skills, interests or location, and apply directly through the site.
 > For CSP leaders, the platform provides an intuitive admin panel to post opportunities, manage applications, and track volunteer slots.
-> By streamlining both discovery and management, SMUnity makes it easier for students to find their CSPs and organisations to manage their programs efficiently in one place, fostering greater participation and impact within the SMU community.
+> By streamlining both discovery and management, SMUnity makes it easier for students to find their CSPs and organisations to manage their programmes efficiently in one place, fostering greater participation and impact within the SMU community.
 
 ---
 
@@ -35,9 +35,9 @@ G4 Group 12
 
 ### 🎯 Intended Users
 
-SMU Students - Undergraduates at SMU seeking community service opportunities to fulfill graduation requirements
+SMU Students - Undergraduates at SMU seeking community service opportunities to fulfil graduation requirements
 
-CSP Leaders and Organizations - Community service organizations heads, coordinators and project leads responsible for posting volunteer opportunities, managing applications, and recruiting student volunteers.
+CSP Leaders and Organisations - Community service organisations heads, coordinators and project leads responsible for posting volunteer opportunities, managing applications, and recruiting student volunteers.
 
 ### 💡 What Users Can Do & Benefits
 
@@ -48,9 +48,9 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 | Apply for Projects             | Submit applications directly through the platform                                                 | Simple way to apply for opportunities             |
 | Track Application Status       | Monitor application progress (pending, accepted, rejected, confirmed, withdrawn)                  | Clear visibility into application outcomes        |
 | Google Calendar Sync           | Integrate confirmed projects into calendar                                                        | Manage volunteer schedule with other activities   |
-| Personalized Dashboard         | View all saved projects and application history                                                   | Centralized hub for managing volunteer activities |
-| Organization Management Portal | Post opportunities, review applications, and manage volunteer slots                               | Connect with and manage student volunteers        |
-| Admin Management Portal        | Search organizations, approve/suspend accounts, view project analytics, and manage platform users | Ensures platform integrity                        |
+| Personalised Dashboard         | View all saved projects and application history                                                   | Centralised hub for managing volunteer activities |
+| Organisation Management Portal | Post opportunities, review applications, and manage volunteer slots                               | Connect with and manage student volunteers        |
+| Admin Management Portal        | Search organisations, approve/suspend accounts, view project analytics, and manage platform users | Ensures platform integrity                        |
 
 ---
 
@@ -356,17 +356,17 @@ Application was tested on these screen widths: iPhone 12pro, iPad Pro, and Norma
 
 ## Group Reflection
 
-> - _Adrian Yeo Ying Hong:_ Learnt to use other local development tools like docker containers and drizzle, and better auth for local authentication management, role based permissions which i learnt from cybersecurity, operating systems and networking mods from previous and ongoing semesters.
+> - _Adrian Yeo Ying Hong:_ Learnt to use other local development tools like docker containers and drizzle, and better auth for local authentication management, role based permissions which I learnt from cybersecurity, operating systems and networking mods from previous and ongoing semesters.
 
 > - _Kara Huang Xiu Ning:_ I learnt to develop a clean UI with reusable components and multi-role user management, which required coordinating complex workflows between students, organisations, and administrators while maintaining an easy-to-use system. I also had the opportunity to explore and integrate advanced animations (smooth-scrolling) to create a modern, user-friendly interface.
 
-> - _Calynn:_ I learned more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.
+> - _Calynn:_ I learnt more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.
 
 > - _Tan Xing Yee Sheryl:_ I learnt more about tools such as react, tailwind css, drizzle, betterauth, etc. I got to explore Lenis and GSAP which I never knew existed. I also was able to learn more about working with external APIs which I haven't really explored much before. Hence, this project gave me the chance to be able to learn and discover new things which would be useful for future uses.
 
-> - _John Rey Valdellon Pastores:_ Learned how to use tools that I haven't touched before such Tailwind CSS, bun, docker, drizzle, typescript and many others. I also got to experience how to use APIs, especially in Google Cloud, first hand in a website and I believe this would help for my own personal projects.
+> - _John Rey Valdellon Pastores:_ Learnt how to use tools that I haven't touched before such Tailwind CSS, bun, docker, drizzle, typescript and many others. I also got to experience how to use APIs, especially in Google Cloud, first hand in a website and I believe this would help for my own personal projects.
 
-> - _Leo Kai Jie:_ I learned to use docker to run and managed container application as well as learn how components can be used to effectively manage big projects, by calling the container and to make it easier for the eyes.
+> - _Leo Kai Jie:_ I learnt to use docker to run and managed container application as well as learn how components can be used to effectively manage big projects, by calling the container and to make it easier for the eyes.
 
 As a team, reflect on:
 
