@@ -517,8 +517,10 @@ function DiscoverCSPs() {
           b.currentVolunteers -
           (a.maxVolunteers - a.currentVolunteers)
         );
-      case "hours":
+      case "hours-desc":
         return b.serviceHours - a.serviceHours;
+      case "hours-asc":
+        return a.serviceHours - b.serviceHours;
       default:
         return 0; // relevance (original order)
     }
@@ -678,7 +680,8 @@ function DiscoverCSPs() {
                   <SelectItem value="relevance">Relevance</SelectItem>
                   <SelectItem value="date">Start Date</SelectItem>
                   <SelectItem value="spots">Available Spots</SelectItem>
-                  <SelectItem value="hours">Service Hours</SelectItem>
+                  <SelectItem value="hours-desc">Service Hours (High → Low)</SelectItem>
+                  <SelectItem value="hours-asc">Service Hours (Low → High)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1430,7 +1433,7 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
           </Button>
         </div>
 
-        <div className="border-border/70 bg-muted/10 h-[500px] overflow-hidden rounded-xl border shadow-sm">
+        <div className="border-border/70 bg-muted/10 h-[75vh] overflow-hidden rounded-xl border shadow-sm">
           <div className="relative h-full">
             {!isLoaded ? (
               <div className="text-muted-foreground flex h-full items-center justify-center">
