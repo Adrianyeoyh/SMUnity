@@ -133,7 +133,7 @@ const formatTimeCommitment = (
 };
 
 function CspDetail() {
-  const router = useRouter()
+  const router = useRouter();
   const { isLoggedIn, user } = useAuth();
   const isStudent = user?.accountType === "student";
   const navigate = useNavigate();
@@ -307,9 +307,7 @@ function CspDetail() {
           className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          <span className="font-body">
-            Back
-          </span>
+          <span className="font-body">Back</span>
         </button>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">

@@ -1291,7 +1291,7 @@ function Index() {
     "Project Luminaire",
     "Project Du Xing",
     "Project Hai Khun",
-    "Project Sunshine"
+    "Project Sunshine",
   ];
 
   // Use real CSPs from API for local projects, filter for local and map to match structure
@@ -1327,7 +1327,7 @@ function Index() {
       if (project.type !== "overseas") return false;
       const projectTitleLower = project.title.toLowerCase();
       // Match projects by checking if title contains any of the featured project names
-      return featuredOverseasProjectTitles.some(title => {
+      return featuredOverseasProjectTitles.some((title) => {
         const searchTerm = title.toLowerCase().replace("project ", "").trim();
         return projectTitleLower.includes(searchTerm);
       });
@@ -1336,7 +1336,9 @@ function Index() {
       id: project.id,
       title: project.title,
       organisation: project.organisation,
-      location: project.isRemote ? "Remote" : (project.location || project.district || project.country || "—"),
+      location: project.isRemote
+        ? "Remote"
+        : project.location || project.district || project.country || "—",
       category: project.category || "Community",
       type: project.type,
       startDate: project.startDate,

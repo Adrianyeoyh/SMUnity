@@ -45,7 +45,7 @@ function RouteComponent() {
     //   }}
     //   className="h-full"
     // >
-      <Outlet />
+    <Outlet />
     // </motion.div>
   );
 }

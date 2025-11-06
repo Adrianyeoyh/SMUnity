@@ -201,10 +201,10 @@ export const projMemberships = pgTable(
   {
     projId: uuid("project_id")
       .notNull()
-      .references(() => projects.id),
+      .references(() => projects.id, { onDelete: "cascade" }),
     userId: text("user_id")
       .notNull()
-      .references(() => profiles.userId),
+      .references(() => profiles.userId, { onDelete: "cascade" }),
     acceptedAt: timestamp("accepted_at"),
   },
   (t) => ({
@@ -227,7 +227,7 @@ export const applications = pgTable(
 
     projectId: uuid("project_id")
       .notNull()
-      .references(() => projects.id),
+      .references(() => projects.id, { onDelete: "cascade" }),
 
     userId: text("user_id")
       .notNull()

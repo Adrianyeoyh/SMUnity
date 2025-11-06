@@ -1,7 +1,12 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useRouterState,
+} from "@tanstack/react-router";
+import { motion } from "framer-motion";
 
 import { auth } from "#client/lib/auth.ts";
-import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/admin")({
   component: RouteComponent,
@@ -40,7 +45,7 @@ function RouteComponent() {
     //   }}
     //   className="h-full"
     // >
-      <Outlet />
+    <Outlet />
     // </motion.div>
   );
 }

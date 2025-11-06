@@ -302,7 +302,6 @@ function AdminDashboard() {
       if (status === "approved") await approveRequest(id);
       else await rejectRequest(id, reason || "");
 
-
       // Optimistic UI update
       setOrganiserQueue((prev) =>
         prev.map((org) =>
