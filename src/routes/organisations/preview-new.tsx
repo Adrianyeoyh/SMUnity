@@ -60,7 +60,9 @@ function SectionCard({ title, content }: { title: string; content: string }) {
   return (
     <div className="bg-muted/40 rounded-lg border p-3">
       <p className="text-foreground font-medium">{title}</p>
-      <p className="text-muted-foreground mt-1 text-sm">{content}</p>
+      <p className="text-muted-foreground mt-1 text-sm break-words overflow-wrap-anywhere whitespace-pre-line">
+        {content}
+      </p>
     </div>
   );
 }
