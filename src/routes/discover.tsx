@@ -476,17 +476,20 @@ function DiscoverCSPs() {
     const matchesDuration =
       selectedDurations.length === 0 ||
       selectedDurations.some((duration) => {
-        const cspDuration = (csp as any).duration || "";
-        const durationLower = cspDuration.toLowerCase();
+        const hrs = Number(csp.serviceHours) || 0;
 
-        if (duration === "1-hour" && durationLower.includes("1h")) return true;
-        if (duration === "2-hour" && durationLower.includes("2h")) return true;
-        if (duration === "3-hour" && durationLower.includes("3h")) return true;
-        if (duration === "4-hour" && durationLower.includes("4h")) return true;
-        if (duration === "full-day" && durationLower.includes("full day"))
-          return true;
-        if (duration === "one-time" && durationLower.includes("one-time"))
-          return true;
+        // Bucket by hours:
+        // 1-hour: [1,2)
+        // 2-hour: [2,3)
+        // 3-hour: [3,4)
+        // 4-hour: [4,5]
+        // gt-5-hours: (5, ∞)
+        if (duration === "1-hour") return hrs >= 1 && hrs < 2;
+        if (duration === "2-hour") return hrs >= 2 && hrs < 3;
+        if (duration === "3-hour") return hrs >= 3 && hrs < 4;
+        if (duration === "4-hour") return hrs >= 4 && hrs <= 5;
+        if (duration === "gt-5-hours") return hrs > 5;
+
         return false;
       });
 
@@ -803,8 +806,7 @@ function DiscoverCSPs() {
                       { value: "2-hour", label: "2 Hours" },
                       { value: "3-hour", label: "3 Hours" },
                       { value: "4-hour", label: "4 Hours" },
-                      { value: "full-day", label: "Full Day" },
-                      { value: "one-time", label: "One-Time" },
+                      { value: "gt-5-hours", label: "> 5 Hours" },
                     ].map((duration) => (
                       <Button
                         key={duration.value}

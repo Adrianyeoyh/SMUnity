@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   BookOpen,
   Calendar,
   CalendarClock,
@@ -36,6 +37,14 @@ import {
   CardHeader,
   CardTitle,
 } from "#client/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "#client/components/ui/dialog";
 import { Input } from "#client/components/ui/input";
 import {
   Select,
@@ -45,15 +54,6 @@ import {
   SelectValue,
 } from "#client/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "#client/components/ui/dialog";
-import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/organisations/dashboard")({
   component: OrgDashboard,
@@ -107,8 +107,10 @@ function OrgDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
-
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // --- Status Tabs ---
   const statusTabs = useMemo(
@@ -177,11 +179,11 @@ function OrgDashboard() {
   });
 
   const handleDeleteListing = useCallback(
-  (projectId: string, title: string) => {
-    setDeleteTarget({ id: projectId, title });
-  },
-  []
-);
+    (projectId: string, title: string) => {
+      setDeleteTarget({ id: projectId, title });
+    },
+    [],
+  );
 
   const getTagIcon = useCallback((tag: string) => {
     const baseClass = "h-3 w-3";
@@ -774,16 +776,19 @@ function OrgDashboard() {
           )}
         </div>
       </div>
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="text-red-500 h-5 w-5" />
+              <AlertTriangle className="h-5 w-5 text-red-500" />
               <DialogTitle>Delete Project</DialogTitle>
             </div>
             <DialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {deleteTarget?.title}
               </span>
               ? This action cannot be undone.
