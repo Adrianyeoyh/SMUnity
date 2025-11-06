@@ -136,6 +136,7 @@ export const organisations = pgTable(
     description: text("description"),
     website: varchar("website", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
+    suspended: boolean("suspended").default(false).notNull(),
     createdBy: text("created_by")
       .references(() => user.id)
       .notNull(), // admin

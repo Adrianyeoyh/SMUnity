@@ -13,6 +13,7 @@ discover.get("/", async (c) => {
   try {
     const now = new Date();
 
+    // ✅ only select projects from *non-suspended* organisations
     const rows = await db
       .select({
         id: schema.projects.id,
@@ -39,8 +40,19 @@ discover.get("/", async (c) => {
         daysOfWeek: schema.projects.daysOfWeek,
       })
       .from(schema.projects)
-      .where(gte(schema.projects.applyBy, now));
 
+      .leftJoin(
+        schema.organisations,
+        eq(schema.projects.orgId, schema.organisations.userId),
+      )
+      .where(
+        and(
+          gte(schema.projects.applyBy, now),
+          eq(schema.organisations.suspended, false), 
+        ),
+      );
+
+    // org name lookup (same as before)
     const orgs = await db
       .select({
         userId: schema.organisations.userId,
@@ -53,8 +65,8 @@ discover.get("/", async (c) => {
 
     const payload = rows.map((r) => {
       const currentVolunteers = 0;
-
       let status: "open" | "closing-soon" | "closed" | "full" = "open";
+
       if (r.applicationDeadline && r.applicationDeadline < now)
         status = "closed";
 
@@ -98,19 +110,60 @@ discover.get("/:projectId", async (c) => {
   const projectId = c.req.param("projectId");
 
   try {
-    const project = await db.query.projects.findFirst({
-      where: eq(schema.projects.id, projectId),
-      with: {
-        org: {
-          with: {
-            user: true,
-          },
-        },
-      },
-    });
+    // ✅ Fetch project only if organisation is NOT suspended
+    const project = await db
+      .select({
+        id: schema.projects.id,
+        title: schema.projects.title,
+        orgUserId: schema.projects.orgId,
+        location: schema.projects.district,
+        country: schema.projects.country,
+        category: schema.projects.category,
+        type: schema.projects.type,
+        startDate: schema.projects.startDate,
+        endDate: schema.projects.endDate,
+        requiredHours: schema.projects.requiredHours,
+        slotsTotal: schema.projects.slotsTotal,
+        isRemote: schema.projects.isRemote,
+        applyBy: schema.projects.applyBy,
+        description: schema.projects.description,
+        aboutDo: schema.projects.aboutDo,
+        aboutProvide: schema.projects.aboutProvide,
+        requirements: schema.projects.requirements,
+        skillTags: schema.projects.skillTags,
+        projectTags: schema.projects.projectTags,
+        imageUrl: schema.projects.imageUrl,
+        repeatInterval: schema.projects.repeatInterval,
+        repeatUnit: schema.projects.repeatUnit,
+        daysOfWeek: schema.projects.daysOfWeek,
+        timeStart: schema.projects.timeStart,
+        timeEnd: schema.projects.timeEnd,
+        orgName: user.name,
+        orgEmail: user.email,
+        orgDescription: schema.organisations.description,
+        orgWebsite: schema.organisations.website,
+        orgPhone: schema.organisations.phone,
+      })
+      .from(schema.projects)
+      .leftJoin(
+        schema.organisations,
+        eq(schema.projects.orgId, schema.organisations.userId),
+      )
+      .leftJoin(user, eq(schema.organisations.userId, user.id))
+      .where(
+        and(
+          eq(schema.projects.id, projectId),
+          eq(schema.organisations.suspended, false), // 🚫 exclude suspended org projects
+        ),
+      )
+      .limit(1);
 
-    if (!project) return c.json({ error: "Project not found" }, 404);
+    if (!project.length)
+      return c.json({ error: "Project not found or unavailable" }, 404);
 
+    const p = project[0];
+
+    // ✅ Count active volunteers and applications
     const members = await db
       .select()
       .from(schema.projMemberships)
@@ -121,52 +174,51 @@ discover.get("/:projectId", async (c) => {
       .select()
       .from(schema.applications)
       .where(eq(schema.applications.projectId, projectId));
-
     const currentApplications = applications.length;
 
     const data = {
-      id: project.id,
-      title: project.title,
-      organisation: project.org?.user?.name ?? "Unknown Organisation",
-      location: project.district ?? "—",
-      country: project.country ?? "—",
-      category: project.category ?? "Community",
-      type: project.type ?? "local",
-      startDate: project.startDate,
-      endDate: project.endDate,
-      serviceHours: project.requiredHours ?? 0,
-      maxVolunteers: project.slotsTotal ?? 0,
+      id: p.id,
+      title: p.title,
+      organisation: p.orgName ?? "Unknown Organisation",
+      location: p.location ?? "—",
+      country: p.country ?? "—",
+      category: p.category ?? "Community",
+      type: p.type ?? "local",
+      startDate: p.startDate,
+      endDate: p.endDate,
+      serviceHours: p.requiredHours ?? 0,
+      maxVolunteers: p.slotsTotal ?? 0,
       currentVolunteers,
       currentApplications,
-      isRemote: project.isRemote,
+      isRemote: p.isRemote,
       status: "open",
 
-      description: project.description ?? "",
-      aboutDo: project.aboutDo ?? "",
-      aboutProvide: project.aboutProvide ?? "",
-      requirements: project.requirements ?? "",
-      skills: project.skillTags ?? [],
-      tags: project.projectTags ?? [],
-      imageUrl: project.imageUrl ?? "",
-      images: project.imageUrl ? [project.imageUrl] : [],
+      description: p.description ?? "",
+      aboutDo: p.aboutDo ?? "",
+      aboutProvide: p.aboutProvide ?? "",
+      requirements: p.requirements ?? "",
+      skills: p.skillTags ?? [],
+      tags: p.projectTags ?? [],
+      imageUrl: p.imageUrl ?? "",
+      images: p.imageUrl ? [p.imageUrl] : [],
 
-      repeatInterval: project.repeatInterval,
-      repeatUnit: project.repeatUnit,
-      daysOfWeek: project.daysOfWeek ?? [],
-      timeStart: project.timeStart,
-      timeEnd: project.timeEnd,
+      repeatInterval: p.repeatInterval,
+      repeatUnit: p.repeatUnit,
+      daysOfWeek: p.daysOfWeek ?? [],
+      timeStart: p.timeStart,
+      timeEnd: p.timeEnd,
 
       organisationInfo: {
-        name: project.org?.user?.name ?? "Unknown",
-        description: project.org?.description ?? "",
-        website: project.org?.website ?? "",
-        phone: project.org?.phone ?? "",
-        email: project.org?.user?.email ?? "",
+        name: p.orgName ?? "Unknown",
+        description: p.orgDescription ?? "",
+        website: p.orgWebsite ?? "",
+        phone: p.orgPhone ?? "",
+        email: p.orgEmail ?? "",
         isVerified: true,
       },
 
-      applicationDeadline: project.applyBy,
-      googleMaps: project.googleMaps ?? null,
+      applicationDeadline: p.applyBy,
+      googleMaps: null, // if you have googleMaps in schema, include here
     };
 
     return ok(c, data);

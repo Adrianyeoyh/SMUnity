@@ -1,4 +1,4 @@
-import type { OrganisationRecord } from "#client/api/admin/organisations";
+import type { OrganisationRecord } from "#client/api/admin/viewOrgs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Calendar, Globe, Mail, Phone, Search } from "lucide-react";
@@ -8,7 +8,7 @@ import {
   fetchAdminOrganisations,
   reactivateOrganisation,
   suspendOrganisation,
-} from "#client/api/admin/organisations";
+} from "#client/api/admin/viewOrgs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,12 @@ import { Input } from "#client/components/ui/input";
 import { ScrollArea } from "#client/components/ui/scroll-area";
 import { Separator } from "#client/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
+// import {
+//   fetchAdminOrganisations,
+//   reactivateOrganisation,
+//   suspendOrganisation,
+// } from "#client/api/admin/viewOrgs";
+
 
 export const Route = createFileRoute("/admin/organisations")({
   component: AdminOrganisationsPage,
@@ -51,7 +57,7 @@ const statusBadge: Record<
   string
 > = {
   active: "bg-emerald-100 text-emerald-800",
-  pending: "bg-amber-100 text-amber-800",
+  // pending: "bg-amber-100 text-amber-800",
   suspended: "bg-gray-100 text-gray-800",
 };
 
@@ -193,7 +199,7 @@ function AdminOrganisationsPage() {
     const statusOrder: Record<string, number> = {
       active: 0,
       suspended: 1,
-      pending: 2,
+      // pending: 2,
     };
     return list.sort((a, b) => {
       const sA = statusOrder[a.status] ?? 99;
@@ -292,7 +298,8 @@ function AdminOrganisationsPage() {
                       <div>
                         <CardTitle className="font-heading text-foreground group-hover:text-primary flex items-center gap-2 text-base transition-colors md:text-lg">
                           <span>{org.name}</span>
-                          {org.status !== "pending" && (
+                          {["active", "suspended"].includes(org.status) && (
+
                             <Badge
                               className={`${statusBadge[org.status]} font-body capitalize`}
                             >

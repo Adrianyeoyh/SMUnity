@@ -16,12 +16,11 @@ import profile from "./profile";
 
 const organisationsRoutes = createApp()
   .use(authMiddleware) // first populate session
-  .use(organisationMiddleware); // then restrict access
+  .use(organisationMiddleware) // then restrict access
+  .route("/dashboard", dashboard)
+  .route("/listing", listing)
+  .route("/application", application)
+  .route("/profile", profile);
 
-organisationsRoutes.route("/dashboard", dashboard);
-organisationsRoutes.route("/listing", listing);
-organisationsRoutes.route("/application", application);
-organisationsRoutes.route("/profile", profile);
-// organisationsRoutes.route("/queue", queue)
 
 export default organisationsRoutes;
