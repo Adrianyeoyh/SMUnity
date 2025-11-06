@@ -70,11 +70,6 @@ function Profile() {
 
   const avatarImage = customAvatar ?? data?.image ?? null;
 
-  const joinDate = null;
-  const formattedJoinDate = joinDate
-    ? new Date(joinDate).toLocaleDateString("en-GB")
-    : "Not available";
-
   const aboutItems = [
     {
       icon: GraduationCap,
@@ -90,11 +85,6 @@ function Profile() {
       icon: IdCard,
       label: "Student ID",
       value: displayStudentId,
-    },
-    {
-      icon: Calendar,
-      label: "Joined",
-      value: formattedJoinDate,
     },
   ];
 

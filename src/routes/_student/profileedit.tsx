@@ -478,9 +478,9 @@ function ProfileEditRoute() {
         : undefined;
     form.reset({
       avatarUrl: storedAvatar ?? meData?.image ?? "",
-      studentId: data?.studentId ?? "",
-      phone: data?.phone ?? "",
-      faculty: data?.faculty ?? "",
+      studentId: data?.studentId ?? meData?.profile?.studentId ?? "",
+      phone: data?.phone ?? meData?.profile?.phone ?? "",
+      faculty: data?.faculty ?? meData?.profile?.school ?? "",
       skills: data?.skills ?? [],
       interests: data?.interests ?? [],
     });
