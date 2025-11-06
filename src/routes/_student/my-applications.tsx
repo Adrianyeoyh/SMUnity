@@ -135,7 +135,7 @@ function MyApplications() {
       date: app.startDate,
       time: `${app.timeStart || "09:00"} - ${app.timeEnd || "17:00"}`,
       location: app.district || "Singapore",
-      description: `Community Service Project: ${app.projectTitle}\n\nOrganisation: ${app.organisation}\nService Hours: ${app.serviceHours ?? "N/A"}h`,
+      description: `Community Service Project: ${app.projectTitle}`,
     });
     // Notification removed per user request
   };
