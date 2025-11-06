@@ -9,6 +9,7 @@ import { Footer } from "#client/components/layout/footer";
 import { Header } from "#client/components/layout/header";
 import { Toaster } from "#client/components/ui/sonner";
 import { MobileMenuProvider } from "#client/contexts/mobile-menu-context";
+import { env } from "#client/env.ts";
 
 function RootComponent() {
   return (
@@ -21,7 +22,7 @@ function RootComponent() {
         <Footer />
         <Chatbot />
         <Toaster />
-        <TanStackRouterDevtools />
+        {env.VITE_APP_URL.includes("localhost") && <TanStackRouterDevtools />}
       </div>
     </MobileMenuProvider>
   );

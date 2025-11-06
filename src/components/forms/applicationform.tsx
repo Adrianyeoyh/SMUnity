@@ -210,13 +210,13 @@ export function ApplicationForm({
                   <div className="flex items-center space-x-2 rounded-md border p-3">
                     <RadioGroupItem value="some" id="exp-some" />
                     <FormLabel htmlFor="exp-some" className="font-normal">
-                      1–6 months
+                      Some
                     </FormLabel>
                   </div>
                   <div className="flex items-center space-x-2 rounded-md border p-3">
                     <RadioGroupItem value="extensive" id="exp-ext" />
                     <FormLabel htmlFor="exp-ext" className="font-normal">
-                      6+ months
+                      Extensive
                     </FormLabel>
                   </div>
                 </RadioGroup>
