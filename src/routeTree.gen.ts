@@ -8,581 +8,581 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as StudentRouteImport } from "./routes/_student";
-import { Route as StudentDashboardRouteImport } from "./routes/_student/dashboard";
-import { Route as StudentFavouritesRouteImport } from "./routes/_student/favourites";
-import { Route as StudentMyApplicationsRouteImport } from "./routes/_student/my-applications";
-import { Route as StudentProfileRouteImport } from "./routes/_student/profile";
-import { Route as StudentProfileeditRouteImport } from "./routes/_student/profileedit";
-import { Route as AdminRouteImport } from "./routes/admin";
-import { Route as AdminCspIdRouteImport } from "./routes/admin/cspId";
-import { Route as AdminDashboardRouteImport } from "./routes/admin/dashboard";
-import { Route as AdminOrganisationsRouteImport } from "./routes/admin/organisations";
-import { Route as AuthCallbackRouteImport } from "./routes/auth/callback";
-import { Route as AuthForgotPasswordRouteImport } from "./routes/auth/forgot-password";
-import { Route as AuthLoginRouteImport } from "./routes/auth/login";
-import { Route as AuthRequestRouteImport } from "./routes/auth/request";
-import { Route as AuthResetPasswordRouteImport } from "./routes/auth/reset-password";
-import { Route as CspCspIdApplyRouteImport } from "./routes/csp/$cspId/apply";
-import { Route as CspProjectIDRouteImport } from "./routes/csp/$projectID";
-import { Route as DiscoverRouteImport } from "./routes/discover";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as MapRouteImport } from "./routes/map";
-import { Route as OrganisationsRouteImport } from "./routes/organisations";
-import { Route as OrganisationsProjectIdRouteImport } from "./routes/organisations/$projectId";
-import { Route as OrganisationsApplicantProjectIdApplicantIdRouteImport } from "./routes/organisations/applicant/$projectId/$applicantId";
-import { Route as OrganisationsDashboardRouteImport } from "./routes/organisations/dashboard";
-import { Route as OrganisationsEditprofileRouteImport } from "./routes/organisations/editprofile";
-import { Route as OrganisationsNewRouteImport } from "./routes/organisations/new";
-import { Route as OrganisationsPreviewNewRouteImport } from "./routes/organisations/preview-new";
-import { Route as OrganisationsProfileRouteImport } from "./routes/organisations/profile";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrganisationsRouteImport } from './routes/organisations'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as DiscoverRouteImport } from './routes/discover'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as StudentRouteImport } from './routes/_student'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganisationsProfileRouteImport } from './routes/organisations/profile'
+import { Route as OrganisationsPreviewNewRouteImport } from './routes/organisations/preview-new'
+import { Route as OrganisationsNewRouteImport } from './routes/organisations/new'
+import { Route as OrganisationsEditprofileRouteImport } from './routes/organisations/editprofile'
+import { Route as OrganisationsDashboardRouteImport } from './routes/organisations/dashboard'
+import { Route as OrganisationsProjectIdRouteImport } from './routes/organisations/$projectId'
+import { Route as CspProjectIDRouteImport } from './routes/csp/$projectID'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
+import { Route as AuthRequestRouteImport } from './routes/auth/request'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AdminOrganisationsRouteImport } from './routes/admin/organisations'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminCspIdRouteImport } from './routes/admin/cspId'
+import { Route as StudentProfileeditRouteImport } from './routes/_student/profileedit'
+import { Route as StudentProfileRouteImport } from './routes/_student/profile'
+import { Route as StudentMyApplicationsRouteImport } from './routes/_student/my-applications'
+import { Route as StudentFavouritesRouteImport } from './routes/_student/favourites'
+import { Route as StudentDashboardRouteImport } from './routes/_student/dashboard'
+import { Route as CspCspIdApplyRouteImport } from './routes/csp/$cspId/apply'
+import { Route as OrganisationsApplicantProjectIdApplicantIdRouteImport } from './routes/organisations/applicant/$projectId/$applicantId'
 
 const OrganisationsRoute = OrganisationsRouteImport.update({
-  id: "/organisations",
-  path: "/organisations",
+  id: '/organisations',
+  path: '/organisations',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const MapRoute = MapRouteImport.update({
-  id: "/map",
-  path: "/map",
+  id: '/map',
+  path: '/map',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DiscoverRoute = DiscoverRouteImport.update({
-  id: "/discover",
-  path: "/discover",
+  id: '/discover',
+  path: '/discover',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AdminRoute = AdminRouteImport.update({
-  id: "/admin",
-  path: "/admin",
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const StudentRoute = StudentRouteImport.update({
-  id: "/_student",
+  id: '/_student',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const OrganisationsProfileRoute = OrganisationsProfileRouteImport.update({
-  id: "/profile",
-  path: "/profile",
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => OrganisationsRoute,
-} as any);
+} as any)
 const OrganisationsPreviewNewRoute = OrganisationsPreviewNewRouteImport.update({
-  id: "/preview-new",
-  path: "/preview-new",
+  id: '/preview-new',
+  path: '/preview-new',
   getParentRoute: () => OrganisationsRoute,
-} as any);
+} as any)
 const OrganisationsNewRoute = OrganisationsNewRouteImport.update({
-  id: "/new",
-  path: "/new",
+  id: '/new',
+  path: '/new',
   getParentRoute: () => OrganisationsRoute,
-} as any);
+} as any)
 const OrganisationsEditprofileRoute =
   OrganisationsEditprofileRouteImport.update({
-    id: "/editprofile",
-    path: "/editprofile",
+    id: '/editprofile',
+    path: '/editprofile',
     getParentRoute: () => OrganisationsRoute,
-  } as any);
+  } as any)
 const OrganisationsDashboardRoute = OrganisationsDashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => OrganisationsRoute,
-} as any);
+} as any)
 const OrganisationsProjectIdRoute = OrganisationsProjectIdRouteImport.update({
-  id: "/$projectId",
-  path: "/$projectId",
+  id: '/$projectId',
+  path: '/$projectId',
   getParentRoute: () => OrganisationsRoute,
-} as any);
+} as any)
 const CspProjectIDRoute = CspProjectIDRouteImport.update({
-  id: "/csp/$projectID",
-  path: "/csp/$projectID",
+  id: '/csp/$projectID',
+  path: '/csp/$projectID',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
-  id: "/auth/reset-password",
-  path: "/auth/reset-password",
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthRequestRoute = AuthRequestRouteImport.update({
-  id: "/auth/request",
-  path: "/auth/request",
+  id: '/auth/request',
+  path: '/auth/request',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: "/auth/login",
-  path: "/auth/login",
+  id: '/auth/login',
+  path: '/auth/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: "/auth/forgot-password",
-  path: "/auth/forgot-password",
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: "/auth/callback",
-  path: "/auth/callback",
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AdminOrganisationsRoute = AdminOrganisationsRouteImport.update({
-  id: "/organisations",
-  path: "/organisations",
+  id: '/organisations',
+  path: '/organisations',
   getParentRoute: () => AdminRoute,
-} as any);
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AdminRoute,
-} as any);
+} as any)
 const AdminCspIdRoute = AdminCspIdRouteImport.update({
-  id: "/cspId",
-  path: "/cspId",
+  id: '/cspId',
+  path: '/cspId',
   getParentRoute: () => AdminRoute,
-} as any);
+} as any)
 const StudentProfileeditRoute = StudentProfileeditRouteImport.update({
-  id: "/profileedit",
-  path: "/profileedit",
+  id: '/profileedit',
+  path: '/profileedit',
   getParentRoute: () => StudentRoute,
-} as any);
+} as any)
 const StudentProfileRoute = StudentProfileRouteImport.update({
-  id: "/profile",
-  path: "/profile",
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => StudentRoute,
-} as any);
+} as any)
 const StudentMyApplicationsRoute = StudentMyApplicationsRouteImport.update({
-  id: "/my-applications",
-  path: "/my-applications",
+  id: '/my-applications',
+  path: '/my-applications',
   getParentRoute: () => StudentRoute,
-} as any);
+} as any)
 const StudentFavouritesRoute = StudentFavouritesRouteImport.update({
-  id: "/favourites",
-  path: "/favourites",
+  id: '/favourites',
+  path: '/favourites',
   getParentRoute: () => StudentRoute,
-} as any);
+} as any)
 const StudentDashboardRoute = StudentDashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => StudentRoute,
-} as any);
+} as any)
 const CspCspIdApplyRoute = CspCspIdApplyRouteImport.update({
-  id: "/csp/$cspId/apply",
-  path: "/csp/$cspId/apply",
+  id: '/csp/$cspId/apply',
+  path: '/csp/$cspId/apply',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const OrganisationsApplicantProjectIdApplicantIdRoute =
   OrganisationsApplicantProjectIdApplicantIdRouteImport.update({
-    id: "/applicant/$projectId/$applicantId",
-    path: "/applicant/$projectId/$applicantId",
+    id: '/applicant/$projectId/$applicantId',
+    path: '/applicant/$projectId/$applicantId',
     getParentRoute: () => OrganisationsRoute,
-  } as any);
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/admin": typeof AdminRouteWithChildren;
-  "/discover": typeof DiscoverRoute;
-  "/map": typeof MapRoute;
-  "/organisations": typeof OrganisationsRouteWithChildren;
-  "/dashboard": typeof StudentDashboardRoute;
-  "/favourites": typeof StudentFavouritesRoute;
-  "/my-applications": typeof StudentMyApplicationsRoute;
-  "/profile": typeof StudentProfileRoute;
-  "/profileedit": typeof StudentProfileeditRoute;
-  "/admin/cspId": typeof AdminCspIdRoute;
-  "/admin/dashboard": typeof AdminDashboardRoute;
-  "/admin/organisations": typeof AdminOrganisationsRoute;
-  "/auth/callback": typeof AuthCallbackRoute;
-  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/request": typeof AuthRequestRoute;
-  "/auth/reset-password": typeof AuthResetPasswordRoute;
-  "/csp/$projectID": typeof CspProjectIDRoute;
-  "/organisations/$projectId": typeof OrganisationsProjectIdRoute;
-  "/organisations/dashboard": typeof OrganisationsDashboardRoute;
-  "/organisations/editprofile": typeof OrganisationsEditprofileRoute;
-  "/organisations/new": typeof OrganisationsNewRoute;
-  "/organisations/preview-new": typeof OrganisationsPreviewNewRoute;
-  "/organisations/profile": typeof OrganisationsProfileRoute;
-  "/csp/$cspId/apply": typeof CspCspIdApplyRoute;
-  "/organisations/applicant/$projectId/$applicantId": typeof OrganisationsApplicantProjectIdApplicantIdRoute;
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/discover': typeof DiscoverRoute
+  '/map': typeof MapRoute
+  '/organisations': typeof OrganisationsRouteWithChildren
+  '/dashboard': typeof StudentDashboardRoute
+  '/favourites': typeof StudentFavouritesRoute
+  '/my-applications': typeof StudentMyApplicationsRoute
+  '/profile': typeof StudentProfileRoute
+  '/profileedit': typeof StudentProfileeditRoute
+  '/admin/cspId': typeof AdminCspIdRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/organisations': typeof AdminOrganisationsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/csp/$projectID': typeof CspProjectIDRoute
+  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
+  '/organisations/dashboard': typeof OrganisationsDashboardRoute
+  '/organisations/editprofile': typeof OrganisationsEditprofileRoute
+  '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
+  '/organisations/profile': typeof OrganisationsProfileRoute
+  '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/applicant/$projectId/$applicantId': typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/admin": typeof AdminRouteWithChildren;
-  "/discover": typeof DiscoverRoute;
-  "/map": typeof MapRoute;
-  "/organisations": typeof OrganisationsRouteWithChildren;
-  "/dashboard": typeof StudentDashboardRoute;
-  "/favourites": typeof StudentFavouritesRoute;
-  "/my-applications": typeof StudentMyApplicationsRoute;
-  "/profile": typeof StudentProfileRoute;
-  "/profileedit": typeof StudentProfileeditRoute;
-  "/admin/cspId": typeof AdminCspIdRoute;
-  "/admin/dashboard": typeof AdminDashboardRoute;
-  "/admin/organisations": typeof AdminOrganisationsRoute;
-  "/auth/callback": typeof AuthCallbackRoute;
-  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/request": typeof AuthRequestRoute;
-  "/auth/reset-password": typeof AuthResetPasswordRoute;
-  "/csp/$projectID": typeof CspProjectIDRoute;
-  "/organisations/$projectId": typeof OrganisationsProjectIdRoute;
-  "/organisations/dashboard": typeof OrganisationsDashboardRoute;
-  "/organisations/editprofile": typeof OrganisationsEditprofileRoute;
-  "/organisations/new": typeof OrganisationsNewRoute;
-  "/organisations/preview-new": typeof OrganisationsPreviewNewRoute;
-  "/organisations/profile": typeof OrganisationsProfileRoute;
-  "/csp/$cspId/apply": typeof CspCspIdApplyRoute;
-  "/organisations/applicant/$projectId/$applicantId": typeof OrganisationsApplicantProjectIdApplicantIdRoute;
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/discover': typeof DiscoverRoute
+  '/map': typeof MapRoute
+  '/organisations': typeof OrganisationsRouteWithChildren
+  '/dashboard': typeof StudentDashboardRoute
+  '/favourites': typeof StudentFavouritesRoute
+  '/my-applications': typeof StudentMyApplicationsRoute
+  '/profile': typeof StudentProfileRoute
+  '/profileedit': typeof StudentProfileeditRoute
+  '/admin/cspId': typeof AdminCspIdRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/organisations': typeof AdminOrganisationsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/csp/$projectID': typeof CspProjectIDRoute
+  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
+  '/organisations/dashboard': typeof OrganisationsDashboardRoute
+  '/organisations/editprofile': typeof OrganisationsEditprofileRoute
+  '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
+  '/organisations/profile': typeof OrganisationsProfileRoute
+  '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/applicant/$projectId/$applicantId': typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/_student": typeof StudentRouteWithChildren;
-  "/admin": typeof AdminRouteWithChildren;
-  "/discover": typeof DiscoverRoute;
-  "/map": typeof MapRoute;
-  "/organisations": typeof OrganisationsRouteWithChildren;
-  "/_student/dashboard": typeof StudentDashboardRoute;
-  "/_student/favourites": typeof StudentFavouritesRoute;
-  "/_student/my-applications": typeof StudentMyApplicationsRoute;
-  "/_student/profile": typeof StudentProfileRoute;
-  "/_student/profileedit": typeof StudentProfileeditRoute;
-  "/admin/cspId": typeof AdminCspIdRoute;
-  "/admin/dashboard": typeof AdminDashboardRoute;
-  "/admin/organisations": typeof AdminOrganisationsRoute;
-  "/auth/callback": typeof AuthCallbackRoute;
-  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/request": typeof AuthRequestRoute;
-  "/auth/reset-password": typeof AuthResetPasswordRoute;
-  "/csp/$projectID": typeof CspProjectIDRoute;
-  "/organisations/$projectId": typeof OrganisationsProjectIdRoute;
-  "/organisations/dashboard": typeof OrganisationsDashboardRoute;
-  "/organisations/editprofile": typeof OrganisationsEditprofileRoute;
-  "/organisations/new": typeof OrganisationsNewRoute;
-  "/organisations/preview-new": typeof OrganisationsPreviewNewRoute;
-  "/organisations/profile": typeof OrganisationsProfileRoute;
-  "/csp/$cspId/apply": typeof CspCspIdApplyRoute;
-  "/organisations/applicant/$projectId/$applicantId": typeof OrganisationsApplicantProjectIdApplicantIdRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_student': typeof StudentRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/discover': typeof DiscoverRoute
+  '/map': typeof MapRoute
+  '/organisations': typeof OrganisationsRouteWithChildren
+  '/_student/dashboard': typeof StudentDashboardRoute
+  '/_student/favourites': typeof StudentFavouritesRoute
+  '/_student/my-applications': typeof StudentMyApplicationsRoute
+  '/_student/profile': typeof StudentProfileRoute
+  '/_student/profileedit': typeof StudentProfileeditRoute
+  '/admin/cspId': typeof AdminCspIdRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/organisations': typeof AdminOrganisationsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/request': typeof AuthRequestRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/csp/$projectID': typeof CspProjectIDRoute
+  '/organisations/$projectId': typeof OrganisationsProjectIdRoute
+  '/organisations/dashboard': typeof OrganisationsDashboardRoute
+  '/organisations/editprofile': typeof OrganisationsEditprofileRoute
+  '/organisations/new': typeof OrganisationsNewRoute
+  '/organisations/preview-new': typeof OrganisationsPreviewNewRoute
+  '/organisations/profile': typeof OrganisationsProfileRoute
+  '/csp/$cspId/apply': typeof CspCspIdApplyRoute
+  '/organisations/applicant/$projectId/$applicantId': typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/admin"
-    | "/discover"
-    | "/map"
-    | "/organisations"
-    | "/dashboard"
-    | "/favourites"
-    | "/my-applications"
-    | "/profile"
-    | "/profileedit"
-    | "/admin/cspId"
-    | "/admin/dashboard"
-    | "/admin/organisations"
-    | "/auth/callback"
-    | "/auth/forgot-password"
-    | "/auth/login"
-    | "/auth/request"
-    | "/auth/reset-password"
-    | "/csp/$projectID"
-    | "/organisations/$projectId"
-    | "/organisations/dashboard"
-    | "/organisations/editprofile"
-    | "/organisations/new"
-    | "/organisations/preview-new"
-    | "/organisations/profile"
-    | "/csp/$cspId/apply"
-    | "/organisations/applicant/$projectId/$applicantId";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/admin'
+    | '/discover'
+    | '/map'
+    | '/organisations'
+    | '/dashboard'
+    | '/favourites'
+    | '/my-applications'
+    | '/profile'
+    | '/profileedit'
+    | '/admin/cspId'
+    | '/admin/dashboard'
+    | '/admin/organisations'
+    | '/auth/callback'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/request'
+    | '/auth/reset-password'
+    | '/csp/$projectID'
+    | '/organisations/$projectId'
+    | '/organisations/dashboard'
+    | '/organisations/editprofile'
+    | '/organisations/new'
+    | '/organisations/preview-new'
+    | '/organisations/profile'
+    | '/csp/$cspId/apply'
+    | '/organisations/applicant/$projectId/$applicantId'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/admin"
-    | "/discover"
-    | "/map"
-    | "/organisations"
-    | "/dashboard"
-    | "/favourites"
-    | "/my-applications"
-    | "/profile"
-    | "/profileedit"
-    | "/admin/cspId"
-    | "/admin/dashboard"
-    | "/admin/organisations"
-    | "/auth/callback"
-    | "/auth/forgot-password"
-    | "/auth/login"
-    | "/auth/request"
-    | "/auth/reset-password"
-    | "/csp/$projectID"
-    | "/organisations/$projectId"
-    | "/organisations/dashboard"
-    | "/organisations/editprofile"
-    | "/organisations/new"
-    | "/organisations/preview-new"
-    | "/organisations/profile"
-    | "/csp/$cspId/apply"
-    | "/organisations/applicant/$projectId/$applicantId";
+    | '/'
+    | '/admin'
+    | '/discover'
+    | '/map'
+    | '/organisations'
+    | '/dashboard'
+    | '/favourites'
+    | '/my-applications'
+    | '/profile'
+    | '/profileedit'
+    | '/admin/cspId'
+    | '/admin/dashboard'
+    | '/admin/organisations'
+    | '/auth/callback'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/request'
+    | '/auth/reset-password'
+    | '/csp/$projectID'
+    | '/organisations/$projectId'
+    | '/organisations/dashboard'
+    | '/organisations/editprofile'
+    | '/organisations/new'
+    | '/organisations/preview-new'
+    | '/organisations/profile'
+    | '/csp/$cspId/apply'
+    | '/organisations/applicant/$projectId/$applicantId'
   id:
-    | "__root__"
-    | "/"
-    | "/_student"
-    | "/admin"
-    | "/discover"
-    | "/map"
-    | "/organisations"
-    | "/_student/dashboard"
-    | "/_student/favourites"
-    | "/_student/my-applications"
-    | "/_student/profile"
-    | "/_student/profileedit"
-    | "/admin/cspId"
-    | "/admin/dashboard"
-    | "/admin/organisations"
-    | "/auth/callback"
-    | "/auth/forgot-password"
-    | "/auth/login"
-    | "/auth/request"
-    | "/auth/reset-password"
-    | "/csp/$projectID"
-    | "/organisations/$projectId"
-    | "/organisations/dashboard"
-    | "/organisations/editprofile"
-    | "/organisations/new"
-    | "/organisations/preview-new"
-    | "/organisations/profile"
-    | "/csp/$cspId/apply"
-    | "/organisations/applicant/$projectId/$applicantId";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/_student'
+    | '/admin'
+    | '/discover'
+    | '/map'
+    | '/organisations'
+    | '/_student/dashboard'
+    | '/_student/favourites'
+    | '/_student/my-applications'
+    | '/_student/profile'
+    | '/_student/profileedit'
+    | '/admin/cspId'
+    | '/admin/dashboard'
+    | '/admin/organisations'
+    | '/auth/callback'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/request'
+    | '/auth/reset-password'
+    | '/csp/$projectID'
+    | '/organisations/$projectId'
+    | '/organisations/dashboard'
+    | '/organisations/editprofile'
+    | '/organisations/new'
+    | '/organisations/preview-new'
+    | '/organisations/profile'
+    | '/csp/$cspId/apply'
+    | '/organisations/applicant/$projectId/$applicantId'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  StudentRoute: typeof StudentRouteWithChildren;
-  AdminRoute: typeof AdminRouteWithChildren;
-  DiscoverRoute: typeof DiscoverRoute;
-  MapRoute: typeof MapRoute;
-  OrganisationsRoute: typeof OrganisationsRouteWithChildren;
-  AuthCallbackRoute: typeof AuthCallbackRoute;
-  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute;
-  AuthLoginRoute: typeof AuthLoginRoute;
-  AuthRequestRoute: typeof AuthRequestRoute;
-  AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
-  CspProjectIDRoute: typeof CspProjectIDRoute;
-  CspCspIdApplyRoute: typeof CspCspIdApplyRoute;
+  IndexRoute: typeof IndexRoute
+  StudentRoute: typeof StudentRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
+  DiscoverRoute: typeof DiscoverRoute
+  MapRoute: typeof MapRoute
+  OrganisationsRoute: typeof OrganisationsRouteWithChildren
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRequestRoute: typeof AuthRequestRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  CspProjectIDRoute: typeof CspProjectIDRoute
+  CspCspIdApplyRoute: typeof CspCspIdApplyRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/organisations": {
-      id: "/organisations";
-      path: "/organisations";
-      fullPath: "/organisations";
-      preLoaderRoute: typeof OrganisationsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/map": {
-      id: "/map";
-      path: "/map";
-      fullPath: "/map";
-      preLoaderRoute: typeof MapRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/discover": {
-      id: "/discover";
-      path: "/discover";
-      fullPath: "/discover";
-      preLoaderRoute: typeof DiscoverRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/admin": {
-      id: "/admin";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof AdminRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_student": {
-      id: "/_student";
-      path: "";
-      fullPath: "";
-      preLoaderRoute: typeof StudentRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/organisations/profile": {
-      id: "/organisations/profile";
-      path: "/profile";
-      fullPath: "/organisations/profile";
-      preLoaderRoute: typeof OrganisationsProfileRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
-    "/organisations/preview-new": {
-      id: "/organisations/preview-new";
-      path: "/preview-new";
-      fullPath: "/organisations/preview-new";
-      preLoaderRoute: typeof OrganisationsPreviewNewRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
-    "/organisations/new": {
-      id: "/organisations/new";
-      path: "/new";
-      fullPath: "/organisations/new";
-      preLoaderRoute: typeof OrganisationsNewRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
-    "/organisations/editprofile": {
-      id: "/organisations/editprofile";
-      path: "/editprofile";
-      fullPath: "/organisations/editprofile";
-      preLoaderRoute: typeof OrganisationsEditprofileRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
-    "/organisations/dashboard": {
-      id: "/organisations/dashboard";
-      path: "/dashboard";
-      fullPath: "/organisations/dashboard";
-      preLoaderRoute: typeof OrganisationsDashboardRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
-    "/organisations/$projectId": {
-      id: "/organisations/$projectId";
-      path: "/$projectId";
-      fullPath: "/organisations/$projectId";
-      preLoaderRoute: typeof OrganisationsProjectIdRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
-    "/csp/$projectID": {
-      id: "/csp/$projectID";
-      path: "/csp/$projectID";
-      fullPath: "/csp/$projectID";
-      preLoaderRoute: typeof CspProjectIDRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/reset-password": {
-      id: "/auth/reset-password";
-      path: "/auth/reset-password";
-      fullPath: "/auth/reset-password";
-      preLoaderRoute: typeof AuthResetPasswordRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/request": {
-      id: "/auth/request";
-      path: "/auth/request";
-      fullPath: "/auth/request";
-      preLoaderRoute: typeof AuthRequestRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/login": {
-      id: "/auth/login";
-      path: "/auth/login";
-      fullPath: "/auth/login";
-      preLoaderRoute: typeof AuthLoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/forgot-password": {
-      id: "/auth/forgot-password";
-      path: "/auth/forgot-password";
-      fullPath: "/auth/forgot-password";
-      preLoaderRoute: typeof AuthForgotPasswordRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/callback": {
-      id: "/auth/callback";
-      path: "/auth/callback";
-      fullPath: "/auth/callback";
-      preLoaderRoute: typeof AuthCallbackRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/admin/organisations": {
-      id: "/admin/organisations";
-      path: "/organisations";
-      fullPath: "/admin/organisations";
-      preLoaderRoute: typeof AdminOrganisationsRouteImport;
-      parentRoute: typeof AdminRoute;
-    };
-    "/admin/dashboard": {
-      id: "/admin/dashboard";
-      path: "/dashboard";
-      fullPath: "/admin/dashboard";
-      preLoaderRoute: typeof AdminDashboardRouteImport;
-      parentRoute: typeof AdminRoute;
-    };
-    "/admin/cspId": {
-      id: "/admin/cspId";
-      path: "/cspId";
-      fullPath: "/admin/cspId";
-      preLoaderRoute: typeof AdminCspIdRouteImport;
-      parentRoute: typeof AdminRoute;
-    };
-    "/_student/profileedit": {
-      id: "/_student/profileedit";
-      path: "/profileedit";
-      fullPath: "/profileedit";
-      preLoaderRoute: typeof StudentProfileeditRouteImport;
-      parentRoute: typeof StudentRoute;
-    };
-    "/_student/profile": {
-      id: "/_student/profile";
-      path: "/profile";
-      fullPath: "/profile";
-      preLoaderRoute: typeof StudentProfileRouteImport;
-      parentRoute: typeof StudentRoute;
-    };
-    "/_student/my-applications": {
-      id: "/_student/my-applications";
-      path: "/my-applications";
-      fullPath: "/my-applications";
-      preLoaderRoute: typeof StudentMyApplicationsRouteImport;
-      parentRoute: typeof StudentRoute;
-    };
-    "/_student/favourites": {
-      id: "/_student/favourites";
-      path: "/favourites";
-      fullPath: "/favourites";
-      preLoaderRoute: typeof StudentFavouritesRouteImport;
-      parentRoute: typeof StudentRoute;
-    };
-    "/_student/dashboard": {
-      id: "/_student/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof StudentDashboardRouteImport;
-      parentRoute: typeof StudentRoute;
-    };
-    "/csp/$cspId/apply": {
-      id: "/csp/$cspId/apply";
-      path: "/csp/$cspId/apply";
-      fullPath: "/csp/$cspId/apply";
-      preLoaderRoute: typeof CspCspIdApplyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/organisations/applicant/$projectId/$applicantId": {
-      id: "/organisations/applicant/$projectId/$applicantId";
-      path: "/applicant/$projectId/$applicantId";
-      fullPath: "/organisations/applicant/$projectId/$applicantId";
-      preLoaderRoute: typeof OrganisationsApplicantProjectIdApplicantIdRouteImport;
-      parentRoute: typeof OrganisationsRoute;
-    };
+    '/organisations': {
+      id: '/organisations'
+      path: '/organisations'
+      fullPath: '/organisations'
+      preLoaderRoute: typeof OrganisationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_student': {
+      id: '/_student'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organisations/profile': {
+      id: '/organisations/profile'
+      path: '/profile'
+      fullPath: '/organisations/profile'
+      preLoaderRoute: typeof OrganisationsProfileRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/organisations/preview-new': {
+      id: '/organisations/preview-new'
+      path: '/preview-new'
+      fullPath: '/organisations/preview-new'
+      preLoaderRoute: typeof OrganisationsPreviewNewRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/organisations/new': {
+      id: '/organisations/new'
+      path: '/new'
+      fullPath: '/organisations/new'
+      preLoaderRoute: typeof OrganisationsNewRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/organisations/editprofile': {
+      id: '/organisations/editprofile'
+      path: '/editprofile'
+      fullPath: '/organisations/editprofile'
+      preLoaderRoute: typeof OrganisationsEditprofileRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/organisations/dashboard': {
+      id: '/organisations/dashboard'
+      path: '/dashboard'
+      fullPath: '/organisations/dashboard'
+      preLoaderRoute: typeof OrganisationsDashboardRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/organisations/$projectId': {
+      id: '/organisations/$projectId'
+      path: '/$projectId'
+      fullPath: '/organisations/$projectId'
+      preLoaderRoute: typeof OrganisationsProjectIdRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
+    '/csp/$projectID': {
+      id: '/csp/$projectID'
+      path: '/csp/$projectID'
+      fullPath: '/csp/$projectID'
+      preLoaderRoute: typeof CspProjectIDRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/request': {
+      id: '/auth/request'
+      path: '/auth/request'
+      fullPath: '/auth/request'
+      preLoaderRoute: typeof AuthRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/organisations': {
+      id: '/admin/organisations'
+      path: '/organisations'
+      fullPath: '/admin/organisations'
+      preLoaderRoute: typeof AdminOrganisationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cspId': {
+      id: '/admin/cspId'
+      path: '/cspId'
+      fullPath: '/admin/cspId'
+      preLoaderRoute: typeof AdminCspIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_student/profileedit': {
+      id: '/_student/profileedit'
+      path: '/profileedit'
+      fullPath: '/profileedit'
+      preLoaderRoute: typeof StudentProfileeditRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/_student/profile': {
+      id: '/_student/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof StudentProfileRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/_student/my-applications': {
+      id: '/_student/my-applications'
+      path: '/my-applications'
+      fullPath: '/my-applications'
+      preLoaderRoute: typeof StudentMyApplicationsRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/_student/favourites': {
+      id: '/_student/favourites'
+      path: '/favourites'
+      fullPath: '/favourites'
+      preLoaderRoute: typeof StudentFavouritesRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/_student/dashboard': {
+      id: '/_student/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof StudentDashboardRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/csp/$cspId/apply': {
+      id: '/csp/$cspId/apply'
+      path: '/csp/$cspId/apply'
+      fullPath: '/csp/$cspId/apply'
+      preLoaderRoute: typeof CspCspIdApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organisations/applicant/$projectId/$applicantId': {
+      id: '/organisations/applicant/$projectId/$applicantId'
+      path: '/applicant/$projectId/$applicantId'
+      fullPath: '/organisations/applicant/$projectId/$applicantId'
+      preLoaderRoute: typeof OrganisationsApplicantProjectIdApplicantIdRouteImport
+      parentRoute: typeof OrganisationsRoute
+    }
   }
 }
 
 interface StudentRouteChildren {
-  StudentDashboardRoute: typeof StudentDashboardRoute;
-  StudentFavouritesRoute: typeof StudentFavouritesRoute;
-  StudentMyApplicationsRoute: typeof StudentMyApplicationsRoute;
-  StudentProfileRoute: typeof StudentProfileRoute;
-  StudentProfileeditRoute: typeof StudentProfileeditRoute;
+  StudentDashboardRoute: typeof StudentDashboardRoute
+  StudentFavouritesRoute: typeof StudentFavouritesRoute
+  StudentMyApplicationsRoute: typeof StudentMyApplicationsRoute
+  StudentProfileRoute: typeof StudentProfileRoute
+  StudentProfileeditRoute: typeof StudentProfileeditRoute
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
@@ -591,33 +591,33 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentMyApplicationsRoute: StudentMyApplicationsRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentProfileeditRoute: StudentProfileeditRoute,
-};
+}
 
 const StudentRouteWithChildren =
-  StudentRoute._addFileChildren(StudentRouteChildren);
+  StudentRoute._addFileChildren(StudentRouteChildren)
 
 interface AdminRouteChildren {
-  AdminCspIdRoute: typeof AdminCspIdRoute;
-  AdminDashboardRoute: typeof AdminDashboardRoute;
-  AdminOrganisationsRoute: typeof AdminOrganisationsRoute;
+  AdminCspIdRoute: typeof AdminCspIdRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminOrganisationsRoute: typeof AdminOrganisationsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCspIdRoute: AdminCspIdRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminOrganisationsRoute: AdminOrganisationsRoute,
-};
+}
 
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren);
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface OrganisationsRouteChildren {
-  OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute;
-  OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute;
-  OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute;
-  OrganisationsNewRoute: typeof OrganisationsNewRoute;
-  OrganisationsPreviewNewRoute: typeof OrganisationsPreviewNewRoute;
-  OrganisationsProfileRoute: typeof OrganisationsProfileRoute;
-  OrganisationsApplicantProjectIdApplicantIdRoute: typeof OrganisationsApplicantProjectIdApplicantIdRoute;
+  OrganisationsProjectIdRoute: typeof OrganisationsProjectIdRoute
+  OrganisationsDashboardRoute: typeof OrganisationsDashboardRoute
+  OrganisationsEditprofileRoute: typeof OrganisationsEditprofileRoute
+  OrganisationsNewRoute: typeof OrganisationsNewRoute
+  OrganisationsPreviewNewRoute: typeof OrganisationsPreviewNewRoute
+  OrganisationsProfileRoute: typeof OrganisationsProfileRoute
+  OrganisationsApplicantProjectIdApplicantIdRoute: typeof OrganisationsApplicantProjectIdApplicantIdRoute
 }
 
 const OrganisationsRouteChildren: OrganisationsRouteChildren = {
@@ -629,11 +629,11 @@ const OrganisationsRouteChildren: OrganisationsRouteChildren = {
   OrganisationsProfileRoute: OrganisationsProfileRoute,
   OrganisationsApplicantProjectIdApplicantIdRoute:
     OrganisationsApplicantProjectIdApplicantIdRoute,
-};
+}
 
 const OrganisationsRouteWithChildren = OrganisationsRoute._addFileChildren(
   OrganisationsRouteChildren,
-);
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -649,7 +649,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   CspProjectIDRoute: CspProjectIDRoute,
   CspCspIdApplyRoute: CspCspIdApplyRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
