@@ -264,7 +264,7 @@ export const savedProjects = pgTable(
   {
     projectId: uuid("project_id")
       .notNull()
-      .references(() => projects.id),
+      .references(() => projects.id, { onDelete: "cascade" }),
     userId: text("user_id")
       .references(() => profiles.userId)
       .notNull(),
