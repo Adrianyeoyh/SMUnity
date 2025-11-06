@@ -269,15 +269,7 @@ function ListingApplicationsPage() {
                   </Button>
                 </CollapsibleTrigger>
                 <Button className="">
-                  <Link
-                    to="/csp/$projectID"
-                    params={{ projectID: project.id }}
-                    search={{
-                      from: "preview",
-                      applicantProjectId: undefined,
-                      applicantId: undefined,
-                    }}
-                  >
+                  <Link to="/csp/$projectID" params={{ projectID: project.id }}>
                     Preview Listing
                   </Link>
                 </Button>

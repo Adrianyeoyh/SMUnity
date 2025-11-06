@@ -18,10 +18,12 @@ export async function approveRequest(id: string) {
   return await res.json();
 }
 
-export async function rejectRequest(id: string) {
+export async function rejectRequest(id: string, comments: string) {
   const res = await fetch(`/api/admin/queue/${id}/reject`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
+    body: JSON.stringify({ comments }),
   });
   if (!res.ok) throw new Error("Failed to reject request");
   return await res.json();

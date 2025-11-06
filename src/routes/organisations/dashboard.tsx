@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   BookOpen,
   Calendar,
   CalendarClock,
@@ -36,6 +37,14 @@ import {
   CardHeader,
   CardTitle,
 } from "#client/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "#client/components/ui/dialog";
 import { Input } from "#client/components/ui/input";
 import {
   Select,
@@ -97,6 +106,11 @@ function OrgDashboard() {
   >("date_asc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // --- Status Tabs ---
   const statusTabs = useMemo(
@@ -166,11 +180,9 @@ function OrgDashboard() {
 
   const handleDeleteListing = useCallback(
     (projectId: string, title: string) => {
-      if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-        deleteMutation.mutate(projectId);
-      }
+      setDeleteTarget({ id: projectId, title });
     },
-    [deleteMutation],
+    [],
   );
 
   const getTagIcon = useCallback((tag: string) => {
@@ -764,6 +776,48 @@ function OrgDashboard() {
           )}
         </div>
       </div>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <DialogTitle>Delete Project</DialogTitle>
+            </div>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="text-foreground font-semibold">
+                {deleteTarget?.title}
+              </span>
+              ? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (deleteTarget) {
+                  deleteMutation.mutate(deleteTarget.id);
+                  setDeleteTarget(null);
+                }
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

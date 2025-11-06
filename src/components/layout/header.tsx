@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Bell,
   Building2,
   FileText,
   Heart,
@@ -19,19 +18,12 @@ import {
 import { useMe } from "#client/api/hooks";
 // import ProfileDropdown from "#client/components/layout/profile-dropdown.tsx";
 import ProfileMenu from "#client/components/layout/profileMenu.tsx";
-import { Badge } from "#client/components/ui/badge";
 import { Button } from "#client/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "#client/components/ui/popover";
 import { useMobileMenu } from "#client/contexts/mobile-menu-context";
 import { useAuth } from "#client/hooks/use-auth";
 
 export function Header() {
   const { isMenuOpen, setIsMenuOpen } = useMobileMenu();
-  const [isJiggling, setIsJiggling] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { isLoggedIn, isLoading, logout, user } = useAuth();
   const { data: userData } = useMe();
@@ -51,37 +43,6 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const notifications = [
-    {
-      id: 1,
-      title: "Application Accepted!",
-      message: "Your application for Project Kidleidoscope has been accepted.",
-      time: "2 hours ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      title: "New CSP Available",
-      message:
-        "Beach Cleanup at East Coast Park is now accepting applications.",
-      time: "1 day ago",
-      unread: true,
-    },
-    {
-      id: 3,
-      title: "Reminder: CSU Module",
-      message:
-        "Don't forget to complete your CSU module before applying for CSPs.",
-      time: "3 days ago",
-      unread: true,
-    },
-  ];
-
-  const handleBellClick = () => {
-    setIsJiggling(true);
-    setTimeout(() => setIsJiggling(false), 600);
-  };
 
   const getLogoDestination = () => {
     return "/"; // Always route to landing page
@@ -255,144 +216,17 @@ export function Header() {
           </nav>
 
           <div className="relative z-50 flex items-center gap-3 sm:gap-4">
-            {/* Desktop Notifications (hidden on mobile) */}
+            {/* Desktop: only profile / sign in (notifications removed) */}
             {isLoading ? null : isLoggedIn ? (
-              <>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative hidden md:flex"
-                      onClick={handleBellClick}
-                    >
-                      <Bell
-                        className={`h-5 w-5 ${isJiggling ? "animate-pulse" : ""}`}
-                        style={{
-                          animation: isJiggling
-                            ? "shake 0.6s ease-in-out"
-                            : "none",
-                          transformOrigin: "top center",
-                        }}
-                      />
-                      <Badge
-                        variant="destructive"
-                        className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-                      >
-                        {notifications.filter((n) => n.unread).length}
-                      </Badge>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 p-0" align="end">
-                    <div className="border-b p-4">
-                      <h3 className="font-heading text-sm font-semibold sm:text-base md:text-lg">
-                        Notifications
-                      </h3>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`hover:bg-muted/50 border-b p-4 transition-colors ${
-                            notification.unread ? "bg-blue-50/50" : ""
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <h4 className="font-heading text-xs font-medium sm:text-sm md:text-base">
-                              {notification.title}
-                            </h4>
-                            <p className="text-muted-foreground text-xs">
-                              {notification.message}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              {notification.time}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {notifications.length === 0 && (
-                      <div className="text-muted-foreground p-8 text-center">
-                        <Bell className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                        <p className="text-xs sm:text-sm md:text-base">
-                          No notifications yet
-                        </p>
-                      </div>
-                    )}
-                  </PopoverContent>
-                </Popover>
-
-                <div className="hidden md:block">
-                  <ProfileMenu />
-                </div>
-              </>
+              <div className="hidden md:block">
+                <ProfileMenu />
+              </div>
             ) : (
-              <>
-                <div className="hidden items-center space-x-2 md:flex">
-                  <Link to="/auth/login">
-                    <Button>Sign In</Button>
-                  </Link>
-                </div>
-              </>
-            )}
-
-            {/* Mobile: Notifications first, then Hamburger */}
-            {isLoggedIn && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative md:hidden"
-                    onClick={handleBellClick}
-                  >
-                    <Bell
-                      className={`h-5 w-5 ${isJiggling ? "animate-pulse" : ""}`}
-                      style={{
-                        animation: isJiggling
-                          ? "shake 0.6s ease-in-out"
-                          : "none",
-                        transformOrigin: "top center",
-                      }}
-                    />
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-                    >
-                      {notifications.filter((n) => n.unread).length}
-                    </Badge>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-0" align="end">
-                  <div className="border-b p-4">
-                    <h3 className="font-heading font-semibold">
-                      Notifications
-                    </h3>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`hover:bg-muted/50 border-b p-4 transition-colors ${
-                          notification.unread ? "bg-blue-50/50" : ""
-                        }`}
-                      >
-                        <div className="space-y-1">
-                          <h4 className="font-heading text-sm font-medium">
-                            {notification.title}
-                          </h4>
-                          <p className="text-muted-foreground text-xs">
-                            {notification.message}
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            {notification.time}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <div className="hidden items-center space-x-2 md:flex">
+                <Link to="/auth/login">
+                  <Button>Sign In</Button>
+                </Link>
+              </div>
             )}
 
             {/* Hamburger Menu - always last on mobile */}

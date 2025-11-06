@@ -88,7 +88,7 @@ function MyApplications() {
   const confirmMutation = useMutation({
     mutationFn: (id: number) => confirmApplication(id),
     onSuccess: () => {
-      toast.success("✅ Application confirmed!");
+      toast.success(" Application confirmed!");
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
     },
     onError: (err: any) =>
@@ -98,7 +98,7 @@ function MyApplications() {
   const withdrawMutation = useMutation({
     mutationFn: (id: number) => withdrawApplication(id),
     onSuccess: () => {
-      toast.success("🛑 Application withdrawn.");
+      toast.success(" Application withdrawn.");
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
     },
     onError: (err: any) =>
@@ -230,7 +230,6 @@ function MyApplications() {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* ✅ View Application Modal */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
           <DialogHeader>
@@ -311,7 +310,6 @@ function MyApplications() {
         </DialogContent>
       </Dialog>
 
-      {/* ✅ Confirm / Withdraw Dialog */}
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -346,7 +344,6 @@ function MyApplications() {
         </DialogContent>
       </Dialog>
 
-      {/* ✅ Header */}
       <div className="bg-background border-b">
         <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div className="mb-2 flex flex-col items-start justify-between gap-4 sm:mb-4 sm:flex-row sm:items-center">
@@ -372,7 +369,6 @@ function MyApplications() {
         </div>
       </div>
 
-      {/* ✅ Tabs */}
       <div className="container mx-auto px-4 py-6 sm:px-6">
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="grid h-auto w-full grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-0">

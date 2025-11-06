@@ -476,17 +476,20 @@ function DiscoverCSPs() {
     const matchesDuration =
       selectedDurations.length === 0 ||
       selectedDurations.some((duration) => {
-        const cspDuration = (csp as any).duration || "";
-        const durationLower = cspDuration.toLowerCase();
+        const hrs = Number(csp.serviceHours) || 0;
 
-        if (duration === "1-hour" && durationLower.includes("1h")) return true;
-        if (duration === "2-hour" && durationLower.includes("2h")) return true;
-        if (duration === "3-hour" && durationLower.includes("3h")) return true;
-        if (duration === "4-hour" && durationLower.includes("4h")) return true;
-        if (duration === "full-day" && durationLower.includes("full day"))
-          return true;
-        if (duration === "one-time" && durationLower.includes("one-time"))
-          return true;
+        // Bucket by hours:
+        // 1-hour: [1,2)
+        // 2-hour: [2,3)
+        // 3-hour: [3,4)
+        // 4-hour: [4,5]
+        // gt-5-hours: (5, ∞)
+        if (duration === "1-hour") return hrs >= 1 && hrs < 2;
+        if (duration === "2-hour") return hrs >= 2 && hrs < 3;
+        if (duration === "3-hour") return hrs >= 3 && hrs < 4;
+        if (duration === "4-hour") return hrs >= 4 && hrs <= 5;
+        if (duration === "gt-5-hours") return hrs > 5;
+
         return false;
       });
 
@@ -514,8 +517,10 @@ function DiscoverCSPs() {
           b.currentVolunteers -
           (a.maxVolunteers - a.currentVolunteers)
         );
-      case "hours":
+      case "hours-desc":
         return b.serviceHours - a.serviceHours;
+      case "hours-asc":
+        return a.serviceHours - b.serviceHours;
       default:
         return 0; // relevance (original order)
     }
@@ -675,7 +680,8 @@ function DiscoverCSPs() {
                   <SelectItem value="relevance">Relevance</SelectItem>
                   <SelectItem value="date">Start Date</SelectItem>
                   <SelectItem value="spots">Available Spots</SelectItem>
-                  <SelectItem value="hours">Service Hours</SelectItem>
+                  <SelectItem value="hours-desc">Service Hours (High → Low)</SelectItem>
+                  <SelectItem value="hours-asc">Service Hours (Low → High)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -803,8 +809,7 @@ function DiscoverCSPs() {
                       { value: "2-hour", label: "2 Hours" },
                       { value: "3-hour", label: "3 Hours" },
                       { value: "4-hour", label: "4 Hours" },
-                      { value: "full-day", label: "Full Day" },
-                      { value: "one-time", label: "One-Time" },
+                      { value: "gt-5-hours", label: "> 5 Hours" },
                     ].map((duration) => (
                       <Button
                         key={duration.value}
@@ -1033,7 +1038,7 @@ function DiscoverCSPs() {
                         </div>
                       </div>
 
-                      <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                      <Link to="/csp/$projectID" params={{ projectID: csp.id }}>
                         <Button className="group-hover:bg-primary group-hover:text-primary-foreground w-full transition-colors">
                           View Details
                         </Button>
@@ -1197,7 +1202,10 @@ function DiscoverCSPs() {
 
                           {/* Right: Action */}
                           <div className="flex items-center gap-3 md:flex-col md:items-end">
-                            <Link to="/csp/$cspId" params={{ cspId: csp.id }}>
+                            <Link
+                              to="/csp/$projectID"
+                              params={{ projectID: csp.id }}
+                            >
                               <Button className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                 View Details
                               </Button>
@@ -1308,7 +1316,7 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
         }
 
         // If Google Maps URL has no coordinates, then skips LOL
-        if (csp.googleMaps && !csp.latitude && !csp.longitude) {
+        if (!csp.latitude && !csp.longitude) {
           console.log(
             `CSP "${csp.title}" has Google Maps URL but no coordinates yet`,
           );
@@ -1425,7 +1433,7 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
           </Button>
         </div>
 
-        <div className="border-border/70 bg-muted/10 h-[500px] overflow-hidden rounded-xl border shadow-sm">
+        <div className="border-border/70 bg-muted/10 h-[75vh] overflow-hidden rounded-xl border shadow-sm">
           <div className="relative h-full">
             {!isLoaded ? (
               <div className="text-muted-foreground flex h-full items-center justify-center">
@@ -1500,7 +1508,10 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
                           <div>{selectedCsp.serviceHours} service hours</div>
                         </div>
                         <Button asChild size="sm" className="h-8 px-3">
-                          <Link to={`/csp/${selectedCsp.id}`}>
+                          <Link
+                            to="/csp/$projectID"
+                            params={{ projectID: selectedCsp.id }}
+                          >
                             View details
                           </Link>
                         </Button>

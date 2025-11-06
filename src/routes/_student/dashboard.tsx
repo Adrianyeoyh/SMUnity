@@ -346,11 +346,6 @@ function Dashboard() {
                         <Link
                           to="/csp/$projectID"
                           params={{ projectID: project.id }}
-                          search={{
-                            from: undefined,
-                            applicantProjectId: undefined,
-                            applicantId: undefined,
-                          }}
                         >
                           <Button variant="outline" size="sm">
                             View Details
@@ -385,11 +380,6 @@ function Dashboard() {
                       <Link
                         to="/csp/$projectID"
                         params={{ projectID: app.projectId.toString() }}
-                        search={{
-                          from: "dashboard",
-                          applicantProjectId: undefined,
-                          applicantId: undefined,
-                        }}
                         className="flex-1"
                       >
                         <div className="mb-1 flex flex-wrap items-center gap-2">

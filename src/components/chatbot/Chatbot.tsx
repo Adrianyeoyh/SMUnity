@@ -583,11 +583,6 @@ export function Chatbot() {
                                   key={app.id}
                                   to="/csp/$projectID"
                                   params={{ projectID: String(app.projectId) }}
-                                  search={{
-                                    from: undefined,
-                                    applicantProjectId: undefined,
-                                    applicantId: undefined,
-                                  }}
                                   onClick={() => setIsOpen(false)}
                                 >
                                   <div className="bg-background border-border hover:bg-muted/50 cursor-pointer rounded-lg border p-3 transition-colors">
@@ -636,11 +631,6 @@ export function Chatbot() {
                                 key={project.id}
                                 to="/csp/$projectID"
                                 params={{ projectID: project.id }}
-                                search={{
-                                  from: undefined,
-                                  applicantProjectId: undefined,
-                                  applicantId: undefined,
-                                }}
                                 onClick={() => setIsOpen(false)}
                               >
                                 <div className="bg-background border-border hover:bg-muted/50 cursor-pointer rounded-lg border p-3 transition-colors">
