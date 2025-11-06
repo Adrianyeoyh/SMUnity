@@ -15,6 +15,8 @@ function ProfileMenu() {
 
   // Get first letter of user's name for avatar
   const userName = userData?.name || user?.email || "";
+  const userEmail = user?.email || "";
+  const displayName = userData?.name || userEmail;
   const firstLetter = userName ? userName.charAt(0).toUpperCase() : "?";
 
   return (
@@ -34,9 +36,13 @@ function ProfileMenu() {
 
         <PopoverContent
           align="end"
-          className="w-36 sm:w-40 md:w-44 p-2 sm:p-3 space-y-1 bg-white shadow-lg rounded-md"
+          className="w-48 sm:w-52 md:w-56 p-2 sm:p-3 space-y-2 bg-white shadow-lg rounded-md"
           sideOffset={8}
         >
+          <div className="px-2 py-2 border-b border-gray-200 space-y-1">
+            <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+          </div>
           {!isAdmin && (
           <Link
               to={isOrganisation ? "/organisations/profile" : "/profile"}
