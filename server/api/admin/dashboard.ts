@@ -1,14 +1,15 @@
 // server/api/admin/dashboard.ts
+import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
+
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { sql, eq } from "drizzle-orm";
+import { createApp } from "#server/factory";
 import { ok } from "#server/helper";
 import { adminMiddleware, AuthVariables } from "#server/middlewares/auth";
-import { createApp } from "#server/factory";
 
-export const adminDashboardRoutes = createApp()
-// .use(adminMiddleware); 
+export const adminDashboardRoutes = createApp();
+// .use(adminMiddleware);
 
 export type AdminDashboardResponse = {
   totals: {
@@ -22,18 +23,23 @@ export type AdminDashboardResponse = {
 };
 
 adminDashboardRoutes.get("/", async (c) => {
-
   const session = c.get("user");
   // console.log(session);
   // session
 
-  const usersCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.user);
+  const usersCount = await db
+    .select({ c: sql<number>`count(*)::int` })
+    .from(schema.user);
   const studentsCount = await db
     .select({ c: sql<number>`count(*)::int` })
     .from(schema.user)
     .where(sql`account_type = 'student'`);
-  const orgsCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.organisations);
-  const projectsCount = await db.select({ c: sql<number>`count(*)::int` }).from(schema.projects);
+  const orgsCount = await db
+    .select({ c: sql<number>`count(*)::int` })
+    .from(schema.organisations);
+  const projectsCount = await db
+    .select({ c: sql<number>`count(*)::int` })
+    .from(schema.projects);
   const pendingReq = await db
     .select({ c: sql<number>`count(*)::int` })
     .from(schema.organisationRequests)

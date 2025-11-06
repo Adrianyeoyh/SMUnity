@@ -27,26 +27,20 @@ export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
 
 /** ✅ Suspend an organisation */
 export async function suspendOrganisation(id: string): Promise<void> {
-  const res = await fetch(
-    `/api/admin/viewOrgs/${id}/suspend`,
-    {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    },
-  );
+  const res = await fetch(`/api/admin/viewOrgs/${id}/suspend`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
   if (!res.ok) throw new Error("Failed to suspend organisation");
 }
 
 /** ✅ Reactivate an organisation */
 export async function reactivateOrganisation(id: string): Promise<void> {
-  const res = await fetch(
-    `/api/admin/viewOrgs/${id}/reactivate`,
-    {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    },
-  );
+  const res = await fetch(`/api/admin/viewOrgs/${id}/reactivate`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
   if (!res.ok) throw new Error("Failed to reactivate organisation");
 }

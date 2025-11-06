@@ -1,8 +1,9 @@
-import { createApp } from "#server/factory";
+import { and, eq, lt } from "drizzle-orm";
+
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { and, eq, lt } from "drizzle-orm";
-import { ok, forbidden } from "#server/helper";
+import { createApp } from "#server/factory";
+import { forbidden, ok } from "#server/helper";
 
 const profile = createApp();
 
@@ -22,8 +23,16 @@ profile.get("/completed", async (c) => {
       description: schema.projects.description,
     })
     .from(schema.projMemberships)
-    .innerJoin(schema.projects, eq(schema.projMemberships.projId, schema.projects.id))
-    .where(and(eq(schema.projMemberships.userId, user.id), lt(schema.projects.endDate, now)));
+    .innerJoin(
+      schema.projects,
+      eq(schema.projMemberships.projId, schema.projects.id),
+    )
+    .where(
+      and(
+        eq(schema.projMemberships.userId, user.id),
+        lt(schema.projects.endDate, now),
+      ),
+    );
 
   const orgs = await db
     .select({
@@ -33,7 +42,9 @@ profile.get("/completed", async (c) => {
     .from(schema.organisations)
     .leftJoin(schema.user, eq(schema.organisations.userId, schema.user.id));
 
-  const orgNameMap = new Map(orgs.map((o) => [o.userId, o.name || "Unknown Organisation"]));
+  const orgNameMap = new Map(
+    orgs.map((o) => [o.userId, o.name || "Unknown Organisation"]),
+  );
 
   const payload = rows.map((r) => ({
     id: r.id,

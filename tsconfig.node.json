@@ -26,7 +26,7 @@
       "#shared/*": ["./shared/*"]
     }
   },
-  "include": ["vite.config.ts", "server","scripts"]
+  "include": ["vite.config.ts", "server", "scripts"]
 }
 //   "compilerOptions": {
 //     "composite": true,

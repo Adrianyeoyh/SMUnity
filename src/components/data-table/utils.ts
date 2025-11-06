@@ -27,7 +27,6 @@ export function deserialize<T extends z.ZodAny>(schema: T) {
   return (value: string) => castToSchema.safeParse(value);
 }
 
-
 export function serializeColumFilters<TData>(
   columnFilters: ColumnFiltersState,
   filterFields?: DataTableFilterField<TData>[],
@@ -35,7 +34,7 @@ export function serializeColumFilters<TData>(
   return columnFilters.reduce((prev, curr) => {
     const { type, commandDisabled } = filterFields?.find(
       (field) => curr.id === field.value,
-    ) || { commandDisabled: true }; 
+    ) || { commandDisabled: true };
 
     if (commandDisabled) return prev;
 

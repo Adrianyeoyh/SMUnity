@@ -1,8 +1,14 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+import { useOrganisation, useUpdateOrganisation } from "#client/api/hooks";
+import { Button } from "#client/components/ui/button";
+import { Card, CardContent } from "#client/components/ui/card";
 import {
   Form,
   FormControl,
@@ -13,11 +19,6 @@ import {
 } from "#client/components/ui/form";
 import { Input } from "#client/components/ui/input";
 import { Textarea } from "#client/components/ui/textarea";
-import { Button } from "#client/components/ui/button";
-import { Card, CardContent } from "#client/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { useOrganisation, useUpdateOrganisation } from "#client/api/hooks";
 
 export const Route = createFileRoute("/organisations/editprofile")({
   component: OrganisationProfileEdit,
@@ -31,7 +32,7 @@ const organisationProfileSchema = z.object({
     .trim()
     .refine(
       (val) => val === "" || z.string().url().safeParse(val).success,
-      "Enter a valid website URL"
+      "Enter a valid website URL",
     )
     .optional(),
   description: z.string().trim().min(1, "Description is required"),
@@ -83,10 +84,10 @@ function OrganisationProfileEdit() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="bg-background min-h-screen">
+      <div className="container mx-auto space-y-6 px-4 py-6">
         <nav aria-label="Breadcrumb">
-          <ol className="text-sm text-muted-foreground flex items-center gap-2">
+          <ol className="text-muted-foreground flex items-center gap-2 text-sm">
             <li className="flex items-center gap-2">
               <Link
                 to="/organisations/profile"
@@ -102,30 +103,34 @@ function OrganisationProfileEdit() {
           </ol>
         </nav>
 
-        <Card className="shadow-sm border border-border/60">
+        <Card className="border-border/60 border shadow-sm">
           <CardContent className="pt-1">
             {isLoading ? (
-              <div className="flex items-center gap-3 text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-3">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Loading profile…</span>
               </div>
             ) : isError ? (
-              <p className="text-sm text-destructive">
-                Could not load your organisation profile. Please try again later.
+              <p className="text-destructive text-sm">
+                Could not load your organisation profile. Please try again
+                later.
               </p>
             ) : (
               <div className="space-y-6">
                 <div className="space-y-1">
-                  <h1 className="text-xl font-semibold text-foreground">
+                  <h1 className="text-foreground text-xl font-semibold">
                     Edit Organisation Profile
                   </h1>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Update your organisation details and description.
                   </p>
                 </div>
 
                 <Form {...form}>
-                  <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+                  <form
+                    className="space-y-6"
+                    onSubmit={form.handleSubmit(onSubmit)}
+                  >
                     <FormField
                       control={form.control}
                       name="name"
@@ -133,7 +138,10 @@ function OrganisationProfileEdit() {
                         <FormItem>
                           <FormLabel>Organisation Name</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="e.g. Sample Organisation" />
+                            <Input
+                              {...field}
+                              placeholder="e.g. Sample Organisation"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -197,10 +205,14 @@ function OrganisationProfileEdit() {
 
                     <div className="h-1" aria-hidden="true" />
 
-                    <div className="sticky bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 py-4">
+                    <div className="bg-background/95 supports-[backdrop-filter]:bg-background/75 sticky right-0 bottom-0 left-0 border-t py-4 backdrop-blur">
                       <div className="container mx-auto px-4 lg:px-8">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end sm:items-center">
-                          <Button variant="ghost" asChild disabled={isSubmitting}>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                          <Button
+                            variant="ghost"
+                            asChild
+                            disabled={isSubmitting}
+                          >
                             <Link to="/organisations/profile">Cancel</Link>
                           </Button>
                           <Button type="submit" disabled={isSubmitting}>

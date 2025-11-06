@@ -4,7 +4,6 @@ import * as React from "react";
 
 type PossibleRef<T> = React.Ref<T> | undefined;
 
-
 function setRef<T>(ref: PossibleRef<T>, value: T) {
   if (typeof ref === "function") {
     ref(value);
@@ -13,11 +12,9 @@ function setRef<T>(ref: PossibleRef<T>, value: T) {
   }
 }
 
-
 function composeRefs<T>(...refs: PossibleRef<T>[]) {
   return (node: T) => refs.forEach((ref) => setRef(ref, node));
 }
-
 
 function useComposedRefs<T>(...refs: PossibleRef<T>[]) {
   // eslint-disable-next-line react-hooks/exhaustive-deps

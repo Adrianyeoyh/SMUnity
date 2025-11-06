@@ -1,23 +1,27 @@
 // server/api/public/chatbot.ts
-import { createApp } from "#server/factory";
-import { badReq, forbidden, ok } from "#server/helper";
+import { eq, gte, like, or } from "drizzle-orm";
 import { z } from "zod";
-import { env } from "#server/env";
-
-const chatbot = createApp();
 
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { user } from "#server/drizzle/schema";
-import { gte, eq, or, like } from "drizzle-orm";
+import { env } from "#server/env";
+import { createApp } from "#server/factory";
+import { badReq, forbidden, ok } from "#server/helper";
+
+const chatbot = createApp();
 
 function getSystemPrompt(isLoggedIn: boolean, availableProjects: any[] = []) {
-  const projectsContext = availableProjects.length > 0
-    ? `\n\nAVAILABLE PROJECTS LIST (use these actual projects when answering):\n` +
-      availableProjects.map((p, i) => 
-        `${i + 1}. Title: "${p.title}" | Category: ${p.category} | Organisation: ${p.organisation} | Location: ${p.location || p.country || 'Remote'} | Type: ${p.type} | Description: ${(p.description || '').substring(0, 150)}${p.description && p.description.length > 150 ? '...' : ''}`
-      ).join('\n')
-    : '';
+  const projectsContext =
+    availableProjects.length > 0
+      ? `\n\nAVAILABLE PROJECTS LIST (use these actual projects when answering):\n` +
+        availableProjects
+          .map(
+            (p, i) =>
+              `${i + 1}. Title: "${p.title}" | Category: ${p.category} | Organisation: ${p.organisation} | Location: ${p.location || p.country || "Remote"} | Type: ${p.type} | Description: ${(p.description || "").substring(0, 150)}${p.description && p.description.length > 150 ? "..." : ""}`,
+          )
+          .join("\n")
+      : "";
 
   return `You are a helpful assistant for SMUnity, a platform that connects SMU students with Community Service Projects (CSPs). 
 
@@ -63,7 +67,7 @@ const chatRequestSchema = z.object({
       z.object({
         role: z.enum(["user", "assistant"]),
         content: z.string(),
-      })
+      }),
     )
     .optional()
     .default([]),
@@ -80,7 +84,7 @@ chatbot.post("/chat", async (c) => {
   if (!env.GEMINI_API_KEY) {
     return c.json(
       { error: "Chatbot service is not configured. Please contact support." },
-      503
+      503,
     );
   }
 
@@ -89,7 +93,10 @@ chatbot.post("/chat", async (c) => {
     const { message, conversationHistory } = chatRequestSchema.parse(body);
 
     let availableProjects: any[] = [];
-    const isFindingProject = /find|show|search|looking for|recommend|suggest|want.*project|need.*project|any.*project|available.*project/i.test(message);
+    const isFindingProject =
+      /find|show|search|looking for|recommend|suggest|want.*project|need.*project|any.*project|available.*project/i.test(
+        message,
+      );
 
     if (isFindingProject) {
       try {
@@ -117,45 +124,61 @@ chatbot.post("/chat", async (c) => {
             orgName: schema.user.name,
           })
           .from(schema.organisations)
-          .leftJoin(schema.user, eq(schema.organisations.userId, schema.user.id));
+          .leftJoin(
+            schema.user,
+            eq(schema.organisations.userId, schema.user.id),
+          );
 
-        const orgNameMap = new Map(orgs.map(o => [o.userId, o.orgName || "Unknown Organisation"]));
+        const orgNameMap = new Map(
+          orgs.map((o) => [o.userId, o.orgName || "Unknown Organisation"]),
+        );
 
-        availableProjects = projects.map(p => ({
+        availableProjects = projects.map((p) => ({
           ...p,
-          organisation: orgNameMap.get(p.organisationUserId) || "Unknown Organisation",
+          organisation:
+            orgNameMap.get(p.organisationUserId) || "Unknown Organisation",
         }));
       } catch (error) {
         console.error("Error fetching projects for chatbot:", error);
       }
     }
 
-    const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
-    
+    const contents: Array<{ role: string; parts: Array<{ text: string }> }> =
+      [];
+
     const isLoggedIn = !!user && user.accountType === "student";
     const systemPrompt = getSystemPrompt(isLoggedIn, availableProjects);
-    
-    const loginStatusNote = isLoggedIn 
+
+    const loginStatusNote = isLoggedIn
       ? "\n\n IMPORTANT: The user asking questions IS CURRENTLY LOGGED IN as a student. They have access to their dashboard and can check application statuses."
       : "\n\n IMPORTANT: The user asking questions IS NOT LOGGED IN. They must sign in to check application statuses.";
-    
+
     contents.push({
       role: "user",
-      parts: [{ text: systemPrompt + loginStatusNote + "\n\nYou are now ready to answer questions." }],
+      parts: [
+        {
+          text:
+            systemPrompt +
+            loginStatusNote +
+            "\n\nYou are now ready to answer questions.",
+        },
+      ],
     });
-    
+
     contents.push({
       role: "model",
-      parts: [{ text: "Understood. I'm ready to help with SMUnity questions." }],
+      parts: [
+        { text: "Understood. I'm ready to help with SMUnity questions." },
+      ],
     });
-    
+
     (conversationHistory || []).forEach((msg) => {
       contents.push({
         role: msg.role === "user" ? "user" : "model",
         parts: [{ text: msg.content }],
       });
     });
-    
+
     contents.push({
       role: "user",
       parts: [{ text: message }],
@@ -164,7 +187,7 @@ chatbot.post("/chat", async (c) => {
     // Call Gemini API
     const model = "gemini-2.5-flash";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
-    
+
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
@@ -182,28 +205,26 @@ chatbot.post("/chat", async (c) => {
     if (!response.ok) {
       const error = await response.text();
       console.error("Gemini API error:", error);
-      return c.json(
-        { error: "Failed to get response from AI assistant" },
-        500
-      );
+      return c.json({ error: "Failed to get response from AI assistant" }, 500);
     }
 
     const data = (await response.json()) as Record<string, any>;
-    const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process your request.";
+    const assistantMessage =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "I'm sorry, I couldn't process your request.";
 
     return ok(c, {
       message: assistantMessage,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-  return badReq(c, "Invalid request format", {
-    errors: (error as any).issues ?? [],
-  });
-}
+      return badReq(c, "Invalid request format", {
+        errors: (error as any).issues ?? [],
+      });
+    }
     console.error("Chatbot error:", error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });
 
 export default chatbot;
-

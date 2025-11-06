@@ -1,11 +1,13 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 interface MobileMenuContextType {
   isMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
 }
 
-const MobileMenuContext = createContext<MobileMenuContextType | undefined>(undefined);
+const MobileMenuContext = createContext<MobileMenuContextType | undefined>(
+  undefined,
+);
 
 export function MobileMenuProvider({ children }: { children: ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

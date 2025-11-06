@@ -16,8 +16,7 @@ export interface ChatResponse {
 }
 
 export async function sendChatMessage(
-  request: ChatRequest
+  request: ChatRequest,
 ): Promise<ChatResponse> {
   return apiPost<ChatResponse>("/api/chatbot/chat", request);
 }
-

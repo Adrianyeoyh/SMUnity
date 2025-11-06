@@ -13,15 +13,14 @@ export const env = createEnv({
     // Better Auth
     BETTER_AUTH_SECRET: z.string(),
 
-
     //Google OAuth
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
 
     // Mail
     SMTP_HOST: z.string(),
-    SMTP_PORT: z.coerce.number(),
-    SMTP_SECURE: z.coerce.boolean(),
+    SMTP_PORT: z.preprocess((a) => Number(a), z.number()),
+    SMTP_SECURE: z.preprocess((a) => a == true, z.boolean()),
     SMTP_USER: z.string(),
     SMTP_PASS: z.string(),
     SMTP_FROM: z.string(),
@@ -32,7 +31,7 @@ export const env = createEnv({
     AWS_REGION: z.string(),
     AWS_S3_ENDPOINT: z.string(),
     AWS_S3_BUCKET: z.string(),
-    FORCE_PATH_STYLE: z.coerce.boolean(),
+    FORCE_PATH_STYLE: z.preprocess((a) => a == true, z.boolean()),
 
     // Google Gemini
     GEMINI_API_KEY: z.string().optional(),

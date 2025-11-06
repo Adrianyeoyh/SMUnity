@@ -1,20 +1,22 @@
 // #client/api/hooks.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "./client";
-import type { OrganisationProfileData, OrganisationFormData } from "./types";
-
 
 import type {
+  CompletedCspRow,
+  FavCard,
   MeRes,
-  UpdateProfilePayload,
+  MyAppRow,
+  OrganisationFormData,
+  OrganisationProfileData,
   ProfileFormData,
   ProjectCard,
   ProjectDetail,
   ProjectSessionRow,
-  MyAppRow,
-  FavCard,
   UpcomingRow,
+  UpdateProfilePayload,
 } from "./types";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "./client";
+import { fetchCompletedProjectsProfile } from "./student";
 
 export function useMe() {
   return useQuery({
@@ -26,7 +28,8 @@ export function useMe() {
 export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: UpdateProfilePayload) => apiPatch<MeRes>("/api/users/me", payload),
+    mutationFn: (payload: UpdateProfilePayload) =>
+      apiPatch<MeRes>("/api/users/me", payload),
     onSuccess: (data) => {
       qc.setQueryData<MeRes>(["me"], data);
     },
@@ -43,7 +46,8 @@ export function useProfileSettings() {
 export function useSaveProfileSettings() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: ProfileFormData) => apiPut<{ ok: true }>("/api/profile", payload),
+    mutationFn: (payload: ProfileFormData) =>
+      apiPut<{ ok: true }>("/api/profile", payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["profileForm"] });
       qc.invalidateQueries({ queryKey: ["me"] });
@@ -52,13 +56,17 @@ export function useSaveProfileSettings() {
 }
 
 export function useProjectCards(params?: {
-  q?: string; categoryId?: number; tagId?: number[]; status?: "approved" | "pending" | "draft" | "closed" | "archived";
+  q?: string;
+  categoryId?: number;
+  tagId?: number[];
+  status?: "approved" | "pending" | "draft" | "closed" | "archived";
 }) {
   const qs = new URLSearchParams();
   if (params?.q) qs.set("q", params.q);
   if (params?.categoryId) qs.set("categoryId", String(params.categoryId));
   if (params?.status) qs.set("status", params.status);
-  if (params?.tagId?.length) params.tagId.forEach(t => qs.append("tagId", String(t)));
+  if (params?.tagId?.length)
+    params.tagId.forEach((t) => qs.append("tagId", String(t)));
   const url = `/api/projects${qs.toString() ? `?${qs.toString()}` : ""}`;
 
   return useQuery({
@@ -94,8 +102,11 @@ export function useMyApplications(status?: MyAppRow["status"]) {
 export function useApplyToProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { projectId: number; sessionId?: number | null; motivation?: string | null }) =>
-      apiPost<{ id: number }>("/api/projects/applications", payload),
+    mutationFn: (payload: {
+      projectId: number;
+      sessionId?: number | null;
+      motivation?: string | null;
+    }) => apiPost<{ id: number }>("/api/projects/applications", payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["myApplications"] });
     },
@@ -106,7 +117,9 @@ export function useWithdrawApplication() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (applicationId: number) =>
-      apiPost<{ ok: true }>(`/api/projects/applications/${applicationId}/withdraw`),
+      apiPost<{ ok: true }>(
+        `/api/projects/applications/${applicationId}/withdraw`,
+      ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["myApplications"] });
     },
@@ -123,7 +136,8 @@ export function usefavourites() {
 export function useSavefavourite() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (projectId: number) => apiPost<{ ok: true }>("/api/projects/favourites", { projectId }),
+    mutationFn: (projectId: number) =>
+      apiPost<{ ok: true }>("/api/projects/favourites", { projectId }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["favourites"] }),
   });
 }
@@ -131,7 +145,10 @@ export function useSavefavourite() {
 export function useUnsavefavourite() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (projectId: number) => apiDelete<{ ok: true }>(`/api/projects/favourites?projectId=${projectId}`),
+    mutationFn: (projectId: number) =>
+      apiDelete<{ ok: true }>(
+        `/api/projects/favourites?projectId=${projectId}`,
+      ),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["favourites"] }),
   });
 }
@@ -143,9 +160,6 @@ export function useUpcomingSessions() {
   });
 }
 
-import { fetchCompletedProjectsProfile } from "./student";
-import type { CompletedCspRow } from "./types";
-
 export function useCompletedCSPs() {
   return useQuery<CompletedCspRow[]>({
     queryKey: ["completedCSPs"],
@@ -153,11 +167,11 @@ export function useCompletedCSPs() {
   });
 }
 
-
 export function useOrganisation() {
   return useQuery({
     queryKey: ["organisation"],
-    queryFn: () => apiGet<OrganisationProfileData>("/api/organisations/profile"),
+    queryFn: () =>
+      apiGet<OrganisationProfileData>("/api/organisations/profile"),
   });
 }
 
@@ -171,4 +185,4 @@ export function useUpdateOrganisation() {
       qc.invalidateQueries({ queryKey: ["organisationSettings"] });
     },
   });
-} 
+}

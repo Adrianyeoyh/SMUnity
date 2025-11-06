@@ -1,11 +1,11 @@
 // server/api/admin/viewOrgs.ts
 import { desc, eq, sql } from "drizzle-orm";
+
 import { db } from "#server/drizzle/db";
 import { organisations, projects, user } from "#server/drizzle/schema";
 import { createApp } from "#server/factory";
 
 export const viewOrgs = createApp();
-
 
 viewOrgs.get("/", async (c) => {
   try {
@@ -40,7 +40,7 @@ viewOrgs.get("/", async (c) => {
     const data = results.map((r) => ({
       ...r,
       status: r.suspended ? "suspended" : "active",
-      projects: r.projectCount ?? 0, 
+      projects: r.projectCount ?? 0,
     }));
 
     return c.json({ data });
@@ -49,7 +49,6 @@ viewOrgs.get("/", async (c) => {
     return c.json({ error: "Failed to retrieve organisations" }, 500);
   }
 });
-
 
 viewOrgs.put("/:id/suspend", async (c) => {
   const id = c.req.param("id");
@@ -69,7 +68,6 @@ viewOrgs.put("/:id/suspend", async (c) => {
     return c.json({ error: "Failed to suspend organisation" }, 500);
   }
 });
-
 
 viewOrgs.put("/:id/reactivate", async (c) => {
   const id = c.req.param("id");

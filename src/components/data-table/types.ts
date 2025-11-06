@@ -36,7 +36,7 @@ export type Slider = {
 
 export type Timerange = {
   type: "timerange";
-  options?: Option[]; 
+  options?: Option[];
   presets?: DatePreset[];
 };
 
@@ -58,7 +58,6 @@ export type DataTableFilterField<TData> =
   | DataTableInputFilterField<TData>
   | DataTableTimerangeFilterField<TData>;
 
-
 export type SheetField<TData, TMeta = Record<string, unknown>> = {
   id: keyof TData;
   label: string;
@@ -70,7 +69,7 @@ export type SheetField<TData, TMeta = Record<string, unknown>> = {
         filterRows: number;
         totalRowsFetched: number;
       } & TMeta;
-    }
+    },
   ) => JSX.Element | null | string;
   condition?: (props: TData) => boolean;
   className?: string;

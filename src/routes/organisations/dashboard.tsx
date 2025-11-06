@@ -1,17 +1,50 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useState, useEffect } from "react";
-import { Button } from "#client/components/ui/button";
-import { Badge } from "#client/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#client/components/ui/select";
-import { Users, ClipboardList, Clock, CheckCircle2, Plus, Calendar, MapPin, Trash2, CalendarClock, Sun, Leaf, Home, HeartHandshake, GraduationCap, BookOpen, Tag, Search } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  CalendarClock,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  GraduationCap,
+  HeartHandshake,
+  Home,
+  Leaf,
+  MapPin,
+  Plus,
+  Search,
+  Sun,
+  Tag,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
-import { fetchOrgDashboard, fetchOrgListings } from "#client/api/organisations/dashboard.ts";
-import { Input } from "#client/components/ui/input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import {
+  fetchOrgDashboard,
+  fetchOrgListings,
+} from "#client/api/organisations/dashboard.ts";
 import { deleteOrganisationProject } from "#client/api/organisations/listing.ts";
+import { Badge } from "#client/components/ui/badge";
+import { Button } from "#client/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "#client/components/ui/card";
+import { Input } from "#client/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "#client/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
 
 export const Route = createFileRoute("/organisations/dashboard")({
   component: OrgDashboard,
@@ -21,7 +54,11 @@ function OrgDashboard() {
   const navigate = useNavigate();
 
   // Dashboard summary
-  const { data: summary, isLoading, isError } = useQuery({
+  const {
+    data: summary,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["orgDashboard"],
     queryFn: fetchOrgDashboard,
   });
@@ -36,7 +73,6 @@ function OrgDashboard() {
     queryFn: fetchOrgListings,
   });
   // console.log("listingsData:", listingsData);
-
 
   // Count of listings for each status
   const listingCounts = useMemo(() => {
@@ -53,8 +89,9 @@ function OrgDashboard() {
   }, [listingsData]);
 
   // --- State ---
-  const [listingStatusFilter, setListingStatusFilter] =
-    useState<"open" | "shortlisting" | "ongoing" | "archived">("open");
+  const [listingStatusFilter, setListingStatusFilter] = useState<
+    "open" | "shortlisting" | "ongoing" | "archived"
+  >("open");
   const [listingSort, setListingSort] = useState<
     "date_asc" | "date_desc" | "applications_desc" | "applications_asc"
   >("date_asc");
@@ -65,11 +102,20 @@ function OrgDashboard() {
   const statusTabs = useMemo(
     () => [
       { value: "open" as const, label: `Open (${listingCounts.open})` },
-      { value: "shortlisting" as const, label: `Shortlisting (${listingCounts.shortlisting})` },
-      { value: "ongoing" as const, label: `Ongoing (${listingCounts.ongoing})` },
-      { value: "archived" as const, label: `Archived (${listingCounts.archived})` },
+      {
+        value: "shortlisting" as const,
+        label: `Shortlisting (${listingCounts.shortlisting})`,
+      },
+      {
+        value: "ongoing" as const,
+        label: `Ongoing (${listingCounts.ongoing})`,
+      },
+      {
+        value: "archived" as const,
+        label: `Archived (${listingCounts.archived})`,
+      },
     ],
-    [listingCounts]
+    [listingCounts],
   );
 
   //Search Box
@@ -80,10 +126,13 @@ function OrgDashboard() {
     () => [
       { value: "date_asc" as const, label: "Start date · Soonest" },
       { value: "date_desc" as const, label: "Start date · Latest" },
-      { value: "applications_desc" as const, label: "Volunteers · High to low" },
+      {
+        value: "applications_desc" as const,
+        label: "Volunteers · High to low",
+      },
       { value: "applications_asc" as const, label: "Volunteers · Low to high" },
     ],
-    []
+    [],
   );
 
   // --- UI Helper Functions ---
@@ -101,26 +150,28 @@ function OrgDashboard() {
 
   const queryClient = useQueryClient();
 
-const deleteMutation = useMutation({
-  mutationFn: deleteOrganisationProject,
-  onSuccess: (_, projectId) => {
-    toast.success("Listing deleted", { description: "Project removed successfully." });
-    // Invalidate listings to refetch updated list
-    queryClient.invalidateQueries({ queryKey: ["orgListings"] });
-  },
-  onError: (err: any) => {
-    toast.error("Failed to delete listing", { description: err.message });
-  },
-});
+  const deleteMutation = useMutation({
+    mutationFn: deleteOrganisationProject,
+    onSuccess: (_, projectId) => {
+      toast.success("Listing deleted", {
+        description: "Project removed successfully.",
+      });
+      // Invalidate listings to refetch updated list
+      queryClient.invalidateQueries({ queryKey: ["orgListings"] });
+    },
+    onError: (err: any) => {
+      toast.error("Failed to delete listing", { description: err.message });
+    },
+  });
 
-const handleDeleteListing = useCallback(
-  (projectId: string, title: string) => {
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteMutation.mutate(projectId);
-    }
-  },
-  [deleteMutation]
-);
+  const handleDeleteListing = useCallback(
+    (projectId: string, title: string) => {
+      if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+        deleteMutation.mutate(projectId);
+      }
+    },
+    [deleteMutation],
+  );
 
   const getTagIcon = useCallback((tag: string) => {
     const baseClass = "h-3 w-3";
@@ -174,14 +225,23 @@ const handleDeleteListing = useCallback(
   const displayListings = useMemo(() => {
     const baseListings = listingsData?.listings ?? [];
     const filtered = baseListings.filter(
-      (listing: { status: string; startDate: string; volunteerCount: number; title: string; [key: string]: any }) => {
+      (listing: {
+        status: string;
+        startDate: string;
+        volunteerCount: number;
+        title: string;
+        [key: string]: any;
+      }) => {
         const matchesStatus = listing.status === listingStatusFilter;
-        const matchesSearch = searchTerm === "" || 
+        const matchesSearch =
+          searchTerm === "" ||
           listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          listing.organization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          listing.organization
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           listing.district?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesStatus && matchesSearch;
-      }
+      },
     );
 
     const sorted = [...filtered].sort((a, b) => {
@@ -216,190 +276,227 @@ const handleDeleteListing = useCallback(
 
   // --- Loading / Error States ---
   if (isLoading || listingsLoading)
-    return <div className="p-8 text-muted-foreground text-lg">Loading dashboard...</div>;
+    return (
+      <div className="text-muted-foreground p-8 text-lg">
+        Loading dashboard...
+      </div>
+    );
 
   if (isError || listingsError || !summary)
-    return <div className="p-8 text-red-500 text-lg">Failed to load dashboard data.</div>;
+    return (
+      <div className="p-8 text-lg text-red-500">
+        Failed to load dashboard data.
+      </div>
+    );
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Header */}
-      <div className="border-b bg-background">
+      <div className="bg-background border-b">
         <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Organisation Dashboard
-          </h1>
-          <p className="text-muted-foreground font-body text-lg">
-                  Create listings, keep track of applications, and manage your volunteer pipeline
-          </p>
-              </div>
-              <div className="flex-shrink-0">
-                <Button className="inline-flex items-center gap-2" onClick={handleCreateListing}>
-                  <Plus className="mr-2 h-4 w-4" />
-                    Create New Listing
-                </Button>
-              </div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="font-heading text-foreground mb-4 text-3xl font-bold md:text-4xl">
+                Organisation Dashboard
+              </h1>
+              <p className="text-muted-foreground font-body text-lg">
+                Create listings, keep track of applications, and manage your
+                volunteer pipeline
+              </p>
             </div>
+            <div className="flex-shrink-0">
+              <Button
+                className="inline-flex items-center gap-2"
+                onClick={handleCreateListing}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Listing
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
-      
 
       <div className="container mx-auto px-4 py-6">
         <div className="space-y-8">
-
-        {/* Top metrics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold mt-2 mb-7 sm:mt-0 sm:mb-4 lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Active Listings</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{summary.listings}</CardTitle>
+          {/* Top metrics */}
+          <div className="mb-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardDescription className="font-body mt-2 mb-4 mb-7 font-semibold sm:mt-0 sm:mb-4 lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">
+                      Active Listings
+                    </CardDescription>
+                    <CardTitle className="font-heading text-primary text-3xl">
+                      {summary.listings}
+                    </CardTitle>
+                  </div>
+                  <div className="ml-4 hidden rounded-full bg-blue-100 p-3 sm:block">
+                    <ClipboardList className="h-6 w-6 text-blue-600" />
+                  </div>
                 </div>
-                <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
-                  <ClipboardList className="h-6 w-6 text-blue-600" />
-            </div>
+              </CardHeader>
+              <CardContent className="pt-0 pb-0">
+                <div className="text-muted-foreground font-body text-xs">
+                  Opened opportunities
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardDescription className="font-body mb-4 font-semibold">
+                      Total Applications
+                    </CardDescription>
+                    <CardTitle className="font-heading text-primary text-3xl">
+                      {summary.totalApplications}
+                    </CardTitle>
+                  </div>
+                  <div className="ml-4 hidden rounded-full bg-green-100 p-3 sm:block">
+                    <Users className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0 pb-0">
+                <div className="text-muted-foreground font-body text-xs">
+                  Across every listing
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardDescription className="font-body mt-2 mb-4 mb-7 font-semibold sm:mt-0 sm:mb-4 lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">
+                      Pending Reviews
+                    </CardDescription>
+                    <CardTitle className="font-heading text-primary text-3xl">
+                      {summary.pending}
+                    </CardTitle>
+                  </div>
+                  <div className="ml-4 hidden rounded-full bg-orange-100 p-3 sm:block">
+                    <Clock className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0 pb-0">
+                <div className="text-muted-foreground font-body text-xs">
+                  Waiting for your decision
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardDescription className="font-body mb-4 font-semibold">
+                      Confirmed Volunteers
+                    </CardDescription>
+                    <CardTitle className="font-heading text-primary text-3xl">
+                      {summary.confirmed}
+                    </CardTitle>
+                  </div>
+                  <div className="ml-4 hidden rounded-full bg-purple-100 p-3 sm:block">
+                    <CheckCircle2 className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0 pb-0">
+                <div className="text-muted-foreground font-body text-xs">
+                  Ready to be onboarded
+                </div>
+              </CardContent>
+            </Card>
           </div>
-            </CardHeader>
-             <CardContent className="pt-0 pb-0">
-              <div className="text-xs text-muted-foreground font-body">
-                Opened opportunities
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Total Applications</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{summary.totalApplications}</CardTitle>
-                </div>
-                <div className="hidden sm:block bg-green-100 rounded-full p-3 ml-4">
-                  <Users className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-            </CardHeader>
-             <CardContent className="pt-0 pb-0">
-              <div className="text-xs text-muted-foreground font-body">
-                Across every listing
-              </div>
-            </CardContent>
-          </Card>
+          {/* Organisation's Listings */}
 
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold mt-2 mb-7 sm:mt-0 sm:mb-4 lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Pending Reviews</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{summary.pending}</CardTitle>
-                </div>
-                <div className="hidden sm:block bg-orange-100 rounded-full p-3 ml-4">
-                  <Clock className="h-6 w-6 text-orange-600" />
-                </div>
+          <div className="pb-4">
+            {/* <div className="flex flex-wrap items-center gap-3 md:justify-between"> */}
+            <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-2">
+              <div>
+                <h2 className="font-heading text-2xl">Your Listings</h2>
+                <p className="font-body text-muted-foreground mt-2">
+                  Progress for every project you currently oversee
+                </p>
               </div>
-            </CardHeader>
-             <CardContent className="pt-0 pb-0">
-              <div className="text-xs text-muted-foreground font-body">
-                Waiting for your decision
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold">Confirmed Volunteers</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{summary.confirmed}</CardTitle>
+              {/* <div className="flex flex-wrap items-center gap-3 justify-between relative w-full md:w-auto"> */}
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div className="relative w-full md:max-w-[360px] lg:max-w-[420px]">
+                  <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                  <Input
+                    placeholder="Search listings..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full py-2 pr-4 pl-10"
+                  />
                 </div>
-                <div className="hidden sm:block bg-purple-100 rounded-full p-3 ml-4">
-                  <CheckCircle2 className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-            </CardHeader>
-             <CardContent className="pt-0 pb-0">
-              <div className="text-xs text-muted-foreground font-body">
-                Ready to be onboarded
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Organisation's Listings */}
-
-        <div className="pb-4">
-          {/* <div className="flex flex-wrap items-center gap-3 md:justify-between"> */}
-          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h2 className="font-heading text-2xl">Your Listings</h2>
-              <p className="font-body mt-2 text-muted-foreground">
-                Progress for every project you currently oversee
-              </p>
+                <span className="text-foreground font-body flex flex-row items-center justify-end gap-2 text-sm font-medium whitespace-nowrap">
+                  Sort By
+                  <Select
+                    value={listingSort}
+                    onValueChange={(value) =>
+                      setListingSort(
+                        value as
+                          | "date_asc"
+                          | "date_desc"
+                          | "applications_desc"
+                          | "applications_asc",
+                      )
+                    }
+                  >
+                    <SelectTrigger className="w-full font-normal md:w-[220px]">
+                      <SelectValue placeholder="Choose sort order" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sortOptions.map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={option.value}
+                          className="font-body font-normal"
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </span>
+              </div>
             </div>
 
-            
-            {/* <div className="flex flex-wrap items-center gap-3 justify-between relative w-full md:w-auto"> */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-              <div className="relative w-full md:max-w-[360px] lg:max-w-[420px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search listings..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full"
-                />
-              </div>
-
-              
-              <span className="flex flex-row justify-end items-center gap-2 text-sm font-medium text-foreground font-body whitespace-nowrap">
-                Sort By
-                <Select
-                  value={listingSort}
-                  onValueChange={(value) =>
-                    setListingSort(
-                      value as "date_asc" | "date_desc" | "applications_desc" | "applications_asc"
-                    )
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-[220px] font-normal">
-                    <SelectValue placeholder="Choose sort order" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="font-body font-normal">
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </span>
-            </div>
-            
+            <Tabs
+              value={listingStatusFilter}
+              onValueChange={(value) =>
+                setListingStatusFilter(
+                  value as "open" | "shortlisting" | "ongoing" | "archived",
+                )
+              }
+              className="mt-6 w-full"
+            >
+              <TabsList className="grid h-auto w-full grid-cols-2 md:inline-flex md:h-9 md:w-auto">
+                {statusTabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="font-body"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
           </div>
-        
-          <Tabs
-            value={listingStatusFilter}
-            onValueChange={(value) =>
-              setListingStatusFilter(value as "open" | "shortlisting" | "ongoing" | "archived")
-            }
-            className="w-full mt-6"
-          >
-            <TabsList className="h-auto grid w-full grid-cols-2 md:h-9 md:inline-flex md:w-auto">
-              {statusTabs.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} className="font-body">
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
 
-        {/* Filters */}
-        {/* <div className="rounded-lg border bg-card/70 p-4 shadow-sm mb-6">
+          {/* Filters */}
+          {/* <div className="rounded-lg border bg-card/70 p-4 shadow-sm mb-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Tabs
               value={listingStatusFilter}
@@ -442,202 +539,231 @@ const handleDeleteListing = useCallback(
           </div>
         </div> */}
 
-            {displayListings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 py-12 text-center">
-                <ClipboardList className="h-10 w-10 text-muted-foreground" />
-                <div>
-                  <h3 className="font-heading text-lg text-foreground">No listings in this view yet</h3>
-                  <p className="text-sm text-muted-foreground font-body">
-                    Try switching to a different status or create a new listing to get started.
-                  </p>
-                </div>
+          {displayListings.length === 0 ? (
+            <div className="border-muted-foreground/40 bg-muted/40 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-12 text-center">
+              <ClipboardList className="text-muted-foreground h-10 w-10" />
+              <div>
+                <h3 className="font-heading text-foreground text-lg">
+                  No listings in this view yet
+                </h3>
+                <p className="text-muted-foreground font-body text-sm">
+                  Try switching to a different status or create a new listing to
+                  get started.
+                </p>
               </div>
-            ) : (
-          <div className="space-y-4">
-          <div 
-            className="max-h-[600px] overflow-y-auto overflow-x-hidden space-y-6"
-            style={{ 
-              overscrollBehavior: "contain"
-            }}
-            onWheel={(e) => {
-              const target = e.currentTarget;
-              const { scrollTop, scrollHeight, clientHeight } = target;
-              const isAtTop = scrollTop === 0;
-              const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
-              
-              // Prevent page scroll if we can scroll within the container
-              if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
-                e.stopPropagation();
-                e.preventDefault();
-                // Manually scroll the container
-                target.scrollTop += e.deltaY;
-              }
-            }}
-          >
-          {currentListings.map((listing) => {
-                const fillPercentage = Math.round(
-                  (Math.min(listing.volunteerCount, listing.slotsTotal) / listing.slotsTotal) * 100
-                );
-                const fillTone = getFillTone(fillPercentage);
-                const fillBadgeTone = getFillBadgeTone(fillPercentage);
-                const fillLabel = getFillLabel(fillPercentage);
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div
+                className="max-h-[600px] space-y-6 overflow-x-hidden overflow-y-auto"
+                style={{
+                  overscrollBehavior: "contain",
+                }}
+                onWheel={(e) => {
+                  const target = e.currentTarget;
+                  const { scrollTop, scrollHeight, clientHeight } = target;
+                  const isAtTop = scrollTop === 0;
+                  const isAtBottom =
+                    scrollTop + clientHeight >= scrollHeight - 1;
 
-                return (
-                  <div
-                    key={listing.id}
-                    className="rounded-2xl border border-border/60 bg-card/60 p-5 shadow-sm transition-all"
-                  >
-                    <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] lg:grid-cols-[minmax(0,1fr)_280px]">
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="font-heading text-xl font-semibold text-foreground">
-                            {listing.title}
-                          </h3>
-                          <Badge variant="secondary" className="font-medium capitalize">
-                            {listing.status}
-                          </Badge>
-                        </div>
+                  // Prevent page scroll if we can scroll within the container
+                  if (
+                    (e.deltaY < 0 && !isAtTop) ||
+                    (e.deltaY > 0 && !isAtBottom)
+                  ) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    // Manually scroll the container
+                    target.scrollTop += e.deltaY;
+                  }
+                }}
+              >
+                {currentListings.map((listing) => {
+                  const fillPercentage = Math.round(
+                    (Math.min(listing.volunteerCount, listing.slotsTotal) /
+                      listing.slotsTotal) *
+                      100,
+                  );
+                  const fillTone = getFillTone(fillPercentage);
+                  const fillBadgeTone = getFillBadgeTone(fillPercentage);
+                  const fillLabel = getFillLabel(fillPercentage);
 
-                        <div className="space-y-2 text-sm text-muted-foreground font-body">
+                  return (
+                    <div
+                      key={listing.id}
+                      className="border-border/60 bg-card/60 rounded-2xl border p-5 shadow-sm transition-all"
+                    >
+                      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] lg:grid-cols-[minmax(0,1fr)_280px]">
+                        <div className="space-y-4">
                           <div className="flex flex-wrap items-center gap-3">
-                        {!listing.isRemote && (
-                            <span className="inline-flex items-center gap-1.5">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            {listing.type === "overseas"
-                              ? (listing.country || "—")
-                              : (listing.district || "—")}
-                            </span>
-                        )}
-                            <span className="hidden h-4 w-px bg-border md:block" />
-                            <span className="inline-flex items-center gap-1.5">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />{" "}
-                          {listing.repeatInterval === 0
-                            ? listing.startDate?.slice(0, 10)
-                            : `${listing.startDate?.slice(0, 10)} – ${listing.endDate?.slice(0, 10)}`
-                          }
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              {listing.slotsTotal} volunteer slots
-                              {fillPercentage >= 100 ? " (Waitlist only)" : ""}
-                            </span>
-                          </div>
-                        </div>
-
-                        {listing.projectTags?.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {listing.projectTags.map((tag: string) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
-                              >
-                                {getTagIcon(tag)}
-                                <span>{tag}</span>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col gap-4 md:items-end">
-                        <div className="w-full rounded-xl border bg-background/90 p-3 shadow-sm">
-                          <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            <span>{fillPercentage}% filled</span>
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${fillBadgeTone}`}
+                            <h3 className="font-heading text-foreground text-xl font-semibold">
+                              {listing.title}
+                            </h3>
+                            <Badge
+                              variant="secondary"
+                              className="font-medium capitalize"
                             >
-                              {fillLabel}
-                            </span>
+                              {listing.status}
+                            </Badge>
                           </div>
-                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${fillTone}`}
-                              style={{ width: `${Math.min(fillPercentage, 100)}%` }}
-                            />
+
+                          <div className="text-muted-foreground font-body space-y-2 text-sm">
+                            <div className="flex flex-wrap items-center gap-3">
+                              {!listing.isRemote && (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <MapPin className="text-muted-foreground h-4 w-4" />
+                                  {listing.type === "overseas"
+                                    ? listing.country || "—"
+                                    : listing.district || "—"}
+                                </span>
+                              )}
+                              <span className="bg-border hidden h-4 w-px md:block" />
+                              <span className="inline-flex items-center gap-1.5">
+                                <Calendar className="text-muted-foreground h-4 w-4" />{" "}
+                                {listing.repeatInterval === 0
+                                  ? listing.startDate?.slice(0, 10)
+                                  : `${listing.startDate?.slice(0, 10)} – ${listing.endDate?.slice(0, 10)}`}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Users className="text-muted-foreground h-4 w-4" />
+                              <span>
+                                {listing.slotsTotal} volunteer slots
+                                {fillPercentage >= 100
+                                  ? " (Waitlist only)"
+                                  : ""}
+                              </span>
+                            </div>
                           </div>
-                          <p className="mt-2 text-sm font-medium text-foreground">
-                            {listing.volunteerCount}
-                            <span className="text-muted-foreground font-body">
-                              {" "}
-                              / {listing.slotsTotal} volunteers
-                            </span>
-                          </p>
+
+                          {listing.projectTags?.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {listing.projectTags.map((tag: string) => (
+                                <span
+                                  key={tag}
+                                  className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                                >
+                                  {getTagIcon(tag)}
+                                  <span>{tag}</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
-                        <div className="flex w-full flex-wrap gap-2 md:justify-end">
-                          <Button variant="outline" size="sm" asChild>
-                            <Link to="/organisations/$projectId" params={{ projectId: listing.id }}>
-                          View Listing
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                        onClick={() => handleDeleteListing(listing.id, listing.title)}
-                            aria-label={`Delete ${listing.title}`}
-                        disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        <div className="flex flex-col gap-4 md:items-end">
+                          <div className="bg-background/90 w-full rounded-xl border p-3 shadow-sm">
+                            <div className="text-muted-foreground flex items-center justify-between text-xs font-medium tracking-wide uppercase">
+                              <span>{fillPercentage}% filled</span>
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${fillBadgeTone}`}
+                              >
+                                {fillLabel}
+                              </span>
+                            </div>
+                            <div className="bg-muted mt-2 h-2 w-full overflow-hidden rounded-full">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${fillTone}`}
+                                style={{
+                                  width: `${Math.min(fillPercentage, 100)}%`,
+                                }}
+                              />
+                            </div>
+                            <p className="text-foreground mt-2 text-sm font-medium">
+                              {listing.volunteerCount}
+                              <span className="text-muted-foreground font-body">
+                                {" "}
+                                / {listing.slotsTotal} volunteers
+                              </span>
+                            </p>
+                          </div>
 
+                          <div className="flex w-full flex-wrap gap-2 md:justify-end">
+                            <Button variant="outline" size="sm" asChild>
+                              <Link
+                                to="/organisations/$projectId"
+                                params={{ projectId: listing.id }}
+                              >
+                                View Listing
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() =>
+                                handleDeleteListing(listing.id, listing.title)
+                              }
+                              aria-label={`Delete ${listing.title}`}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-            })}
-          </div>
-          {displayListings.length > 0 && (
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-sm text-muted-foreground font-body">
-                Showing {startIndex + 1}-{Math.min(endIndex, displayListings.length)} of {displayListings.length} {displayListings.length === 1 ? "result" : "results"}
-              </p>
-              
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  );
+                })}
+              </div>
+              {displayListings.length > 0 && (
+                <div className="flex flex-col items-center gap-4">
+                  <p className="text-muted-foreground font-body text-sm">
+                    Showing {startIndex + 1}-
+                    {Math.min(endIndex, displayListings.length)} of{" "}
+                    {displayListings.length}{" "}
+                    {displayListings.length === 1 ? "result" : "results"}
+                  </p>
+
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2">
                       <Button
-                        key={page}
-                        variant={page === currentPage ? "default" : "outline"}
+                        variant="outline"
                         size="sm"
-                        onClick={() => setCurrentPage(page)}
-                        className="w-8 h-8 p-0"
+                        onClick={() =>
+                          setCurrentPage(Math.max(1, currentPage - 1))
+                        }
+                        disabled={currentPage === 1}
                       >
-                        {page}
+                        Previous
                       </Button>
-                    ))}
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </Button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1,
+                        ).map((page) => (
+                          <Button
+                            key={page}
+                            variant={
+                              page === currentPage ? "default" : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="h-8 w-8 p-0"
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setCurrentPage(Math.min(totalPages, currentPage + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
-          </div>
-        )}
-
-
+        </div>
       </div>
-    </div>
     </div>
   );
 }

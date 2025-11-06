@@ -56,8 +56,13 @@ function AlertDialogContent({
         onClick={(e) => {
           // Close dialog when clicking the overlay
           const target = e.target as HTMLElement;
-          if (target.hasAttribute('data-slot') && target.getAttribute('data-slot') === 'alert-dialog-overlay') {
-            const cancelButton = document.querySelector('[data-slot="alert-dialog-close"]') as HTMLButtonElement;
+          if (
+            target.hasAttribute("data-slot") &&
+            target.getAttribute("data-slot") === "alert-dialog-overlay"
+          ) {
+            const cancelButton = document.querySelector(
+              '[data-slot="alert-dialog-close"]',
+            ) as HTMLButtonElement;
             if (cancelButton) {
               cancelButton.click();
             }
