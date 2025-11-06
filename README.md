@@ -13,9 +13,9 @@ G4 Group 12
 |:--:|:--|:--|
 | <img src="photos/Adrian.jpg" width="80"> | Adrian Yeo Ying Hong | Backend Developer: Backend Infrastructure, Sign in, Role based Security Restriction Management, Database Management, Backend API calls, Deployment, Git master, Backend-frontend Integration |
 | <img src="photos/Kara.jpg" width="80"> | Kara Huang Xiu Ning | Frontend Developer: Interactive Landing Page, Discover CSPs and Filters, Create Project Listing flow, Admin Dashboard, Website Screen Responsiveness |
-| <img src="photos/Calynn.jpg" width="80"> | Calynn | Frontend Developer - Organisation Dashboard, Nav Bar Profile Dropdown Backend - Organisation Profile Edit, Page Locking for Student Pages, Status Tab Counts |
-| <img src="photos/Sheryl.jpg" width="80"> | Tan Xing Yee Sheryl | Frontend Developer - Profile page, Organiser Dashboard, Admin Dashboard, Create Organiser listing form, Google Maps design |
-| <img src="photos/Rey.jpg" width="80"> | John Rey Valdellon Pastores | Backend Developer - Google Maps & Google Calendar API Integration |
+| <img src="photos/Calynn.jpg" width="80"> | Calynn | Frontend Developer:  Organisation Dashboard, Nav Bar Profile Dropdown Backend - Organisation Profile Edit, Page Locking for Student Pages, Status Tab Counts |
+| <img src="photos/Sheryl.jpg" width="80"> | Tan Xing Yee Sheryl | Frontend Developer:  Profile page, Organiser Dashboard, Admin Dashboard, Create Organiser listing form, Google Maps design |
+| <img src="photos/Rey.jpg" width="80"> | John Rey Valdellon Pastores | Backend Developer:  Google Maps & Google Calendar API Integration |
 | <img src="photos/KaiJie.jpg" width="80"> | Leo Kai Jie | Slides, ReadME |
 
 
@@ -79,49 +79,60 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 
 1. **Landing Page**  
    <img src="screenshots/landing.jpg" width="600">
-   - Displays the homepage with navigation options.
+
+- Displays the homepage with navigation options.
 
 2. **AI Chatbot**  
    <img src="screenshots/AIChatbot.jpg" width="600">
-   - The AI Chatbot helps users on how to use the website
+
+- The AI Chatbot helps users on how to use the website
 
 3. **CSP Discover and Matching**  
    <img src="screenshots/discover.jpg" width="600">
-   - Users can search and filter through CSPs in this page by Category, Location (Map), and Keywords
+
+- Users can search and filter through CSPs in this page by Category, Location (Map), and Keywords
 
 4. **View CSP Details**  
    <img src="screenshots/viewCSPDetails.jpg" width="600">
-   - Detailed CSP View Page showing description, requirements, and application.
+
+- Detailed CSP View Page showing description, requirements, and application.
 
 5. **GoogleOAuth Sign In**  
    <img src="screenshots/GoogleSignIn.jpg" width="600">
-   - Users sign in securely using their accounts before applying.
+
+- Users sign in securely using their accounts before applying.
 
 6. **User Application Form**  
    <img src="screenshots/applicationform.jpg" width="600">
-   - Users must complete the application form to apply for a CSP.
+
+- Users must complete the application form to apply for a CSP.
 
 7. **User Dashboard**  
    <img src="screenshots/UserDashboard.jpg" width="600">
-   - Main dashboard displaying overview of user CSP applications and upcoming events.
+
+- Main dashboard displaying overview of user CSP applications and upcoming events.
 
 8. **User My Applications**  
    <img src="screenshots/MyApplications.jpg" width="600">
-   - Dedicated application tracking page monitoring all their applications for CSP.
+
+- Dedicated application tracking page monitoring all their applications for CSP.
 
 ### Organisation User Journey
 
 9. **Organisation Dashboard**  
    <img src="screenshots/OrganisationDashboard.jpg" width="600">
-   - Dashboard for organisation coordinators to view all posted listings, track application status, manage volunteer slots, and access analytics.
+
+- Dashboard for organisation coordinators to view all posted listings, track application status, manage volunteer slots, and access analytics.
 
 10. **Organisation Request Form**  
    <img src="screenshots/OrgRequestForm.jpg" width="600">
-   - Organisation members can request to make a form. Once request is accepted, the password is then sent to their email. (If done locally its sent to MailDev)
+
+- Organisation members can request to make a form. Once request is accepted, the password is then sent to their email. (If done locally its sent to MailDev)
 
 11. **Create New CSP Listing**  
    <img src="screenshots/CreateListing.jpg" width="600">
-   - Organisation coordinators can create a CSP Listing with specified requirements that they need to fill.
+
+- Organisation coordinators can create a CSP Listing with specified requirements that they need to fill.
 
 12. **View Posted Listing**  
     <img src="screenshots/ViewListing.jpg" width="600">
@@ -230,6 +241,7 @@ FORCE_PATH_STYLE="true"
 3. Push schema to the database
    ```bash
       bun db:push
+      bun run scripts/db-seed-admin.ts
    ```
 4. Open Drizzle Studio to visualise local database:
    ```bash
