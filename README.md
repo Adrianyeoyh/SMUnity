@@ -238,10 +238,18 @@ FORCE_PATH_STYLE="true"
    ```bash
       docker-compose -f docker-compose.dev.yaml up -d
    ```
-3. Push schema to the database
+
+3a. Loading schema and production snapshot Data
+   ```bash
+      source .env
+      psql -d $DATABASE_URL -f dump.sql
+   ```
+
+3b.  **(DO NOT DO THIS IF YOU DO 3a)** Push schema and minimum Data
    ```bash
       bun db:push
       bun run scripts/db-seed-admin.ts
+
    ```
 4. Open Drizzle Studio to visualise local database:
 
