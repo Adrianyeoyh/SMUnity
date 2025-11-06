@@ -5,7 +5,7 @@ import { useAuth } from "#client/hooks/use-auth";
 function OrganisationRoot() {
   const navigate = useNavigate();
   const routerState = useRouterState();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, isLoading } = useAuth();
 
   // scroll reset
   useEffect(() => {
@@ -25,7 +25,35 @@ function OrganisationRoot() {
     }
   }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
 
-  // 🧩 role-based route protection for organisation pages
+  const shouldShowLoading = isLoading && !user && !isLoggedIn;
+
+  // Authentication guard
+  useEffect(() => {
+    if (isLoading) return;
+
+    const path = routerState.location.pathname;
+    
+    if (!isLoggedIn) {
+      navigate({ 
+        to: "/auth/login", 
+        replace: true,
+        search: { redirectTo: path }
+      });
+      return;
+    }
+  }, [isLoading, isLoggedIn, routerState.location.pathname, navigate]);
+
+  if (shouldShowLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     if (!isLoggedIn) return;
 

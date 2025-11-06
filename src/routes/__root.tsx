@@ -4,7 +4,7 @@ import { Header } from "#client/components/layout/header";
 import { Footer } from "#client/components/layout/footer";
 import { Toaster } from "#client/components/ui/sonner";
 import { Chatbot } from "#client/components/chatbot/Chatbot";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useAuth } from "#client/hooks/use-auth";
 import { MobileMenuProvider } from "#client/contexts/mobile-menu-context";
 import { motion } from "framer-motion";
@@ -12,25 +12,56 @@ import { motion } from "framer-motion";
 function RootComponent() {
   const routerState = useRouterState();
   const navigate = useNavigate();
-  const { isLoggedIn, user } = useAuth(); // ⬅️ ensure your hook exposes `user`
+  const { isLoggedIn, user, isLoading } = useAuth();
   
+  const path = routerState.location.pathname;
+  
+  // Define all protected routes
+  const protectedRoutes = [
+    "/dashboard",
+    "/favourites",
+    "/my-applications",
+    "/profile",
+    "/profileedit",
+    "/admin",
+    "/organisations",
+  ];
 
-  // Scroll reset on route change
+  // Check if current path is a protected route
+  const isProtectedRoute = useMemo(() => 
+    protectedRoutes.some((route) => path.startsWith(route)),
+    [path]
+  );
+  const shouldShowLoading = isLoading && isProtectedRoute && !user && !isLoggedIn;
+  
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [routerState.location.pathname]);
 
-  // Removed automatic redirect from "/" to dashboard - users can now access landing page even when logged in
-
-
-  // role-based route protection for user pages
+  // Authentication guard
   useEffect(() => {
-    if (!isLoggedIn) return;
+    // Wait for auth to finish loading before checking
+    if (isLoading) return;
+
+    // Check if current path is a protected route
+    // If accessing a protected route and not logged in, redirect to login
+    if (isProtectedRoute && !isLoggedIn) {
+      navigate({ 
+        to: "/auth/login", 
+        replace: true,
+        search: { redirectTo: path }
+      });
+      return;
+    }
+  }, [isLoading, isLoggedIn, isProtectedRoute, path, navigate]);
+
+  useEffect(() => {
+    if (isLoading || !isLoggedIn) return;
 
     const path = routerState.location.pathname;
     const role = user?.accountType;
 
-    // --- Student routes (user-only)
+    // Student routes
     const studentRoutes = [
       "/dashboard",
       "/favourites",
@@ -39,21 +70,49 @@ function RootComponent() {
       "/profileedit",
     ];
 
-    // check if current path starts with any of those
+    // Admin routes
+    const adminRoutes = ["/admin"];
+
+    // Organisation routes
+    const organisationRoutes = ["/organisations"];
+
     const isStudentRoute = studentRoutes.some((route) =>
       path.startsWith(route)
     );
+    const isAdminRoute = adminRoutes.some((route) =>
+      path.startsWith(route)
+    );
+    const isOrganisationRoute = organisationRoutes.some((route) =>
+      path.startsWith(route)
+    );
 
-    if (isStudentRoute) {
-      // ADMIN trying to access student pages
-      if (role === "admin") {
+    // Prevent students from accessing admin or organisation routes
+    if (role === "student") {
+      if (isAdminRoute) {
+        navigate({ to: "/dashboard", replace: true });
+        return;
+      }
+      if (isOrganisationRoute) {
+        navigate({ to: "/dashboard", replace: true });
+        return;
+      }
+    }
+
+    // Prevent admins from accessing student or organisation routes
+    if (role === "admin") {
+      if (isStudentRoute) {
         navigate({ to: "/admin/dashboard", replace: true });
         return;
       }
+      if (isOrganisationRoute) {
+        navigate({ to: "/admin/dashboard", replace: true });
+        return;
+      }
+    }
 
-      // ORGANISATION trying to access student pages
-      if (role === "organisation") {
-        // Handle /profile + /profileedit separately
+    // Prevent organisations from accessing student or admin routes
+    if (role === "organisation") {
+      if (isStudentRoute) {
         if (path.startsWith("/profileedit")) {
           navigate({ to: "/organisations/editprofile", replace: true });
           return;
@@ -62,17 +121,31 @@ function RootComponent() {
           navigate({ to: "/organisations/profile", replace: true });
           return;
         }
-
-        // Everything else (dashboard, favourites, my-applications)
+        navigate({ to: "/organisations/dashboard", replace: true });
+        return;
+      }
+      if (isAdminRoute) {
         navigate({ to: "/organisations/dashboard", replace: true });
         return;
       }
     }
-  }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
+  }, [isLoading, isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
 
 
 
   const pathname = routerState.location.pathname;
+
+  // Show loading screen while checking authentication for protected routes
+  if (shouldShowLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <MobileMenuProvider>

@@ -579,9 +579,9 @@ function ListingApplicationsPage() {
               <p>Are you sure you want to {decisionType} this application?</p>
               <p>
                 <span className="font-body">Applicant: </span>
-                <span className="font-medium">
+              <span className="font-medium">
                   {selectedApp?.applicant?.name ?? "Unknown"}
-                </span>
+              </span>
               </p>
             </DialogDescription>
           </DialogHeader>
