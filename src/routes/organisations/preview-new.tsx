@@ -75,6 +75,7 @@ function PreviewPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<FormInput | null>(null);
+  console.log(formData);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -196,7 +197,7 @@ function PreviewPage() {
 
           {/* Project Description */}
           <CardContent className="mb-4">
-            <p className="text-muted-foreground font-body leading-relaxed">
+            <p className="text-muted-foreground font-body leading-relaxed break-all">
               {formData.description}
             </p>
           </CardContent>
@@ -240,10 +241,10 @@ function PreviewPage() {
                 value={
                   formData.repeat_interval === 0
                     ? startDate
-                      ? format(startDate, "yyyy-MM-dd")
+                      ? format(startDate, "dd-MM-yyyy")
                       : "—"
                     : startDate && endDate
-                      ? `${format(startDate, "yyyy-MM-dd")} – ${format(endDate, "yyyy-MM-dd")}`
+                      ? `${format(startDate, "dd-MM-yyyy")} – ${format(endDate, "dd-MM-yyyy")}`
                       : "—"
                 }
               />
@@ -254,7 +255,7 @@ function PreviewPage() {
                   <CalendarDays className="text-muted-foreground h-4 w-4" />
                 }
                 label="Apply By"
-                value={deadline ? format(deadline, "yyyy-MM-dd") : "—"}
+                value={deadline ? format(deadline, "dd-MM-yyyy") : "—"}
               />
               {formData.repeat_interval !== 0 && (
                 <InfoRow

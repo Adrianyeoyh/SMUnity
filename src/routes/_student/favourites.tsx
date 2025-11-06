@@ -205,7 +205,7 @@ function FavouritesPage() {
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         {/* Grid View (reused Discover card layout) */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 overflow-hidden">
           {favourites.map((csp: any) => (
             <Card
               key={csp.id}
@@ -232,7 +232,7 @@ function FavouritesPage() {
                     <Heart className="h-4 w-4 fill-red-500 text-red-500 transition-all" />
                   </Button>
                 </div>
-                <CardTitle className="font-heading group-hover:text-primary text-lg transition-colors">
+                <CardTitle className="font-heading group-hover:text-primary text-lg transition-colors block truncate overflow-hidden text-ellipsis">
                   {csp.title}
                 </CardTitle>
                 <CardDescription className="font-body">

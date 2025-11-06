@@ -396,13 +396,13 @@ function MyApplications() {
                     className="group/card transition-shadow hover:shadow-lg"
                   >
                     <CardContent className="px-4 pt-0 pb-0 sm:px-6">
-                      <div className="mb-4 flex flex-col items-start justify-between gap-2 sm:flex-row sm:gap-0">
-                        <div className="min-w-0 flex-1">
+                      <div className="mb-4 flex items-start justify-between gap-2 flex-row sm:gap-0 overflow-hidden">
+                        <div className="min-w-0 flex-1 flex-row">
                           <Link
                             to="/csp/$projectID"
                             params={{ projectID: app.projectId }}
                           >
-                            <h3 className="font-heading text-foreground group-hover/card:text-primary cursor-pointer text-lg font-semibold break-words transition-colors sm:text-xl">
+                            <h3 className="font-heading text-foreground group-hover/card:text-primary cursor-pointer text-lg font-semibold transition-colors sm:text-xl block truncate overflow-hidden text-ellipsis">
                               {app.projectTitle}
                             </h3>
                           </Link>

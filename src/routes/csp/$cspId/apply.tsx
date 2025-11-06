@@ -59,11 +59,11 @@ function ApplyForCSPPage() {
           Back
         </button>
         <span>/</span>
-        <span className="text-foreground">Apply for {project.title}</span>
+        <span className="text-foreground block truncate overflow-hidden text-ellipsis">Apply for {project.title}</span>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="font-heading text-2xl">
+          <CardTitle className="font-heading text-2xl break-all">
             Apply for <span className="text-primary">{project.title}</span>
           </CardTitle>
         </CardHeader>

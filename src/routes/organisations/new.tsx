@@ -1449,7 +1449,7 @@ function NewProjectPage() {
             </div>
 
             {/* Repeats: Every [interval] [unit => locked to week] */}
-            <div className="flex flex-col items-center gap-3 sm:flex-row">
+            <div className="flex flex-col items-center gap-3 flex-row">
               <Label className="w-32 font-medium">Repeats every</Label>
               <div className="flex flex-1 items-center gap-4">
                 <Input
@@ -1473,10 +1473,8 @@ function NewProjectPage() {
                   </p>
                 )}
                 <span className="text-muted-foreground text-sm">/week(s)</span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   <input
-                    id="one_time"
-                    type="checkbox"
                     onChange={(e) => {
                       if (e.target.checked) {
                         setValue("repeat_interval", 0);
@@ -1507,11 +1505,7 @@ function NewProjectPage() {
                         }
                       }
                     }}
-                    checked={repeatInterval === 0}
                   />
-                  <Label htmlFor="one_time" className="mb-0 cursor-pointer">
-                    One-time
-                  </Label>
                 </div>
               </div>
             </div>

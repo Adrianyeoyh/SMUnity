@@ -507,50 +507,6 @@ function OrgDashboard() {
             </Tabs>
           </div>
 
-          {/* Filters */}
-          {/* <div className="rounded-lg border bg-card/70 p-4 shadow-sm mb-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <Tabs
-              value={listingStatusFilter}
-              onValueChange={(value) =>
-                setListingStatusFilter(value as "open" | "shortlisting" | "ongoing" | "archived")
-              }
-              className="w-full md:w-auto"
-            >
-              <TabsList className="h-auto grid w-full grid-cols-2 md:h-9 md:inline-flex md:w-auto">
-                {statusTabs.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value} className="font-body">
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-
-            <div className="flex w-full items-center justify-between gap-3 md:w-auto">
-              <span className="text-sm font-medium text-muted-foreground font-body">Sort by</span>
-              <Select
-                value={listingSort}
-                onValueChange={(value) =>
-                  setListingSort(
-                    value as "date_asc" | "date_desc" | "applications_desc" | "applications_asc"
-                  )
-                }
-              >
-                <SelectTrigger className="w-full md:w-[220px]">
-                  <SelectValue placeholder="Choose sort order" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="font-body">
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div> */}
-
           {displayListings.length === 0 ? (
             <div className="border-muted-foreground/40 bg-muted/40 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-12 text-center">
               <ClipboardList className="text-muted-foreground h-10 w-10" />
@@ -606,9 +562,9 @@ function OrgDashboard() {
                       className="border-border/60 bg-card/60 rounded-2xl border p-5 shadow-sm transition-all"
                     >
                       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] lg:grid-cols-[minmax(0,1fr)_280px]">
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <h3 className="font-heading text-foreground text-xl font-semibold">
+                        <div className="space-y-4 overflow-hidden">
+                          <div className="flex flex-nowrap items-center gap-3 block">
+                            <h3 className="font-heading text-foreground text-xl font-semibold truncate overflow-hidden text-ellipsis">
                               {listing.title}
                             </h3>
                             <Badge

@@ -86,17 +86,19 @@ const getStatusLabel = (status: string) => {
 
 function Dashboard() {
   const { data: userData, isLoading: isLoadingUser } = useMe();
-  const userName = userData?.name
-    ? userData.name.replace(/_/g, " ").trim()
-    : undefined;
+  // const userName = userData?.name
+  //   ? userData.name.replace(/_/g, " ").trim()
+  //   : undefined;
+  const userName = userData?.name ?? "Student";
   // console.log("user data: ", userData);
 
-  console.log(userData);
+  // console.log(userData);
   const [showCSUCard, setShowCSUCard] = useState(true);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedApplicationData, setSelectedApplicationData] = useState<
     any | null
   >(null);
+  console.log(selectedApplicationData);
 
   useEffect(() => {
     const csuCardHidden = localStorage.getItem("csuCardHidden");
@@ -145,6 +147,7 @@ function Dashboard() {
   const pendingCount = pendingData?.pendingCount ?? 0;
   const completedCount = completedData?.completedCount ?? 0;
   const applications = allAppsData?.applications ?? [];
+  const successfulCount = applications.filter((app: any) => app.status === "accepted").length;
   const upcomingSessions = upcomingData?.sessions ?? [];
 
   return (
@@ -254,7 +257,7 @@ function Dashboard() {
                     Successful Applications
                   </CardDescription>
                   <CardTitle className="font-heading text-primary text-3xl">
-                    {completedCount}
+                    { successfulCount }
                   </CardTitle>
                 </div>
                 <div className="ml-4 hidden rounded-full bg-blue-100 p-3 sm:block">
@@ -375,15 +378,15 @@ function Dashboard() {
                   applications.map((app: any) => (
                     <div
                       key={app.id}
-                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors"
+                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors overflow-hidden"
                     >
                       <Link
                         to="/csp/$projectID"
                         params={{ projectID: app.projectId.toString() }}
-                        className="flex-1"
+                        className="flex-1 overflow-hidden"
                       >
-                        <div className="mb-1 flex flex-wrap items-center gap-2">
-                          <h4 className="font-heading font-semibold">
+                        <div className="mb-1 flex flex-row items-center gap-2">
+                          <h4 className="font-heading font-semibold block truncate overflow-hidden text-ellipsis">
                             {app.projectTitle}
                           </h4>
                           <Badge

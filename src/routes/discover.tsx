@@ -893,7 +893,7 @@ function DiscoverCSPs() {
                 return (
                   <Card
                     key={csp.id}
-                    className="group flex h-full cursor-pointer flex-col transition-shadow hover:shadow-lg"
+                    className="group flex h-full cursor-pointer flex-col transition-shadow overflow-hidden hover:shadow-lg"
                   >
                     <CardHeader>
                       <div className="mb-2 flex items-start justify-between gap-2">
@@ -956,7 +956,7 @@ function DiscoverCSPs() {
                           </div>
                         )}
                       </div>
-                      <CardTitle className="font-heading group-hover:text-primary text-lg transition-colors">
+                      <CardTitle className="font-heading group-hover:text-primary text-lg transition-colors block truncate overflow-hidden text-ellipsis">
                         {csp.title}
                       </CardTitle>
                       <CardDescription className="font-body">

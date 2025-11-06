@@ -352,8 +352,8 @@ function CspDetail() {
               </div>
 
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h1 className="font-heading text-foreground mb-3 text-3xl font-bold md:text-4xl">
+                <div className="flex-1 break-words">
+                  <h1 className="font-heading text-foreground mb-3 text-3xl font-bold md:text-4xl break-all">
                     {csp.title}
                   </h1>
                   <div className="text-muted-foreground flex items-center gap-2 text-lg">

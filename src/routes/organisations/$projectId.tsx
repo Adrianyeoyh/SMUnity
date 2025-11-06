@@ -212,7 +212,7 @@ function ListingApplicationsPage() {
             <span className="font-body">Back to Dashboard</span>
           </button>
           <div>
-            <h1 className="font-heading text-foreground text-3xl font-bold">
+            <h1 className="font-heading text-foreground text-3xl font-bold break-all">
               {project.title}
             </h1>
             <p className="text-muted-foreground font-body mt-2 text-sm">
@@ -227,7 +227,7 @@ function ListingApplicationsPage() {
       <div className="container mx-auto space-y-8 px-4 py-8">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <Card className="bg-card/60 border shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <CardTitle className="font-heading text-lg">
                   Project Overview
@@ -236,7 +236,7 @@ function ListingApplicationsPage() {
                   Overview and key information for this listing
                 </CardDescription>
               </div>
-              <div className="flex flex-row items-center gap-4">
+              <div className="flex flex-wrap md:flex-row items-center gap-4">
                 {project.googleMaps && project.type === "local" && (
                   <a
                     href={project.googleMaps}
@@ -279,7 +279,7 @@ function ListingApplicationsPage() {
             <CollapsibleContent>
               {/* Project Description */}
               <CardContent className="mb-4">
-                <p className="text-muted-foreground font-body leading-relaxed">
+                <p className="text-muted-foreground font-body leading-relaxed break-all">
                   {project.description}
                 </p>
               </CardContent>
@@ -325,8 +325,8 @@ function ListingApplicationsPage() {
                     label="Period"
                     value={
                       project.repeatInterval === 0
-                        ? format(new Date(project.startDate), "yyyy-MM-dd")
-                        : `${format(new Date(project.startDate), "yyyy-MM-dd")} – ${format(new Date(project.endDate), "yyyy-MM-dd")}`
+                        ? format(new Date(project.startDate), "dd-MM-yyyy")
+                        : `${format(new Date(project.startDate), "dd-MM-yyyy")} – ${format(new Date(project.endDate), "dd-MM-yyyy")}`
                     }
                   />
 
@@ -336,7 +336,7 @@ function ListingApplicationsPage() {
                       <CalendarDays className="text-muted-foreground h-4 w-4" />
                     }
                     label="Apply By"
-                    value={format(new Date(project.applyBy), "yyyy-MM-dd")}
+                    value={format(new Date(project.applyBy), "dd-MM-yyyy")}
                   />
                   {project.repeatInterval !== 0 && (
                     <InfoRow
@@ -388,7 +388,7 @@ function ListingApplicationsPage() {
 
               {/* What You'll Do, Requirements, What You'll Equip Students with */}
               <CardContent>
-                <div className="mb-4 space-y-3">
+                <div className="mb-4 space-y-3 break-all">
                   <SectionCard
                     title="What Students will Do"
                     content={project.aboutDo || "—"}
