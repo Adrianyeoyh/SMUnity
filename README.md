@@ -74,70 +74,79 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 
 ## Use Case & User Journey
 
-Provide screenshots and captions showing how users interact with your app.
-
-### Student User Journey
 
 1. **Landing Page**  
-   <img src="screenshots/landing.jpg" width="600">  
+   <img src="screenshots/landing.jpg" width="600">
    - Displays the homepage with navigation options.
 
-2. **CSP Discover and Matching**  
-   <img src="screenshots/discover.jpg" width="600">  
+2. **AI Chatbot**  
+   <img src="screenshots/AIChatbot.jpg" width="600">
+   - The AI Chatbot helps users on how to use the website
+
+3. **CSP Discover and Matching**  
+   <img src="screenshots/discover.jpg" width="600">
    - Users can search and filter through CSPs in this page by Category, Location (Map), and Keywords
 
-3. **View CSP Details**  
-   <img src="screenshots/viewCSPDetails.jpg" width="600">  
+4. **View CSP Details**  
+   <img src="screenshots/viewCSPDetails.jpg" width="600">
    - Detailed CSP View Page showing description, requirements, and application.
 
-4. **GoogleOAuth Sign In**  
-   <img src="screenshots/GoogleSignIn.jpg" width="600">  
+5. **GoogleOAuth Sign In**  
+   <img src="screenshots/GoogleSignIn.jpg" width="600">
    - Users sign in securely using their accounts before applying.
 
-5. **User Application Form**  
-   <img src="screenshots/applicationform.jpg" width="600">  
+6. **User Application Form**  
+   <img src="screenshots/applicationform.jpg" width="600">
    - Users must complete the application form to apply for a CSP.
 
-6. **User Dashboard**  
-   <img src="screenshots/UserDashboard.jpg" width="600">  
+7. **User Dashboard**  
+   <img src="screenshots/UserDashboard.jpg" width="600">
    - Main dashboard displaying overview of user CSP applications and upcoming events.
 
-7. **User My Applications**  
-   <img src="screenshots/MyApplications.jpg" width="600">  
+8. **User My Applications**  
+   <img src="screenshots/MyApplications.jpg" width="600">
    - Dedicated application tracking page monitoring all their applications for CSP.
 
-### Organization User Journey
+### Organisation User Journey
 
-8. **Organisation Dashboard**  
-   <img src="screenshots/OrganisationDashboard.jpg" width="600">  
+9. **Organisation Dashboard**  
+   <img src="screenshots/OrganisationDashboard.jpg" width="600">
    - Dashboard for organisation coordinators to view all posted listings, track application status, manage volunteer slots, and access analytics.
 
-9. **Create New CSP Listing**  
-   <img src="screenshots/CreateListing.jpg" width="600">  
+10. **Organisation Request Form**  
+   <img src="screenshots/OrgRequestForm.jpg" width="600">
+   - Organisation members can request to make a form. Once request is accepted, the password is then sent to their email. (If done locally its sent to MailDev)
+
+11. **Create New CSP Listing**  
+   <img src="screenshots/CreateListing.jpg" width="600">
    - Organisation coordinators can create a CSP Listing with specified requirements that they need to fill.
 
-10. **View Posted Listing**  
-   <img src="screenshots/ViewListing.jpg" width="600">  
-   - Organisation coordinators can view details of their posted listing including project overview with all listing details, student applicant profiles, and options to accept or reject applications.
+12. **View Posted Listing**  
+    <img src="screenshots/ViewListing.jpg" width="600">
 
-11. **View Applicant Details**  
-   <img src="screenshots/ViewApplicant.jpg" width="600">  
-   - Organisation coordinators can view applicant's details including options to call and email and view details from application form.
+- Organisation coordinators can view details of their posted listing including project overview with all listing details, student applicant profiles, and options to accept or reject applications.
+
+13. **View Applicant Details**  
+    <img src="screenshots/ViewApplicant.jpg" width="600">
+
+- Organisation coordinators can view applicant's details including options to call and email and view details from application form.
 
 ### Admin User Journey
 
-12. **Admin Dashboard**  
-   <img src="screenshots/AdminDashboard.jpg" width="600">  
-   - Admin Dashboard provides an overview of platform activity on active organisations, total CSP listings, and active users. Admins can quickly review, approve, or reject pending organisations.
+14. **Admin Dashboard**  
+    <img src="screenshots/AdminDashboard.jpg" width="600">
 
-13. **CreateOrganiserForm**  
-   <img src="screenshots/CreateOrganiserForm.jpg" width="600">  
-   - Admins can create a new organiser by filling out the organiser form.
+- Admin Dashboard provides an overview of platform activity on active organisations, total CSP listings, and active users. Admins can quickly review, approve, or reject pending organisations.
 
-14. **ViewOrganisation**  
-   <img src="screenshots/ViewOrganisation.jpg" width="600">  
-   - Lets admins browse all registered organisations, search or filter by status and see contact details for each entry. Admins can suspend or reactivate organisations directly from this list for quick management.
+15. **CreateOrganiserForm**  
+    <img src="screenshots/CreateOrganiserForm.jpg" width="600">
 
+- Admins can create a new organiser by filling out the organiser form.
+
+16. **ViewOrganisation**  
+    <img src="screenshots/ViewOrganisation.jpg" width="600">
+
+- Lets admins browse all registered organisations, search or filter by status and see contact details for each entry. Admins can suspend or reactivate organisations directly from this list for quick management.
 
 ---
 
@@ -148,12 +157,11 @@ Comprehensive steps to help other developers or evaluators run and test your pro
 ---
 
 ### 0) Prerequisites
-- [Git](https://git-scm.com/) v2.4+  
-- [Node.js](https://nodejs.org/) v22.14.0+
+- [Git](https://git-scm.com/) v2.4+
 - [Bun](https://bun.sh/) v1.2.15+
 - [PostgreSQL](https://www.postgresql.org/) v17+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- Access to backend or cloud services used (Firebase, MongoDB Atlas, AWS S3, etc.)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (For Local Development)
+
 
 ---
 
@@ -171,7 +179,7 @@ Create a `.env` file in the root directory with the following structure:
 
 ```bash
 
-DATABASE_URL="postgresql://postgres:password@localhost:5432/app"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/app" # For Local Development
 
 BETTER_AUTH_SECRET="your-generated-secret-here"
 
@@ -221,7 +229,7 @@ FORCE_PATH_STYLE="true"
    ```bash
       bun db:push
    ```
-4. Open Drizzle Studio for local database:
+4. Open Drizzle Studio to visualise local database:
    ```bash
       bun db:studio
    ```
@@ -288,11 +296,9 @@ Perform the following checks before submission:
 | Navigation | All menu links functional | Pages route correctly |
 | Error Handling | Invalid inputs or missing data | User-friendly error messages displayed |
 
-#### Automated Testing (Optional)
-If applicable:
-```bash
-npm run test
-```
+#### Width Testing
+
+Application was tested on these screen widths:  iPhone 12pro, iPad Pro, and Normal Desktop Screen
 
 ---
 
