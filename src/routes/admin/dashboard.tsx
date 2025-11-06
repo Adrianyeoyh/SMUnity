@@ -1,3 +1,5 @@
+
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "#client/components/ui/button";
@@ -538,7 +540,7 @@ function AdminDashboard() {
                   // Prevent page scroll if we can scroll within the container
                   if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
                     e.stopPropagation();
-                    e.preventDefault();
+                    // e.preventDefault();
                     // Manually scroll the container
                     target.scrollTop += e.deltaY;
                   }
