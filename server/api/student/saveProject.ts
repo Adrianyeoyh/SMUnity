@@ -1,84 +1,71 @@
 // server/api/projects/saved.ts
 // import { Hono } from "hono";
-import { and, eq } from "drizzle-orm";
-import { z } from "zod";
-
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { createApp } from "#server/factory";
-import { badReq, forbidden, ok } from "#server/helper";
+import { eq, and } from "drizzle-orm";
+import { z } from "zod";
+import { ok, badReq, forbidden } from "#server/helper";
 import { authMiddleware } from "#server/middlewares/auth"; // adjust if you use different middleware
+import { createApp } from "#server/factory";
 
-const savedProjectsRoute = createApp();
+const savedProjectsRoute = createApp()
 
 savedProjectsRoute.post("/", async (c) => {
-  const user = c.get("user");
-  if (!user?.id) return forbidden(c, "Not authenticated");
+    const user = c.get("user");
+    if (!user?.id) return forbidden(c, "Not authenticated");
 
-  const body = await c.req.json();
-  const parsed = z
-    .object({
-      projectId: z.string().uuid("Invalid projectId"),
-    })
-    .safeParse(body);
+    const body = await c.req.json();
+    const parsed = z
+      .object({
+        projectId: z.string().uuid("Invalid projectId"),
+      })
+      .safeParse(body);
 
-  if (!parsed.success)
-    return badReq(c, "Invalid request body", parsed.error.flatten());
+    if (!parsed.success) return badReq(c, "Invalid request body", parsed.error.flatten());
 
-  const { projectId } = parsed.data;
+    const { projectId } = parsed.data;
 
-  const existing = await db
-    .select()
-    .from(schema.savedProjects)
-    .where(
-      and(
-        eq(schema.savedProjects.projectId, projectId),
-        eq(schema.savedProjects.userId, user.id),
-      ),
-    )
-    .limit(1);
+    const existing = await db
+      .select()
+      .from(schema.savedProjects)
+      .where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, user.id)))
+      .limit(1);
 
-  if (existing.length > 0) {
-    return badReq(c, "Project already saved");
-  }
+    if (existing.length > 0) {
+      return badReq(c, "Project already saved");
+    }
 
-  await db.insert(schema.savedProjects).values({
-    projectId,
-    userId: user.id,
-    savedAt: new Date(),
+    await db.insert(schema.savedProjects).values({
+      projectId,
+      userId: user.id,
+      savedAt: new Date(),
+    });
+
+    return ok(c, { message: "Project saved successfully" });
+  })
+
+  savedProjectsRoute.delete("/", async (c) => {
+    const user = c.get("user");
+    if (!user?.id) return forbidden(c, "Not authenticated");
+
+    const body = await c.req.json();
+    const parsed = z
+      .object({
+        projectId: z.string().uuid("Invalid projectId"),
+      })
+      .safeParse(body);
+
+    if (!parsed.success) return badReq(c, "Invalid request body", parsed.error.flatten());
+
+    const { projectId } = parsed.data;
+
+    await db
+      .delete(schema.savedProjects)
+      .where(and(eq(schema.savedProjects.projectId, projectId), eq(schema.savedProjects.userId, user.id)));
+
+    return ok(c, { message: "Project unsaved successfully" });
   });
-
-  return ok(c, { message: "Project saved successfully" });
-});
-
-savedProjectsRoute.delete("/", async (c) => {
-  const user = c.get("user");
-  if (!user?.id) return forbidden(c, "Not authenticated");
-
-  const body = await c.req.json();
-  const parsed = z
-    .object({
-      projectId: z.string().uuid("Invalid projectId"),
-    })
-    .safeParse(body);
-
-  if (!parsed.success)
-    return badReq(c, "Invalid request body", parsed.error.flatten());
-
-  const { projectId } = parsed.data;
-
-  await db
-    .delete(schema.savedProjects)
-    .where(
-      and(
-        eq(schema.savedProjects.projectId, projectId),
-        eq(schema.savedProjects.userId, user.id),
-      ),
-    );
-
-  return ok(c, { message: "Project unsaved successfully" });
-});
-savedProjectsRoute.get("/list", async (c) => {
+  savedProjectsRoute.get("/list", async (c) => {
   const userCtx = c.get("user");
   if (!userCtx?.id) return forbidden(c, "Not authenticated");
 
@@ -113,14 +100,8 @@ savedProjectsRoute.get("/list", async (c) => {
       organisationName: schema.user.name,
     })
     .from(schema.savedProjects)
-    .innerJoin(
-      schema.projects,
-      eq(schema.projects.id, schema.savedProjects.projectId),
-    )
-    .innerJoin(
-      schema.organisations,
-      eq(schema.projects.orgId, schema.organisations.userId),
-    )
+    .innerJoin(schema.projects, eq(schema.projects.id, schema.savedProjects.projectId))
+    .innerJoin(schema.organisations, eq(schema.projects.orgId, schema.organisations.userId))
     .innerJoin(schema.user, eq(schema.organisations.userId, schema.user.id))
     .where(eq(schema.savedProjects.userId, userCtx.id));
 
@@ -163,4 +144,5 @@ savedProjectsRoute.get("/list", async (c) => {
   return ok(c, { saved: formatted });
 });
 
-export default savedProjectsRoute;
+
+  export default savedProjectsRoute;

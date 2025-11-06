@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Heart, HeartHandshake, Mail, MapPin, Phone } from "lucide-react";
+import { HeartHandshake, Heart, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   const location = useLocation();
@@ -26,73 +26,64 @@ export function Footer() {
 
   return (
     <footer className="bg-muted/50 border-t">
-      <div className="container mx-auto px-4 py-12 sm:px-6 md:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4 md:gap-12 lg:gap-16">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 lg:gap-16">
           <div className="space-y-4 text-center md:text-left">
-            <div className="flex items-center justify-center space-x-3 md:justify-start">
+            <div className="flex items-center justify-center md:justify-start space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
                 <HeartHandshake className="h-6 w-6 text-white" />
               </div>
-              <span className="font-heading text-gradient-smunity text-xl font-bold">
+              <span className="font-heading font-bold text-xl text-gradient-smunity">
                 SMUnity
               </span>
             </div>
-            <p className="text-muted-foreground font-body text-sm">
-              Connecting SMU students with meaningful community service
-              opportunities
+            <p className="text-sm text-muted-foreground font-body">
+              Connecting SMU students with meaningful community service opportunities 
             </p>
-            <div className="flex justify-center space-x-4 md:justify-start">
-              <div className="text-muted-foreground flex items-center space-x-2 text-sm">
-                <Heart className="h-4 w-4" />
+            <div className="flex justify-center md:justify-start space-x-4">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Heart className="h-4 w-4"/>
                 <span>Made with love for SMU</span>
                 <Heart className="h-4 w-4" />
               </div>
             </div>
           </div>
 
-          <div className="hidden space-y-4 text-center md:ml-4 md:block md:text-left lg:ml-8 xl:ml-12">
-            <h3 className="font-heading text-foreground font-semibold">
-              Quick Links
-            </h3>
+          <div className="hidden md:block space-y-4 text-center md:text-left md:ml-4 lg:ml-8 xl:ml-12">
+            <h3 className="font-heading font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  to="/"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                <Link 
+                  to="/" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Home
                 </Link>
               </li>
               <li>
-                <a
-                  href="/#about"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                <a 
+                  href="/#about" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   onClick={handleAboutClick}
                 >
                   About
                 </a>
               </li>
               <li>
-                <Link
-                  to="/discover"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                <Link 
+                  to="/discover" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Discover CSPs
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/auth/login"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                <Link 
+                  to="/auth/login" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Student Login
                 </Link>
@@ -100,40 +91,32 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="hidden space-y-4 text-center md:ml-4 md:block md:text-left lg:ml-8 xl:ml-12">
-            <h3 className="font-heading text-foreground font-semibold">
-              For Organisations
-            </h3>
+          <div className="hidden md:block space-y-4 text-center md:text-left md:ml-4 lg:ml-8 xl:ml-12">
+            <h3 className="font-heading font-semibold text-foreground">For Organisations</h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  to="/auth/login"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                <Link 
+                  to="/auth/login" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Organisation Login
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/auth/request"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                <Link 
+                  to="/auth/request" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Create Organisation
                 </Link>
               </li>
               <li>
-                <a
-                  href="mailto:adrian.yeo.2024@computing.smu.edu.sg"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                <a 
+                  href="mailto:adrian.yeo.2024@computing.smu.edu.sg" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Contact Support
                 </a>
@@ -141,45 +124,37 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="space-y-4 text-center md:ml-4 md:text-left lg:ml-8 xl:ml-12">
-            <h3 className="font-heading text-foreground font-semibold">
-              Contact Us
-            </h3>
+          <div className="space-y-4 text-center md:text-left md:ml-4 lg:ml-8 xl:ml-12">
+            <h3 className="font-heading font-semibold text-foreground">Contact Us</h3>
             <div className="space-y-3">
-              <div className="text-muted-foreground flex items-center justify-center space-x-3 text-sm md:justify-start">
+              <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <a
-                  href="mailto:adrian.yeo.2024@computing.smu.edu.sg"
+                <a 
+                  href="mailto:adrian.yeo.2024@computing.smu.edu.sg" 
                   className="hover:text-foreground transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   support@smunity.sg
                 </a>
               </div>
-              <div className="text-muted-foreground flex items-center justify-center space-x-3 text-sm md:justify-start">
+              <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <a
-                  href="tel:+6596724702"
+                <a 
+                  href="tel:+6596724702" 
                   className="hover:text-foreground transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   +65 9672 2702
                 </a>
               </div>
-              <div className="text-muted-foreground flex items-center justify-center space-x-3 text-sm md:justify-start">
+              <div className="flex items-center justify-center md:justify-start space-x-3 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <a
-                  href="https://maps.google.com/?q=Singapore+Management+University"
-                  target="_blank"
-                  rel="noreferrer"
+                <a 
+                  href="https://maps.google.com/?q=Singapore+Management+University" 
+                  target="_blank" 
+                  rel="noreferrer" 
                   className="hover:text-foreground transition-colors"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                   Singapore Management University
                 </a>
@@ -188,22 +163,22 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t pt-8">
-          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-muted-foreground font-body text-sm">
+        <div className="mt-8 pt-8 border-t">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-sm text-muted-foreground font-body">
               © {currentYear} SMUnity. All Rights Reserved
             </p>
             <div className="flex space-x-6">
-              <a
-                href="/privacy"
-                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              <a 
+                href="/privacy" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               >
                 Privacy Policy
               </a>
-              <a
-                href="/terms"
-                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              <a 
+                href="/terms" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               >
                 Terms of Service

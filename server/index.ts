@@ -1,16 +1,15 @@
 // import { serve } from "@hono/node-server";
+import { serveStatic } from 'hono/bun'
 import { Hono } from "hono";
-import { serveStatic } from "hono/bun";
-
-import { apiRouter } from "./api";
 import { env } from "./env";
 import { auth } from "./lib/auth";
+
+import { apiRouter } from './api'
 import { authMiddleware } from "./middlewares/auth";
 
-const api = new Hono()
-  .use(authMiddleware)
+const api = new Hono().use(authMiddleware)
   .get("/runtime.js", (c) => {
-    console.log(env.VITE_APP_URL);
+    console.log(env.VITE_APP_URL)
     return c.text(
       `
       window.__env = ${JSON.stringify(Object.fromEntries(Object.entries(env).filter(([key]) => key.startsWith("VITE_"))), null, 2)}
@@ -22,7 +21,7 @@ const api = new Hono()
   .on(["POST", "GET"], "/auth/*", (c) => {
     return auth.handler(c.req.raw);
   })
-  .route("/", apiRouter);
+  .route("/", apiRouter)
 
 const app = new Hono()
   .route("/api", api)
@@ -37,7 +36,6 @@ const app = new Hono()
 
 export default {
   port: process.env.NODE_ENV == "development" ? 4001 : 4000,
-  ...app,
-};
+  ...app
+}
 
-console.log(env)

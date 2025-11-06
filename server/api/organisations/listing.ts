@@ -1,12 +1,13 @@
 // server/api/organisations/listing.ts
-import { eq } from "drizzle-orm";
-import { z } from "zod";
-
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
+import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { createApp } from "#server/factory";
-import { extractCoordsFromGoogleMaps, ok } from "#server/helper";
 import { organisationMiddleware } from "#server/middlewares/auth";
+import { extractCoordsFromGoogleMaps } from "#server/helper";
+import { ok } from "#server/helper";
+
 
 const listing = createApp();
 const ProjectCreateSchema = z.object({
@@ -28,9 +29,9 @@ const ProjectCreateSchema = z.object({
   days_of_week: z.array(z.string()).default([]),
   time_start: z.string(),
   time_end: z.string(),
-  start_date: z.string(),
-  end_date: z.string(),
-  application_deadline: z.string(),
+  start_date: z.string(),           
+  end_date: z.string(),             
+  application_deadline: z.string(), 
   commitable_hours: z.number(),
   slots: z.number(),
   image_url: z.string(),
@@ -39,60 +40,56 @@ const ProjectCreateSchema = z.object({
 
 listing.post("/new", async (c) => {
   try {
-    const body = await c.req.json();
-    const parsed = ProjectCreateSchema.parse(body);
+  const body = await c.req.json();
+  const parsed = ProjectCreateSchema.parse(body);
 
-    const user = c.get("user");
-    if (!user || user.accountType !== "organisation") {
-      return c.json({ error: "Not authorised" }, 403);
-    }
-    const { lat, lng } = extractCoordsFromGoogleMaps(parsed.google_maps);
+  const user = c.get("user");
+  if (!user || user.accountType !== "organisation") {
+    return c.json({ error: "Not authorised" }, 403);
+  }
+  const { lat, lng } = extractCoordsFromGoogleMaps(parsed.google_maps);
 
-    const inserted = await db
-      .insert(schema.projects)
-      .values({
-        orgId: user?.id,
-        title: parsed.title,
-        summary: parsed.summary,
-        category: parsed.category,
-        type: parsed.project_type,
-        country:
-          parsed.country ||
-          (parsed.project_type === "overseas" ? "Singapore" : null),
-        description: parsed.description,
-        aboutProvide: parsed.about_provide,
-        aboutDo: parsed.about_do,
-        requirements: parsed.requirements,
-        skillTags: parsed.skill_tags,
-        projectTags: parsed.project_tags,
-        district: parsed.district,
-        googleMaps: parsed.google_maps,
-        latitude: lat,
-        longitude: lng,
-        isRemote: parsed.remote,
-        repeatInterval: parsed.repeat_interval,
-        repeatUnit: parsed.repeat_unit,
-        daysOfWeek: parsed.days_of_week,
-        timeStart: parsed.time_start,
-        timeEnd: parsed.time_end,
-        startDate: new Date(parsed.start_date),
-        endDate: new Date(parsed.end_date),
-        applyBy: new Date(parsed.application_deadline),
-        requiredHours: parsed.commitable_hours,
-        slotsTotal: parsed.slots,
-        imageUrl: parsed.image_url,
-      })
-      .returning();
+  const inserted = await db.insert(schema.projects).values({
+    orgId: user?.id,
+    title: parsed.title,
+    summary: parsed.summary,
+    category: parsed.category,
+    type: parsed.project_type,
+    country: parsed.country || (parsed.project_type === "overseas" ? "Singapore" : null),
+    description: parsed.description,
+    aboutProvide: parsed.about_provide,
+    aboutDo: parsed.about_do,
+    requirements: parsed.requirements,
+    skillTags: parsed.skill_tags,
+    projectTags: parsed.project_tags,
+    district: parsed.district,
+    googleMaps: parsed.google_maps,
+    latitude: lat,
+    longitude: lng,
+    isRemote: parsed.remote,
+    repeatInterval: parsed.repeat_interval,
+    repeatUnit: parsed.repeat_unit,
+    daysOfWeek: parsed.days_of_week,
+    timeStart: parsed.time_start,
+    timeEnd: parsed.time_end,
+    startDate: new Date(parsed.start_date),
+    endDate: new Date(parsed.end_date),
+    applyBy: new Date(parsed.application_deadline),
+    requiredHours: parsed.commitable_hours,
+    slotsTotal: parsed.slots,
+    imageUrl: parsed.image_url,
+  }).returning();
 
-    return ok(c, {
+  return ok(c, {
       success: true,
       project: inserted[0],
     });
+
   } catch (err) {
     console.error(" Project creation failed:", err);
     return c.json(
       { error: "Error", details: err instanceof Error ? err.message : err },
-      500,
+      500
     );
   }
 });
@@ -116,12 +113,8 @@ listing.delete("/:projectId", async (c) => {
     if (project.orgId !== user.id)
       return c.json({ error: "You do not own this project" }, 403);
 
-    await db
-      .delete(schema.applications)
-      .where(eq(schema.applications.projectId, projectId));
-    await db
-      .delete(schema.projMemberships)
-      .where(eq(schema.projMemberships.projId, projectId));
+    await db.delete(schema.applications).where(eq(schema.applications.projectId, projectId));
+    await db.delete(schema.projMemberships).where(eq(schema.projMemberships.projId, projectId));
 
     await db.delete(schema.projects).where(eq(schema.projects.id, projectId));
 
@@ -129,11 +122,8 @@ listing.delete("/:projectId", async (c) => {
   } catch (err) {
     console.error(" Delete project failed:", err);
     return c.json(
-      {
-        error: "Failed to delete project",
-        details: err instanceof Error ? err.message : err,
-      },
-      500,
+      { error: "Failed to delete project", details: err instanceof Error ? err.message : err },
+      500
     );
   }
 });
@@ -201,5 +191,6 @@ listing.get("/:projectId", async (c) => {
     })),
   });
 });
+
 
 export default listing;

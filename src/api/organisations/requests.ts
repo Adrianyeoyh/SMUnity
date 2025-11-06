@@ -3,7 +3,7 @@ export async function createOrganisationRequest(payload: {
   requesterName: string;
   orgName: string;
   orgDescription?: string | null;
-  phone: string;
+  phone: string,
   website?: string | null;
 }) {
   const res = await fetch("/api/organisations/requests", {

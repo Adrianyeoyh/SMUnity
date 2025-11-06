@@ -14,7 +14,10 @@ export function ControlsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ControlsContext.Provider value={{ open, setOpen }}>
-      <div className="group/controls" data-expanded={open}>
+      <div
+        className="group/controls"
+        data-expanded={open}
+      >
         {children}
       </div>
     </ControlsContext.Provider>

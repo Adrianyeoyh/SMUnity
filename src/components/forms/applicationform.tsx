@@ -1,16 +1,15 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
+import * as React from "react"
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
-import { createApplication } from "#client/api/projects/index.ts";
-import { Button } from "#client/components/ui/button";
-import { Checkbox } from "#client/components/ui/checkbox";
+import { Button } from "#client/components/ui/button"
+import { Checkbox } from "#client/components/ui/checkbox"
+import { Input } from "#client/components/ui/input"
+import { Textarea } from "#client/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "#client/components/ui/radio-group"
 import {
   Form,
   FormControl,
@@ -19,11 +18,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "#client/components/ui/form";
-import { Input } from "#client/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "#client/components/ui/radio-group";
-import { Separator } from "#client/components/ui/separator";
-import { Textarea } from "#client/components/ui/textarea";
+} from "#client/components/ui/form"
+import { Separator } from "#client/components/ui/separator"
+import { createApplication } from "#client/api/projects/index.ts"
+import { toast } from "sonner"
+import { useNavigate } from "@tanstack/react-router"
+import { useQueryClient } from "@tanstack/react-query"
 
 const FormSchema = z.object({
   motivation: z
@@ -31,11 +31,11 @@ const FormSchema = z.object({
     .min(20, "Please write at least 20 characters")
     .max(800, "Keep it under 800 characters"),
 
-  experience: z
-    .enum(["none", "some", "extensive"])
-    .refine((val) => ["none", "some", "extensive"].includes(val), {
-      message: "Select your prior experience",
-    }),
+
+  experience: z.enum(["none", "some", "extensive"]).refine(
+    (val) => ["none", "some", "extensive"].includes(val),
+    { message: "Select your prior experience" }
+  ),
 
   skills: z
     .string()
@@ -43,35 +43,35 @@ const FormSchema = z.object({
     .transform((v) => (v?.trim() ? v.trim() : "")),
 
   agree: z.boolean().refine((val) => val === true, {
-    message: "You must agree to the code of conduct",
+    message: "You must agree to the code of conduct"
   }),
 
   acknowledgeSchedule: z.boolean().refine((val) => val === true, {
-    message: "You must acknowledge the project schedule before applying",
+    message: "You must acknowledge the project schedule before applying"
   }),
 
-  comments: z.string().max(500, "Maximum 500 characters").optional(),
-});
+  comments: z
+    .string()
+    .max(500, "Maximum 500 characters")
+    .optional(),
+})
 
-type FormValues = z.infer<typeof FormSchema>;
+type FormValues = z.infer<typeof FormSchema>
 
 export type ApplicationFormProps = {
-  projectId: string;
+  projectId: string
   onSubmitted?: (payload: {
-    projectId: string;
-    data: FormValues;
-    submittedAt: string;
-  }) => void;
-};
+    projectId: string
+    data: FormValues
+    submittedAt: string
+  }) => void
+}
 
-export function ApplicationForm({
-  projectId,
-  onSubmitted,
-}: ApplicationFormProps) {
+export function ApplicationForm({ projectId, onSubmitted }: ApplicationFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const storageKey = `application-form-draft-${projectId}`;
-
+  
   const getSavedFormData = (): Partial<FormValues> => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -93,13 +93,13 @@ export function ApplicationForm({
       agree: false,
       acknowledgeSchedule: false,
       comments: "",
-      ...getSavedFormData(),
+      ...getSavedFormData(), 
     },
   });
 
-  const [submitting, setSubmitting] = React.useState(false);
-  const [serverError, setServerError] = React.useState<string | null>(null);
-  const [serverSuccess, setServerSuccess] = React.useState<string | null>(null);
+  const [submitting, setSubmitting] = React.useState(false)
+  const [serverError, setServerError] = React.useState<string | null>(null)
+  const [serverSuccess, setServerSuccess] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const subscription = form.watch((value) => {
@@ -132,33 +132,31 @@ export function ApplicationForm({
         data: values,
         submittedAt: new Date().toISOString(),
       });
-
+      
       queryClient.invalidateQueries({ queryKey: ["pending-applications"] });
       queryClient.invalidateQueries({ queryKey: ["all-applications"] });
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
       queryClient.invalidateQueries({ queryKey: ["ongoing-projects"] });
       queryClient.invalidateQueries({ queryKey: ["completed-projects"] });
-
+      
       try {
         localStorage.removeItem(storageKey);
       } catch (error) {
         console.error("Failed to clear saved form data:", error);
       }
-
+      
       form.reset();
-      navigate({ to: `/csp/${projectId}` });
+      navigate({ to: `/csp/${projectId}` }); 
     } catch (err: any) {
-      console.error(" Application submission failed:", err);
+        console.error(" Application submission failed:", err);
 
-      const message =
-        err?.message ||
-        (err?.response?.error
-          ? `Server Error: ${err.response.error}`
-          : "Failed to apply");
+        const message =
+          err?.message ||
+          (err?.response?.error ? `Server Error: ${err.response.error}` : "Failed to apply");
 
-      toast.error(message);
-      setServerError(message);
-    } finally {
+        toast.error(message);
+        setServerError(message);
+      } finally {
       setSubmitting(false);
     }
   }
@@ -203,21 +201,15 @@ export function ApplicationForm({
                 >
                   <div className="flex items-center space-x-2 rounded-md border p-3">
                     <RadioGroupItem value="none" id="exp-none" />
-                    <FormLabel htmlFor="exp-none" className="font-normal">
-                      None
-                    </FormLabel>
+                    <FormLabel htmlFor="exp-none" className="font-normal">None</FormLabel>
                   </div>
                   <div className="flex items-center space-x-2 rounded-md border p-3">
                     <RadioGroupItem value="some" id="exp-some" />
-                    <FormLabel htmlFor="exp-some" className="font-normal">
-                      1–6 months
-                    </FormLabel>
+                    <FormLabel htmlFor="exp-some" className="font-normal">1–6 months</FormLabel>
                   </div>
                   <div className="flex items-center space-x-2 rounded-md border p-3">
                     <RadioGroupItem value="extensive" id="exp-ext" />
-                    <FormLabel htmlFor="exp-ext" className="font-normal">
-                      6+ months
-                    </FormLabel>
+                    <FormLabel htmlFor="exp-ext" className="font-normal">6+ months</FormLabel>
                   </div>
                 </RadioGroup>
               </FormControl>
@@ -256,19 +248,17 @@ export function ApplicationForm({
           render={({ field }) => (
             <FormItem>
               <div className="flex items-start gap-3 rounded-md border p-3">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    I agree to the community's code of conduct
-                  </FormLabel>
-                  <FormDescription>
-                    Be respectful, reliable, and follow project guidelines.
-                  </FormDescription>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                  <FormLabel>I agree to the community's code of conduct</FormLabel>
+                <FormDescription>
+                  Be respectful, reliable, and follow project guidelines.
+                </FormDescription>
                 </div>
               </div>
               <FormMessage />
@@ -281,21 +271,19 @@ export function ApplicationForm({
           name="acknowledgeSchedule"
           render={({ field }) => (
             <FormItem>
-              <div className="bg-muted/40 flex items-start gap-3 rounded-md border p-3">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    I have read and acknowledge the project schedule{" "}
-                  </FormLabel>
-                  <FormDescription>
-                    I declare that I am available for the project's start/end
-                    dates, meeting days, and session times.
-                  </FormDescription>
+              <div className="flex items-start gap-3 rounded-md border p-3 bg-muted/40">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                    I have read and acknowledge the project schedule                </FormLabel>
+                <FormDescription>
+                    I declare that I am available for the project's start/end dates, meeting days, and session times.
+                </FormDescription>
                 </div>
               </div>
               <FormMessage />
@@ -321,12 +309,8 @@ export function ApplicationForm({
           )}
         />
 
-        {serverError && (
-          <p className="text-destructive text-sm">{serverError}</p>
-        )}
-        {serverSuccess && (
-          <p className="text-sm text-emerald-600">{serverSuccess}</p>
-        )}
+        {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+        {serverSuccess && <p className="text-sm text-emerald-600">{serverSuccess}</p>}
 
         <div className="flex items-center justify-end gap-2">
           <Button
@@ -344,11 +328,14 @@ export function ApplicationForm({
           >
             Reset
           </Button>
-          <Button type="submit" disabled={submitting}>
+          <Button
+            type="submit"
+            disabled={submitting}
+          >
             {submitting ? "Submitting..." : "Submit Application"}
           </Button>
         </div>
       </form>
     </Form>
-  );
+  )
 }

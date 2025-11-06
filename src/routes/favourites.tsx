@@ -1,29 +1,15 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  Calendar,
-  Clock,
-  Heart,
-  Loader2,
-  MapPin,
-  Search,
-  Users,
-} from "lucide-react";
-import { toast } from "sonner";
-
-import { fetchSavedProjects, fetchUnsaveProject } from "#client/api/student";
-import { Badge } from "#client/components/ui/badge";
-import { Button } from "#client/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "#client/components/ui/card";
-import { Input } from "#client/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "#client/hooks/use-auth";
+import { toast } from "sonner";
+import { fetchSavedProjects, fetchUnsaveProject } from "#client/api/student";
+
+import { Button } from "#client/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#client/components/ui/card";
+import { Badge } from "#client/components/ui/badge";
+import { Loader2, Heart, MapPin, Calendar, Clock, Users, Search } from "lucide-react";
+import { useState } from "react";
+import { Input } from "#client/components/ui/input";
 
 // ────────────── Route Definition ──────────────
 export const Route = createFileRoute("/favourites")({
@@ -33,14 +19,14 @@ export const Route = createFileRoute("/favourites")({
 // ────────────── Helper: Category Color ──────────────
 const getCategoryColor = (category: string) => {
   const colors: Record<string, string> = {
-    Community: "bg-orange-100 text-orange-700 hover:bg-orange-200",
-    Mentoring: "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    Environment: "bg-green-100 text-green-700 hover:bg-green-200",
-    Elderly: "bg-purple-100 text-purple-700 hover:bg-purple-200",
+    "Community": "bg-orange-100 text-orange-700 hover:bg-orange-200",
+    "Mentoring": "bg-blue-100 text-blue-700 hover:bg-blue-200",
+    "Environment": "bg-green-100 text-green-700 hover:bg-green-200",
+    "Elderly": "bg-purple-100 text-purple-700 hover:bg-purple-200",
     "Arts & Culture": "bg-pink-100 text-pink-700 hover:bg-pink-200",
     "Animal Welfare": "bg-rose-100 text-rose-700 hover:bg-rose-200",
     "Sports & Leisure": "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-    Coding: "bg-cyan-100 text-cyan-700 hover:bg-cyan-200",
+    "Coding": "bg-cyan-100 text-cyan-700 hover:bg-cyan-200",
   };
   return colors[category] || "bg-gray-100 text-gray-700 hover:bg-gray-200";
 };
@@ -63,20 +49,17 @@ function formatScheduleFromFields(csp: any): string {
     const [hh, mm] = hhmmss.split(":");
     const d = new Date();
     d.setHours(Number(hh), Number(mm), 0, 0);
-    return d.toLocaleTimeString("en-SG", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return d.toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit", hour12: true });
   };
 
   const start = to12h(timeStart);
   const end = to12h(timeEnd);
   const timePart = start && end ? `${start} – ${end}` : start || end || "";
-  const daysPart = daysOfWeek && daysOfWeek.length ? daysOfWeek.join(", ") : "";
+  const daysPart = (daysOfWeek && daysOfWeek.length) ? daysOfWeek.join(", ") : "";
 
   return [timePart, daysPart].filter(Boolean).join(", ");
 }
+
 
 // ────────────── Component ──────────────
 function FavouritesPage() {
@@ -127,14 +110,9 @@ function FavouritesPage() {
   // ────────────── Loading/Error States ──────────────
   if (!isLoggedIn)
     return (
-      <div className="text-muted-foreground p-12 text-center">
-        <p className="font-body text-lg">
-          Please log in to view your favourites.
-        </p>
-        <Button
-          className="mt-4"
-          onClick={() => (window.location.href = "/auth/login")}
-        >
+      <div className="p-12 text-center text-muted-foreground">
+        <p className="text-lg font-body">Please log in to view your favourites.</p>
+        <Button className="mt-4" onClick={() => (window.location.href = "/auth/login")}>
           Log In
         </Button>
       </div>
@@ -142,15 +120,15 @@ function FavouritesPage() {
 
   if (isLoading)
     return (
-      <div className="text-muted-foreground p-12 text-center">
-        <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin" />
+      <div className="p-12 text-center text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin mx-auto mb-3" />
         Loading your saved projects…
       </div>
     );
 
   if (isError)
     return (
-      <div className="text-destructive p-12 text-center">
+      <div className="p-12 text-center text-destructive">
         Failed to load favourites. Please try again later.
       </div>
     );
@@ -158,42 +136,37 @@ function FavouritesPage() {
   // ────────────── No Favourites ──────────────
   if (allFavourites.length === 0)
     return (
-      <div className="bg-background flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <Heart className="text-muted-foreground mb-4 h-12 w-12" />
-        <h3 className="font-heading mb-2 text-lg font-semibold">
-          No Favourites Yet
-        </h3>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center px-6">
+        <Heart className="h-12 w-12 text-muted-foreground mb-4" />
+        <h3 className="font-heading text-lg font-semibold mb-2">No Favourites Yet</h3>
         <p className="text-muted-foreground font-body mb-6">
-          You haven’t saved any CSPs yet. Start exploring and click the heart
-          icon to add to favourites!
+          You haven’t saved any CSPs yet. Start exploring and click the heart icon to add to favourites!
         </p>
-        <Button onClick={() => navigate({ to: "/discover" })}>
-          Browse CSPs
-        </Button>
+        <Button onClick={() => navigate({ to: "/discover" })}>Browse CSPs</Button>
       </div>
     );
 
   // ────────────── Render Favourites ──────────────
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-background border-b">
-        <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
-          <div className="mb-2 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="border-b bg-background">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
             <div>
-              <h1 className="font-heading text-foreground text-2xl font-bold sm:text-3xl md:text-4xl">
-                My Favourites
-              </h1>
-              <p className="text-muted-foreground font-body mt-2 text-base sm:text-lg">
-                Your saved community service projects
-              </p>
+              <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+            My Favourites
+          </h1>
+              <p className="text-muted-foreground font-body text-base sm:text-lg mt-2">
+            Your saved community service projects
+          </p>
             </div>
             <div className="relative w-full sm:w-1/3">
-              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search favourites..."
-                className="h-10 w-full pl-10 text-sm sm:text-base"
+                className="pl-10 h-10 text-sm sm:text-base w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -204,19 +177,18 @@ function FavouritesPage() {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
+
         {/* Grid View (reused Discover card layout) */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {favourites.map((csp: any) => (
             <Card
               key={csp.id}
-              className="group flex h-full cursor-pointer flex-col transition-shadow hover:shadow-lg"
+              className="hover:shadow-lg transition-shadow cursor-pointer group flex flex-col h-full"
             >
               <CardHeader>
-                <div className="mb-2 flex items-start justify-between gap-2">
+                <div className="flex justify-between items-start mb-2 gap-2">
                   <div className="flex flex-wrap gap-1">
-                    <Badge
-                      className={`text-xs ${getCategoryColor(csp.category)}`}
-                    >
+                    <Badge className={`text-xs ${getCategoryColor(csp.category)}`}>
                       {csp.category}
                     </Badge>
                   </div>
@@ -232,22 +204,22 @@ function FavouritesPage() {
                     <Heart className="h-4 w-4 fill-red-500 text-red-500 transition-all" />
                   </Button>
                 </div>
-                <CardTitle className="font-heading group-hover:text-primary text-lg transition-colors">
+                <CardTitle className="font-heading text-lg group-hover:text-primary transition-colors">
                   {csp.title}
                 </CardTitle>
                 <CardDescription className="font-body">
                   {csp.organisation ?? "Unknown Organisation"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-1 flex-col justify-between gap-4">
+              <CardContent className="flex-1 flex flex-col justify-between gap-4">
                 <div className="space-y-3">
-                  <p className="text-muted-foreground font-body line-clamp-2 text-sm">
+                  <p className="text-sm text-muted-foreground font-body line-clamp-2">
                     {csp.description}
                   </p>
 
                   {/* Location + Time */}
-                  <div className="text-muted-foreground flex items-center justify-between gap-2 text-sm">
-                    <div className="flex min-w-0 flex-1 items-center space-x-1">
+                  <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-1 flex-1 min-w-0">
                       <MapPin className="h-4 w-4 flex-shrink-0" />
                       <span className="font-body truncate">
                         {csp.isRemote
@@ -257,24 +229,25 @@ function FavouritesPage() {
                             : csp.district || "—"}
                       </span>
                     </div>
-                    <div className="flex min-w-0 flex-1 items-center space-x-1">
-                      <Clock className="mr-1.5 h-4 w-4 flex-shrink-0" />
-                      <span className="font-body text-muted-foreground line-clamp-2 pl-0.5 text-xs leading-tight break-words sm:text-sm">
-                        {formatScheduleFromFields(csp) ||
-                          `${csp.serviceHours}h`}
+                    <div className="flex items-center space-x-1 flex-1 min-w-0">
+                      <Clock className="h-4 w-4 flex-shrink-0 mr-1.5" />
+                      <span
+                        className="font-body text-xs sm:text-sm text-muted-foreground leading-tight line-clamp-2 break-words pl-0.5"
+                      >
+                        {formatScheduleFromFields(csp) || `${csp.serviceHours}h`}
                       </span>
                     </div>
                   </div>
 
                   {/* Dates + Volunteers */}
-                  <div className="text-muted-foreground flex items-center justify-between gap-2 text-sm">
-                    <div className="flex min-w-0 flex-1 items-center space-x-1">
+                  <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-1 flex-1 min-w-0">
                       <Calendar className="h-4 w-4 flex-shrink-0" />
                       <span className="font-body truncate">
                         {formatDateRange(csp.startDate, csp.endDate)}
                       </span>
                     </div>
-                    <div className="flex min-w-0 flex-1 items-center space-x-1">
+                    <div className="flex items-center space-x-1 flex-1 min-w-0">
                       <Users className="h-4 w-4 flex-shrink-0" />
                       <span className="font-body">
                         {csp.currentVolunteers ?? 0}/{csp.maxVolunteers ?? 0}
@@ -297,12 +270,8 @@ function FavouritesPage() {
                   </div>
                 </div>
 
-                <Link
-                  to="/csp/$projectID"
-                  params={{ projectID: csp.projectId || csp.id }}
-                  search={{ from: undefined }}
-                >
-                  <Button className="group-hover:bg-primary group-hover:text-primary-foreground w-full transition-colors">
+                <Link to="/csp/$projectID" params={{ projectID: csp.projectId || csp.id }} search={{ from: undefined }}>
+                  <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     View Details
                   </Button>
                 </Link>
@@ -313,11 +282,9 @@ function FavouritesPage() {
 
         {/* Empty Search State */}
         {searchQuery.trim() && favourites.length === 0 && (
-          <div className="py-12 text-center">
-            <Search className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-            <h3 className="font-heading mb-2 text-lg font-semibold">
-              No results found
-            </h3>
+          <div className="text-center py-12">
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="font-heading text-lg font-semibold mb-2">No results found</h3>
             <p className="text-muted-foreground font-body mb-4">
               No favourites match your search query "{searchQuery}"
             </p>
@@ -329,7 +296,7 @@ function FavouritesPage() {
 
         {/* Load More */}
         {!searchQuery.trim() && allFavourites.length > 6 && (
-          <div className="mt-8 text-center">
+          <div className="text-center mt-8">
             <Button variant="outline">Load More Favourites</Button>
           </div>
         )}

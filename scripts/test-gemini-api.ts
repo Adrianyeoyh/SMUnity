@@ -13,38 +13,30 @@ if (!GEMINI_API_KEY) {
   process.exit(1);
 }
 
-console.log(
-  "🔑 API Key found (first 10 chars):",
-  GEMINI_API_KEY.substring(0, 10) + "...",
-);
+console.log("🔑 API Key found (first 10 chars):", GEMINI_API_KEY.substring(0, 10) + "...");
 console.log("🧪 Testing Gemini API connection...\n");
 
 console.log("🔍 Checking available models...");
 try {
   const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`;
   const listResponse = await fetch(listUrl);
-
+  
   if (listResponse.ok) {
     const listData = await listResponse.json();
-    const availableModels =
-      listData.models
-        ?.filter((m: any) =>
-          m.supportedGenerationMethods?.includes("generateContent"),
-        )
-        ?.map((m: any) => m.name.replace("models/", "")) || [];
-
+    const availableModels = listData.models
+      ?.filter((m: any) => m.supportedGenerationMethods?.includes("generateContent"))
+      ?.map((m: any) => m.name.replace("models/", ""))
+      || [];
+    
     console.log(` Found ${availableModels.length} available models:`);
-    availableModels
-      .slice(0, 10)
-      .forEach((m: string) => console.log(`   - ${m}`));
-
+    availableModels.slice(0, 10).forEach((m: string) => console.log(`   - ${m}`));
+    
     if (availableModels.length > 0) {
       // Prefer stable models over preview versions
-      const stableModels = availableModels.filter(
-        (m: string) =>
-          !m.includes("preview") && (m.includes("flash") || m.includes("pro")),
+      const stableModels = availableModels.filter((m: string) => 
+        !m.includes("preview") && (m.includes("flash") || m.includes("pro"))
       );
-
+      
       if (stableModels.length > 0) {
         console.log(`\n Testing with stable model: ${stableModels[0]}`);
         var modelsToTry = [stableModels[0]];
@@ -151,7 +143,5 @@ if (!workingModel) {
   process.exit(1);
 } else {
   console.log("\n Your chatbot API is configured correctly!");
-  console.log(
-    `\n Update server/api/public/chatbot.ts line 93 to use: "${workingModel}"`,
-  );
+  console.log(`\n Update server/api/public/chatbot.ts line 93 to use: "${workingModel}"`);
 }

@@ -1,19 +1,10 @@
 // server/api/dashboard/index.ts
-import {
-  addDays,
-  format,
-  isAfter,
-  isBefore,
-  parseISO,
-  startOfDay,
-} from "date-fns";
-import { and, eq, gt, gte, inArray, lt, lte, sql } from "drizzle-orm";
-
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/domain";
+import { eq, and, gt, lt, sql, lte, gte, inArray  } from "drizzle-orm";
+import { ok, badReq, forbidden, notFound } from "#server/helper";
 import { createApp } from "#server/factory";
-import { badReq, forbidden, notFound, ok } from "#server/helper";
-
+import { addDays, isAfter, isBefore, parseISO, format, startOfDay } from "date-fns";
 // import { z } from "zod";
 
 const dashboard = createApp();
@@ -37,22 +28,19 @@ dashboard.get("/ongoing-projects", async (c) => {
       })
 
       .from(schema.projMemberships)
-      .innerJoin(
-        schema.projects,
-        eq(schema.projects.id, schema.projMemberships.projId),
-      )
+      .innerJoin(schema.projects, eq(schema.projects.id, schema.projMemberships.projId))
       .where(
         and(
           eq(schema.projMemberships.userId, user.id),
-          lt(schema.projects.startDate, sql`NOW()`), // project started
-          gt(schema.projects.endDate, sql`NOW()`), // project not yet ended
-        ),
+                    lt(schema.projects.startDate, sql`NOW()`),  // project started
+          gt(schema.projects.endDate, sql`NOW()`)     // project not yet ended
+        )
       );
-    console.log(projects, "projects");
+    console.log(projects,"projects")
     return ok(c, { projects });
   } catch (err) {
     console.error("❌ Ongoing projects error:", err);
-    badReq(c, "Failed to load ongoing projects");
+    badReq(c,"Failed to load ongoing projects");
   }
 });
 
@@ -64,17 +52,12 @@ dashboard.get("/pending-applications", async (c) => {
     const [{ count }] = await db
       .select({ count: sql<number>`COUNT(*)::int` })
       .from(schema.applications)
-      .where(
-        and(
-          eq(schema.applications.userId, user.id),
-          eq(schema.applications.status, "pending"),
-        ),
-      );
-    console.log(count, "pending");
-    return ok(c, { pendingCount: count });
+      .where(and(eq(schema.applications.userId, user.id), eq(schema.applications.status, "pending")));
+    console.log(count, "pending")
+    return ok(c,{ pendingCount: count });
   } catch (err) {
     console.error("❌ Pending applications error:", err);
-    return badReq(c, "Failed to load pending applications");
+    return badReq(c,"Failed to load pending applications");
   }
 });
 
@@ -86,22 +69,19 @@ dashboard.get("/completed-projects", async (c) => {
     const [{ count }] = await db
       .select({ count: sql<number>`COUNT(*)::int` })
       .from(schema.applications)
-      .innerJoin(
-        schema.projects,
-        eq(schema.applications.projectId, schema.projects.id),
-      )
+      .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
       .where(
         and(
           eq(schema.applications.userId, user.id),
           eq(schema.applications.status, "confirmed"),
-          lt(schema.projects.endDate, sql`NOW()`), // project has ended
-        ),
+          lt(schema.projects.endDate, sql`NOW()`) // project has ended
+        )
       );
-    console.log(count, "completed");
+    console.log(count, "completed")
     return ok(c, { completedCount: count });
   } catch (err) {
     console.error("❌ Completed projects error:", err);
-    return badReq(c, "Failed to load completed projects");
+    return badReq(c,"Failed to load completed projects");
   }
 });
 
@@ -122,17 +102,14 @@ dashboard.get("/applications", async (c) => {
         projectEndDate: schema.projects.endDate,
       })
       .from(schema.applications)
-      .innerJoin(
-        schema.projects,
-        eq(schema.applications.projectId, schema.projects.id),
-      )
+      .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
       .where(eq(schema.applications.userId, user.id))
       .orderBy(sql`applications.submitted_at DESC`);
-    console.log(applications, "applications");
+      console.log(applications,"applications")
     return ok(c, { applications });
   } catch (err) {
     console.error("❌ Error fetching user applications:", err);
-    return badReq(c, "Failed to fetch user applications");
+    return badReq(c,"Failed to fetch user applications");
   }
 });
 
@@ -170,13 +147,14 @@ dashboard.get("/upcoming-sessions", async (c) => {
         timeEnd: schema.projects.timeEnd,
       })
 
+
       .from(schema.projects)
       .where(
         and(
-          gte(schema.projects.endDate, today),
-          lte(schema.projects.startDate, oneWeekLater),
-          inArray(schema.projects.id, projectIds),
-        ),
+            gte(schema.projects.endDate, today),
+            lte(schema.projects.startDate, oneWeekLater),
+            inArray(schema.projects.id, projectIds)
+        )
       );
 
     // 3️⃣ Generate upcoming sessions
@@ -196,8 +174,8 @@ dashboard.get("/upcoming-sessions", async (c) => {
       if (!project.daysOfWeek || project.daysOfWeek.length === 0) continue;
 
       if (!project.startDate || !project.endDate) continue;
-      const projectStart = new Date(project.startDate);
-      const projectEnd = new Date(project.endDate);
+        const projectStart = new Date(project.startDate);
+        const projectEnd = new Date(project.endDate);
 
       for (let i = 0; i < 7; i++) {
         const date = addDays(today, i);
@@ -205,22 +183,19 @@ dashboard.get("/upcoming-sessions", async (c) => {
 
         // Check if today’s weekday matches one of project.daysOfWeek
         const matches = project.daysOfWeek.some(
-          (d) => dayNameToIndex[d] === dayIndex,
+          (d) => dayNameToIndex[d] === dayIndex
         );
 
         if (matches) {
           // Only include if within project active window
-          if (isAfter(date, projectEnd) || isBefore(date, projectStart))
-            continue;
+          if (isAfter(date, projectEnd) || isBefore(date, projectStart)) continue;
 
           sessions.push({
             projectId: project.id,
             title: project.title,
             district: project.district,
             sessionDate: format(date, "yyyy-MM-dd"),
-            dayOfWeek: Object.keys(dayNameToIndex).find(
-              (k) => dayNameToIndex[k] === dayIndex,
-            ),
+            dayOfWeek: Object.keys(dayNameToIndex).find((k) => dayNameToIndex[k] === dayIndex),
             timeStart: project.timeStart,
             timeEnd: project.timeEnd,
           });
@@ -230,10 +205,9 @@ dashboard.get("/upcoming-sessions", async (c) => {
 
     // Sort sessions by date
     sessions.sort(
-      (a, b) =>
-        new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime(),
+      (a, b) => new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime()
     );
-    console.log(sessions, "sessions");
+    console.log(sessions, "sessions")
     return ok(c, { sessions });
   } catch (err) {
     console.error("❌ Error generating upcoming sessions:", err);
@@ -241,4 +215,4 @@ dashboard.get("/upcoming-sessions", async (c) => {
   }
 });
 
-export default dashboard;
+export default dashboard

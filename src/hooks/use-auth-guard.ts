@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "./use-auth";
 import { useRouter } from "@tanstack/react-router";
 
-import { useAuth } from "./use-auth";
 
-export function useRoleGuard(
-  allowedRoles: Array<"student" | "organisation" | "admin">,
-) {
+export function useRoleGuard(allowedRoles: Array<"student" | "organisation" | "admin">) {
   const { user, isLoading, isLoggedIn } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
   // console.log("Guard check:", { isLoading, isLoggedIn, role: user?.accountType });
 
+
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) return; 
 
     if (!isLoggedIn) {
       setIsRedirecting(true);

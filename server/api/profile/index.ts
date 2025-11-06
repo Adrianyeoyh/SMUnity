@@ -1,9 +1,8 @@
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
+import { eq } from "drizzle-orm";
 import { authenticatedMiddleware } from "#server/middlewares/auth.js";
 
 const profileSchema = z.object({

@@ -1,11 +1,10 @@
-import { useEffect } from "react";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/auth/callback")({
   // 👇 declare the type of search params (query params)
   validateSearch: (search: Record<string, unknown>) => ({
-    redirectTo:
-      typeof search.redirectTo === "string" ? search.redirectTo : undefined,
+    redirectTo: typeof search.redirectTo === "string" ? search.redirectTo : undefined,
   }),
   component: AuthCallback,
 });
@@ -23,9 +22,9 @@ function AuthCallback() {
   }, [redirectTo]);
 
   return (
-    <div className="bg-background flex min-h-screen flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="text-center">
-        <div className="mb-2 animate-pulse text-lg text-gray-600">
+        <div className="animate-pulse text-lg text-gray-600 mb-2">
           Logging you in...
         </div>
         <p className="text-sm text-gray-400">

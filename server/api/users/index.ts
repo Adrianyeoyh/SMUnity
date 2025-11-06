@@ -1,27 +1,18 @@
 // server/api/users/index.ts
-import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
-import { z } from "zod";
-
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
+import { eq, and, sql } from "drizzle-orm";
+import { z } from "zod";
 import { authenticatedMiddleware } from "#server/middlewares/auth.js";
 
 export const usersRoutes = new Hono().use(authenticatedMiddleware);
 
 async function buildMePayload(userId: string) {
-  const [user] = await db
-    .select()
-    .from(schema.user)
-    .where(eq(schema.user.id, userId))
-    .limit(1);
+  const [user] = await db.select().from(schema.user).where(eq(schema.user.id, userId)).limit(1);
   if (!user) return null;
 
-  const [profile] = await db
-    .select()
-    .from(schema.profiles)
-    .where(eq(schema.profiles.userId, userId))
-    .limit(1);
+  const [profile] = await db.select().from(schema.profiles).where(eq(schema.profiles.userId, userId)).limit(1);
 
   const apps = await db
     .select({ count: sql<number>`count(*)::int` })
@@ -70,10 +61,7 @@ const updateSchema = z.object({
     .trim()
     .min(4)
     .max(20)
-    .regex(
-      /^[A-Za-z0-9-]+$/,
-      "Student ID should contain letters, numbers, or hyphens.",
-    )
+    .regex(/^[A-Za-z0-9-]+$/, "Student ID should contain letters, numbers, or hyphens.")
     .nullable()
     .optional(),
   skills: z.array(z.string().trim().min(1)).optional(),
@@ -92,11 +80,7 @@ usersRoutes.patch("/me", async (c) => {
 
   const { phone, school, studentId, skills, interests } = parsed.data;
   const normalizedStudentId =
-    studentId === undefined
-      ? undefined
-      : studentId
-        ? studentId.toUpperCase()
-        : null;
+    studentId === undefined ? undefined : studentId ? studentId.toUpperCase() : null;
 
   await db
     .insert(schema.profiles)
@@ -113,9 +97,7 @@ usersRoutes.patch("/me", async (c) => {
       set: {
         ...(phone !== undefined ? { phone } : {}),
         ...(school !== undefined ? { school } : {}),
-        ...(normalizedStudentId !== undefined
-          ? { studentId: normalizedStudentId }
-          : {}),
+        ...(normalizedStudentId !== undefined ? { studentId: normalizedStudentId } : {}),
         ...(skills !== undefined ? { skills } : {}),
         ...(interests !== undefined ? { interests } : {}),
       },

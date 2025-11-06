@@ -1,8 +1,7 @@
+import { auth } from "#client/lib/auth";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { HeartHandshake, LogIn } from "lucide-react";
-
-import { auth } from "#client/lib/auth";
 
 export function LoginModal({
   open,
@@ -20,51 +19,51 @@ export function LoginModal({
   if (!open) return null;
 
   async function handleGoogleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`;
-      const result = await auth.signIn.social({
-        provider: "google",
-        callbackURL: callbackUrl,
-      });
+  try {
+    const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`;
+    const result = await auth.signIn.social({
+      provider: "google",
+      callbackURL: callbackUrl,
+    });
 
-      if (result.data?.url) {
-        window.location.href = result.data.url;
-      } else if (result.data?.user) {
-        onClose();
-        navigate({ to: redirectTo });
-      }
-    } catch (err: any) {
-      const msg = err instanceof Error ? err.message : "Login failed";
-      setError(msg);
-    } finally {
-      setIsLoading(false);
+    if (result.data?.url) {
+      window.location.href = result.data.url;
+    } else if (result.data?.user) {
+      onClose();
+      navigate({ to: redirectTo });
     }
+  } catch (err: any) {
+    const msg = err instanceof Error ? err.message : "Login failed";
+    setError(msg);
+  } finally {
+    setIsLoading(false);
   }
+}
+
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-2xl border border-teal-100 bg-white p-8 text-center shadow-2xl">
-        <div className="mb-6 flex flex-col items-center">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#1BA39C] to-[#0D9488]">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border border-teal-100">
+        <div className="flex flex-col items-center mb-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#1BA39C] to-[#0D9488] mb-3">
             <HeartHandshake className="h-7 w-7 text-white" />
           </div>
-          <h2 className="font-heading text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900 font-heading">
             Sign in to Apply
           </h2>
-          <p className="font-body mt-1 max-w-xs text-sm text-gray-600">
-            You need to be logged in with your SMU Google account to apply for
-            this CSP.
+          <p className="text-sm text-gray-600 mt-1 font-body max-w-xs">
+            You need to be logged in with your SMU Google account to apply for this CSP.
           </p>
         </div>
 
         <button
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#0F766E] py-2.5 font-medium text-white transition-all duration-200 hover:bg-[#115E59] disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#115E59] text-white font-medium py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -88,14 +87,14 @@ export function LoginModal({
         </button>
 
         {error && (
-          <p className="mt-3 rounded-md border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p className="text-sm text-red-600 mt-3 bg-red-50 border border-red-100 rounded-md py-2 px-3">
             {error}
           </p>
         )}
 
         <button
           onClick={onClose}
-          className="font-body mt-6 text-sm text-gray-500 transition hover:text-gray-700"
+          className="mt-6 text-sm text-gray-500 hover:text-gray-700 font-body transition"
         >
           Cancel
         </button>

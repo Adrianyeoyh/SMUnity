@@ -1,17 +1,17 @@
 // server/api/public/discover.ts
-import { and, eq, gte, isNotNull, isNull, or, sql } from "drizzle-orm";
-
 import { db } from "#server/drizzle/db";
-import { user } from "#server/drizzle/schema/auth";
 import * as schema from "#server/drizzle/schema/domain";
+import { or, isNull, gte, and, isNotNull, sql,eq} from "drizzle-orm";
 import { createApp } from "#server/factory";
 import { ok } from "#server/helper";
+import { user } from "#server/drizzle/schema/auth";
 
 const discover = createApp();
 
 discover.get("/", async (c) => {
   try {
-    const now = new Date();
+
+    const now = new Date(); 
 
     // ✅ Select projects only from non-suspended orgs
     const rows = await db
@@ -65,14 +65,14 @@ discover.get("/", async (c) => {
 
     // ✅ Fetch organisation names
     const orgs = await db
-      .select({
+    .select({
         userId: schema.organisations.userId,
-        orgName: user.name,
-      })
-      .from(schema.organisations)
-      .leftJoin(user, eq(schema.organisations.userId, user.id));
+        orgName: user.name, 
+    })
+    .from(schema.organisations)
+    .leftJoin(user, eq(schema.organisations.userId, user.id));
 
-    const orgNameById = new Map(orgs.map((o) => [o.userId, o.orgName || ""]));
+    const orgNameById = new Map(orgs.map(o => [o.userId, o.orgName || ""]));
 
     // ✅ Build payload
     const payload = rows.map((r) => {
@@ -92,7 +92,7 @@ discover.get("/", async (c) => {
         type: r.type ?? "local",
         startDate: r.startDate,
         endDate: r.endDate,
-        duration: "",
+        duration: "", 
         serviceHours: r.serviceHours ?? 0,
         maxVolunteers: r.maxVolunteers ?? 0,
         currentVolunteers, // ✅ now real value
@@ -238,5 +238,7 @@ discover.get("/:projectId", async (c) => {
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });
+
+
 
 export default discover;

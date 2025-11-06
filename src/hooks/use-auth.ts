@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { auth } from "#client/lib/auth";
 
 export function useAuth() {
@@ -14,6 +13,7 @@ export function useAuth() {
         setIsLoggedIn(true);
         setUser(session.data.user);
         // console.log("Session data:", session);
+
       } else {
         setIsLoggedIn(false);
         setUser(null);
@@ -34,7 +34,7 @@ export function useAuth() {
     };
 
     window.addEventListener("auth-change", handleAuthChange);
-
+    
     return () => {
       window.removeEventListener("auth-change", handleAuthChange);
     };
@@ -51,6 +51,7 @@ export function useAuth() {
       console.error("Logout failed:", error);
     }
   };
+  
 
   return {
     isLoggedIn,

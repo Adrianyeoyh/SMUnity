@@ -12,15 +12,16 @@ export type CreateOrganiserResponse = {
   error?: string;
 };
 
+
 export async function createOrganiser(
-  payload: CreateOrganiserPayload,
+  payload: CreateOrganiserPayload
 ): Promise<CreateOrganiserResponse> {
   const response = await fetch("/api/admin/create", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include",
+    credentials: "include", 
     body: JSON.stringify(payload),
   });
 
@@ -31,4 +32,5 @@ export async function createOrganiser(
   }
 
   return result as CreateOrganiserResponse;
+
 }

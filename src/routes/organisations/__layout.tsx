@@ -1,11 +1,5 @@
+import { createFileRoute, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import {
-  createFileRoute,
-  Outlet,
-  useNavigate,
-  useRouterState,
-} from "@tanstack/react-router";
-
 import { useAuth } from "#client/hooks/use-auth";
 
 function OrganisationRoot() {
@@ -47,7 +41,7 @@ function OrganisationRoot() {
     ];
 
     const isOrganisationsRoute = organisationsRoutes.some((route) =>
-      path.startsWith(route),
+      path.startsWith(route)
     );
 
     if (isOrganisationsRoute) {

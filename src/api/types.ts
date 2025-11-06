@@ -49,7 +49,7 @@ export type ProjectCard = {
   slotsTotal: number;
   slotsFilled: number;
   status: "draft" | "pending" | "approved" | "closed" | "archived";
-  createdAt: string;
+  createdAt: string; 
 };
 
 export type ProjectDetail = {
@@ -72,39 +72,33 @@ export type ProjectDetail = {
 
 export type ProjectSessionRow = {
   id: number;
-  startsAt: string;
-  endsAt: string;
+  startsAt: string; 
+  endsAt: string;   
   capacity: number | null;
   locationNote: string | null;
 };
 
 export type MyAppRow = {
-  id: number;
+  id: number; 
   projectId: number;
   title: string;
   organisation: string;
-  status:
-    | "pending"
-    | "accepted"
-    | "rejected"
-    | "waitlisted"
-    | "withdrawn"
-    | "cancelled";
-  appliedDate: string;
+  status: "pending" | "accepted" | "rejected" | "waitlisted" | "withdrawn" | "cancelled";
+  appliedDate: string; 
 };
 
 export type FavCard = {
   projectId: number;
   title: string;
   organisation: string;
-  savedAt: string;
+  savedAt: string; 
 };
 
 export type UpcomingRow = {
   id: number;
   title: string;
-  date: string;
-  time: string;
+  date: string; 
+  time: string; 
   location: string | null;
 };
 export interface CompletedCspRow {

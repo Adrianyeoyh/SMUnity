@@ -1,7 +1,4 @@
-export async function decideApplication(
-  applicationId: number,
-  action: "accept" | "reject",
-) {
+export async function decideApplication(applicationId: number, action: "accept" | "reject") {
   const res = await fetch("/api/organisations/application/decision", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -13,20 +10,18 @@ export async function decideApplication(
   return data;
 }
 
-export async function fetchApplicantDetails(
-  projectId: string,
-  applicantId: string,
-) {
+
+export async function fetchApplicantDetails(projectId: string, applicantId: string) {
   try {
     const res = await fetch(
       `/api/organisations/application/viewApplicant/${projectId}/${applicantId}`,
       {
         method: "GET",
-        credentials: "include",
+        credentials: "include", 
         headers: {
           "Content-Type": "application/json",
         },
-      },
+      }
     );
 
     if (!res.ok) {

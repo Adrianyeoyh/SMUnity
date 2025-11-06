@@ -1,11 +1,10 @@
-import { eq } from "drizzle-orm";
-import { z } from "zod";
-
+import { createApp } from "#server/factory";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { createApp } from "#server/factory";
-import { ok } from "#server/helper";
+import { eq } from "drizzle-orm";
 import { organisationMiddleware } from "#server/middlewares/auth";
+import { ok } from "#server/helper";
+import { z } from "zod";
 
 const profile = createApp().use(organisationMiddleware);
 
@@ -56,36 +55,39 @@ profile.patch("/", async (c) => {
   const parsed = UpdateSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "Invalid data" }, 400);
 
+
   const [updatedOrg] = await db
-    .update(schema.organisations)
-    .set({
-      slug: parsed.data.slug ?? undefined,
-      phone: parsed.data.phone,
-      website: parsed.data.website ?? "",
-      description: parsed.data.description,
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.organisations.userId, user.id))
-    .returning();
+  .update(schema.organisations)
+  .set({
+    slug: parsed.data.slug ?? undefined,
+    phone: parsed.data.phone,
+    website: parsed.data.website ?? "",
+    description: parsed.data.description,
+    updatedAt: new Date(),
+  })
+  .where(eq(schema.organisations.userId, user.id))
+  .returning();
+
 
   await db
-    .update(schema.user)
-    .set({ name: parsed.data.name, updatedAt: new Date() })
-    .where(eq(schema.user.id, user.id));
+  .update(schema.user)
+  .set({ name: parsed.data.name, updatedAt: new Date() })
+  .where(eq(schema.user.id, user.id));
+
 
   if (!updatedOrg) {
     return c.json({ error: "Failed to update organisation profile." }, 500);
   }
 
   return ok(c, {
-    id: updatedOrg.userId,
-    name: parsed.data.name,
-    slug: updatedOrg.slug,
-    phone: updatedOrg.phone,
-    website: updatedOrg.website,
-    description: updatedOrg.description,
-    updatedAt: updatedOrg.updatedAt,
-  });
+  id: updatedOrg.userId,
+  name: parsed.data.name,
+  slug: updatedOrg.slug,
+  phone: updatedOrg.phone,
+  website: updatedOrg.website,
+  description: updatedOrg.description,
+  updatedAt: updatedOrg.updatedAt,
+});
 });
 
 export default profile;

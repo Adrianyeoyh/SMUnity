@@ -1,13 +1,13 @@
 // server/api/student/applications.ts
-import { and, desc, eq } from "drizzle-orm";
-import { z } from "zod";
-
+import { createApp } from "#server/factory";
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/";
-import { createApp } from "#server/factory";
-import { badReq, notFound, ok } from "#server/helper";
+import { eq, and, desc } from "drizzle-orm";
+import { z } from "zod";
+import { ok, badReq, notFound } from "#server/helper";
 
-const applications = createApp();
+
+const applications = createApp()
 
 applications.post("/confirm", async (c) => {
   const user = c.get("user");
@@ -31,8 +31,7 @@ applications.post("/confirm", async (c) => {
     .limit(1);
 
   if (!app) return notFound(c, "Application not found");
-  if (app.userId !== user.id)
-    return badReq(c, "You cannot modify another user’s application");
+  if (app.userId !== user.id) return badReq(c, "You cannot modify another user’s application");
 
   if (app.status !== "accepted") {
     return badReq(c, "Application is not in an approvable state");
@@ -49,8 +48,8 @@ applications.post("/confirm", async (c) => {
     .where(
       and(
         eq(schema.projMemberships.projId, app.projectId),
-        eq(schema.projMemberships.userId, user.id),
-      ),
+        eq(schema.projMemberships.userId, user.id)
+      )
     )
     .limit(1);
 
@@ -129,10 +128,7 @@ applications.get("/list", async (c) => {
     })
 
     .from(schema.applications)
-    .innerJoin(
-      schema.projects,
-      eq(schema.applications.projectId, schema.projects.id),
-    )
+    .innerJoin(schema.projects, eq(schema.applications.projectId, schema.projects.id))
     .where(eq(schema.applications.userId, user.id))
     .orderBy(desc(schema.applications.submittedAt));
 
