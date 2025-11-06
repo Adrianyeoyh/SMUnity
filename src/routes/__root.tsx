@@ -20,19 +20,7 @@ function RootComponent() {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [routerState.location.pathname]);
 
-  // Redirect logged-in users from "/" to their role dashboard
-  useEffect(() => {
-    if (!isLoggedIn || routerState.location.pathname !== "/") return;
-
-    // Redirect logged-in users from "/" to their role dashboard
-    if (user?.accountType === "admin") {
-      navigate({ to: "/admin/dashboard", replace: true });
-    } else if (user?.accountType === "organisation") {
-      navigate({ to: "/organisations/dashboard", replace: true });
-    } else {
-      navigate({ to: "/dashboard", replace: true });
-    }
-  }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
+  // Removed automatic redirect from "/" to dashboard - users can now access landing page even when logged in
 
 
   // role-based route protection for user pages

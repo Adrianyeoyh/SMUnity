@@ -77,10 +77,7 @@ export function Header() {
   };
 
   const getLogoDestination = () => {
-    if (!isLoggedIn || !user) return "/";
-    if (user.accountType === "admin") return "/admin/dashboard";
-    if (user.accountType === "organisation") return "/organisations/dashboard";
-    return "/dashboard"; 
+    return "/"; // Always route to landing page
   };
 
   return (

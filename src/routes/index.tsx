@@ -1572,7 +1572,7 @@ function Index() {
         >
           {/* Blurred background image layer */}
           <div
-            className="absolute inset-0 transition-all duration-700"
+            className="absolute inset-0"
             style={{
               backgroundImage: hoveredCategory 
                 ? `url(${categories.find(c => c.value === hoveredCategory)?.image})`
@@ -1583,34 +1583,36 @@ function Index() {
               filter: hoveredCategory ? 'blur(12px)' : 'none',
               transform: hoveredCategory ? 'scale(1.1)' : 'scale(1)',
               opacity: hoveredCategory ? 1 : 0,
-              transition: 'opacity 0.7s ease, filter 0.7s ease, transform 0.7s ease',
+              transition: 'opacity 1.2s ease-out, filter 1.2s ease-out, transform 1.2s ease-out, background-image 0.3s ease-in-out',
             }}
           />
           
           {/* Default background when no hover */}
           <div 
-            className="absolute inset-0 bg-muted/30 transition-opacity duration-700"
+            className="absolute inset-0 bg-muted/30"
             style={{
               opacity: hoveredCategory ? 0 : 1,
+              transition: 'opacity 1.2s ease-out',
             }}
           />
           
           {/* Background overlay that changes opacity based on hover */}
           <div 
-            className="absolute inset-0 transition-opacity duration-700"
+            className="absolute inset-0"
             style={{
               backgroundColor: hoveredCategory ? 'rgba(0, 0, 0, 0.6)' : 'transparent',
+              transition: 'background-color 1.2s ease-out',
             }}
           />
           
           <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-4 relative z-10">
           <div className="text-center mb-12">
-              <h2 className={`font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-colors duration-700 ${
+              <h2 className={`font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-colors duration-1000 ease-out ${
                 hoveredCategory ? 'text-white drop-shadow-lg' : 'text-foreground'
               }`}>
               Browse by Category
             </h2>
-              <p className={`text-sm sm:text-base md:text-lg font-body transition-colors duration-700 ${
+              <p className={`text-sm sm:text-base md:text-lg font-body transition-colors duration-1000 ease-out ${
                 hoveredCategory ? 'text-white/90 drop-shadow-md' : 'text-muted-foreground'
               }`}>
               Find projects that match your interests and passion
@@ -1629,7 +1631,7 @@ function Index() {
                     ref={(el) => {
                       categoryCardsRef.current[idx] = el;
                     }}
-                    className={`relative cursor-pointer group px-1 lg:px-2 overflow-hidden rounded-lg transition-opacity duration-700 ${
+                    className={`relative cursor-pointer group px-1 lg:px-2 overflow-hidden rounded-lg transition-opacity duration-1000 ease-out ${
                       isOtherHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'
                     } ${isHovered ? 'z-20' : ''}`}
                     style={{ perspective: "1000px" }}
