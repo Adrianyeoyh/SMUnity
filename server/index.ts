@@ -39,3 +39,5 @@ export default {
   port: process.env.NODE_ENV == "development" ? 4001 : 4000,
   ...app,
 };
+
+console.log(env)
