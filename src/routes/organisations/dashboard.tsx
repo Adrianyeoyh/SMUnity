@@ -45,6 +45,15 @@ import {
   SelectValue,
 } from "#client/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "#client/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "#client/components/ui/dialog";
+import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/organisations/dashboard")({
   component: OrgDashboard,
@@ -97,6 +106,9 @@ function OrgDashboard() {
   >("date_asc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+
 
   // --- Status Tabs ---
   const statusTabs = useMemo(
@@ -165,13 +177,11 @@ function OrgDashboard() {
   });
 
   const handleDeleteListing = useCallback(
-    (projectId: string, title: string) => {
-      if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-        deleteMutation.mutate(projectId);
-      }
-    },
-    [deleteMutation],
-  );
+  (projectId: string, title: string) => {
+    setDeleteTarget({ id: projectId, title });
+  },
+  []
+);
 
   const getTagIcon = useCallback((tag: string) => {
     const baseClass = "h-3 w-3";
@@ -764,6 +774,45 @@ function OrgDashboard() {
           )}
         </div>
       </div>
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="text-red-500 h-5 w-5" />
+              <DialogTitle>Delete Project</DialogTitle>
+            </div>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                {deleteTarget?.title}
+              </span>
+              ? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (deleteTarget) {
+                  deleteMutation.mutate(deleteTarget.id);
+                  setDeleteTarget(null);
+                }
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
