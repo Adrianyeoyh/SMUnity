@@ -16,7 +16,7 @@ G4 Group 12
 | <img src="photos/Calynn.jpg" width="80"> | Calynn | Frontend Developer - Organisation Dashboard, Nav Bar Profile Dropdown Backend - Organisation Profile Edit, Page Locking for Student Pages, Status Tab Counts |
 | <img src="photos/Sheryl.jpg" width="80"> | Tan Xing Yee Sheryl | Frontend Developer - Profile page, Organiser Dashboard, Admin Dashboard, Create Organiser listing form, Google Maps design |
 | <img src="photos/Rey.jpg" width="80"> | John Rey Valdellon Pastores | Backend Developer - Google Maps & Google Calendar API Integration |
-| <img src="photos/KaiJie.jpg" width="80"> | Leo Kai Jie | {To be Filled} |
+| <img src="photos/KaiJie.jpg" width="80"> | Leo Kai Jie | Slides, ReadME |
 
 
 ---
@@ -51,6 +51,8 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 | Google Calendar Sync | Integrate confirmed projects into calendar | Manage volunteer schedule with other activities |
 | Personalized Dashboard | View all saved projects and application history | Centralized hub for managing volunteer activities |
 | Organization Management Portal | Post opportunities, review applications, and manage volunteer slots | Connect with and manage student volunteers |
+| Admin Management Portal | Search organizations, approve/suspend accounts, view project analytics, and manage platform users | Ensures platform integrity |
+
 
 ---
 
@@ -223,7 +225,7 @@ FORCE_PATH_STYLE="true"
 
 2. Start local database and services
    ```bash
-      docker-compose up -d
+      docker-compose -f docker-compose.dev.yaml up -d
    ```
 3. Push schema to the database
    ```bash
@@ -273,7 +275,8 @@ To start the development server:
 ```bash
 bun dev
 ```
-The project will run on [http://localhost:4000](http://localhost:4000) by default.
+The project will run on [http://localhost:4000](http://localhost:4000) by default. 
+Emails on development mode will be sent to MailDev at [http://localhost:1080](http://localhost:1080).
 
 To build and preview the production version:
 ```bash
@@ -312,7 +315,7 @@ Application was tested on these screen widths:  iPhone 12pro, iPad Pro, and Norm
 | `BETTER_AUTH_SECRET not found` | Missing environment variable | Generate secret with `openssl rand -base64 32` and add to `.env` |
 | `.env` variables undefined | Missing `VITE_` prefix | Rename variables to start with `VITE_` |
 | `Google OAuth error` | Invalid redirect URI | Check Google Console OAuth settings match `http://localhost:4000/api/auth/callback/google` |
-| `bun dev` fails | Wrong Bun/Node version | Check versions: `bun -v` ≥ 1.2.15, `node -v` ≥ 22.14.0 |
+| `bun dev` fails | Wrong Bun | Check versions: `bun -v` ≥ 1.2.15|
 | Port already in use (4000 or 4001) | Another process using the port | Stop other processes or change ports in config |
 | MinIO connection error | MinIO not running | Verify Docker services with `docker ps` |
 
@@ -330,7 +333,7 @@ Application was tested on these screen widths:  iPhone 12pro, iPad Pro, and Norm
 
 > - *John Rey Valdellon Pastores:* Learned how to use tools that I haven't touched before such Tailwind CSS, bun, docker, drizzle, typescript and many others. I also got to experience how to use APIs, especially in Google Cloud, first hand in a website and I believe this would help for my own personal projects.
 
-> - *Leo Kai Jie:* 
+> - *Leo Kai Jie:* I learned to use docker to run and managed container application as well as learn how components can be used to effectively manage big projects, by calling the container and to make it easier for the eyes.
 
 
 As a team, reflect on:
