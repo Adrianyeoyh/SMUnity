@@ -35,6 +35,7 @@ queue.post("/:id/approve", async (c) => {
     await db
       .update(organisationRequests)
       .set({
+        
         status: "approved",
         decidedBy: admin.id,
         decidedAt: new Date(),
@@ -61,6 +62,7 @@ queue.post("/:id/approve", async (c) => {
     }
 
     await mailer.sendMail({
+      from: env.SMTP_FROM,
       to: req.requesterEmail,
       subject: "Your SMUnity Organisation Request Has Been Approved",
       html: `
@@ -113,6 +115,7 @@ queue.post("/:id/reject", async (c) => {
       : "";
 
     await mailer.sendMail({
+      from: env.SMTP_FROM,
       to: req.requesterEmail,
       subject: "Your SMUnity Organisation Request Has Been Rejected",
       html: `
