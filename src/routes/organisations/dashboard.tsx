@@ -229,12 +229,12 @@ const handleDeleteListing = useCallback(
         <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-                  Organisation Dashboard
-                </h1>
-                <p className="text-muted-foreground font-body text-lg">
+          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Organisation Dashboard
+          </h1>
+          <p className="text-muted-foreground font-body text-lg">
                   Create listings, keep track of applications, and manage your volunteer pipeline
-                </p>
+          </p>
               </div>
               <div className="flex-shrink-0">
                 <Button className="inline-flex items-center gap-2" onClick={handleCreateListing}>
@@ -261,8 +261,8 @@ const handleDeleteListing = useCallback(
                 </div>
                 <div className="hidden sm:block bg-blue-100 rounded-full p-3 ml-4">
                   <ClipboardList className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
+            </div>
+          </div>
             </CardHeader>
              <CardContent className="pt-0 pb-0">
               <div className="text-xs text-muted-foreground font-body">
@@ -442,17 +442,17 @@ const handleDeleteListing = useCallback(
           </div>
         </div> */}
 
-        {displayListings.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 py-12 text-center">
-            <ClipboardList className="h-10 w-10 text-muted-foreground" />
-            <div>
-              <h3 className="font-heading text-lg text-foreground">No listings in this view yet</h3>
-              <p className="text-sm text-muted-foreground font-body">
-                Try switching to a different status or create a new listing to get started.
-              </p>
-            </div>
-          </div>
-        ) : (
+            {displayListings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 py-12 text-center">
+                <ClipboardList className="h-10 w-10 text-muted-foreground" />
+                <div>
+                  <h3 className="font-heading text-lg text-foreground">No listings in this view yet</h3>
+                  <p className="text-sm text-muted-foreground font-body">
+                    Try switching to a different status or create a new listing to get started.
+                  </p>
+                </div>
+              </div>
+            ) : (
           <div className="space-y-4">
           <div 
             className="max-h-[600px] overflow-y-auto overflow-x-hidden space-y-6"
@@ -475,117 +475,117 @@ const handleDeleteListing = useCallback(
             }}
           >
           {currentListings.map((listing) => {
-            const fillPercentage = Math.round(
-              (Math.min(listing.volunteerCount, listing.slotsTotal) / listing.slotsTotal) * 100
-            );
-            const fillTone = getFillTone(fillPercentage);
-            const fillBadgeTone = getFillBadgeTone(fillPercentage);
-            const fillLabel = getFillLabel(fillPercentage);
+                const fillPercentage = Math.round(
+                  (Math.min(listing.volunteerCount, listing.slotsTotal) / listing.slotsTotal) * 100
+                );
+                const fillTone = getFillTone(fillPercentage);
+                const fillBadgeTone = getFillBadgeTone(fillPercentage);
+                const fillLabel = getFillLabel(fillPercentage);
 
-            return (
-              <div
-                key={listing.id}
-                className="rounded-2xl border border-border/60 bg-card/60 p-5 shadow-sm transition-all"
-              >
-                <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] lg:grid-cols-[minmax(0,1fr)_280px]">
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="font-heading text-xl font-semibold text-foreground">
-                        {listing.title}
-                      </h3>
-                      <Badge variant="secondary" className="font-medium capitalize">
-                        {listing.status}
-                      </Badge>
-                    </div>
+                return (
+                  <div
+                    key={listing.id}
+                    className="rounded-2xl border border-border/60 bg-card/60 p-5 shadow-sm transition-all"
+                  >
+                    <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] lg:grid-cols-[minmax(0,1fr)_280px]">
+                      <div className="space-y-4">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="font-heading text-xl font-semibold text-foreground">
+                            {listing.title}
+                          </h3>
+                          <Badge variant="secondary" className="font-medium capitalize">
+                            {listing.status}
+                          </Badge>
+                        </div>
 
-                    <div className="space-y-2 text-sm text-muted-foreground font-body">
-                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="space-y-2 text-sm text-muted-foreground font-body">
+                          <div className="flex flex-wrap items-center gap-3">
                         {!listing.isRemote && (
-                          <span className="inline-flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1.5">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
                             {listing.type === "overseas"
                               ? (listing.country || "—")
                               : (listing.district || "—")}
-                          </span>
+                            </span>
                         )}
-                        <span className="hidden h-4 w-px bg-border md:block" />
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />{" "}
+                            <span className="hidden h-4 w-px bg-border md:block" />
+                            <span className="inline-flex items-center gap-1.5">
+                              <Calendar className="h-4 w-4 text-muted-foreground" />{" "}
                           {listing.repeatInterval === 0
                             ? listing.startDate?.slice(0, 10)
                             : `${listing.startDate?.slice(0, 10)} – ${listing.endDate?.slice(0, 10)}`
                           }
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>
-                          {listing.slotsTotal} volunteer slots
-                          {fillPercentage >= 100 ? " (Waitlist only)" : ""}
-                        </span>
-                      </div>
-                    </div>
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span>
+                              {listing.slotsTotal} volunteer slots
+                              {fillPercentage >= 100 ? " (Waitlist only)" : ""}
+                            </span>
+                          </div>
+                        </div>
 
-                    {listing.projectTags?.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {listing.projectTags.map((tag: string) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
-                          >
-                            {getTagIcon(tag)}
-                            <span>{tag}</span>
-                          </span>
-                        ))}
+                        {listing.projectTags?.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {listing.projectTags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                              >
+                                {getTagIcon(tag)}
+                                <span>{tag}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="flex flex-col gap-4 md:items-end">
-                    <div className="w-full rounded-xl border bg-background/90 p-3 shadow-sm">
-                      <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        <span>{fillPercentage}% filled</span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${fillBadgeTone}`}
-                        >
-                          {fillLabel}
-                        </span>
-                      </div>
-                      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${fillTone}`}
-                          style={{ width: `${Math.min(fillPercentage, 100)}%` }}
-                        />
-                      </div>
-                      <p className="mt-2 text-sm font-medium text-foreground">
-                        {listing.volunteerCount}
-                        <span className="text-muted-foreground font-body">
-                          {" "}
-                          / {listing.slotsTotal} volunteers
-                        </span>
-                      </p>
-                    </div>
+                      <div className="flex flex-col gap-4 md:items-end">
+                        <div className="w-full rounded-xl border bg-background/90 p-3 shadow-sm">
+                          <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            <span>{fillPercentage}% filled</span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${fillBadgeTone}`}
+                            >
+                              {fillLabel}
+                            </span>
+                          </div>
+                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${fillTone}`}
+                              style={{ width: `${Math.min(fillPercentage, 100)}%` }}
+                            />
+                          </div>
+                          <p className="mt-2 text-sm font-medium text-foreground">
+                            {listing.volunteerCount}
+                            <span className="text-muted-foreground font-body">
+                              {" "}
+                              / {listing.slotsTotal} volunteers
+                            </span>
+                          </p>
+                        </div>
 
-                    <div className="flex w-full flex-wrap gap-2 md:justify-end">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link to="/organisations/$projectId" params={{ projectId: listing.id }}>
+                        <div className="flex w-full flex-wrap gap-2 md:justify-end">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to="/organisations/$projectId" params={{ projectId: listing.id }}>
                           View Listing
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
                         onClick={() => handleDeleteListing(listing.id, listing.title)}
-                        aria-label={`Delete ${listing.title}`}
+                            aria-label={`Delete ${listing.title}`}
                         disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
 
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
                 );
             })}
           </div>

@@ -600,11 +600,11 @@ const diffWeeks = (s?: Date, e?: Date): number => {
   return Number.isFinite(weeks) ? Math.max(1, weeks) : 0;
 };
 
-const tomorrowIso = useMemo(() => {
-  const t = todayStart();
-  t.setDate(t.getDate() + 1);
-  return t.toISOString().split("T")[0];
-}, []);
+  const tomorrowIso = useMemo(() => {
+    const t = todayStart();
+    t.setDate(t.getDate() + 1);
+    return t.toISOString().split("T")[0];
+  }, []);
 
 const diffDaysInclusive = (s?: Date, e?: Date): number => {
   if (!(s instanceof Date) || !(e instanceof Date)) return 0;
@@ -675,7 +675,7 @@ const expected = matchingDaysCount * per;
 
   // Derived expected hours (for UI hint)
   const expectedHours = useMemo(() => {
-  const per = perSessionHours(timeStart, timeEnd);
+    const per = perSessionHours(timeStart, timeEnd);
   const matches = countMatchingDates(start, end, days_of_week);
   const expected = matches * per;
   return Number.isFinite(expected) && expected > 0 ? Math.round(expected) : 0;
@@ -735,13 +735,13 @@ const expected = matchingDaysCount * per;
 
     // B) End date cannot be earlier than start date (symmetrical errors; runs when either changes)
     // ✅ End date cannot be earlier than start date
-if (s && e) {
+    if (s && e) {
   if (startOfDay(e).getTime() < startOfDay(s).getTime()) {
-    setError("end_date", { type: "validate", message: "End date cannot be earlier than start date" });
-  } else {
+        setError("end_date", { type: "validate", message: "End date cannot be earlier than start date" });
+      } else {
     clearErrors("end_date");
-  }
-}
+      }
+    }
 
 
     // C) Application deadline must be at least 1 day before the start date
@@ -787,7 +787,7 @@ if (s && e) {
 
   // Rule 5: Hours must be within ±10 of expected (and expected must be computable)
   // ✅ Auto-calc commitable hours (duration-based)
-useEffect(() => {
+  useEffect(() => {
   const per = perSessionHours(timeStart, timeEnd);
   const matches = countMatchingDates(start, end, days_of_week);
   const expected = matches * per;
@@ -991,38 +991,38 @@ useEffect(() => {
           <CardContent>
             {projectType === "local" ? (
               <div className="grid gap-4 sm:grid-cols-3">
-                {/* DISTRICT SELECT */}
+              {/* DISTRICT SELECT */}
                 <div className="space-y-2 sm:col-span-1">
-                  <Label>District</Label>
-                  <Controller
-                    control={control}
-                    name="district"
+                <Label>District</Label>
+                <Controller
+                  control={control}
+                  name="district"
                     rules={{ required: !watch("remote") ? "District is required unless remote" : false }}
-                    render={({ field }) => (
+                  render={({ field }) => (
                       <Combobox
                         options={DISTRICTS}
                         value={isRemote ? "" : field.value || ""}
-                        onValueChange={(v) => field.onChange(v)}
+                      onValueChange={(v) => field.onChange(v)}
                         placeholder="Select a district..."
-                        disabled={isRemote}
+                      disabled={isRemote}
                       />
-                    )}
-                  />
+                  )}
+                />
                   {errors.district && !isRemote && <p className="text-sm text-red-600">{errors.district.message as string}</p>}
-                </div>
+              </div>
 
-                {/* GOOGLE MAPS + REMOTE TOGGLE */}
+              {/* GOOGLE MAPS + REMOTE TOGGLE */}
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="google_maps">Google Maps URL</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-center">
-                    <Input
-                      id="google_maps"
-                      type="url"
-                      placeholder="https://maps.google.com/..."
+                  <Input
+                    id="google_maps"
+                    type="url"
+                    placeholder="https://maps.google.com/..."
                       className="h-9"
                       {...register("google_maps")}
-                      disabled={isRemote}
-                    />
+                    disabled={isRemote}
+                  />
                     <div className="flex items-center gap-2">
                       <input
   id="remote"
@@ -1073,29 +1073,29 @@ useEffect(() => {
                     />
                     {(projectType as string) !== "overseas" && (
                       <div className="flex items-center gap-2">
-                        <input
+                  <input
                           id="remote_overseas"
-                          type="checkbox"
-                          {...register("remote")}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setValue("remote", checked);
-                            if (checked) {
-                              setValue("district", "Remote");
-                              setValue("google_maps", "");
-                            } else {
-                              setValue("district", "");
-                            }
-                          }}
-                        />
+                    type="checkbox"
+                    {...register("remote")}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setValue("remote", checked);
+                      if (checked) {
+                        setValue("district", "Remote");
+                        setValue("google_maps", "");
+                      } else {
+                        setValue("district", "");
+                      }
+                    }}
+                  />
                         <Label htmlFor="remote_overseas" className="cursor-pointer mb-0 opacity-90">
                           Remote?
                         </Label>
-                      </div>
-                    )}
-                  </div>
-                  {errors.country && !isRemote && isSubmitted && <p className="text-sm text-red-600">{errors.country.message as string}</p>}
                 </div>
+                    )}
+              </div>
+                  {errors.country && !isRemote && isSubmitted && <p className="text-sm text-red-600">{errors.country.message as string}</p>}
+            </div>
               </div>
             )}
           </CardContent>
@@ -1223,22 +1223,22 @@ useEffect(() => {
 
             {/* Days of the week selection (limited by repeat_interval) */}
             {(
-              <div className="space-y-2">
+            <div className="space-y-2">
                 <Label>Day(s) of the Week</Label>
-                <Controller
-                  control={control}
-                  name="days_of_week"
-                  rules={{
+              <Controller
+                control={control}
+                name="days_of_week"
+                rules={{
                     validate: (v) => {
                       if (repeatInterval === 0) {
                         return (v?.length || 0) === 1 || "Select exactly one day for a one-time project";
                       }
                       return ((v?.length || 0) === (repeatInterval || 0))
-                        ? true
+                      ? true
                         : `Select exactly ${repeatInterval || 0} day${(repeatInterval || 0) === 1 ? "" : "s"} per week`;
                     },
-                  }}
-                  render={({ field }) => {
+                }}
+                render={({ field }) => {
                     // ✅ Determine valid days based on date range
                   const value = field.value || [];
                   const isOneTime = repeatInterval === 0;
@@ -1255,10 +1255,10 @@ useEffect(() => {
                     }
                   }
 
-                    return (
-                      <div className="flex flex-wrap gap-2">
-                        {DAYS.map((day) => {
-                          const selected = value.includes(day);
+                  return (
+                    <div className="flex flex-wrap gap-2">
+                      {DAYS.map((day) => {
+                        const selected = value.includes(day);
                           // For one-time projects, don't restrict by date range - allow any day to be selected
                           // For recurring projects, only restrict if we have a valid date range and it's within 7 days
                           const outOfRange = isOneTime 
@@ -1269,14 +1269,14 @@ useEffect(() => {
                           // For one-time projects, only allow selecting one day
                           const oneTimeLimitReached = isOneTime && !selected && value.length >= 1;
                           const disable = outOfRange || limitReached || oneTimeLimitReached;
-                          return (
-                            <Button
-                              key={day}
-                              type="button"
-                              variant={selected ? "default" : "outline"}
-                              size="sm"
-                              disabled={disable}
-                              onClick={() => {
+                        return (
+                          <Button
+                            key={day}
+                            type="button"
+                            variant={selected ? "default" : "outline"}
+                            size="sm"
+                            disabled={disable}
+                            onClick={() => {
                                 let next;
                                 if (isOneTime) {
                                   // For one-time, replace the current selection with the new day
@@ -1284,23 +1284,23 @@ useEffect(() => {
                                 } else {
                                   // For recurring, toggle as usual
                                   next = selected
-                                    ? value.filter((d) => d !== day)
-                                    : [...value, day];
+                                ? value.filter((d) => d !== day)
+                                : [...value, day];
                                 }
-                                field.onChange(next);
-                              }}
-                              aria-pressed={selected}
-                            >
-                              {day}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    );
-                  }}
-                />
-                {errors.days_of_week && <p className="text-sm text-red-600">{String(errors.days_of_week.message)}</p>}
-              </div>
+                              field.onChange(next);
+                            }}
+                            aria-pressed={selected}
+                          >
+                            {day}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  );
+                }}
+              />
+              {errors.days_of_week && <p className="text-sm text-red-600">{String(errors.days_of_week.message)}</p>}
+            </div>
             )}
 
             {/* Time window */}
@@ -1319,11 +1319,11 @@ useEffect(() => {
 
             <div className={`grid gap-4 ${repeatInterval !== 0 ? 'sm:grid-cols-2' : ''}`}>
               {repeatInterval !== 0 && (
-                <div className="space-y-2">
+              <div className="space-y-2">
                   <Label htmlFor="slots">Total Slots</Label>
-                  <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} aria-invalid={!!errors.slots} />
-                  {errors.slots && <p className="text-sm text-red-600">{errors.slots.message as string}</p>}
-                </div>
+                <Input id="slots" type="number" min={1} {...register("slots", { required: "Slot count is required", valueAsNumber: true })} aria-invalid={!!errors.slots} />
+                {errors.slots && <p className="text-sm text-red-600">{errors.slots.message as string}</p>}
+              </div>
               )}
               <div className="space-y-2">
                 <Label htmlFor="commitable_hours">Total Service Hours</Label>
@@ -1345,7 +1345,7 @@ useEffect(() => {
                       const expected = matches * per;
 
                       if (Number.isFinite(expected) && expected > 0) {
-                        if (Math.abs((v || 0) - expected) > 10) return `Service hours too far from expected (${Math.round(expected)}h ±10h allowed)`;
+                      if (Math.abs((v || 0) - expected) > 10) return `Service hours too far from expected (${Math.round(expected)}h ±10h allowed)`;
                       }
                       return true;
                     },

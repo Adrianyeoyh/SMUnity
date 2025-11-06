@@ -2105,7 +2105,7 @@ function Index() {
         <div className="container mx-auto px-8 md:px-12 lg:px-16 xl:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Side - Boxes */}
-            <div className="flex flex-col items-center md:items-start justify-center relative md:ml-0 lg:ml-8" style={{ minHeight: '180px' }}>
+            <div className="flex flex-col items-center md:items-start justify-center relative md:ml-8 lg:ml-16 xl:ml-24" style={{ minHeight: '180px' }}>
               {/* First Box - "Ready to" */}
               <div 
                 className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 rounded-xl bg-secondary text-secondary-foreground font-heading font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl relative z-10 shadow-lg"
