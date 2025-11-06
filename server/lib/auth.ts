@@ -50,6 +50,7 @@ export const auth = betterAuth({
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
       await mailer.sendMail({
+        from: env.SMTP_FROM,
         to: user.email,
         subject: "Reset your SMUnity password",
         text: `Click the link to reset your password: ${url}`,
@@ -70,6 +71,7 @@ export const auth = betterAuth({
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
       await mailer.sendMail({
+        from: env.SMTP_FROM,
         to: user.email,
         subject: "Verify your email",
         text: `Click the link to verify your email: ${url}`,
