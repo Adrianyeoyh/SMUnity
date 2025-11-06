@@ -1168,15 +1168,25 @@ function Index() {
     }
   ];
 
+  // List of specific overseas projects to feature
+  const featuredOverseasProjectTitles = [
+    "Project Art2Heart",
+    "Project Boribo",
+    "Project Luminaire",
+    "Project Du Xing",
+    "Project Hai Khun",
+    "Project Sunshine"
+  ];
+
   // Use real CSPs from API for local projects, filter for local and map to match structure
-  const realFeaturedCSPs = discoverProjects
+  const realLocalCSPs = discoverProjects
     .filter((project: any) => project.type === "local")
     .slice(0, 6)
     .map((project: any) => ({
       id: project.id,
       title: project.title,
       organisation: project.organisation,
-      location: project.isRemote ? "Remote" : (project.location || project.district || "—"),
+      location: project.isRemote ? "Remote" : (project.location || project.district || project.country || "—"),
       category: project.category || "Community",
       type: project.type,
       startDate: project.startDate,
@@ -1192,6 +1202,41 @@ function Index() {
       skills: project.skills || [],
       tags: project.tags || [],
     }));
+
+  // Use real CSPs from API for overseas projects, filter for specific projects
+  const realOverseasCSPs = discoverProjects
+    .filter((project: any) => {
+      if (project.type !== "overseas") return false;
+      const projectTitleLower = project.title.toLowerCase();
+      // Match projects by checking if title contains any of the featured project names
+      return featuredOverseasProjectTitles.some(title => {
+        const searchTerm = title.toLowerCase().replace("project ", "").trim();
+        return projectTitleLower.includes(searchTerm);
+      });
+    })
+    .map((project: any) => ({
+      id: project.id,
+      title: project.title,
+      organisation: project.organisation,
+      location: project.isRemote ? "Remote" : (project.location || project.district || project.country || "—"),
+      category: project.category || "Community",
+      type: project.type,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      duration: project.serviceHours ? `${project.serviceHours}h` : "",
+      serviceHours: project.serviceHours || 0,
+      maxVolunteers: project.maxVolunteers || 0,
+      currentVolunteers: project.currentVolunteers || 0,
+      isRemote: project.isRemote || false,
+      status: project.status || "open",
+      applicationDeadline: project.applicationDeadline,
+      description: project.description || "",
+      skills: project.skills || [],
+      tags: project.tags || [],
+    }));
+
+  // Combine local and overseas projects
+  const realFeaturedCSPs = [...realLocalCSPs, ...realOverseasCSPs];
 
   // Fallback to mock data if no real CSPs available
   const featuredCSPs = realFeaturedCSPs.length > 0 ? realFeaturedCSPs : mockFeaturedCSPs;
