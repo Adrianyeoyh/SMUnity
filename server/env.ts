@@ -20,7 +20,7 @@ export const env = createEnv({
     // Mail
     SMTP_HOST: z.string(),
     SMTP_PORT: z.preprocess((a) => Number(a), z.number()),
-    SMTP_SECURE: z.preprocess((a) => a == true, z.boolean()),
+    SMTP_SECURE: z.preprocess((a) => a == "true", z.boolean()),
     SMTP_USER: z.string(),
     SMTP_PASS: z.string(),
     SMTP_FROM: z.string(),
