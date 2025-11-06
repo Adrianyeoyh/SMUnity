@@ -13,7 +13,7 @@ discover.get("/", async (c) => {
   try {
     const now = new Date();
 
-    // ✅ only select projects from *non-suspended* organisations
+    // ✅ Select projects only from non-suspended orgs
     const rows = await db
       .select({
         id: schema.projects.id,
@@ -34,13 +34,11 @@ discover.get("/", async (c) => {
         description: schema.projects.description,
         skills: schema.projects.skillTags,
         tags: schema.projects.projectTags,
-
         timeStart: schema.projects.timeStart,
         timeEnd: schema.projects.timeEnd,
         daysOfWeek: schema.projects.daysOfWeek,
       })
       .from(schema.projects)
-
       .leftJoin(
         schema.organisations,
         eq(schema.projects.orgId, schema.organisations.userId),
@@ -48,11 +46,24 @@ discover.get("/", async (c) => {
       .where(
         and(
           gte(schema.projects.applyBy, now),
-          eq(schema.organisations.suspended, false), 
+          eq(schema.organisations.suspended, false),
         ),
       );
 
-    // org name lookup (same as before)
+    // ✅ Fetch project membership counts
+    const membershipCounts = await db
+  .select({
+    projId: schema.projMemberships.projId,
+    count: sql<number>`COUNT(${schema.projMemberships.projId})`.as("count"),
+  })
+  .from(schema.projMemberships)
+  .groupBy(schema.projMemberships.projId);
+
+    const projectMemberMap = new Map(
+      membershipCounts.map((m) => [m.projId, m.count]),
+    );
+
+    // ✅ Fetch organisation names
     const orgs = await db
       .select({
         userId: schema.organisations.userId,
@@ -63,12 +74,13 @@ discover.get("/", async (c) => {
 
     const orgNameById = new Map(orgs.map((o) => [o.userId, o.orgName || ""]));
 
+    // ✅ Build payload
     const payload = rows.map((r) => {
-      const currentVolunteers = 0;
+      const currentVolunteers = projectMemberMap.get(r.id) ?? 0;
       let status: "open" | "closing-soon" | "closed" | "full" = "open";
 
-      if (r.applicationDeadline && r.applicationDeadline < now)
-        status = "closed";
+      if (r.applicationDeadline && r.applicationDeadline < now) status = "closed";
+      else if (currentVolunteers >= (r.maxVolunteers ?? 0)) status = "full";
 
       return {
         id: r.id,
@@ -83,7 +95,7 @@ discover.get("/", async (c) => {
         duration: "",
         serviceHours: r.serviceHours ?? 0,
         maxVolunteers: r.maxVolunteers ?? 0,
-        currentVolunteers,
+        currentVolunteers, // ✅ now real value
         latitude: r.latitude,
         longitude: r.longitude,
         isRemote: !!r.isRemote,
@@ -92,7 +104,6 @@ discover.get("/", async (c) => {
         description: r.description ?? "",
         skills: r.skills ?? [],
         tags: r.tags ?? [],
-
         timeStart: r.timeStart,
         timeEnd: r.timeEnd,
         daysOfWeek: r.daysOfWeek,
