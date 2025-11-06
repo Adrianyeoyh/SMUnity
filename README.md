@@ -24,10 +24,10 @@ G4 Group 12
 ## Business Problem
 
 > Current CSP opportunities are scattered across multiple platforms, making it difficult for students to discover projects aligned with their interests and availability.
-> Organizations lack a unified system for application management and volunteer tracking.
+> Organisations lack a unified system for application management and volunteer tracking.
 > SMUnity solves this by consolidating all CSP listings into one accessible hub, allowing students to browse available projects, filter them by skills, interests or location, and apply directly through the site.
 > For CSP leaders, the platform provides an intuitive admin panel to post opportunities, manage applications, and track volunteer slots.
-> By streamlining both discovery and management, SMUnity makes it easier for students to find their CSPs and organisations to manage their programs efficiently in one place, fostering greater participation and impact within the SMU community.
+> By streamlining both discovery and management, SMUnity makes it easier for students to find their CSPs and organisations to manage their programmes efficiently in one place, fostering greater participation and impact within the SMU community.
 
 ---
 
@@ -37,7 +37,7 @@ G4 Group 12
 
 SMU Students - Undergraduates at SMU seeking community service opportunities to fulfill graduation requirements
 
-CSP Leaders and Organizations - Community service organizations heads, coordinators and project leads responsible for posting volunteer opportunities, managing applications, and recruiting student volunteers.
+CSP Leaders and Organisations - Community service organisations heads, coordinators and project leads responsible for posting volunteer opportunities, managing applications, and recruiting student volunteers.
 
 ### 💡 What Users Can Do & Benefits
 
@@ -48,9 +48,9 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 | Apply for Projects             | Submit applications directly through the platform                                                 | Simple way to apply for opportunities             |
 | Track Application Status       | Monitor application progress (pending, accepted, rejected, confirmed, withdrawn)                  | Clear visibility into application outcomes        |
 | Google Calendar Sync           | Integrate confirmed projects into calendar                                                        | Manage volunteer schedule with other activities   |
-| Personalized Dashboard         | View all saved projects and application history                                                   | Centralized hub for managing volunteer activities |
-| Organization Management Portal | Post opportunities, review applications, and manage volunteer slots                               | Connect with and manage student volunteers        |
-| Admin Management Portal        | Search organizations, approve/suspend accounts, view project analytics, and manage platform users | Ensures platform integrity                        |
+| Personalized Dashboard         | View all saved projects and application history                                                   | Centralised hub for managing volunteer activities |
+| Organisation Management Portal | Post opportunities, review applications, and manage volunteer slots                               | Connect with and manage student volunteers        |
+| Admin Management Portal        | Search organisations, approve/suspend accounts, view project analytics, and manage platform users | Ensures platform integrity                        |
 
 ---
 
