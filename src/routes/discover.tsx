@@ -1033,9 +1033,7 @@ function DiscoverCSPs() {
                         </div>
                       </div>
 
-                      <Link 
-                        to="/csp/$projectID" params={{ projectID: csp.id }} 
-                      >
+                      <Link to="/csp/$projectID" params={{ projectID: csp.id }}>
                         <Button className="group-hover:bg-primary group-hover:text-primary-foreground w-full transition-colors">
                           View Details
                         </Button>
@@ -1199,8 +1197,9 @@ function DiscoverCSPs() {
 
                           {/* Right: Action */}
                           <div className="flex items-center gap-3 md:flex-col md:items-end">
-                            <Link 
-                              to="/csp/$projectID" params={{ projectID: csp.id }} 
+                            <Link
+                              to="/csp/$projectID"
+                              params={{ projectID: csp.id }}
                             >
                               <Button className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                 View Details
@@ -1504,8 +1503,9 @@ function MapSection({ sortedCSPs }: MapSectionProps) {
                           <div>{selectedCsp.serviceHours} service hours</div>
                         </div>
                         <Button asChild size="sm" className="h-8 px-3">
-                          <Link 
-                            to="/csp/$projectID" params={{ projectID: selectedCsp.id }} 
+                          <Link
+                            to="/csp/$projectID"
+                            params={{ projectID: selectedCsp.id }}
                           >
                             View details
                           </Link>
