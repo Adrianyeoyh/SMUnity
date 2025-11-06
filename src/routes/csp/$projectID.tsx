@@ -4,6 +4,7 @@ import {
   createFileRoute,
   Link,
   useNavigate,
+  useRouter,
   useSearch,
 } from "@tanstack/react-router";
 import {
@@ -50,11 +51,6 @@ import { useAuth } from "#client/hooks/use-auth";
 
 export const Route = createFileRoute("/csp/$projectID")({
   component: CspDetail,
-  validateSearch: (search: Record<string, unknown>) => ({
-    from: (search.from as string) || undefined,
-    applicantProjectId: (search.applicantProjectId as string) || undefined,
-    applicantId: (search.applicantId as string) || undefined,
-  }),
 });
 
 // Helper functions from discover page
@@ -137,6 +133,7 @@ const formatTimeCommitment = (
 };
 
 function CspDetail() {
+  const router = useRouter()
   const { isLoggedIn, user } = useAuth();
   const isStudent = user?.accountType === "student";
   const navigate = useNavigate();
@@ -305,44 +302,13 @@ function CspDetail() {
         {/* Back Button */}
         <button
           onClick={() => {
-            if (search.from === "preview") {
-              // Go back to the organisation project overview page
-              navigate({
-                to: "/organisations/$projectId",
-                params: { projectId: projectID },
-              });
-            } else if (search.from === "dashboard") {
-              // Go back to dashboard
-              navigate({ to: "/dashboard" });
-            } else if (
-              search.from === "applicant" &&
-              search.applicantProjectId &&
-              search.applicantId
-            ) {
-              // Go back to applicant details page
-              navigate({
-                to: "/organisations/applicant/$projectId/$applicantId",
-                params: {
-                  projectId: search.applicantProjectId,
-                  applicantId: search.applicantId,
-                },
-              });
-            } else {
-              // Navigate directly to discover page to avoid routing to apply form
-              navigate({ to: "/discover" });
-            }
+            router.history.back();
           }}
           className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           <span className="font-body">
-            {search.from === "preview"
-              ? `Back to ${csp?.title || "Project"} Overview`
-              : search.from === "dashboard"
-                ? "Back to Dashboard"
-                : search.from === "applicant"
-                  ? "Back to Applicant Details"
-                  : "Back to Discover CSPs"}
+            Back
           </span>
         </button>
 

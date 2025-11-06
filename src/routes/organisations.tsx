@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 
 import { auth } from "#client/lib/auth.ts";
+import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/organisations")({
   component: RouteComponent,
@@ -25,5 +26,21 @@ export const Route = createFileRoute("/organisations")({
 });
 
 function RouteComponent() {
-  return <Outlet />;
+  // const routerState = useRouterState();
+
+  // const pathname = routerState.location.pathname;
+  return (
+    // <motion.div
+    //   key={pathname}
+    //   initial={{ opacity: 0, y: 20 }}
+    //   animate={{ opacity: 1, y: 0 }}
+    //   transition={{
+    //     duration: 0.3,
+    //     ease: "easeOut",
+    //   }}
+    //   className="h-full"
+    // >
+      <Outlet />
+    // </motion.div>
+  );
 }

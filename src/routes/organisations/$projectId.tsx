@@ -272,11 +272,6 @@ function ListingApplicationsPage() {
                   <Link
                     to="/csp/$projectID"
                     params={{ projectID: project.id }}
-                    search={{
-                      from: "preview",
-                      applicantProjectId: undefined,
-                      applicantId: undefined,
-                    }}
                   >
                     Preview Listing
                   </Link>

@@ -303,11 +303,6 @@ function ApplicantDetailsPage() {
                           <Link
                             to="/csp/$projectID"
                             params={{ projectID: String(app.projectId) }}
-                            search={{
-                              from: "applicant",
-                              applicantProjectId: projectId,
-                              applicantId: applicantId,
-                            }}
                           >
                             View
                           </Link>
