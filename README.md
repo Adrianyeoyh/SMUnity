@@ -14,10 +14,10 @@ G4 Group 12
 | :--------------------------------------: | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <img src="photos/Adrian.jpg" width="80"> | Adrian Yeo Ying Hong        | Backend Developer: Backend Infrastructure, Sign in, Role based Security Restriction Management, Database Management, Backend API calls, Deployment, Git master, Backend-frontend Integration |
 |  <img src="photos/Kara.jpg" width="80">  | Kara Huang Xiu Ning         | Frontend Developer: Interactive Landing Page, Discover CSPs and Filters, Create Project Listing flow, Admin Dashboard, Website Screen Responsiveness                                         |
-| <img src="photos/Calynn.jpg" width="80"> | Calynn                      | Frontend Developer: Organisation Dashboard, Nav Bar Profile Dropdown Backend - Organisation Profile Edit, Page Locking for Student Pages, Status Tab Counts                                  |
+| <img src="photos/Calynn.jpg" width="80"> | Calynn Ong Yu Xian          | Frontend Developer: Organisation Dashboard, Nav Bar Profile Dropdown Backend - Organisation Profile Edit, Page Locking for Student Pages, Status Tab Counts, Responsiveness                                  |
 | <img src="photos/Sheryl.jpg" width="80"> | Tan Xing Yee Sheryl         | Frontend Developer: Profile page, Organiser Dashboard, Admin Dashboard, Create Organiser listing form, Google Maps design                                                                    |
 |  <img src="photos/Rey.jpg" width="80">   | John Rey Valdellon Pastores | Backend Developer: Google Maps & Google Calendar API Integration                                                                                                                             |
-| <img src="photos/KaiJie.jpg" width="80"> | Leo Kai Jie                 | Slides, ReadME                                                                                                                                                                               |
+| <img src="photos/KaiJie.jpg" width="80"> | Leo Kai Jie                 | Slides, ReadME, Database                                                                                                                                                                               |
 
 ---
 
@@ -360,7 +360,7 @@ Application was tested on these screen widths: iPhone 12pro, iPad Pro, and Norma
 
 > - _Kara Huang Xiu Ning:_ I learnt to develop a clean UI with reusable components and multi-role user management, which required coordinating complex workflows between students, organisations, and administrators while maintaining an easy-to-use system. I also had the opportunity to explore and integrate advanced animations (smooth-scrolling) to create a modern, user-friendly interface.
 
-> - _Calynn:_ I learnt more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.
+> - _Calynn Ong Yu Xian:_ I learnt more about the syntax for responsiveness in Tailwind CSS and React. I also gained a better understanding of how to extract data from the backend and incorporate it into the frontend to implement features that allow for customisation and prevent users from accessing pages without authentication.
 
 > - _Tan Xing Yee Sheryl:_ I learnt more about tools such as react, tailwind css, drizzle, betterauth, etc. I got to explore Lenis and GSAP which I never knew existed. I also was able to learn more about working with external APIs which I haven't really explored much before. Hence, this project gave me the chance to be able to learn and discover new things which would be useful for future uses.
 
