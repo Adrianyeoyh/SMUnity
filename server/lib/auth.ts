@@ -2,11 +2,12 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { openAPI } from "better-auth/plugins";
+import { and, eq, gt } from "drizzle-orm";
+
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
 import { env } from "#server/env";
 import { mailer } from "#server/lib/mailer";
-import { and, eq, gt } from "drizzle-orm";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -21,16 +22,16 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       isActive: {
-        type: 'boolean',
+        type: "boolean",
         required: true,
         defaultValue: true,
-        input: true, 
+        input: true,
       },
       accountType: {
-        type: 'string',
+        type: "string",
         required: true,
-        defaultValue: 'student',
-        input: false, 
+        defaultValue: "student",
+        input: false,
       },
     },
   },
@@ -39,9 +40,9 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   telemetry: { enabled: false },
   cookies: {
-    domain: "localhost",   
-    sameSite: "lax",       
-    secure: false,         
+    domain: "localhost",
+    sameSite: "lax",
+    secure: false,
   },
 
   // ── Email + Password for organisers
@@ -76,7 +77,10 @@ export const auth = betterAuth({
     },
   },
   getSessionUser: async (userId: string) => {
-    const [user] = await db.select().from(schema.user).where(eq(schema.user.id, userId));
+    const [user] = await db
+      .select()
+      .from(schema.user)
+      .where(eq(schema.user.id, userId));
     if (!user) return null;
 
     return {
@@ -107,10 +111,12 @@ export const auth = betterAuth({
             const [orgReq] = await db
               .select()
               .from(schema.organisationRequests)
-              .where(and(
-                eq(schema.organisationRequests.requesterEmail, email),
-                eq(schema.organisationRequests.status, "approved")
-              ));
+              .where(
+                and(
+                  eq(schema.organisationRequests.requesterEmail, email),
+                  eq(schema.organisationRequests.status, "approved"),
+                ),
+              );
 
             if (!orgReq) {
               throw new APIError("FORBIDDEN", {
@@ -125,63 +131,66 @@ export const auth = betterAuth({
           return { data: user };
         },
 
+        after: async (user) => {
+          const email = user.email?.toLowerCase() ?? "";
+          const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
+          const isStudent = Boolean(studentMatch);
+          const accountType = isStudent ? "student" : "organisation";
 
-       after: async (user) => {
-        const email = user.email?.toLowerCase() ?? "";
-        const studentMatch = email.match(/\.?(\d{4})@smu\.edu\.sg$/);
-        const isStudent = Boolean(studentMatch);
-        const accountType = isStudent ? "student" : "organisation";
-
-        await db
-          .update(schema.user)
-          .set({
-            accountType,
-            isActive: true,
-            updatedAt: new Date(),
-          })
-          .where(eq(schema.user.id, user.id));
-
-        if (isStudent) {
-          const entryYear = studentMatch ? Number(studentMatch[1]) : null;
           await db
-            .insert(schema.profiles)
-            .values({
-              userId: user.id,
-              school: null,
-              entryYear,
-              skills: [],
-              interests: [],
-            })
-            .onConflictDoNothing();
-          return;
-        }
-
-        const [orgReq] = await db
-          .select()
-          .from(schema.organisationRequests)
-          .where(and(
-            eq(schema.organisationRequests.requesterEmail, email),
-            eq(schema.organisationRequests.status, "approved")
-          ));
-
-        if (orgReq) {
-          const slug = orgReq.orgName.toLowerCase().trim().replace(/[\s\W-]+/g, "-");
-          await db
-            .insert(schema.organisations)
-            .values({
-              userId: user.id,
-              slug,
-              description: orgReq.orgDescription ?? null,
-              website: orgReq.website ?? null,
-              phone: orgReq.phone ?? null,
-              createdBy: orgReq.decidedBy ?? user.id,
-              createdAt: new Date(),
+            .update(schema.user)
+            .set({
+              accountType,
+              isActive: true,
               updatedAt: new Date(),
             })
-            .onConflictDoNothing();
-        }
-      },
+            .where(eq(schema.user.id, user.id));
 
+          if (isStudent) {
+            const entryYear = studentMatch ? Number(studentMatch[1]) : null;
+            await db
+              .insert(schema.profiles)
+              .values({
+                userId: user.id,
+                school: null,
+                entryYear,
+                skills: [],
+                interests: [],
+              })
+              .onConflictDoNothing();
+            return;
+          }
+
+          const [orgReq] = await db
+            .select()
+            .from(schema.organisationRequests)
+            .where(
+              and(
+                eq(schema.organisationRequests.requesterEmail, email),
+                eq(schema.organisationRequests.status, "approved"),
+              ),
+            );
+
+          if (orgReq) {
+            const slug = orgReq.orgName
+              .toLowerCase()
+              .trim()
+              .replace(/[\s\W-]+/g, "-");
+            await db
+              .insert(schema.organisations)
+              .values({
+                userId: user.id,
+                slug,
+                description: orgReq.orgDescription ?? null,
+                website: orgReq.website ?? null,
+                phone: orgReq.phone ?? null,
+                createdBy: orgReq.decidedBy ?? user.id,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              })
+              .onConflictDoNothing();
+          }
+        },
       },
     },
   },

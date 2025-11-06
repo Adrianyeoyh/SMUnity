@@ -1,9 +1,14 @@
-import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { auth } from "#client/lib/auth";
+import { useEffect, useState } from "react";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
+import { Eye, EyeOff, HeartHandshake } from "lucide-react";
+import { z } from "zod";
+
 import { Button } from "#client/components/ui/button";
-import { Input } from "#client/components/ui/input";
-import { Checkbox } from "#client/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -11,10 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "#client/components/ui/card";
+import { Checkbox } from "#client/components/ui/checkbox";
+import { Input } from "#client/components/ui/input";
 import { Separator } from "#client/components/ui/separator";
-import { HeartHandshake, Eye, EyeOff} from "lucide-react";
-import { z } from "zod";
 import { env } from "#client/env";
+import { auth } from "#client/lib/auth";
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -59,17 +65,14 @@ function Login() {
     setHasAttemptedSubmit(true);
     setError(null);
 
-    
-
     setIsLoading(true);
     try {
       const result = await auth.signIn.email({
         email: emailLogin.email,
         password: emailLogin.password,
         rememberMe: rememberMe,
-      })
+      });
       window.dispatchEvent(new Event("auth-change"));
-      ;
       if (result?.error) throw new Error(result.error.message);
 
       // const userType = result.data?.user?.accountType;
@@ -107,16 +110,19 @@ function Login() {
   }, [navigate, redirectTo]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-12 px-4">
+    <div className="from-primary/5 via-accent/5 to-secondary/5 flex min-h-screen items-center justify-center bg-gradient-to-br px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+          <div className="mb-4 flex justify-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#10b981]">
               <HeartHandshake className="h-7 w-7 text-white" />
             </div>
           </div>
           <CardTitle className="font-heading text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in with your <span className="font-semibold">@smu.edu.sg</span> account</CardDescription>
+          <CardDescription>
+            Sign in with your <span className="font-semibold">@smu.edu.sg</span>{" "}
+            account
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -124,7 +130,7 @@ function Login() {
           <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full flex items-center justify-center"
+            className="flex w-full items-center justify-center"
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -153,7 +159,7 @@ function Login() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground font-body">
+              <span className="bg-background text-muted-foreground font-body px-2">
                 Organisation / Admin Login
               </span>
             </div>
@@ -170,30 +176,46 @@ function Login() {
                   setEmailLogin({ ...emailLogin, email: e.target.value });
                   setError(null);
                 }}
-                className={hasAttemptedSubmit && !emailLogin.email && !emailLogin.password ? 'border-destructive' : error && emailLogin.email && emailLogin.password ? 'border-destructive' : ''}
+                className={
+                  hasAttemptedSubmit &&
+                  !emailLogin.email &&
+                  !emailLogin.password
+                    ? "border-destructive"
+                    : error && emailLogin.email && emailLogin.password
+                      ? "border-destructive"
+                      : ""
+                }
               />
               {hasAttemptedSubmit && !emailLogin.email && (
-                <p className="text-sm text-destructive font-body">
+                <p className="text-destructive font-body text-sm">
                   Please enter your email address
                 </p>
               )}
             </div>
             <div className="space-y-2">
               <div className="relative">
-              <Input
+                <Input
                   type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={emailLogin.password}
+                  placeholder="Password"
+                  value={emailLogin.password}
                   onChange={(e) => {
                     setEmailLogin({ ...emailLogin, password: e.target.value });
                     setError(null);
                   }}
-                  className={hasAttemptedSubmit && !emailLogin.password && emailLogin.email ? 'border-destructive pr-10' : error ? 'border-destructive pr-10' : 'pr-10'}
-              />
+                  className={
+                    hasAttemptedSubmit &&
+                    !emailLogin.password &&
+                    emailLogin.email
+                      ? "border-destructive pr-10"
+                      : error
+                        ? "border-destructive pr-10"
+                        : "pr-10"
+                  }
+                />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -203,38 +225,40 @@ function Login() {
                   )}
                 </button>
               </div>
-              {hasAttemptedSubmit && !emailLogin.password && emailLogin.email && (
-                <p className="text-sm text-destructive font-body">
-                  Please enter your password
-                </p>
-              )}
+              {hasAttemptedSubmit &&
+                !emailLogin.password &&
+                emailLogin.email && (
+                  <p className="text-destructive font-body text-sm">
+                    Please enter your password
+                  </p>
+                )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="remember-me" 
+                  <Checkbox
+                    id="remember-me"
                     checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked === true)}
+                    onCheckedChange={(checked) =>
+                      setRememberMe(checked === true)
+                    }
                   />
                   <label
                     htmlFor="remember-me"
-                    className="text-sm font-body leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    className="font-body text-muted-foreground cursor-pointer text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Remember me
                   </label>
                 </div>
-                <Link 
-                  to="/auth/forgot-password" 
-                  className="text-sm text-primary hover:text-primary/80"
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-primary hover:text-primary/80 text-sm"
                 >
                   Forgot password?
                 </Link>
               </div>
             </div>
             {error && emailLogin.email && emailLogin.password && (
-              <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3">
-                <p className="text-sm text-destructive font-body">
-                  {error}
-                </p>
+              <div className="bg-destructive/10 border-destructive/20 rounded-md border p-3">
+                <p className="text-destructive font-body text-sm">{error}</p>
               </div>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
@@ -248,18 +272,21 @@ function Login() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground font-body text-center leading-tight">
+              <span className="bg-background text-muted-foreground font-body px-2 text-center leading-tight">
                 Need an account?
                 <br />
-                <span className="normal-case text-[11px] text-muted-foreground/70">
+                <span className="text-muted-foreground/70 text-[11px] normal-case">
                   (For CSP organisations only)
                 </span>
               </span>
             </div>
           </div>
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-center text-sm">
             Request account creation via{" "}
-            <Link to="/auth/request" className="text-primary hover:text-primary/80">
+            <Link
+              to="/auth/request"
+              className="text-primary hover:text-primary/80"
+            >
               admin approval form
             </Link>
           </div>

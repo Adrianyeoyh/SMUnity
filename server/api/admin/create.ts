@@ -1,16 +1,17 @@
+import { error } from "console";
+import { hashPassword } from "better-auth/crypto";
+import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
+
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema";
-import { hashPassword } from "better-auth/crypto";
-import { sql, eq } from "drizzle-orm";
-import { adminMiddleware } from "#server/middlewares/auth";
 import { createApp } from "#server/factory";
-import { error } from "console";
 import { slugify } from "#server/helper";
+import { adminMiddleware } from "#server/middlewares/auth";
 
-export const adminCreate = createApp()
-// .use(adminMiddleware); 
+export const adminCreate = createApp();
+// .use(adminMiddleware);
 
 const createOrgSchema = z.object({
   organiserName: z.string().min(1),
@@ -18,7 +19,6 @@ const createOrgSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
-
 
 adminCreate.post("/", async (c) => {
   try {
@@ -58,9 +58,12 @@ adminCreate.post("/", async (c) => {
       });
     });
 
-    return c.json({ success: true, message: "Organisation created successfully" }, 200);
+    return c.json(
+      { success: true, message: "Organisation created successfully" },
+      200,
+    );
   } catch (err) {
     console.error("Error creating organisation:", err);
     return c.json({ success: false, error: err || "Unknown error" }, 500);
   }
-})
+});

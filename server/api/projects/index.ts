@@ -1,10 +1,10 @@
-import { db } from "#server/drizzle/db";
-import { createApp } from "#server/factory";
-import * as schema from "#server/drizzle/schema";
-import { studentMiddleware } from "#server/middlewares/auth";
+import { and, count, eq } from "drizzle-orm";
 import z from "zod";
-import { eq, count, and } from "drizzle-orm";
 
+import { db } from "#server/drizzle/db";
+import * as schema from "#server/drizzle/schema";
+import { createApp } from "#server/factory";
+import { studentMiddleware } from "#server/middlewares/auth";
 
 const projects = createApp().use(studentMiddleware);
 
@@ -30,7 +30,10 @@ projects.post("/apply", async (c) => {
     const parsed = ApplicationSchema.safeParse(body);
     if (!parsed.success) {
       console.error(" [Apply] Invalid form data:", parsed.error.flatten());
-      return c.json({ error: "Invalid form data", details: parsed.error.flatten() }, 400);
+      return c.json(
+        { error: "Invalid form data", details: parsed.error.flatten() },
+        400,
+      );
     }
 
     const { projectId, ...data } = parsed.data;
@@ -56,11 +59,11 @@ projects.post("/apply", async (c) => {
 
       if (now > deadline) {
         console.warn(
-          ` [Apply] User ${user.id} tried to apply after deadline (${deadline.toISOString()})`
+          ` [Apply] User ${user.id} tried to apply after deadline (${deadline.toISOString()})`,
         );
         return c.json(
           { error: "The application deadline for this project has passed." },
-          400
+          400,
         );
       }
     }
@@ -72,7 +75,10 @@ projects.post("/apply", async (c) => {
 
     if (currentCount >= project.slotsTotal) {
       console.warn(`⚠️ [Apply] Project ${projectId} is full.`);
-      return c.json({ error: "This project has reached its full capacity." }, 400);
+      return c.json(
+        { error: "This project has reached its full capacity." },
+        400,
+      );
     }
 
     const existing = await db
@@ -81,13 +87,15 @@ projects.post("/apply", async (c) => {
       .where(
         and(
           eq(schema.applications.projectId, projectId),
-          eq(schema.applications.userId, user.id)
-        )
+          eq(schema.applications.userId, user.id),
+        ),
       )
       .limit(1);
 
     if (existing.length > 0) {
-      console.warn(`⚠️ [Apply] User ${user.id} already applied for project ${projectId}`);
+      console.warn(
+        `⚠️ [Apply] User ${user.id} already applied for project ${projectId}`,
+      );
       return c.json({ error: "You have already applied to this project" }, 400);
     }
 
@@ -103,16 +111,14 @@ projects.post("/apply", async (c) => {
       agree: data.agree,
     });
 
-
-    return c.json({ success: true, message: "Application submitted successfully!" }, 200);
+    return c.json(
+      { success: true, message: "Application submitted successfully!" },
+      200,
+    );
   } catch (err) {
     console.error(" [Apply] Unexpected server error:", err);
     return c.json({ error: "Internal server error" }, 500);
   }
 });
-
-
-
-
 
 export default projects;

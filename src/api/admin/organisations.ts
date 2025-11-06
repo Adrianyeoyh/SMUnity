@@ -8,12 +8,11 @@ export type OrganisationRecord = {
   website?: string;
   projects: number;
   status: "active" | "pending" | "suspended";
-  createdAt: string; 
+  createdAt: string;
   description?: string;
 };
 
 export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
-
   await new Promise((r) => setTimeout(r, 250));
 
   return [
@@ -26,7 +25,8 @@ export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
       projects: 12,
       status: "active",
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(),
-      description: "Providing assistance to underprivileged communities through a network of volunteers and partners.",
+      description:
+        "Providing assistance to underprivileged communities through a network of volunteers and partners.",
     },
     {
       id: "org_002",
@@ -37,7 +37,8 @@ export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
       projects: 5,
       status: "active",
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
-      description: "Grassroots movement focused on environmental conservation, tree planting, and sustainability education.",
+      description:
+        "Grassroots movement focused on environmental conservation, tree planting, and sustainability education.",
     },
     {
       id: "org_003",
@@ -48,12 +49,15 @@ export async function fetchAdminOrganisations(): Promise<OrganisationRecord[]> {
       projects: 0,
       status: "suspended",
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365).toISOString(),
-      description: "Coordinating community outreach, elder care, and support services for vulnerable groups.",
+      description:
+        "Coordinating community outreach, elder care, and support services for vulnerable groups.",
     },
   ];
 }
 
-export async function suspendOrganisation(orgId: string): Promise<OrganisationRecord | null> {
+export async function suspendOrganisation(
+  orgId: string,
+): Promise<OrganisationRecord | null> {
   await new Promise((r) => setTimeout(r, 200));
   return {
     id: orgId,
@@ -65,7 +69,9 @@ export async function suspendOrganisation(orgId: string): Promise<OrganisationRe
   } as OrganisationRecord;
 }
 
-export async function reactivateOrganisation(orgId: string): Promise<OrganisationRecord | null> {
+export async function reactivateOrganisation(
+  orgId: string,
+): Promise<OrganisationRecord | null> {
   await new Promise((r) => setTimeout(r, 200));
   return {
     id: orgId,
@@ -76,5 +82,3 @@ export async function reactivateOrganisation(orgId: string): Promise<Organisatio
     createdAt: new Date().toISOString(),
   } as OrganisationRecord;
 }
-
-

@@ -1,31 +1,28 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  AlertTriangle,
+  Calendar,
+  CalendarPlus,
+  CheckCircle,
+  Clock,
+  Eye,
+  FileText,
+  MapPin,
+  Search,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import {
-  fetchMyApplications,
   confirmApplication,
+  fetchMyApplications,
   withdrawApplication,
 } from "#client/api/student";
-
-import { addToGoogleCalendar } from "#client/utils/GoogleCalendar";
-
+import { Badge } from "#client/components/ui/badge";
 import { Button } from "#client/components/ui/button";
 import { Card, CardContent } from "#client/components/ui/card";
-import { Badge } from "#client/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "#client/components/ui/tabs";
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  CheckCircle,
-  Eye,
-  FileText,
-  AlertTriangle,
-  CalendarPlus,
-  Search,
-} from "lucide-react";
+import { Checkbox } from "#client/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -34,11 +31,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "#client/components/ui/dialog";
-import { Separator } from "#client/components/ui/separator";
 import { Input } from "#client/components/ui/input";
-import { Textarea } from "#client/components/ui/textarea";
-import { Checkbox } from "#client/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "#client/components/ui/radio-group";
+import { Separator } from "#client/components/ui/separator";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "#client/components/ui/tabs";
+import { Textarea } from "#client/components/ui/textarea";
+import { addToGoogleCalendar } from "#client/utils/GoogleCalendar";
 
 export const Route = createFileRoute("/my-applications")({
   component: MyApplications,
@@ -47,10 +50,14 @@ export const Route = createFileRoute("/my-applications")({
 function MyApplications() {
   const queryClient = useQueryClient();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<"withdraw" | "confirm" | null>(null);
+  const [selectedAction, setSelectedAction] = useState<
+    "withdraw" | "confirm" | null
+  >(null);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [selectedApplicationData, setSelectedApplicationData] = useState<any | null>(null);
+  const [selectedApplicationData, setSelectedApplicationData] = useState<
+    any | null
+  >(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // 🔹 Fetch user's applications
@@ -84,7 +91,8 @@ function MyApplications() {
       toast.success("✅ Application confirmed!");
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
     },
-    onError: (err: any) => toast.error(err.message || "Failed to confirm application"),
+    onError: (err: any) =>
+      toast.error(err.message || "Failed to confirm application"),
   });
 
   const withdrawMutation = useMutation({
@@ -93,7 +101,8 @@ function MyApplications() {
       toast.success("🛑 Application withdrawn.");
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
     },
-    onError: (err: any) => toast.error(err.message || "Failed to withdraw application"),
+    onError: (err: any) =>
+      toast.error(err.message || "Failed to withdraw application"),
   });
 
   // 🔹 Action handlers
@@ -135,11 +144,41 @@ function MyApplications() {
   const filteredApplications = filterApplications(applications);
   const groupedTabs = [
     { label: "All", value: "all", data: filteredApplications },
-    { label: "Pending", value: "pending", data: filterApplications(applications.filter((a: any) => a.status === "pending")) },
-    { label: "Accepted", value: "accepted", data: filterApplications(applications.filter((a: any) => a.status === "accepted")) },
-    { label: "Confirmed", value: "confirmed", data: filterApplications(applications.filter((a: any) => a.status === "confirmed")) },
-    { label: "Rejected", value: "rejected", data: filterApplications(applications.filter((a: any) => a.status === "rejected")) },
-    { label: "Withdrawn", value: "withdrawn", data: filterApplications(applications.filter((a: any) => a.status === "withdrawn")) },
+    {
+      label: "Pending",
+      value: "pending",
+      data: filterApplications(
+        applications.filter((a: any) => a.status === "pending"),
+      ),
+    },
+    {
+      label: "Accepted",
+      value: "accepted",
+      data: filterApplications(
+        applications.filter((a: any) => a.status === "accepted"),
+      ),
+    },
+    {
+      label: "Confirmed",
+      value: "confirmed",
+      data: filterApplications(
+        applications.filter((a: any) => a.status === "confirmed"),
+      ),
+    },
+    {
+      label: "Rejected",
+      value: "rejected",
+      data: filterApplications(
+        applications.filter((a: any) => a.status === "rejected"),
+      ),
+    },
+    {
+      label: "Withdrawn",
+      value: "withdrawn",
+      data: filterApplications(
+        applications.filter((a: any) => a.status === "withdrawn"),
+      ),
+    },
   ];
 
   const getStatusColor = (status: string) => {
@@ -176,14 +215,24 @@ function MyApplications() {
     }
   };
 
-  if (isLoading) return <p className="text-center py-10 text-muted-foreground">Loading applications...</p>;
-  if (error) return <p className="text-center py-10 text-destructive">Failed to load applications.</p>;
+  if (isLoading)
+    return (
+      <p className="text-muted-foreground py-10 text-center">
+        Loading applications...
+      </p>
+    );
+  if (error)
+    return (
+      <p className="text-destructive py-10 text-center">
+        Failed to load applications.
+      </p>
+    );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* ✅ View Application Modal */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] overflow-y-auto max-h-[90vh]">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle className="font-heading text-xl">
               Application for {selectedApplicationData?.projectTitle}
@@ -191,22 +240,29 @@ function MyApplications() {
           </DialogHeader>
 
           {selectedApplicationData ? (
-            <div className="space-y-6 font-body text-sm mt-4">
+            <div className="font-body mt-4 space-y-6 text-sm">
               <div>
-                <h3 className="font-heading text-lg mb-2">Motivation</h3>
-                <Textarea value={selectedApplicationData.motivation} readOnly className="min-h-[100px]" />
+                <h3 className="font-heading mb-2 text-lg">Motivation</h3>
+                <Textarea
+                  value={selectedApplicationData.motivation}
+                  readOnly
+                  className="min-h-[100px]"
+                />
               </div>
 
               <Separator />
 
               <div>
-                <h3 className="font-heading text-lg mb-2">Experience</h3>
+                <h3 className="font-heading mb-2 text-lg">Experience</h3>
                 <RadioGroup value={selectedApplicationData.experience} disabled>
                   <div className="flex gap-2">
                     {["none", "some", "extensive"].map((exp) => (
-                      <div key={exp} className="flex items-center space-x-2 border rounded-md p-2">
+                      <div
+                        key={exp}
+                        className="flex items-center space-x-2 rounded-md border p-2"
+                      >
                         <RadioGroupItem value={exp} />
-                        <span className="capitalize font-body">{exp}</span>
+                        <span className="font-body capitalize">{exp}</span>
                       </div>
                     ))}
                   </div>
@@ -214,13 +270,19 @@ function MyApplications() {
               </div>
 
               <div>
-                <h3 className="font-heading text-lg mb-2">Skills</h3>
+                <h3 className="font-heading mb-2 text-lg">Skills</h3>
                 <Input value={selectedApplicationData.skills || "—"} readOnly />
               </div>
 
               <div>
-                <h3 className="font-heading text-lg mb-2">Additional Comments</h3>
-                <Textarea value={selectedApplicationData.comments || "—"} readOnly className="min-h-[80px]" />
+                <h3 className="font-heading mb-2 text-lg">
+                  Additional Comments
+                </h3>
+                <Textarea
+                  value={selectedApplicationData.comments || "—"}
+                  readOnly
+                  className="min-h-[80px]"
+                />
               </div>
 
               <Separator />
@@ -228,16 +290,23 @@ function MyApplications() {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Checkbox checked={selectedApplicationData.agree} disabled />
-                  <span className="text-sm text-muted-foreground">Agreed to Code of Conduct</span>
+                  <span className="text-muted-foreground text-sm">
+                    Agreed to Code of Conduct
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox checked={selectedApplicationData.acknowledgeSchedule} disabled />
-                  <span className="text-sm text-muted-foreground">Acknowledged Project Schedule</span>
+                  <Checkbox
+                    checked={selectedApplicationData.acknowledgeSchedule}
+                    disabled
+                  />
+                  <span className="text-muted-foreground text-sm">
+                    Acknowledged Project Schedule
+                  </span>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-4">Loading...</p>
+            <p className="text-muted-foreground py-4 text-center">Loading...</p>
           )}
         </DialogContent>
       </Dialog>
@@ -247,7 +316,9 @@ function MyApplications() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-heading capitalize">
-              {selectedAction === "withdraw" ? "Withdraw Application" : "Confirm Allocation"}
+              {selectedAction === "withdraw"
+                ? "Withdraw Application"
+                : "Confirm Allocation"}
             </DialogTitle>
             <DialogDescription className="font-body text-muted-foreground">
               {selectedAction === "withdraw"
@@ -256,11 +327,16 @@ function MyApplications() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button
-              variant={selectedAction === "withdraw" ? "destructive" : "default"}
+              variant={
+                selectedAction === "withdraw" ? "destructive" : "default"
+              }
               onClick={handleConfirmAction}
               disabled={confirmMutation.isPending || withdrawMutation.isPending}
             >
@@ -271,83 +347,109 @@ function MyApplications() {
       </Dialog>
 
       {/* ✅ Header */}
-      <div className="border-b bg-background">
-        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 sm:mb-4">
+      <div className="bg-background border-b">
+        <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
+          <div className="mb-2 flex flex-col items-start justify-between gap-4 sm:mb-4 sm:flex-row sm:items-center">
             <div>
-              <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold">My Applications</h1>
-              <p className="text-muted-foreground font-body text-base sm:text-lg mt-2">Track and manage your CSP applications</p>
+              <h1 className="font-heading text-2xl font-bold sm:text-3xl md:text-4xl">
+                My Applications
+              </h1>
+              <p className="text-muted-foreground font-body mt-2 text-base sm:text-lg">
+                Track and manage your CSP applications
+              </p>
             </div>
-             <div className="relative w-full sm:w-1/3">
-               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-               <Input
-                 type="search"
-                 placeholder="Search applications..."
-                 className="pl-10 h-10 text-sm sm:text-base w-full"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-               />
-             </div>
+            <div className="relative w-full sm:w-1/3">
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+              <Input
+                type="search"
+                placeholder="Search applications..."
+                className="h-10 w-full pl-10 text-sm sm:text-base"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* ✅ Tabs */}
-      <div className="container mx-auto px-4 sm:px-6 py-6">
-
+      <div className="container mx-auto px-4 py-6 sm:px-6">
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="h-auto grid w-full grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-0">
+          <TabsList className="grid h-auto w-full grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-0">
             {groupedTabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="text-xs sm:text-sm whitespace-nowrap">
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="text-xs whitespace-nowrap sm:text-sm"
+              >
                 {tab.label} ({tab.data.length})
               </TabsTrigger>
             ))}
           </TabsList>
 
           {groupedTabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="space-y-4">
+            <TabsContent
+              key={tab.value}
+              value={tab.value}
+              className="space-y-4"
+            >
               {tab.data.length > 0 ? (
                 tab.data.map((app: any) => (
-                  <Card key={app.id} className="hover:shadow-lg transition-shadow group/card">
-                    <CardContent className="px-4 sm:px-6 pt-0 pb-0">
-                      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0 mb-4">
-                        <div className="flex-1 min-w-0">
-                          <Link to="/csp/$projectID" params={{ projectID: app.projectId }}>
-                            <h3 className="font-heading text-lg sm:text-xl font-semibold text-foreground group-hover/card:text-primary transition-colors cursor-pointer break-words">
+                  <Card
+                    key={app.id}
+                    className="group/card transition-shadow hover:shadow-lg"
+                  >
+                    <CardContent className="px-4 pt-0 pb-0 sm:px-6">
+                      <div className="mb-4 flex flex-col items-start justify-between gap-2 sm:flex-row sm:gap-0">
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            to="/csp/$projectID"
+                            params={{ projectID: app.projectId }}
+                          >
+                            <h3 className="font-heading text-foreground group-hover/card:text-primary cursor-pointer text-lg font-semibold break-words transition-colors sm:text-xl">
                               {app.projectTitle}
                             </h3>
                           </Link>
-                          <p className="text-sm sm:text-base text-muted-foreground font-body">{app.organisation}</p>
+                          <p className="text-muted-foreground font-body text-sm sm:text-base">
+                            {app.organisation}
+                          </p>
                         </div>
-                        <Badge className={`${getStatusColor(app.status)} flex-shrink-0`}>
-                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                        <Badge
+                          className={`${getStatusColor(app.status)} flex-shrink-0`}
+                        >
+                          {app.status.charAt(0).toUpperCase() +
+                            app.status.slice(1)}
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-1 min-w-0">
-                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                      <div className="text-muted-foreground mb-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-2 sm:gap-4 sm:text-sm lg:grid-cols-4">
+                        <div className="flex min-w-0 items-center gap-1">
+                          <Calendar className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
                           <span className="truncate">
                             <span>Applied: </span>
-                          {new Date(app.submittedAt).toLocaleDateString("en-GB")}
+                            {new Date(app.submittedAt).toLocaleDateString(
+                              "en-GB",
+                            )}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                        <div className="flex min-w-0 items-center gap-1">
+                          <Clock className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
                           <span className="truncate">
                             <span>Start: </span>
-                          {new Date(app.startDate).toLocaleDateString("en-GB")}
+                            {new Date(app.startDate).toLocaleDateString(
+                              "en-GB",
+                            )}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                        <div className="flex min-w-0 items-center gap-1">
+                          <Clock className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
                           <span className="truncate">
                             <span>End: </span>
-                          {new Date(app.endDate).toLocaleDateString("en-GB")}
+                            {new Date(app.endDate).toLocaleDateString("en-GB")}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <div className="flex min-w-0 items-center gap-1">
+                          <MapPin className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
                           <span className="truncate">
                             <span>Location: </span>
                             {app.isRemote
@@ -359,22 +461,28 @@ function MyApplications() {
                         </div>
                       </div>
 
-                      <div className="mb-3 text-xs sm:text-sm text-muted-foreground font-body">
-                        <strong>Your Motivation:</strong> <span className="break-words">{app.motivation}</span>
+                      <div className="text-muted-foreground font-body mb-3 text-xs sm:text-sm">
+                        <strong>Your Motivation:</strong>{" "}
+                        <span className="break-words">{app.motivation}</span>
                       </div>
 
-                      <div className="mb-4 p-2 sm:p-3 rounded-lg bg-muted/40">
-                        <p className="text-xs sm:text-sm font-body">
-                          <AlertTriangle className="inline h-3 w-3 sm:h-4 sm:w-4 mr-1 text-muted-foreground" />
+                      <div className="bg-muted/40 mb-4 rounded-lg p-2 sm:p-3">
+                        <p className="font-body text-xs sm:text-sm">
+                          <AlertTriangle className="text-muted-foreground mr-1 inline h-3 w-3 sm:h-4 sm:w-4" />
                           {getStatusMessage(app.status)}
                         </p>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 justify-end">
+                      <div className="flex flex-wrap justify-end gap-2">
                         {app.status === "accepted" && (
                           <>
-                            <Button size="sm" onClick={() => openConfirmDialog(app, "confirm")} className="text-xs sm:text-sm">
-                              <CheckCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Confirm
+                            <Button
+                              size="sm"
+                              onClick={() => openConfirmDialog(app, "confirm")}
+                              className="text-xs sm:text-sm"
+                            >
+                              <CheckCircle className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />{" "}
+                              Confirm
                             </Button>
                             <Button
                               size="sm"
@@ -382,7 +490,8 @@ function MyApplications() {
                               onClick={() => openConfirmDialog(app, "withdraw")}
                               className="text-xs sm:text-sm"
                             >
-                              <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Withdraw
+                              <FileText className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />{" "}
+                              Withdraw
                             </Button>
                           </>
                         )}
@@ -394,26 +503,36 @@ function MyApplications() {
                             onClick={() => openConfirmDialog(app, "withdraw")}
                             className="text-xs sm:text-sm"
                           >
-                            <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Withdraw
+                            <FileText className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />{" "}
+                            Withdraw
                           </Button>
                         )}
 
-                        {(app.status === "confirmed" || app.status === "accepted") && (
+                        {(app.status === "confirmed" ||
+                          app.status === "accepted") && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleAddToCalendar(app)}
                             className="text-xs sm:text-sm"
                           >
-                            <CalendarPlus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> 
-                            <span className="hidden sm:inline">Add to Google Calendar</span>
+                            <CalendarPlus className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline">
+                              Add to Google Calendar
+                            </span>
                             <span className="sm:hidden">Calendar</span>
                           </Button>
                         )}
 
-                        <Button size="sm" onClick={() => handleViewApplication(app)} className="text-xs sm:text-sm">
-                          <Eye className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                          <span className="hidden sm:inline">View Application</span>
+                        <Button
+                          size="sm"
+                          onClick={() => handleViewApplication(app)}
+                          className="text-xs sm:text-sm"
+                        >
+                          <Eye className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                          <span className="hidden sm:inline">
+                            View Application
+                          </span>
                           <span className="sm:hidden">View</span>
                         </Button>
                       </div>
@@ -421,20 +540,20 @@ function MyApplications() {
                   </Card>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 py-12 text-center">
-                  <FileText className="h-10 w-10 text-muted-foreground" />
+                <div className="border-muted-foreground/40 bg-muted/40 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-12 text-center">
+                  <FileText className="text-muted-foreground h-10 w-10" />
                   <div>
-                    <h3 className="font-heading text-lg text-foreground">
-                      {tab.value === "all" 
-                        ? "No applications yet" 
+                    <h3 className="font-heading text-foreground text-lg">
+                      {tab.value === "all"
+                        ? "No applications yet"
                         : `No ${tab.label.toLowerCase()} applications`}
                     </h3>
-                    <p className="text-sm text-muted-foreground font-body">
+                    <p className="text-muted-foreground font-body text-sm">
                       {tab.value === "all"
                         ? "Start exploring CSPs and submit your first application to see it here"
                         : tab.value === "pending"
-                        ? "Check other tabs or browse available CSPs"
-                        : `Check other tabs to see your application history`}
+                          ? "Check other tabs or browse available CSPs"
+                          : `Check other tabs to see your application history`}
                     </p>
                   </div>
                 </div>

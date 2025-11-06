@@ -1,63 +1,64 @@
-import { createApp } from "#server/factory";
+import { and, eq, inArray, sql } from "drizzle-orm";
+
 import { db } from "#server/drizzle/db";
 import * as schema from "#server/drizzle/schema/domain";
-import { eq, sql, inArray, and } from "drizzle-orm";
+import { createApp } from "#server/factory";
 
-const dashboard = createApp()
+const dashboard = createApp();
 
 dashboard.get("/", async (c) => {
-    const user = c.get("user");
-    if (!user) return c.json({ error: "Unauthorized" }, 401);
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-    const orgProjects = await db
-      .select({ id: schema.projects.id })
-      .from(schema.projects)
-      .where(eq(schema.projects.orgId, user.id!)); 
+  const orgProjects = await db
+    .select({ id: schema.projects.id })
+    .from(schema.projects)
+    .where(eq(schema.projects.orgId, user.id!));
 
-    const projectIds = orgProjects.map((p) => p.id);
-    if (projectIds.length === 0) {
-      return c.json({
-        listings: 0,
-        totalApplications: 0,
-        pending: 0,
-        confirmed: 0,
-      });
-    }
-
-    const listings = orgProjects.length;
-
-    const totalApps = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(schema.applications)
-      .where(inArray(schema.applications.projectId, projectIds));
-
-    const pending = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(schema.applications)
-      .where(
-        and(
-          inArray(schema.applications.projectId, projectIds),
-          eq(schema.applications.status, "pending"),
-        ),
-      );
-
-    const confirmed = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(schema.applications)
-      .where(
-        and(
-          inArray(schema.applications.projectId, projectIds),
-          eq(schema.applications.status, "confirmed"),
-        ),
-      );
-
+  const projectIds = orgProjects.map((p) => p.id);
+  if (projectIds.length === 0) {
     return c.json({
-      listings,
-      totalApplications: totalApps[0].count,
-      pending: pending[0].count,
-      confirmed: confirmed[0].count,
+      listings: 0,
+      totalApplications: 0,
+      pending: 0,
+      confirmed: 0,
     });
-})
+  }
+
+  const listings = orgProjects.length;
+
+  const totalApps = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.applications)
+    .where(inArray(schema.applications.projectId, projectIds));
+
+  const pending = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.applications)
+    .where(
+      and(
+        inArray(schema.applications.projectId, projectIds),
+        eq(schema.applications.status, "pending"),
+      ),
+    );
+
+  const confirmed = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.applications)
+    .where(
+      and(
+        inArray(schema.applications.projectId, projectIds),
+        eq(schema.applications.status, "confirmed"),
+      ),
+    );
+
+  return c.json({
+    listings,
+    totalApplications: totalApps[0].count,
+    pending: pending[0].count,
+    confirmed: confirmed[0].count,
+  });
+});
 
 dashboard.get("/listings", async (c) => {
   const org = c.get("user");
@@ -80,7 +81,9 @@ dashboard.get("/listings", async (c) => {
       isRemote: schema.projects.isRemote,
       repeatInterval: schema.projects.repeatInterval,
       type: schema.projects.type,
-      volunteerCount: sql<number>`COUNT(${schema.projMemberships.userId})`.as("volunteerCount"),
+      volunteerCount: sql<number>`COUNT(${schema.projMemberships.userId})`.as(
+        "volunteerCount",
+      ),
 
       status: sql<string>`
         CASE
@@ -92,7 +95,10 @@ dashboard.get("/listings", async (c) => {
       `.as("status"),
     })
     .from(schema.projects)
-    .leftJoin(schema.projMemberships, eq(schema.projects.id, schema.projMemberships.projId))
+    .leftJoin(
+      schema.projMemberships,
+      eq(schema.projects.id, schema.projMemberships.projId),
+    )
     .where(eq(schema.projects.orgId, org.id))
     .groupBy(
       schema.projects.id,
@@ -113,6 +119,5 @@ dashboard.get("/listings", async (c) => {
     .orderBy(sql`${schema.projects.createdAt} DESC`);
   return c.json({ listings });
 });
-
 
 export default dashboard;

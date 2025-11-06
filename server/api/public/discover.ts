@@ -1,17 +1,17 @@
 // server/api/public/discover.ts
+import { and, eq, gte, isNotNull, isNull, or, sql } from "drizzle-orm";
+
 import { db } from "#server/drizzle/db";
+import { user } from "#server/drizzle/schema/auth";
 import * as schema from "#server/drizzle/schema/domain";
-import { or, isNull, gte, and, isNotNull, sql,eq} from "drizzle-orm";
 import { createApp } from "#server/factory";
 import { ok } from "#server/helper";
-import { user } from "#server/drizzle/schema/auth";
 
 const discover = createApp();
 
 discover.get("/", async (c) => {
   try {
-
-    const now = new Date(); 
+    const now = new Date();
 
     const rows = await db
       .select({
@@ -39,24 +39,24 @@ discover.get("/", async (c) => {
         daysOfWeek: schema.projects.daysOfWeek,
       })
       .from(schema.projects)
-      .where(gte(schema.projects.applyBy, now))
-
+      .where(gte(schema.projects.applyBy, now));
 
     const orgs = await db
-    .select({
+      .select({
         userId: schema.organisations.userId,
-        orgName: user.name, 
-    })
-    .from(schema.organisations)
-    .leftJoin(user, eq(schema.organisations.userId, user.id));
+        orgName: user.name,
+      })
+      .from(schema.organisations)
+      .leftJoin(user, eq(schema.organisations.userId, user.id));
 
-    const orgNameById = new Map(orgs.map(o => [o.userId, o.orgName || ""]));
+    const orgNameById = new Map(orgs.map((o) => [o.userId, o.orgName || ""]));
 
     const payload = rows.map((r) => {
-      const currentVolunteers = 0; 
+      const currentVolunteers = 0;
 
       let status: "open" | "closing-soon" | "closed" | "full" = "open";
-      if (r.applicationDeadline && r.applicationDeadline < now) status = "closed";
+      if (r.applicationDeadline && r.applicationDeadline < now)
+        status = "closed";
 
       return {
         id: r.id,
@@ -68,7 +68,7 @@ discover.get("/", async (c) => {
         type: r.type ?? "local",
         startDate: r.startDate,
         endDate: r.endDate,
-        duration: "", 
+        duration: "",
         serviceHours: r.serviceHours ?? 0,
         maxVolunteers: r.maxVolunteers ?? 0,
         currentVolunteers,
@@ -81,9 +81,9 @@ discover.get("/", async (c) => {
         skills: r.skills ?? [],
         tags: r.tags ?? [],
 
-        timeStart: r.timeStart,      
-        timeEnd: r.timeEnd,          
-        daysOfWeek: r.daysOfWeek,    
+        timeStart: r.timeStart,
+        timeEnd: r.timeEnd,
+        daysOfWeek: r.daysOfWeek,
       };
     });
 
@@ -103,7 +103,7 @@ discover.get("/:projectId", async (c) => {
       with: {
         org: {
           with: {
-            user: true, 
+            user: true,
           },
         },
       },
@@ -117,59 +117,57 @@ discover.get("/:projectId", async (c) => {
       .where(eq(schema.projMemberships.projId, projectId));
     const currentVolunteers = members.length;
 
+    const applications = await db
+      .select()
+      .from(schema.applications)
+      .where(eq(schema.applications.projectId, projectId));
 
-const applications = await db
-  .select()
-  .from(schema.applications)
-  .where(eq(schema.applications.projectId, projectId));
-
-const currentApplications = applications.length;
-
+    const currentApplications = applications.length;
 
     const data = {
-  id: project.id,
-  title: project.title,
-  organisation: project.org?.user?.name ?? "Unknown Organisation",
-  location: project.district ?? "—",
-  country: project.country ?? "—",
-  category: project.category ?? "Community",
-  type: project.type ?? "local",
-  startDate: project.startDate,
-  endDate: project.endDate,
-  serviceHours: project.requiredHours ?? 0,
-  maxVolunteers: project.slotsTotal ?? 0,
-  currentVolunteers,
-  currentApplications,
-  isRemote: project.isRemote,
-  status: "open",
+      id: project.id,
+      title: project.title,
+      organisation: project.org?.user?.name ?? "Unknown Organisation",
+      location: project.district ?? "—",
+      country: project.country ?? "—",
+      category: project.category ?? "Community",
+      type: project.type ?? "local",
+      startDate: project.startDate,
+      endDate: project.endDate,
+      serviceHours: project.requiredHours ?? 0,
+      maxVolunteers: project.slotsTotal ?? 0,
+      currentVolunteers,
+      currentApplications,
+      isRemote: project.isRemote,
+      status: "open",
 
-  description: project.description ?? "",
-  aboutDo: project.aboutDo ?? "",
-  aboutProvide: project.aboutProvide ?? "",
-  requirements: project.requirements ?? "",
-  skills: project.skillTags ?? [],
-  tags: project.projectTags ?? [],
-  imageUrl: project.imageUrl ?? "",
-  images: project.imageUrl ? [project.imageUrl] : [],
+      description: project.description ?? "",
+      aboutDo: project.aboutDo ?? "",
+      aboutProvide: project.aboutProvide ?? "",
+      requirements: project.requirements ?? "",
+      skills: project.skillTags ?? [],
+      tags: project.projectTags ?? [],
+      imageUrl: project.imageUrl ?? "",
+      images: project.imageUrl ? [project.imageUrl] : [],
 
-  repeatInterval: project.repeatInterval,
-  repeatUnit: project.repeatUnit,
-  daysOfWeek: project.daysOfWeek ?? [],
-  timeStart: project.timeStart,
-  timeEnd: project.timeEnd,
+      repeatInterval: project.repeatInterval,
+      repeatUnit: project.repeatUnit,
+      daysOfWeek: project.daysOfWeek ?? [],
+      timeStart: project.timeStart,
+      timeEnd: project.timeEnd,
 
-  organisationInfo: {
-    name: project.org?.user?.name ?? "Unknown",
-    description: project.org?.description ?? "",
-    website: project.org?.website ?? "",
-    phone: project.org?.phone ?? "",
-    email: project.org?.user?.email ?? "",
-    isVerified: true,
-  },
+      organisationInfo: {
+        name: project.org?.user?.name ?? "Unknown",
+        description: project.org?.description ?? "",
+        website: project.org?.website ?? "",
+        phone: project.org?.phone ?? "",
+        email: project.org?.user?.email ?? "",
+        isVerified: true,
+      },
 
-  applicationDeadline: project.applyBy,
-  googleMaps: project.googleMaps ?? null,
-};
+      applicationDeadline: project.applyBy,
+      googleMaps: project.googleMaps ?? null,
+    };
 
     return ok(c, data);
   } catch (err) {
@@ -177,7 +175,5 @@ const currentApplications = applications.length;
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });
-
-
 
 export default discover;

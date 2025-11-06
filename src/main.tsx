@@ -4,9 +4,9 @@ import ReactDOM from "react-dom/client";
 
 import "./globals.css";
 
+import { LenisProvider } from "./providers/lenis";
 import { NuqsProvider } from "./providers/nuqs";
 import { ReactQueryProvider } from "./providers/react-query";
-import { LenisProvider } from "./providers/lenis";
 import { routeTree } from "./routeTree.gen";
 
 const router = createRouter({ routeTree });
@@ -27,11 +27,11 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <LenisProvider>
-      <ReactQueryProvider>
-        <NuqsProvider>
-          <RouterProvider router={router} />
-        </NuqsProvider>
-      </ReactQueryProvider>
+        <ReactQueryProvider>
+          <NuqsProvider>
+            <RouterProvider router={router} />
+          </NuqsProvider>
+        </ReactQueryProvider>
       </LenisProvider>
     </StrictMode>,
   );

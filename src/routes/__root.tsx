@@ -1,19 +1,24 @@
-import { createRootRoute, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { Header } from "#client/components/layout/header";
-import { Footer } from "#client/components/layout/footer";
-import { Toaster } from "#client/components/ui/sonner";
-import { Chatbot } from "#client/components/chatbot/Chatbot";
 import { useEffect } from "react";
-import { useAuth } from "#client/hooks/use-auth";
-import { MobileMenuProvider } from "#client/contexts/mobile-menu-context";
+import {
+  createRootRoute,
+  Outlet,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { motion } from "framer-motion";
+
+import { Chatbot } from "#client/components/chatbot/Chatbot";
+import { Footer } from "#client/components/layout/footer";
+import { Header } from "#client/components/layout/header";
+import { Toaster } from "#client/components/ui/sonner";
+import { MobileMenuProvider } from "#client/contexts/mobile-menu-context";
+import { useAuth } from "#client/hooks/use-auth";
 
 function RootComponent() {
   const routerState = useRouterState();
   const navigate = useNavigate();
   const { isLoggedIn, user } = useAuth(); // ⬅️ ensure your hook exposes `user`
-  
 
   // Scroll reset on route change
   useEffect(() => {
@@ -34,7 +39,6 @@ function RootComponent() {
     }
   }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
 
-
   // role-based route protection for user pages
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -53,7 +57,7 @@ function RootComponent() {
 
     // check if current path starts with any of those
     const isStudentRoute = studentRoutes.some((route) =>
-      path.startsWith(route)
+      path.startsWith(route),
     );
 
     if (isStudentRoute) {
@@ -82,33 +86,31 @@ function RootComponent() {
     }
   }, [isLoggedIn, user?.accountType, routerState.location.pathname, navigate]);
 
-
-
   const pathname = routerState.location.pathname;
 
   return (
     <MobileMenuProvider>
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.3,
-            ease: "easeOut"
-          }}
-          className="h-full"
-        >
-          <Outlet />
-        </motion.div>
-      </main>
-      <Footer />
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: "easeOut",
+            }}
+            className="h-full"
+          >
+            <Outlet />
+          </motion.div>
+        </main>
+        <Footer />
         <Chatbot />
-      <Toaster />
-      <TanStackRouterDevtools />
-    </div>
+        <Toaster />
+        <TanStackRouterDevtools />
+      </div>
     </MobileMenuProvider>
   );
 }
@@ -116,4 +118,3 @@ function RootComponent() {
 export const Route = createRootRoute({
   component: RootComponent,
 });
-

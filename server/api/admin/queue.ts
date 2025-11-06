@@ -1,24 +1,30 @@
 // server/api/admin/queue.ts
-import { db } from "#server/drizzle/db";
-import { organisationRequests, user, organisations, account } from "#server/drizzle/schema";
-import { eq, desc } from "drizzle-orm";
-import { createApp } from "#server/factory";
-import { hashPassword } from "better-auth/crypto";
 import crypto from "crypto";
-import { mailer } from "#server/lib/mailer";
-import { auth } from "#server/lib/auth";
+import { hashPassword } from "better-auth/crypto";
+import { desc, eq } from "drizzle-orm";
+
+import { db } from "#server/drizzle/db";
+import {
+  account,
+  organisationRequests,
+  organisations,
+  user,
+} from "#server/drizzle/schema";
 import { env } from "#server/env";
-
-
+import { createApp } from "#server/factory";
+import { auth } from "#server/lib/auth";
+import { mailer } from "#server/lib/mailer";
 
 export const queue = createApp();
 
 // --- GET all organisation requests (for dashboard)
 queue.get("/", async (c) => {
-  const results = await db.select().from(organisationRequests).orderBy(desc(organisationRequests.createdAt));
+  const results = await db
+    .select()
+    .from(organisationRequests)
+    .orderBy(desc(organisationRequests.createdAt));
   return c.json({ data: results });
 });
-
 
 queue.post("/:id/approve", async (c) => {
   const id = c.req.param("id");
@@ -44,19 +50,22 @@ queue.post("/:id/approve", async (c) => {
     const randomPassword = crypto.randomBytes(8).toString("hex");
 
     const createResponse = await auth.handler(
-    new Request(env.VITE_APP_URL + "/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-    email: req.requesterEmail,
-    password: randomPassword,
-    name: req.orgName,
-    }),
-    })
+      new Request(env.VITE_APP_URL + "/api/auth/sign-up/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: req.requesterEmail,
+          password: randomPassword,
+          name: req.orgName,
+        }),
+      }),
     );
 
     if (!createResponse.ok) {
-      console.error("Better-Auth user creation failed:", await createResponse.json());
+      console.error(
+        "Better-Auth user creation failed:",
+        await createResponse.json(),
+      );
       throw new Error("Failed to create Better-Auth user");
     }
 
@@ -133,9 +142,6 @@ queue.post("/:id/reject", async (c) => {
     });
   } catch (error) {
     console.error("Rejection error:", error);
-    return c.json(
-      { error: "Failed to reject organisation request" },
-      500
-    );
+    return c.json({ error: "Failed to reject organisation request" }, 500);
   }
 });

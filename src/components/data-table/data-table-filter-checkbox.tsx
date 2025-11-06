@@ -27,7 +27,7 @@ export function DataTableFilterCheckbox<TData>({
     getFacetedUniqueValues?.(table, value) || column?.getFacetedUniqueValues();
 
   const Component = component;
-e
+  e;
   const filterOptions = options?.filter(
     (option) =>
       inputValue === "" ||

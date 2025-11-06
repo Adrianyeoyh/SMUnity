@@ -8,6 +8,6 @@ interface ImportMetaEnv {
 interface Window {
   __env?: {
     VITE_APP_URL?: string;
-    VITE_GOOGLE_MAPS_API_KEY?: string
+    VITE_GOOGLE_MAPS_API_KEY?: string;
   };
 }
