@@ -69,6 +69,7 @@ CSP Leaders and Organizations - Community service organizations heads, coordinat
 |                                                <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Maps_Pin_FullColor.width-500.format-webp.webp" width="40">                                                 | **Google Maps**     | Location-based features                |
 |                                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Google_Calendar_icon_%282020%29.svg/2048px-Google_Calendar_icon_%282020%29.svg.png" width="40">                                 | **Google Calendar** | Event scheduling                       |
 |                                                            <img src="https://download.logo.wine/logo/Amazon_Web_Services/Amazon_Web_Services-Logo.wine.png" width="40">                                                             | **AWS**             | Deployment                             |
+|                                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThr7qrIazsvZwJuw-uZCtLzIjaAyVW_ZrlEQ&s" width="40">                                                             | **Gemini**             | AI Chatbot                             |
 
 ---
 
