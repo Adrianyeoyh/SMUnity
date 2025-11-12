@@ -526,128 +526,208 @@ function ListingApplicationsPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div
-                      className="max-h-[600px] overflow-x-hidden overflow-y-auto rounded-xl border"
-                      style={{
-                        overscrollBehavior: "contain",
-                      }}
-                      onWheel={(e) => {
-                        const target = e.currentTarget;
-                        const { scrollTop, scrollHeight, clientHeight } =
-                          target;
-                        const isAtTop = scrollTop === 0;
-                        const isAtBottom =
-                          scrollTop + clientHeight >= scrollHeight - 1;
+                    <div className="hidden md:block">
+                      <div
+                        className="max-h-[600px] overflow-x-auto overflow-y-auto rounded-xl border"
+                        style={{
+                          overscrollBehavior: "contain",
+                        }}
+                        onWheel={(e) => {
+                          const target = e.currentTarget;
+                          const { scrollTop, scrollHeight, clientHeight } =
+                            target;
+                          const isAtTop = scrollTop === 0;
+                          const isAtBottom =
+                            scrollTop + clientHeight >= scrollHeight - 1;
 
-                        // Prevent page scroll if we can scroll within the container
-                        if (
-                          (e.deltaY < 0 && !isAtTop) ||
-                          (e.deltaY > 0 && !isAtBottom)
-                        ) {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          // Manually scroll the container
-                          target.scrollTop += e.deltaY;
-                        }
-                      }}
-                    >
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Applicant</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Submitted</TableHead>
-                            <TableHead>Motivation</TableHead>
-                            <TableHead />
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {paginatedApplications.map((app: any) => {
-                            const meta =
-                              STATUS_META[app.status as ApplicationStatus];
-                            return (
-                              <TableRow key={app.id}>
-                                <TableCell>
-                                  <div className="space-y-1">
-                                    <div className="flex items-center gap-2 text-sm font-semibold">
-                                      <User className="text-muted-foreground h-4 w-4" />
-                                      {app.applicant?.name ?? "Unknown"}
+                          // Prevent page scroll if we can scroll within the container
+                          if (
+                            (e.deltaY < 0 && !isAtTop) ||
+                            (e.deltaY > 0 && !isAtBottom)
+                          ) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            // Manually scroll the container
+                            target.scrollTop += e.deltaY;
+                          }
+                        }}
+                      >
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Applicant</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Submitted</TableHead>
+                              <TableHead>Motivation</TableHead>
+                              <TableHead />
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {paginatedApplications.map((app: any) => {
+                              const meta =
+                                STATUS_META[app.status as ApplicationStatus];
+                              return (
+                                <TableRow key={app.id}>
+                                  <TableCell>
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-2 text-sm font-semibold">
+                                        <User className="text-muted-foreground h-4 w-4" />
+                                        {app.applicant?.name ?? "Unknown"}
+                                      </div>
+                                      <p className="text-muted-foreground text-xs">
+                                        {app.applicant?.email ?? ""}
+                                      </p>
                                     </div>
-                                    <p className="text-muted-foreground text-xs">
-                                      {app.applicant?.email ?? ""}
-                                    </p>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge className={meta.tone}>
-                                    {meta.label}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="text-muted-foreground flex items-center gap-1 text-sm">
-                                    <CalendarDays className="h-4 w-4" />
-                                    {new Date(
-                                      app.submittedAt,
-                                    ).toLocaleDateString("en-GB")}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="align-top">
-                                  <p
-                                    className="text-muted-foreground max-w-[280px] truncate text-sm"
-                                    title={app.motivation || undefined}
-                                  >
-                                    {getMotivationPreview(app.motivation)}
-                                  </p>
-                                </TableCell>
-                                <TableCell className="flex justify-end gap-2 text-right">
-                                  {/* View Profile */}
-                                  <Button variant="outline" size="sm" asChild>
-                                    <Link
-                                      to="/organisations/applicant/$projectId/$applicantId"
-                                      params={{
-                                        applicantId: app.userId,
-                                        projectId: project.id,
-                                      }}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge className={meta.tone}>
+                                      {meta.label}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="text-muted-foreground flex items-center gap-1 text-sm">
+                                      <CalendarDays className="h-4 w-4" />
+                                      {new Date(
+                                        app.submittedAt,
+                                      ).toLocaleDateString("en-GB")}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    <p
+                                      className="text-muted-foreground max-w-[280px] truncate text-sm"
+                                      title={app.motivation || undefined}
                                     >
-                                      View
-                                    </Link>
+                                      {getMotivationPreview(app.motivation)}
+                                    </p>
+                                  </TableCell>
+                                  <TableCell className="flex justify-end gap-2">
+                                    {/* View Profile */}
+                                    <Button variant="outline" size="sm" asChild>
+                                      <Link
+                                        to="/organisations/applicant/$projectId/$applicantId"
+                                        params={{
+                                          applicantId: app.userId,
+                                          projectId: project.id,
+                                        }}
+                                      >
+                                        View
+                                      </Link>
+                                    </Button>
+
+                                    {/* Only show Accept/Reject if pending */}
+                                    {app.status === "pending" && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="default"
+                                          className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                          onClick={() => {
+                                            setSelectedApp(app);
+                                            setDecisionType("accept");
+                                            setConfirmOpen(true);
+                                          }}
+                                        >
+                                          Accept
+                                        </Button>
+
+                                        <Button
+                                          size="sm"
+                                          variant="destructive"
+                                          onClick={() => {
+                                            setSelectedApp(app);
+                                            setDecisionType("reject");
+                                            setConfirmOpen(true);
+                                          }}
+                                        >
+                                          Reject
+                                        </Button>
+                                      </>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                    <div className="space-y-3 md:hidden">
+                      {paginatedApplications.map((app: any) => {
+                        const meta =
+                          STATUS_META[app.status as ApplicationStatus];
+                        return (
+                          <div
+                            key={app.id}
+                            className="bg-card/60 border-border/60 rounded-xl border p-4 shadow-sm"
+                          >
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <p className="text-foreground text-sm font-semibold">
+                                  {app.applicant?.name ?? "Unknown"}
+                                </p>
+                                <p className="text-muted-foreground text-xs">
+                                  {app.applicant?.email ?? ""}
+                                </p>
+                              </div>
+                              <Badge className={`text-xs ${meta.tone} w-fit`}>
+                                {meta.label}
+                              </Badge>
+                            </div>
+                            <div className="text-muted-foreground mt-3 flex items-center gap-2 text-xs">
+                              <CalendarDays className="h-3 w-3" />
+                              {new Date(app.submittedAt).toLocaleDateString(
+                                "en-GB",
+                              )}
+                            </div>
+                            <p
+                              className="text-muted-foreground mt-3 text-sm"
+                              title={app.motivation || undefined}
+                            >
+                              {getMotivationPreview(app.motivation)}
+                            </p>
+                            <div className="mt-4 flex flex-col gap-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <Link
+                                  to="/organisations/applicant/$projectId/$applicantId"
+                                  params={{
+                                    applicantId: app.userId,
+                                    projectId: project.id,
+                                  }}
+                                >
+                                  View Application
+                                </Link>
+                              </Button>
+                              {app.status === "pending" && (
+                                <div className="grid grid-cols-2 gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                    onClick={() => {
+                                      setSelectedApp(app);
+                                      setDecisionType("accept");
+                                      setConfirmOpen(true);
+                                    }}
+                                  >
+                                    Accept
                                   </Button>
-
-                                  {/* Only show Accept/Reject if pending */}
-                                  {app.status === "pending" && (
-                                    <>
-                                      <Button
-                                        size="sm"
-                                        variant="default"
-                                        className="bg-emerald-600 text-white hover:bg-emerald-700"
-                                        onClick={() => {
-                                          setSelectedApp(app);
-                                          setDecisionType("accept");
-                                          setConfirmOpen(true);
-                                        }}
-                                      >
-                                        Accept
-                                      </Button>
-
-                                      <Button
-                                        size="sm"
-                                        variant="destructive"
-                                        onClick={() => {
-                                          setSelectedApp(app);
-                                          setDecisionType("reject");
-                                          setConfirmOpen(true);
-                                        }}
-                                      >
-                                        Reject
-                                      </Button>
-                                    </>
-                                  )}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => {
+                                      setSelectedApp(app);
+                                      setDecisionType("reject");
+                                      setConfirmOpen(true);
+                                    }}
+                                  >
+                                    Reject
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                     {visibleApplications.length > 0 && (
                       <div className="flex flex-col items-center gap-4">
