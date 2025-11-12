@@ -164,6 +164,25 @@ function ListingApplicationsPage() {
     [applications, statusFilter],
   );
 
+  // status tab counts
+  const statusCounts = useMemo(() => {
+  const counts: Record<string, number> = {
+    all: applications.length,
+    pending: 0,
+    accepted: 0,
+    rejected: 0,
+    confirmed: 0,
+    withdrawn: 0,
+  };
+
+  for (const app of applications) {
+    const status = app.status as ApplicationStatus;
+    if (counts[status] !== undefined) counts[status]++;
+  }
+
+  return counts;
+}, [applications]);
+
   // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
@@ -514,6 +533,9 @@ function ListingApplicationsPage() {
                     className="bg-background data-[state=active]:border-primary data-[state=active]:bg-primary/10 rounded-full border px-3 py-1.5 text-sm font-medium"
                   >
                     {tab.label}
+                    <span className="text-muted-foreground ml-1">
+                      ({statusCounts[tab.value] ?? 0})
+                    </span>
                   </TabsTrigger>
                 ))}
               </TabsList>

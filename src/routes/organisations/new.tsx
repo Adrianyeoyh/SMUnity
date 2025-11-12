@@ -1339,7 +1339,7 @@ function NewProjectPage() {
           <CardHeader>
             <CardTitle>Listing Schedule</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 overflow-hidden">
             {/* Dates */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-2">
@@ -1451,7 +1451,7 @@ function NewProjectPage() {
             {/* Repeats: Every [interval] [unit => locked to week] */}
             <div className="flex flex-col items-center gap-3 flex-row">
               <Label className="w-32 font-medium">Repeats every</Label>
-              <div className="flex flex-1 items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 <Input
                   type="number"
                   min={1}
@@ -1473,7 +1473,7 @@ function NewProjectPage() {
                   </p>
                 )}
                 <span className="text-muted-foreground text-sm">/week(s)</span>
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <input
                     onChange={(e) => {
                       if (e.target.checked) {
@@ -1506,7 +1506,7 @@ function NewProjectPage() {
                       }
                     }}
                   />
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -1795,7 +1795,7 @@ function NewProjectPage() {
           </CardContent>
         </Card>
 
-        <div className="mb-8 flex items-center justify-end gap-3">
+        <div className="mb-8 flex flex-wrap items-center justify-end gap-3">
           <Button
             type="button"
             variant="ghost"
