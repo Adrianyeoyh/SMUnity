@@ -247,7 +247,7 @@ function ApplicantDetailsPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-medium break-words sm:text-base">
+                          <p className="text-sm font-medium break-words sm:text-base block truncate overflow-hidden text-ellipsis">
                             {app.projectTitle}
                           </p>
                           {(() => {
