@@ -92,6 +92,15 @@ const STATUS_META: Record<ApplicationStatus, { tone: string; label: string }> =
     // cancelled: { tone: "bg-gray-100 text-gray-700", label: "Cancelled" },
   };
 
+const MOTIVATION_PREVIEW_LENGTH = 120;
+
+const getMotivationPreview = (text?: string | null) => {
+  if (!text) return "—";
+  const trimmed = text.trim();
+  if (trimmed.length <= MOTIVATION_PREVIEW_LENGTH) return trimmed;
+  return `${trimmed.slice(0, MOTIVATION_PREVIEW_LENGTH).trimEnd()}…`;
+};
+
 // Helper to format time to HH:MM (remove seconds)
 const formatTime = (time?: string | null) => {
   if (!time) return "";
@@ -582,9 +591,12 @@ function ListingApplicationsPage() {
                                     ).toLocaleDateString("en-GB")}
                                   </div>
                                 </TableCell>
-                                <TableCell>
-                                  <p className="text-muted-foreground line-clamp-2 text-sm">
-                                    {app.motivation ?? "—"}
+                                <TableCell className="align-top">
+                                  <p
+                                    className="text-muted-foreground max-w-[280px] truncate text-sm"
+                                    title={app.motivation || undefined}
+                                  >
+                                    {getMotivationPreview(app.motivation)}
                                   </p>
                                 </TableCell>
                                 <TableCell className="flex justify-end gap-2 text-right">
