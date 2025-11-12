@@ -152,7 +152,7 @@ function ListingApplicationsPage() {
     }
   }
 
-  // ✅ Always define hooks before conditionally rendering
+  // Always define hooks before conditionally rendering
   const project = data?.project;
   const applications = data?.applications ?? [];
 
@@ -175,7 +175,7 @@ function ListingApplicationsPage() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedApplications = visibleApplications.slice(startIndex, endIndex);
 
-  // ✅ Render conditionally *after* all hooks
+  // Render conditionally *after* all hooks
   if (isLoading)
     return (
       <div className="text-muted-foreground p-8 text-lg">
@@ -526,7 +526,7 @@ function ListingApplicationsPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="hidden md:block">
+                    <div className="hidden xl:block">
                       <div
                         className="max-h-[600px] overflow-x-auto overflow-y-auto rounded-xl border"
                         style={{
@@ -651,41 +651,41 @@ function ListingApplicationsPage() {
                         </Table>
                       </div>
                     </div>
-                    <div className="space-y-3 md:hidden">
+                    <div className="space-y-3 xl:hidden">
                       {paginatedApplications.map((app: any) => {
                         const meta =
                           STATUS_META[app.status as ApplicationStatus];
                         return (
                           <div
                             key={app.id}
-                            className="bg-card/60 border-border/60 rounded-xl border p-4 shadow-sm"
+                            className="bg-card/60 border-border/60 rounded-xl border p-4 shadow-sm overflow-hidden"
                           >
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between overflow-hidden">
                               <div>
-                                <p className="text-foreground text-sm font-semibold">
+                                <p className="text-foreground text-sm font-semibold block truncate overflow-hidden text-ellipsis">
                                   {app.applicant?.name ?? "Unknown"}
                                 </p>
-                                <p className="text-muted-foreground text-xs">
+                                <p className="text-muted-foreground text-xs block truncate overflow-hidden text-ellipsis">
                                   {app.applicant?.email ?? ""}
                                 </p>
                               </div>
-                              <Badge className={`text-xs ${meta.tone} w-fit`}>
+                              <Badge className={`text-xs ${meta.tone} w-fit block truncate overflow-hidden text-ellipsis`}>
                                 {meta.label}
                               </Badge>
                             </div>
-                            <div className="text-muted-foreground mt-3 flex items-center gap-2 text-xs">
+                            <div className="text-muted-foreground mt-3 flex items-center gap-2 text-xs block truncate overflow-hidden text-ellipsis">
                               <CalendarDays className="h-3 w-3" />
                               {new Date(app.submittedAt).toLocaleDateString(
                                 "en-GB",
                               )}
                             </div>
                             <p
-                              className="text-muted-foreground mt-3 text-sm"
+                              className="text-muted-foreground mt-3 text-sm block truncate overflow-hidden text-ellipsis"
                               title={app.motivation || undefined}
                             >
                               {getMotivationPreview(app.motivation)}
                             </p>
-                            <div className="mt-4 flex flex-col gap-2">
+                            <div className="mt-4 flex flex-wrap gap-2">
                               <Button variant="outline" size="sm" asChild>
                                 <Link
                                   to="/organisations/applicant/$projectId/$applicantId"
