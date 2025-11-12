@@ -152,7 +152,7 @@ function ListingApplicationsPage() {
     }
   }
 
-  // ✅ Always define hooks before conditionally rendering
+  // Always define hooks before conditionally rendering
   const project = data?.project;
   const applications = data?.applications ?? [];
 
@@ -175,7 +175,7 @@ function ListingApplicationsPage() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedApplications = visibleApplications.slice(startIndex, endIndex);
 
-  // ✅ Render conditionally *after* all hooks
+  // Render conditionally *after* all hooks
   if (isLoading)
     return (
       <div className="text-muted-foreground p-8 text-lg">

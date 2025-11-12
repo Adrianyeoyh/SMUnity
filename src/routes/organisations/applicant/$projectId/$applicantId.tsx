@@ -88,7 +88,7 @@ function ApplicantDetailsPage() {
         {/* Profile Card */}
         <Card>
           <CardContent className="flex flex-col gap-4 p-4 sm:gap-6 sm:p-6 md:flex-row md:items-center md:justify-between">
-            <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center sm:gap-4">
+            <div className="flex flex-col sm:flex-row min-w-0 flex-1 items-center sm:items-start gap-3 sm:gap-4 overflow-hidden text-center sm:text-left">
               <Avatar className="h-16 w-16 flex-shrink-0 sm:h-20 sm:w-20">
                 <AvatarImage src={user?.image ?? ""} />
                 <AvatarFallback>{initials}</AvatarFallback>
@@ -122,7 +122,7 @@ function ApplicantDetailsPage() {
               </div>
             </div>
 
-            <div className="flex w-full flex-row gap-2 text-sm sm:w-auto sm:flex-col">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm w-full sm:w-auto">
               <Button
                 variant="secondary"
                 asChild
