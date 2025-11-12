@@ -1,5 +1,5 @@
 // server/api/student/applications.ts
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "#server/drizzle/db";
@@ -8,6 +8,62 @@ import { createApp } from "#server/factory";
 import { badReq, notFound, ok } from "#server/helper";
 
 const applications = createApp();
+
+// applications.post("/confirm", async (c) => {
+//   const user = c.get("user");
+//   if (!user?.id) return badReq(c, "Not authenticated");
+
+//   const body = await c.req.json().catch(() => ({}));
+//   const schemaCheck = z.object({ applicationId: z.number() }).safeParse(body);
+//   if (!schemaCheck.success) return badReq(c, "Invalid body");
+
+//   const { applicationId } = schemaCheck.data;
+
+//   const [app] = await db
+//     .select({
+//       id: schema.applications.id,
+//       userId: schema.applications.userId,
+//       projectId: schema.applications.projectId,
+//       status: schema.applications.status,
+//     })
+//     .from(schema.applications)
+//     .where(eq(schema.applications.id, applicationId))
+//     .limit(1);
+
+//   if (!app) return notFound(c, "Application not found");
+//   if (app.userId !== user.id)
+//     return badReq(c, "You cannot modify another user’s application");
+
+//   if (app.status !== "accepted") {
+//     return badReq(c, "Application is not in an approvable state");
+//   }
+
+//   await db
+//     .update(schema.applications)
+//     .set({ status: "confirmed", decidedAt: new Date() })
+//     .where(eq(schema.applications.id, applicationId));
+
+//   const existingMembership = await db
+//     .select()
+//     .from(schema.projMemberships)
+//     .where(
+//       and(
+//         eq(schema.projMemberships.projId, app.projectId),
+//         eq(schema.projMemberships.userId, user.id),
+//       ),
+//     )
+//     .limit(1);
+
+//   if (!existingMembership.length) {
+//     await db.insert(schema.projMemberships).values({
+//       projId: app.projectId,
+//       userId: user.id,
+//       acceptedAt: new Date(),
+//     });
+//   }
+
+//   return ok(c, { message: "Application confirmed successfully." });
+// });
 
 applications.post("/confirm", async (c) => {
   const user = c.get("user");
@@ -19,50 +75,60 @@ applications.post("/confirm", async (c) => {
 
   const { applicationId } = schemaCheck.data;
 
-  const [app] = await db
-    .select({
-      id: schema.applications.id,
-      userId: schema.applications.userId,
-      projectId: schema.applications.projectId,
-      status: schema.applications.status,
-    })
-    .from(schema.applications)
-    .where(eq(schema.applications.id, applicationId))
-    .limit(1);
+  return db.transaction(async (tx) => {
+    const [app] = await tx
+      .select({
+        id: schema.applications.id,
+        userId: schema.applications.userId,
+        projectId: schema.applications.projectId,
+        status: schema.applications.status,
+        slotsTotal: schema.projects.slotsTotal,
+      })
+      .from(schema.applications)
+      .innerJoin(
+        schema.projects,
+        eq(schema.applications.projectId, schema.projects.id),
+      )
+      .where(eq(schema.applications.id, applicationId))
+      .limit(1);
 
-  if (!app) return notFound(c, "Application not found");
-  if (app.userId !== user.id)
-    return badReq(c, "You cannot modify another user’s application");
+    if (!app) return notFound(c, "Application not found");
+    if (app.userId !== user.id)
+      return badReq(c, "You cannot modify another user’s application");
+    if (app.status !== "accepted")
+      return badReq(c, "Application is not in an approvable state");
 
-  if (app.status !== "accepted") {
-    return badReq(c, "Application is not in an approvable state");
-  }
+    // Serialize per project to avoid over-filling by concurrent confirms
+    await tx.execute(
+  sql.raw(`SELECT pg_advisory_xact_lock(hashtextextended('${app.projectId}', 0));`)
+);
 
-  await db
-    .update(schema.applications)
-    .set({ status: "confirmed", decidedAt: new Date() })
-    .where(eq(schema.applications.id, applicationId));
 
-  const existingMembership = await db
-    .select()
-    .from(schema.projMemberships)
-    .where(
-      and(
-        eq(schema.projMemberships.projId, app.projectId),
-        eq(schema.projMemberships.userId, user.id),
-      ),
-    )
-    .limit(1);
+    // Check current confirmed members (projMemberships)
+    const [members] = await tx
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(schema.projMemberships)
+      .where(eq(schema.projMemberships.projId, app.projectId));
 
-  if (!existingMembership.length) {
-    await db.insert(schema.projMemberships).values({
+    if (members.count >= app.slotsTotal) {
+      return badReq(c, "Project is already full");
+    }
+
+    // Confirm + insert membership atomically
+    await tx
+      .update(schema.applications)
+      .set({ status: "confirmed", decidedAt: new Date() })
+      .where(eq(schema.applications.id, applicationId));
+
+    // Upsert guard (PK on projId+userId prevents dupes)
+    await tx.insert(schema.projMemberships).values({
       projId: app.projectId,
       userId: user.id,
       acceptedAt: new Date(),
     });
-  }
 
-  return ok(c, { message: "Application confirmed successfully." });
+    return ok(c, { message: "Application confirmed successfully." });
+  });
 });
 
 applications.post("/withdraw", async (c) => {

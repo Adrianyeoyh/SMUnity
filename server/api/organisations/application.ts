@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import z from "zod";
 
 import { db } from "#server/drizzle/db";
@@ -14,33 +14,105 @@ const DecisionSchema = z.object({
   action: z.enum(["accept", "reject"]),
 });
 
+// application.patch("/decision", async (c) => {
+//   try {
+//     const orgUser = c.get("user");
+//     if (!orgUser?.id) {
+//       console.error(" [Application Decision] Unauthenticated access");
+//       return c.json({ error: "Not authenticated" }, 401);
+//     }
+
+//     const body = await c.req.json();
+//     const parsed = DecisionSchema.safeParse(body);
+
+//     if (!parsed.success) {
+//       console.error(
+//         " [Application Decision] Invalid body:",
+//         parsed.error.flatten(),
+//       );
+//       return c.json({ error: "Invalid request body" }, 400);
+//     }
+
+//     const { applicationId, action } = parsed.data;
+
+//     const [application] = await db
+//       .select({
+//         id: schema.applications.id,
+//         status: schema.applications.status,
+//         projectId: schema.applications.projectId,
+//         orgId: schema.projects.orgId,
+//       })
+//       .from(schema.applications)
+//       .innerJoin(
+//         schema.projects,
+//         eq(schema.projects.id, schema.applications.projectId),
+//       )
+//       .where(eq(schema.applications.id, applicationId))
+//       .limit(1);
+
+//     if (!application) {
+//       console.warn(
+//         ` [Application Decision] Application ${applicationId} not found`,
+//       );
+//       return c.json({ error: "Application not found" }, 404);
+//     }
+
+//     if (application.orgId !== orgUser.id) {
+//       console.warn(
+//         ` [Application Decision] Org ${orgUser.id} tried to modify application not theirs`,
+//       );
+//       return c.json(
+//         { error: "You do not have permission to modify this application" },
+//         403,
+//       );
+//     }
+
+//     if (application.status !== "pending") {
+//       return c.json(
+//         { error: "This application has already been processed" },
+//         400,
+//       );
+//     }
+
+//     const newStatus = action === "accept" ? "accepted" : "rejected";
+
+//     await db
+//       .update(schema.applications)
+//       .set({
+//         status: newStatus,
+//         decidedAt: new Date(),
+//       })
+//       .where(eq(schema.applications.id, applicationId));
+
+//     return c.json({
+//       success: true,
+//       message: `Application ${action}ed successfully.`,
+//       newStatus,
+//     });
+//   } catch (err) {
+//     console.error(" [Application Decision] Unexpected error:", err);
+//     return c.json({ error: "Internal server error" }, 500);
+//   }
+// });
 application.patch("/decision", async (c) => {
-  try {
-    const orgUser = c.get("user");
-    if (!orgUser?.id) {
-      console.error(" [Application Decision] Unauthenticated access");
-      return c.json({ error: "Not authenticated" }, 401);
-    }
+  const orgUser = c.get("user");
+  if (!orgUser?.id) return c.json({ error: "Not authenticated" }, 401);
 
-    const body = await c.req.json();
-    const parsed = DecisionSchema.safeParse(body);
+  const body = await c.req.json();
+  const parsed = DecisionSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "Invalid request body" }, 400);
 
-    if (!parsed.success) {
-      console.error(
-        " [Application Decision] Invalid body:",
-        parsed.error.flatten(),
-      );
-      return c.json({ error: "Invalid request body" }, 400);
-    }
+  const { applicationId, action } = parsed.data;
 
-    const { applicationId, action } = parsed.data;
-
-    const [application] = await db
+  return db.transaction(async (tx) => {
+    // Lock on project id to serialize conflicting accepts across pods
+    const [app] = await tx
       .select({
         id: schema.applications.id,
         status: schema.applications.status,
         projectId: schema.applications.projectId,
         orgId: schema.projects.orgId,
+        slotsTotal: schema.projects.slotsTotal,
       })
       .from(schema.applications)
       .innerJoin(
@@ -50,49 +122,49 @@ application.patch("/decision", async (c) => {
       .where(eq(schema.applications.id, applicationId))
       .limit(1);
 
-    if (!application) {
-      console.warn(
-        ` [Application Decision] Application ${applicationId} not found`,
-      );
-      return c.json({ error: "Application not found" }, 404);
+    if (!app) return c.json({ error: "Application not found" }, 404);
+    if (app.orgId !== orgUser.id) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+    if (app.status !== "pending") {
+      return c.json({ error: "This application has already been processed" }, 400);
     }
 
-    if (application.orgId !== orgUser.id) {
-      console.warn(
-        ` [Application Decision] Org ${orgUser.id} tried to modify application not theirs`,
-      );
-      return c.json(
-        { error: "You do not have permission to modify this application" },
-        403,
-      );
-    }
+    // Serialize by advisory lock per project (prevents cross-process races)
+    await tx.execute(
+  sql`SELECT pg_advisory_xact_lock(hashtextextended(${app.projectId}::text, 0))`
+);
 
-    if (application.status !== "pending") {
-      return c.json(
-        { error: "This application has already been processed" },
-        400,
-      );
+    if (action === "accept") {
+      // Count accepted + confirmed offers to respect capacity
+      const [taken] = await tx
+        .select({
+          count: sql<number>`COUNT(*)::int`,
+        })
+        .from(schema.applications)
+        .where(
+          and(
+            eq(schema.applications.projectId, app.projectId),
+            sql`${schema.applications.status} IN ('accepted','confirmed')`,
+          ),
+        );
+
+      if (taken.count >= app.slotsTotal) {
+        return c.json(
+          { error: "Project has reached the maximum number of accepted volunteers" },
+          400,
+        );
+      }
     }
 
     const newStatus = action === "accept" ? "accepted" : "rejected";
-
-    await db
+    await tx
       .update(schema.applications)
-      .set({
-        status: newStatus,
-        decidedAt: new Date(),
-      })
+      .set({ status: newStatus, decidedAt: new Date() })
       .where(eq(schema.applications.id, applicationId));
 
-    return c.json({
-      success: true,
-      message: `Application ${action}ed successfully.`,
-      newStatus,
-    });
-  } catch (err) {
-    console.error(" [Application Decision] Unexpected error:", err);
-    return c.json({ error: "Internal server error" }, 500);
-  }
+    return c.json({ success: true, newStatus });
+  });
 });
 
 application.get("/viewApplicant/:projectId/:applicantId", async (c) => {
