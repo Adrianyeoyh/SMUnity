@@ -299,11 +299,6 @@ function Login() {
               admin approval form
             </Link>
           </div>
-          {/* <div className="text-center text-sm text-muted-foreground">
-            <Link to="/auth/signup" className="text-primary hover:text-primary/80">
-              Sign up with SMU
-            </Link>
-          </div> */}
         </CardContent>
       </Card>
     </div>

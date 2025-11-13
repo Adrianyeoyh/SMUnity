@@ -24,7 +24,6 @@ import {
 } from "#client/components/ui/form";
 import { Input } from "#client/components/ui/input";
 import { Textarea } from "#client/components/ui/textarea";
-import { env } from "#client/env";
 
 export const Route = createFileRoute("/auth/request")({
   component: RouteComponent,

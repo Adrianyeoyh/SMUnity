@@ -46,7 +46,7 @@ function ForgotPassword() {
 
     setIsLoading(true);
     try {
-      // ✅ REAL Better Auth API call
+      // REAL Better Auth API call
       const { data, error } = await auth.requestPasswordReset({
         email,
         redirectTo: `${window.location.origin}/auth/reset-password`,

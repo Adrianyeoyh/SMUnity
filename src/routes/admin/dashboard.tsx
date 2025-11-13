@@ -5,7 +5,6 @@ import {
   Calendar,
   CheckCircle2,
   ClipboardList,
-  Clock4,
   Mail,
   Phone,
   Plus,
@@ -164,7 +163,7 @@ function AdminDashboard() {
       try {
         const data = await fetchApprovalQueue();
 
-        // 🧩 Transform DB schema → frontend shape
+        // Transform DB schema → frontend shape
         const formatted = data.map((req: any) => ({
           id: req.id,
           organiserName: req.requesterName || "Unknown",
@@ -556,25 +555,6 @@ function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardDescription className="font-body mb-4 font-semibold lg:mt-3 lg:mb-6 xl:mt-0 xl:mb-4">Service Hours</CardDescription>
-                  <CardTitle className="font-heading text-3xl text-primary">{stats?.serviceHours ?? 0}</CardTitle>
-                </div>
-                <div className="hidden sm:block bg-purple-100 rounded-full p-3 ml-4">
-                  <Clock4 className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-            </CardHeader>
-             <CardContent className="pt-0 pb-0">
-              <div className="text-xs text-muted-foreground font-body">
-                Total hours contributed
-              </div>
-            </CardContent>
-          </Card> */}
           </div>
 
           {/* Organisation Approval Queue */}

@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
-import { fetchCspById } from "#client/api/public/discover.ts"; // ✅ existing API
+import { fetchCspById } from "#client/api/public/discover.ts"; // existing API
 import { ApplicationForm } from "#client/components/forms/applicationform";
 import {
   Card,

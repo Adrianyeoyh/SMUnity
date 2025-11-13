@@ -207,40 +207,6 @@ function Profile() {
           </aside>
 
           <section className="space-y-6">
-            {/* <Card className="shadow-sm">
-              <CardHeader className="space-y-1">
-                <div className="space-y-1">
-                  <CardTitle className="text-xl font-semibold">Service Overview</CardTitle>
-                  <CardDescription>Track your progress towards {requiredServiceHours} required hours</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-muted-foreground">Completed Hours</span>
-                    <span className="font-semibold text-foreground">
-                      {totalServiceHours} / {requiredServiceHours}
-                    </span>
-                  </div>
-                  <Progress value={progressPercentage} className="mt-3 h-2" />
-                </div>
-                <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground md:grid-cols-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide">Total Earned</p>
-                    <p className="text-base font-medium text-foreground">{totalServiceHours} hours</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide">Remaining</p>
-                    <p className="text-base font-medium text-foreground">{hoursRemaining} hours</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide">Completion</p>
-                    <p className="text-base font-medium text-foreground">{Math.round(progressPercentage)}%</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card> */}
-
             <Card className="shadow-sm">
               <CardHeader className="space-y-1">
                 <div className="flex items-start justify-between">

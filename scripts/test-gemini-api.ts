@@ -7,19 +7,19 @@ config();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 if (!GEMINI_API_KEY) {
-  console.error("❌ GEMINI_API_KEY is not set in your .env file");
-  console.log("\n📝 Please add the following to your .env file:");
-  console.log("   GEMINI_API_KEY=your_api_key_here");
+  console.error("GEMINI_API_KEY is not set in your .env file");
+  console.log("\nPlease add the following to your .env file:");
+  console.log("GEMINI_API_KEY=your_api_key_here");
   process.exit(1);
 }
 
 console.log(
-  "🔑 API Key found (first 10 chars):",
+  "API Key found (first 10 chars):",
   GEMINI_API_KEY.substring(0, 10) + "...",
 );
-console.log("🧪 Testing Gemini API connection...\n");
+console.log("Testing Gemini API connection...\n");
 
-console.log("🔍 Checking available models...");
+console.log("Checking available models...");
 try {
   const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`;
   const listResponse = await fetch(listUrl);

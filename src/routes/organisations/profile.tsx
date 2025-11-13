@@ -17,10 +17,7 @@ import {
 import { Button } from "#client/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "#client/components/ui/card";
 
 export const Route = createFileRoute("/organisations/profile")({

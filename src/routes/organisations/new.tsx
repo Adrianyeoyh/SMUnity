@@ -575,7 +575,6 @@ function NewProjectPage() {
     setError,
     clearErrors,
     getValues,
-    trigger,
     formState: { errors, touchedFields, dirtyFields, isSubmitted },
   } = useForm<FormInput>({
     defaultValues: savedData || {
@@ -626,7 +625,7 @@ function NewProjectPage() {
   const timeStart = watch("time_start");
   const timeEnd = watch("time_end");
   const isRemote = watch("remote");
-  const days_of_week = watch("days_of_week"); // ✅ ADD THIS
+  const days_of_week = watch("days_of_week");
 
   // ISO string for tomorrow to use as <input min>
 
@@ -682,16 +681,16 @@ function NewProjectPage() {
   const diffDaysInclusive = (s?: Date, e?: Date): number => {
     if (!(s instanceof Date) || !(e instanceof Date)) return 0;
     const ms = startOfDay(e).getTime() - startOfDay(s).getTime();
-    return Math.floor(ms / DAY_MS) + 1; // ✅ inclusive of both start & end
+    return Math.floor(ms / DAY_MS) + 1; // inclusive of both start & end
   };
 
-  // ✅ Map JavaScript getDay() -> Monday-based names
+  // Map JavaScript getDay() -> Monday-based names
   const weekdayName = (d: Date) => {
     const i = d.getDay(); // 0 = Sunday, 6 = Saturday
     return DAYS[i === 0 ? 6 : i - 1]; // Monday=0
   };
 
-  // ✅ Count matching weekdays inside [start, end]
+  // Count matching weekdays inside [start, end]
   const countMatchingDates = (s?: Date, e?: Date, selectedDays?: string[]) => {
     if (!(s instanceof Date) || !(e instanceof Date) || !selectedDays?.length)
       return 0;
@@ -818,7 +817,6 @@ function NewProjectPage() {
     }
 
     // B) End date cannot be earlier than start date (symmetrical errors; runs when either changes)
-    // ✅ End date cannot be earlier than start date
     if (s && e) {
       if (startOfDay(e).getTime() < startOfDay(s).getTime()) {
         setError("end_date", {
@@ -887,7 +885,7 @@ function NewProjectPage() {
   }, [timeStart, timeEnd, setError, clearErrors]);
 
   // Rule 5: Hours must be within ±10 of expected (and expected must be computable)
-  // ✅ Auto-calc commitable hours (duration-based)
+  // Auto-calc commitable hours (duration-based)
   useEffect(() => {
     const per = perSessionHours(timeStart, timeEnd);
     const matches = countMatchingDates(start, end, days_of_week);
@@ -1246,7 +1244,7 @@ function NewProjectPage() {
                         id="remote"
                         type="checkbox"
                         {...register("remote")}
-                        disabled={(projectType as string) === "overseas"} // ✅ disable for overseas
+                        disabled={(projectType as string) === "overseas"} // disable for overseas
                         onChange={(e) => {
                           const checked = e.target.checked;
                           setValue("remote", checked);
@@ -1290,7 +1288,7 @@ function NewProjectPage() {
                           value={field.value || ""}
                           onValueChange={(v) => {
                             field.onChange(v);
-                            localStorage.setItem("lastSelectedCountry", v); // ✅ remember last chosen country
+                            localStorage.setItem("lastSelectedCountry", v); // remember last chosen country
                           }}
                           placeholder="Select a country..."
                           className="w-1/2"
@@ -1352,7 +1350,7 @@ function NewProjectPage() {
                     <Input
                       id="start_date"
                       type="date"
-                      min={tomorrowIso} // ✅ can't pick before start
+                      min={tomorrowIso} // can't pick before start
                       value={
                         field.value
                           ? field.value.toISOString().split("T")[0]
@@ -1473,40 +1471,6 @@ function NewProjectPage() {
                   </p>
                 )}
                 <span className="text-muted-foreground text-sm">/week(s)</span>
-                {/* <div className="flex items-center">
-                  <input
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setValue("repeat_interval", 0);
-                        // Don't clear days_of_week - allow user to select one day
-                        // Only clear if more than one day is selected
-                        const currentDays = getValues("days_of_week") || [];
-                        if (currentDays.length > 1) {
-                          setValue("days_of_week", []);
-                        }
-                      } else {
-                        setValue("repeat_interval", 1);
-                        // Clear days_of_week when switching from one-time to recurring
-                        // so user can select the correct number of days based on repeat_interval
-                        setValue("days_of_week", []);
-                        // If end_date equals start_date (from one-time mode), clear end_date
-                        // so user can set a proper date range for recurring projects
-                        const currentStart = getValues("start_date");
-                        const currentEnd = getValues("end_date");
-                        if (
-                          currentStart &&
-                          currentEnd &&
-                          startOfDay(currentStart).getTime() ===
-                            startOfDay(currentEnd).getTime()
-                        ) {
-                          setValue("end_date", undefined, {
-                            shouldValidate: false,
-                          });
-                        }
-                      }
-                    }}
-                  />
-                </div> */}
               </div>
             </div>
 
@@ -1531,7 +1495,7 @@ function NewProjectPage() {
                     },
                   }}
                   render={({ field }) => {
-                    // ✅ Determine valid days based on date range
+                    // Determine valid days based on date range
                     const value = field.value || [];
                     const isOneTime = repeatInterval === 0;
                     const duration = diffDaysInclusive(start, end);

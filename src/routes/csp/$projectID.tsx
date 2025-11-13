@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
-  Link,
   useNavigate,
   useRouter,
   useSearch,
@@ -21,7 +20,6 @@ import {
   Mail,
   Map,
   MapPin,
-  Phone,
   Send,
   Share2,
   Target,

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/auth/callback")({
-  // 👇 declare the type of search params (query params)
+  // declare the type of search params (query params)
   validateSearch: (search: Record<string, unknown>) => ({
     redirectTo:
       typeof search.redirectTo === "string" ? search.redirectTo : undefined,
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/auth/callback")({
 });
 
 function AuthCallback() {
-  // ✅ now fully typed
+  // now fully typed
   const { redirectTo } = useSearch({ from: "/auth/callback" });
 
   useEffect(() => {

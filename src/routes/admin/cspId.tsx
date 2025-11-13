@@ -1,26 +1,17 @@
 import { useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  AlertCircle,
   ArrowLeft,
-  Award,
   Building2,
-  Calendar,
   CheckCircle,
-  Clock,
   Edit3,
   ExternalLink,
-  Globe,
-  Heart,
   Mail,
-  MapPin,
   Phone,
-  Share2,
   Target,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-
 import { Badge } from "#client/components/ui/badge";
 import { Button } from "#client/components/ui/button";
 import {

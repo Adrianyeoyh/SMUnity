@@ -60,7 +60,7 @@ function MyApplications() {
   >(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 🔹 Fetch user's applications
+  // Fetch user's applications
   const { data, isLoading, error } = useQuery({
     queryKey: ["student-applications"],
     queryFn: fetchMyApplications,
@@ -68,7 +68,7 @@ function MyApplications() {
 
   const applications = data?.applications ?? [];
 
-  // 🔹 Filter applications based on search query
+  // Filter applications based on search query
   const filterApplications = (apps: any[]) => {
     if (!searchQuery.trim()) return apps;
     const query = searchQuery.toLowerCase();
@@ -84,7 +84,7 @@ function MyApplications() {
     });
   };
 
-  // 🔹 Mutations
+  // Mutations
   const confirmMutation = useMutation({
     mutationFn: (id: number) => confirmApplication(id),
     onSuccess: () => {
@@ -105,7 +105,7 @@ function MyApplications() {
       toast.error(err.message || "Failed to withdraw application"),
   });
 
-  // 🔹 Action handlers
+  // Action handlers
   const openConfirmDialog = (app: any, action: "withdraw" | "confirm") => {
     setSelectedApplication(app);
     setSelectedAction(action);
@@ -140,7 +140,7 @@ function MyApplications() {
     // Notification removed per user request
   };
 
-  // 🔹 Tab groupings with search filter
+  // Tab groupings with search filter
   const filteredApplications = filterApplications(applications);
   const groupedTabs = [
     { label: "All", value: "all", data: filteredApplications },
