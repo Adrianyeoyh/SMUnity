@@ -354,6 +354,19 @@ Application was tested on these screen widths: iPhone 12pro, iPad Pro, and Norma
 
 ---
 
+### 7) Use of AI/LLMs
+
+Lower-order thinking tasks :
+| Use of AI/LLMs                        | Short Description                                                                                       |
+| :----------------------------- | :------------------------------------------------------------------------------------------------ |
+|Information search | Learning how to integrate APIs for the platform|
+|Generating website concepts, layouts, or themes | Creating design ideas for student dashboard and project listings|
+|Explaining coding errors / debugging hints | Understanding TypeScript errors, Drizzle queries, and Bun errors|
+|Boilerplate code generation (starter code, small code snippets) | API route templates|
+|Generating unit tests, sample inputs, or mock data | Creating mock data for volunteer projects, user profiles, and application data for development testing|
+
+---
+
 ## Group Reflection
 
 > - _Adrian Yeo Ying Hong:_ Learnt to use other local development tools like docker containers and drizzle, and better auth for local authentication management, role based permissions which I learnt from cybersecurity, operating systems and networking mods from previous and ongoing semesters.
